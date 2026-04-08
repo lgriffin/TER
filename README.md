@@ -157,5 +157,3 @@ mypy src/
 - rich (terminal formatting)
 
 ## License
-
-See [patent.md](patent.md) for the TER methodology disclosure.
