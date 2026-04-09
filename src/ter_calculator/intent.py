@@ -13,8 +13,23 @@ _model = None
 def _get_model():
     global _model
     if _model is None:
-        from sentence_transformers import SentenceTransformer
-        _model = SentenceTransformer("all-MiniLM-L6-v2")
+        import logging
+        import os
+        import warnings
+
+        # Suppress noisy model-loading output before any HF imports:
+        #   - HF Hub "unauthenticated requests" nag
+        #   - transformers progress bars and load reports
+        #   - position_ids UNEXPECTED warning (harmless, old checkpoint format)
+        os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
+        os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
+        os.environ.setdefault("HF_HUB_VERBOSITY", "error")
+        for name in ("huggingface_hub", "transformers", "sentence_transformers"):
+            logging.getLogger(name).setLevel(logging.ERROR)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            from sentence_transformers import SentenceTransformer
+            _model = SentenceTransformer("all-MiniLM-L6-v2")
     return _model
 
 

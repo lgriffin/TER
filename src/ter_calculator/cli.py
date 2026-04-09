@@ -66,6 +66,10 @@ def main(argv: list[str] | None = None) -> int:
         "--no-waste-patterns", action="store_true",
         help="Disable waste pattern detection"
     )
+    analyze_parser.add_argument(
+        "--cost-model", type=str, default="sonnet",
+        help="Cost model: 'sonnet' (default) or custom 'input,output,cache_read,cache_write' rates per MTok"
+    )
 
     # compare subcommand
     compare_parser = subparsers.add_parser(
@@ -165,6 +169,10 @@ def _cmd_analyze(args) -> int:
             restatement_threshold=args.restatement_threshold,
         )
 
+    from .economics import compute_economics
+    cost_model = _parse_cost_model(args.cost_model)
+    result.economics = compute_economics(session, classified, cost_model)
+
     print(format_ter_result(result, fmt=args.output_format))
     return 0
 
@@ -177,13 +185,30 @@ def _cmd_compare(args) -> int:
     from .compute import compute_ter
     from .formatter import format_comparison
 
+    from pathlib import Path
+    from .economics import compute_economics
+
+    # Expand directory paths to all .jsonl files inside them.
+    paths = []
+    for p in args.session_paths:
+        pp = Path(p)
+        if pp.is_dir():
+            paths.extend(sorted(str(f) for f in pp.glob("*.jsonl")))
+        else:
+            paths.append(p)
+
+    if not paths:
+        print("No .jsonl files found.", file=sys.stderr)
+        return 1
+
     results = []
-    for path in args.session_paths:
+    for path in paths:
         session = load_session(path)
         spans = segment_spans(session)
         intent = extract_intent(session)
         classified = classify_spans(spans, intent)
         result = compute_ter(classified, session_id=session.session_id, intent=intent)
+        result.economics = compute_economics(session, classified)
         results.append(result)
 
     # Sort results.
@@ -242,6 +267,27 @@ def _cmd_list(args) -> int:
                 print(f"     {s['path']}")
 
     return 0
+
+
+def _parse_cost_model(value: str):
+    """Parse cost model argument."""
+    from .models import CostModel
+    if value.lower() == "sonnet":
+        return CostModel()
+    parts = value.split(",")
+    if len(parts) != 4:
+        raise ValueError(
+            f"Cost model must be 'sonnet' or 4 comma-separated rates, got: {value}"
+        )
+    try:
+        return CostModel(
+            input_rate=float(parts[0]),
+            output_rate=float(parts[1]),
+            cache_read_rate=float(parts[2]),
+            cache_write_rate=float(parts[3]),
+        )
+    except ValueError:
+        raise ValueError(f"Invalid cost model rates: {value}")
 
 
 def _parse_phase_weights(weights_str: str) -> dict[SpanPhase, float]:

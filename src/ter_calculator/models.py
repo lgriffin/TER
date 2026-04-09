@@ -115,6 +115,51 @@ class WastePattern:
 
 
 @dataclass
+class CostModel:
+    """Pricing rates per million tokens."""
+    input_rate: float = 3.00
+    output_rate: float = 15.00
+    cache_read_rate: float = 0.30
+    cache_write_rate: float = 3.75
+
+
+@dataclass
+class PositionalBreakdown:
+    """TER computed over session thirds (early/mid/late)."""
+    early_ter: float
+    mid_ter: float
+    late_ter: float
+    early_span_count: int
+    mid_span_count: int
+    late_span_count: int
+
+
+@dataclass
+class InputGrowth:
+    """Turn-over-turn input token growth tracking."""
+    turn_input_tokens: list[int]
+    growth_rate: float
+    is_superlinear: bool
+    context_bloat_detected: bool
+
+
+@dataclass
+class SessionEconomics:
+    """Aggregated token usage, cost, positional analysis, and growth."""
+    total_input_tokens: int
+    total_output_tokens: int
+    total_cache_creation_tokens: int
+    total_cache_read_tokens: int
+    input_output_ratio: float
+    cache_hit_rate: float
+    estimated_cost_usd: float
+    estimated_waste_cost_usd: float
+    cost_model: CostModel
+    positional: PositionalBreakdown
+    input_growth: InputGrowth
+
+
+@dataclass
 class TERResult:
     session_id: str
     aggregate_ter: float
@@ -126,3 +171,4 @@ class TERResult:
     waste_patterns: list[WastePattern] = field(default_factory=list)
     intent: IntentVector | None = None
     classified_spans: list[ClassifiedSpan] = field(default_factory=list)
+    economics: SessionEconomics | None = None
