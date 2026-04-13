@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from ter_calculator.loader import load_session, segment_spans
+from ter_calculator.loader import load_session, segment_spans, discover_subagents
 from ter_calculator.models import SpanPhase
 
 
@@ -145,3 +145,44 @@ class TestSegmentSpans:
         spans = segment_spans(session)
         positions = [s.position for s in spans]
         assert positions == list(range(len(spans)))
+
+
+class TestDiscoverSubagents:
+    def test_with_subagents(self, tmp_path):
+        parent = tmp_path / "abc123.jsonl"
+        parent.write_text("{}", encoding="utf-8")
+        sub_dir = tmp_path / "abc123" / "subagents"
+        sub_dir.mkdir(parents=True)
+        (sub_dir / "agent-001.jsonl").write_text("{}", encoding="utf-8")
+        (sub_dir / "agent-002.jsonl").write_text("{}", encoding="utf-8")
+
+        result = discover_subagents(parent)
+        assert len(result) == 2
+        assert all(p.suffix == ".jsonl" for p in result)
+        names = [p.name for p in result]
+        assert "agent-001.jsonl" in names
+        assert "agent-002.jsonl" in names
+
+    def test_no_directory(self, tmp_path):
+        parent = tmp_path / "abc123.jsonl"
+        parent.write_text("{}", encoding="utf-8")
+        assert discover_subagents(parent) == []
+
+    def test_empty_directory(self, tmp_path):
+        parent = tmp_path / "abc123.jsonl"
+        parent.write_text("{}", encoding="utf-8")
+        sub_dir = tmp_path / "abc123" / "subagents"
+        sub_dir.mkdir(parents=True)
+        assert discover_subagents(parent) == []
+
+    def test_filters_non_jsonl(self, tmp_path):
+        parent = tmp_path / "abc123.jsonl"
+        parent.write_text("{}", encoding="utf-8")
+        sub_dir = tmp_path / "abc123" / "subagents"
+        sub_dir.mkdir(parents=True)
+        (sub_dir / "agent-001.jsonl").write_text("{}", encoding="utf-8")
+        (sub_dir / "agent-001.meta.json").write_text("{}", encoding="utf-8")
+
+        result = discover_subagents(parent)
+        assert len(result) == 1
+        assert result[0].name == "agent-001.jsonl"
