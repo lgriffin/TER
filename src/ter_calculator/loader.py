@@ -134,6 +134,19 @@ def segment_spans(session: Session) -> list[TokenSpan]:
     return spans
 
 
+def discover_subagents(parent_path: str | Path) -> list[Path]:
+    """Discover subagent session files for a parent session.
+
+    Given a parent session at ``{dir}/SESSION_ID.jsonl``, looks for
+    subagent files at ``{dir}/SESSION_ID/subagents/*.jsonl``.
+    """
+    pp = Path(parent_path)
+    subagent_dir = pp.parent / pp.stem / "subagents"
+    if not subagent_dir.is_dir():
+        return []
+    return sorted(subagent_dir.glob("*.jsonl"))
+
+
 def _deduplicate_entries(entries: list[dict]) -> list[dict]:
     """Deduplicate entries by requestId, keeping highest output_tokens."""
     seen_request_ids: dict[str, int] = {}  # requestId -> index in result

@@ -37,6 +37,47 @@ def format_comparison(
     return _format_comparison_text(results)
 
 
+def format_grouped_analysis(
+    parent_result: TERResult,
+    subagent_results: list[TERResult],
+    fmt: str = "text",
+    use_rich: bool = True,
+) -> str:
+    """Format a grouped parent + subagent analysis."""
+    if fmt == "json":
+        return _format_grouped_json(parent_result, subagent_results)
+    if use_rich:
+        try:
+            return _format_grouped_rich(parent_result, subagent_results)
+        except (ImportError, UnicodeEncodeError):
+            pass
+    return _format_grouped_text(parent_result, subagent_results)
+
+
+def _compute_group_aggregates(all_results: list[TERResult]) -> dict:
+    """Compute aggregate metrics across a group of sessions."""
+    total_tokens = sum(r.total_tokens for r in all_results)
+    total_waste = sum(r.waste_tokens for r in all_results)
+    weighted_ter = (
+        sum(r.aggregate_ter * r.total_tokens for r in all_results) / total_tokens
+        if total_tokens > 0 else 0.0
+    )
+    total_cost = sum(
+        r.economics.estimated_cost_usd for r in all_results if r.economics
+    )
+    total_waste_cost = sum(_compute_waste_cost(r) for r in all_results)
+    waste_pct = (total_waste / total_tokens * 100) if total_tokens > 0 else 0.0
+
+    return {
+        "weighted_ter": round(weighted_ter, 4),
+        "total_tokens": total_tokens,
+        "total_waste_tokens": total_waste,
+        "waste_pct": round(waste_pct, 1),
+        "total_cost_usd": round(total_cost, 4),
+        "total_waste_cost_usd": round(total_waste_cost, 4),
+    }
+
+
 # --- Rich formatting ---
 
 
@@ -390,6 +431,163 @@ def _format_comparison_rich(results: list[TERResult]) -> str:
         console.print(f"\nAverage TER: [{color}]{avg_ter:.2f}[/{color}]  |  Total Cost: ${total_cost:.2f}  |  Total Waste: [red]${total_waste_cost:.2f}[/red]")
 
     return buf.getvalue().rstrip()
+
+
+def _format_grouped_rich(
+    parent_result: TERResult,
+    subagent_results: list[TERResult],
+) -> str:
+    """Format grouped analysis using Rich."""
+    from rich.console import Console
+    from rich.panel import Panel
+    from rich.table import Table
+    from rich.text import Text
+
+    all_results = [parent_result] + subagent_results
+    agg = _compute_group_aggregates(all_results)
+
+    buf = io.StringIO()
+    console = Console(file=buf, force_terminal=True, width=90)
+
+    # Header panel.
+    sid = parent_result.session_id
+    if len(sid) > 20:
+        sid = sid[:8] + "..."
+    ter_text = Text(f"{agg['weighted_ter']:.2f}", style=_ter_color(agg["weighted_ter"]))
+
+    header = Text.assemble(
+        ("TER: ", "bold"), ter_text,
+        ("  |  ", ""),
+        (f"Waste: {agg['waste_pct']:.1f}%", "red" if agg["waste_pct"] > 10 else ""),
+        ("  |  ", ""),
+        (f"Cost: ${agg['total_cost_usd']:.2f}", ""),
+        ("  |  ", ""),
+        (f"Waste $: ${agg['total_waste_cost_usd']:.2f}", "red"),
+        ("\n", ""),
+        (f"Sessions: 1 parent + {len(subagent_results)} subagent(s)", "dim"),
+        ("  |  ", ""),
+        (f"Tokens: {agg['total_tokens']:,}", "dim"),
+    )
+    console.print(Panel(header, title=f"Group: {sid}", expand=False))
+
+    # Per-session table.
+    table = Table(show_header=True, title="Session Breakdown")
+    table.add_column("Role", width=10)
+    table.add_column("Session", width=14)
+    table.add_column("TER", justify="right", width=6)
+    table.add_column("Waste%", justify="right", width=7)
+    table.add_column("Tokens", justify="right", width=10)
+    table.add_column("Cost", justify="right", width=8)
+    table.add_column("Waste $", justify="right", width=8)
+    table.add_column("Patterns", justify="right", width=8)
+
+    def _add_session_row(r: TERResult, role: str):
+        color = _ter_color(r.aggregate_ter)
+        waste_pct = (r.waste_tokens / r.total_tokens * 100) if r.total_tokens else 0
+        cost_str = f"${r.economics.estimated_cost_usd:.2f}" if r.economics else ""
+        wc = _compute_waste_cost(r)
+        waste_str = f"[red]${wc:.2f}[/red]" if wc > 0 else ""
+        pattern_count = len(r.waste_patterns) if r.waste_patterns else 0
+        rsid = r.session_id
+        if len(rsid) > 14:
+            rsid = rsid[:8] + "..."
+        table.add_row(
+            role, rsid,
+            f"[{color}]{r.aggregate_ter:.2f}[/{color}]",
+            f"{waste_pct:.1f}%",
+            f"{r.total_tokens:,}",
+            cost_str, waste_str, str(pattern_count),
+        )
+
+    _add_session_row(parent_result, "parent")
+    for r in subagent_results:
+        _add_session_row(r, "agent")
+
+    # Total row.
+    table.add_section()
+    color = _ter_color(agg["weighted_ter"])
+    table.add_row(
+        "[bold]Total[/bold]", "",
+        f"[bold][{color}]{agg['weighted_ter']:.2f}[/{color}][/bold]",
+        f"[bold]{agg['waste_pct']:.1f}%[/bold]",
+        f"[bold]{agg['total_tokens']:,}[/bold]",
+        f"[bold]${agg['total_cost_usd']:.2f}[/bold]",
+        f"[bold][red]${agg['total_waste_cost_usd']:.2f}[/red][/bold]",
+        "",
+    )
+    console.print(table)
+
+    return buf.getvalue().rstrip()
+
+
+def _format_grouped_text(
+    parent_result: TERResult,
+    subagent_results: list[TERResult],
+) -> str:
+    """Format grouped analysis as plain text."""
+    all_results = [parent_result] + subagent_results
+    agg = _compute_group_aggregates(all_results)
+
+    sid = parent_result.session_id
+    if len(sid) > 20:
+        sid = sid[:8] + "..."
+
+    lines = [
+        f"Group Analysis: {sid}",
+        "\u2550" * 50,
+        "",
+        f"TER: {agg['weighted_ter']:.2f}  |  Waste: {agg['waste_pct']:.1f}%"
+        f"  |  Cost: ${agg['total_cost_usd']:.2f}"
+        f"  |  Waste $: ${agg['total_waste_cost_usd']:.2f}",
+        f"Sessions: 1 parent + {len(subagent_results)} subagent(s)  |  Tokens: {agg['total_tokens']:,}",
+        "",
+        f"  {'Role':<10} {'Session':<14} {'TER':<6} {'Waste%':<8} {'Tokens':<10} {'Cost':<10} {'Waste $':<10} {'Patterns':<8}",
+    ]
+
+    def _add_row(r: TERResult, role: str):
+        rsid = r.session_id[:14] if len(r.session_id) <= 14 else r.session_id[:8] + "..."
+        waste_pct = (r.waste_tokens / r.total_tokens * 100) if r.total_tokens else 0
+        cost_str = f"${r.economics.estimated_cost_usd:.2f}" if r.economics else ""
+        wc = _compute_waste_cost(r)
+        waste_str = f"${wc:.2f}" if wc > 0 else ""
+        pattern_count = len(r.waste_patterns) if r.waste_patterns else 0
+        lines.append(
+            f"  {role:<10} {rsid:<14} {r.aggregate_ter:<6.2f} "
+            f"{waste_pct:<8.1f} {r.total_tokens:<10,} {cost_str:<10} {waste_str:<10} {pattern_count:<8}"
+        )
+
+    _add_row(parent_result, "[parent]")
+    for r in subagent_results:
+        _add_row(r, "[agent]")
+
+    lines.extend([
+        "",
+        f"  {'Total':<10} {'':<14} {agg['weighted_ter']:<6.2f} "
+        f"{agg['waste_pct']:<8.1f} {agg['total_tokens']:<10,} "
+        f"${agg['total_cost_usd']:<9.2f} ${agg['total_waste_cost_usd']:<9.2f}",
+    ])
+
+    return "\n".join(lines)
+
+
+def _format_grouped_json(
+    parent_result: TERResult,
+    subagent_results: list[TERResult],
+) -> str:
+    """Format grouped analysis as JSON."""
+    all_results = [parent_result] + subagent_results
+    agg = _compute_group_aggregates(all_results)
+
+    data = {
+        "group": {
+            "parent_session_id": parent_result.session_id,
+            "subagent_count": len(subagent_results),
+            **agg,
+        },
+        "parent": _ter_result_to_dict(parent_result),
+        "subagents": [_ter_result_to_dict(r) for r in subagent_results],
+    }
+    return json.dumps(data, indent=2)
 
 
 def _format_input_analysis_rich(console, ia: InputAnalysis) -> None:

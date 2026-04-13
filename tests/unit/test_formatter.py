@@ -5,7 +5,12 @@ import json
 import numpy as np
 import pytest
 
-from ter_calculator.formatter import format_ter_result, format_comparison
+from ter_calculator.formatter import (
+    format_ter_result,
+    format_comparison,
+    format_grouped_analysis,
+    _compute_group_aggregates,
+)
 from ter_calculator.models import (
     CostModel,
     InputGrowth,
@@ -221,3 +226,58 @@ class TestFormatEconomics:
         output = format_comparison([r1, r2], fmt="text", use_rich=False)
         assert "Cache%" in output
         assert "Cost" in output
+
+
+class TestFormatGroupedAnalysis:
+    def test_grouped_text_output(self):
+        parent = _make_result(session_id="parent-session", aggregate_ter=0.80)
+        parent.economics = _make_economics()
+        sub1 = _make_result(session_id="agent-001", aggregate_ter=0.90)
+        sub1.economics = _make_economics()
+        sub2 = _make_result(session_id="agent-002", aggregate_ter=0.70)
+        sub2.economics = _make_economics()
+
+        output = format_grouped_analysis(parent, [sub1, sub2], fmt="text", use_rich=False)
+        assert "Group Analysis" in output
+        assert "parent-session" in output
+        assert "parent" in output
+        assert "agent" in output
+        assert "Total" in output
+        assert "2 subagent" in output
+
+    def test_grouped_json_output(self):
+        parent = _make_result(session_id="parent-session", aggregate_ter=0.80)
+        parent.economics = _make_economics()
+        sub1 = _make_result(session_id="agent-001", aggregate_ter=0.90)
+        sub1.economics = _make_economics()
+
+        output = format_grouped_analysis(parent, [sub1], fmt="json")
+        data = json.loads(output)
+        assert "group" in data
+        assert "parent" in data
+        assert "subagents" in data
+        assert data["group"]["parent_session_id"] == "parent-session"
+        assert data["group"]["subagent_count"] == 1
+        assert len(data["subagents"]) == 1
+
+    def test_weighted_ter_calculation(self):
+        big = _make_result(aggregate_ter=0.80)
+        big._total_tokens_override = 10000
+        big.total_tokens = 10000
+        small = _make_result(aggregate_ter=0.20)
+        small.total_tokens = 100
+
+        agg = _compute_group_aggregates([big, small])
+        # Weighted TER should be dominated by the big session
+        assert agg["weighted_ter"] == pytest.approx(0.80, abs=0.01)
+
+    def test_grouped_rich_output(self):
+        parent = _make_result(session_id="parent-session", aggregate_ter=0.80)
+        parent.economics = _make_economics()
+        sub = _make_result(session_id="agent-001", aggregate_ter=0.90)
+        sub.economics = _make_economics()
+
+        output = format_grouped_analysis(parent, [sub], fmt="text", use_rich=True)
+        assert len(output) > 0
+        assert "Group" in output
+        assert "parent-session" in output
