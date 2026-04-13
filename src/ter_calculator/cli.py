@@ -70,6 +70,14 @@ def main(argv: list[str] | None = None) -> int:
         "--cost-model", type=str, default="sonnet",
         help="Cost model: 'sonnet' (default) or custom 'input,output,cache_read,cache_write' rates per MTok"
     )
+    analyze_parser.add_argument(
+        "--no-input-analysis", action="store_true",
+        help="Disable input analysis (user/model token breakdown, drift, and alignment)"
+    )
+    analyze_parser.add_argument(
+        "--prompt-similarity-threshold", type=float, default=0.75,
+        help="Cosine similarity threshold for flagging redundant prompts (default: 0.75)"
+    )
 
     # compare subcommand
     compare_parser = subparsers.add_parser(
@@ -167,11 +175,19 @@ def _cmd_analyze(args) -> int:
         result.waste_patterns = detect_waste_patterns(
             classified,
             restatement_threshold=args.restatement_threshold,
+            session=session,
         )
 
     from .economics import compute_economics
     cost_model = _parse_cost_model(args.cost_model)
     result.economics = compute_economics(session, classified, cost_model)
+
+    if not args.no_input_analysis:
+        from .input_analysis import analyze_input
+        result.input_analysis = analyze_input(
+            session,
+            similarity_threshold=args.prompt_similarity_threshold,
+        )
 
     print(format_ter_result(result, fmt=args.output_format))
     return 0
@@ -201,6 +217,8 @@ def _cmd_compare(args) -> int:
         print("No .jsonl files found.", file=sys.stderr)
         return 1
 
+    from .waste import detect_waste_patterns
+
     results = []
     for path in paths:
         session = load_session(path)
@@ -208,6 +226,7 @@ def _cmd_compare(args) -> int:
         intent = extract_intent(session)
         classified = classify_spans(spans, intent)
         result = compute_ter(classified, session_id=session.session_id, intent=intent)
+        result.waste_patterns = detect_waste_patterns(classified, session=session)
         result.economics = compute_economics(session, classified)
         results.append(result)
 

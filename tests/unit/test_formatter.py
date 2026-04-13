@@ -90,8 +90,8 @@ class TestFormatTerResult:
         )
         result = _make_result(waste_patterns=[wp])
         output = format_ter_result(result, fmt="text", use_rich=False)
-        assert "Waste Patterns" in output
-        assert "Duplicate Tool Call" in output
+        assert "Waste Breakdown" in output
+        assert "Duplicate Tool Calls" in output
 
     def test_rich_format_produces_output(self):
         result = _make_result()
@@ -118,9 +118,10 @@ class TestFormatTerResult:
         ]
         result = _make_result(waste_patterns=wps)
         output = format_ter_result(result, fmt="text", use_rich=False)
-        # Should collapse 5 restatements into 1 summary line
-        assert "5 instances" in output
-        assert "500 tokens" in output
+        # Should show context restatement in waste breakdown with total 500 tokens
+        assert "Waste Breakdown" in output
+        assert "Context Restatement" in output
+        assert "500" in output
 
 
 class TestFormatComparison:
