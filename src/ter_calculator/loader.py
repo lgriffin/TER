@@ -128,6 +128,7 @@ def segment_spans(session: Session) -> list[TokenSpan]:
                 token_count=token_count,
                 source_message_uuid=message.uuid,
                 block_type=block.block_type,
+                source_role=message.role,
             ))
             position += 1
 

@@ -31,7 +31,10 @@ TER bridges both. The core score measures output quality (0-1, where 1 = every t
 
 ## Installation
 
+The Python package lives in the **`TER/`** subdirectory of this repository (where `pyproject.toml` is). From the repo root:
+
 ```bash
+cd TER
 pip install -e .
 ```
 
@@ -71,6 +74,16 @@ ter analyze path/to/session.jsonl --format json
 ter compare session1.jsonl session2.jsonl --sort ter
 ```
 
+### Compare two sessions as before/after (baseline)
+
+When you have exactly **two** session files (e.g. before and after a rules change), a Markdown **delta** table:
+
+```bash
+ter compare before.jsonl after.jsonl --baseline
+```
+
+Uses the same **default** thresholds as a plain `ter analyze` (see [docs/TER_GOAL_AND_CHANGES.md](docs/TER_GOAL_AND_CHANGES.md) for extending this).
+
 ### Discover sessions
 
 ```bash
@@ -79,6 +92,15 @@ ter list ~/.claude/projects/
 ```
 
 Sessions with subagents show the count (e.g. `SESSION_ID (128.5 KB, 6 subagents)`). Subagent files are hidden from the listing.
+
+### Markdown report (human summary)
+
+```bash
+ter report path/to/session.jsonl
+ter report path/to/session.jsonl -o report.md
+```
+
+Prints a **Markdown** one-pager to **stdout**, or writes it to a file with **`-o` / `--output`**. Content includes TER, waste %, cost, **output calibration ratio**, cache, positional TER, top structural patterns, and suggested next steps. Same analysis pipeline and flags as `analyze` (except `--format` / `--group`).
 
 ### Options
 
@@ -98,11 +120,16 @@ ter analyze <path>
 ter compare <paths_or_dirs...>
   --format text|json
   --sort ter|tokens|waste
+  --baseline                 Exactly two .jsonl files: before/after Markdown delta
   Accepts directories (expands to all *.jsonl files inside)
 
 ter list [path]
   --format text|json
   --limit N
+
+ter report <path>
+  -o, --output FILE          Write Markdown to FILE instead of stdout
+  (same threshold/cost flags as analyze)
 ```
 
 ## Try It
@@ -269,7 +296,10 @@ When `--group` is used, TER discovers subagent sessions from the filesystem and 
 
 ```
 src/ter_calculator/
-  cli.py              CLI entry point (analyze, compare, list, --group)
+  cli.py              CLI (analyze, report, compare, list; --group)
+  analyze_pipeline.py Shared full-session analysis (analyze + report)
+  config_parse.py     Cost model & phase-weight parsing
+  session_report.py   Markdown report + baseline delta formatting
   loader.py           JSONL parsing, deduplication, span segmentation, subagent discovery
   intent.py           Intent extraction and embedding
   classifier.py       Span classification (aligned vs waste)
@@ -292,6 +322,22 @@ pytest
 # Lint
 ruff check .
 ```
+
+## Limits of interpretation
+
+TER is a **heuristic** tool, not a tokenizer clone of Anthropic’s API:
+
+- **Spans** use `len(text) // 4` for rough token counts; they will not match billed tokens line-for-line.
+- **Waste classification** uses embeddings and thresholds; it is **not** ground-truth labeling.
+- **Waste \$** uses **assistant-origin** waste and **calibrates** to API `output_tokens` when usage data exists — see `waste_output_calibration_ratio` in JSON. Ratios far from **1.0** mean the heuristic mass diverges from billing; interpret dollars cautiously.
+- **Input-priced vs output-priced** rows in the waste breakdown reflect whether waste behaved like **context re-injection** vs **generated** text (see [UPDATES.md](UPDATES.md)).
+
+For **what changed** and **why** (measurement pass, decoupled tools, `ter report`), read [docs/TER_GOAL_AND_CHANGES.md](docs/TER_GOAL_AND_CHANGES.md).
+
+## Changelog and design notes
+
+Economics calibration, waste \$ pricing, classifier flags, and maintainer notes: [UPDATES.md](UPDATES.md).  
+Evolution toward the project end goal and maintainer proposal: [docs/TER_GOAL_AND_CHANGES.md](docs/TER_GOAL_AND_CHANGES.md).
 
 ## Requirements
 
