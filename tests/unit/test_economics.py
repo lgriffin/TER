@@ -275,14 +275,16 @@ class TestInputGrowth:
 class TestEstimateWasteCost:
     def test_all_aligned_zero_waste(self):
         spans = [_make_classified(SpanLabel.ALIGNED_RESPONSE, token_count=100)]
-        cost = _estimate_waste_cost(spans, CostModel())
+        cost, ratio = _estimate_waste_cost(spans, CostModel())
         assert cost == 0.0
+        assert ratio == pytest.approx(1.0)
 
     def test_waste_tokens_costed_at_output_rate(self):
         spans = [_make_classified(SpanLabel.OVER_EXPLANATION, token_count=1_000_000)]
-        cost = _estimate_waste_cost(spans, CostModel())
+        cost, ratio = _estimate_waste_cost(spans, CostModel())
         # 1M waste tokens × $15/MTok = $15
         assert cost == pytest.approx(15.0)
+        assert ratio == pytest.approx(1.0)
 
     def test_mixed_spans(self):
         spans = [
@@ -290,14 +292,47 @@ class TestEstimateWasteCost:
             _make_classified(SpanLabel.OVER_EXPLANATION, token_count=200_000),
             _make_classified(SpanLabel.REDUNDANT_REASONING, token_count=300_000),
         ]
-        cost = _estimate_waste_cost(spans, CostModel())
+        cost, ratio = _estimate_waste_cost(spans, CostModel())
         # 500k waste tokens × $15/MTok = $7.50
         assert cost == pytest.approx(7.5)
+        assert ratio == pytest.approx(1.0)
 
     def test_custom_output_rate(self):
         spans = [_make_classified(SpanLabel.OVER_EXPLANATION, token_count=1_000_000)]
-        cost = _estimate_waste_cost(spans, CostModel(output_rate=30.0))
+        cost, ratio = _estimate_waste_cost(spans, CostModel(output_rate=30.0))
         assert cost == pytest.approx(30.0)
+        assert ratio == pytest.approx(1.0)
+
+    def test_calibration_scales_to_billed_output(self):
+        spans = [_make_classified(SpanLabel.OVER_EXPLANATION, token_count=100)]
+        cost, ratio = _estimate_waste_cost(
+            spans, CostModel(), billed_output_tokens=400,
+        )
+        assert ratio == pytest.approx(4.0)
+        assert cost == pytest.approx(400 * 15.0 / 1_000_000)
+
+    def test_user_origin_waste_not_in_output_waste_cost(self):
+        span = TokenSpan(
+            text="x",
+            phase=SpanPhase.GENERATION,
+            position=0,
+            token_count=500_000,
+            source_message_uuid="u1",
+            source_role="user",
+        )
+        spans = [
+            ClassifiedSpan(
+                span=span,
+                label=SpanLabel.OVER_EXPLANATION,
+                confidence=0.5,
+                cosine_similarity=0.1,
+            ),
+        ]
+        cost, ratio = _estimate_waste_cost(
+            spans, CostModel(), billed_output_tokens=100,
+        )
+        assert cost == 0.0
+        assert ratio == pytest.approx(1.0)
 
 
 class TestComputeEconomics:

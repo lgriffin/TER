@@ -85,6 +85,7 @@ def classify_spans(
             is_repetition=is_repetition,
             repetition_similarity=rep_sim,
             similarity_threshold=similarity_threshold,
+            confidence_threshold=confidence_threshold,
             span_text=span.text,
         )
 
@@ -133,6 +134,7 @@ def _classify_span(
     is_repetition: bool,
     repetition_similarity: float,
     similarity_threshold: float,
+    confidence_threshold: float,
     span_text: str,
 ) -> tuple[SpanLabel, float]:
     """Classify a single span using multiple signals.
@@ -141,6 +143,14 @@ def _classify_span(
     """
     # Signal 1: Self-repetition (strongest waste signal).
     if is_repetition:
+        # Require strong agreement with a prior span; avoids borderline
+        # embeddings being scored as duplicate work.
+        if repetition_similarity < confidence_threshold:
+            if phase == SpanPhase.REASONING:
+                return SpanLabel.ALIGNED_REASONING, max(0.5, sim)
+            if phase == SpanPhase.TOOL_USE:
+                return SpanLabel.ALIGNED_TOOL_CALL, max(0.6, sim)
+            return SpanLabel.ALIGNED_RESPONSE, max(0.5, sim)
         confidence = repetition_similarity
         if phase == SpanPhase.REASONING:
             return SpanLabel.REDUNDANT_REASONING, confidence
@@ -151,9 +161,13 @@ def _classify_span(
     # Signal 2: Very low intent similarity + phase-specific checks.
     # Only for reasoning and generation — tool calls are actions,
     # not words, so low semantic similarity is expected and normal.
+    # Bounds keep defaults close to legacy 0.10 / 0.08 when threshold≈0.40.
+    filler_sim_max = max(0.06, min(0.14, similarity_threshold * 0.28))
+    verbose_sim_max = max(0.05, min(0.12, similarity_threshold * 0.22))
+
     if phase == SpanPhase.REASONING:
         # Reasoning with very low relevance AND short text (filler).
-        if sim < 0.10 and len(span_text.split()) < 15:
+        if sim < filler_sim_max and len(span_text.split()) < 15:
             return SpanLabel.REDUNDANT_REASONING, 0.5
         return SpanLabel.ALIGNED_REASONING, max(0.5, sim)
 
@@ -165,7 +179,7 @@ def _classify_span(
     if phase == SpanPhase.GENERATION:
         # Generation with extremely low relevance is suspicious,
         # but only if it's also substantial (short responses are fine).
-        if sim < 0.08 and len(span_text.split()) > 50:
+        if sim < verbose_sim_max and len(span_text.split()) > 50:
             return SpanLabel.OVER_EXPLANATION, 0.4
         return SpanLabel.ALIGNED_RESPONSE, max(0.5, sim)
 

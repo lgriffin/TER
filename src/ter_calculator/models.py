@@ -90,6 +90,8 @@ class TokenSpan:
     source_message_uuid: str
     block_type: str = ""  # e.g. "tool_use", "tool_result", "text", "thinking"
     embedding: np.ndarray | None = None
+    # assistant | user — aligns waste $ with billed output vs input context.
+    source_role: str = "assistant"
 
 
 @dataclass
@@ -162,6 +164,8 @@ class SessionEconomics:
     cost_model: CostModel
     positional: PositionalBreakdown
     input_growth: InputGrowth
+    """Billed output_tokens / heuristic assistant span tokens (1.0 if N/A)."""
+    waste_output_calibration_ratio: float = 1.0
 
 
 @dataclass

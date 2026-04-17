@@ -26,7 +26,9 @@ def compute_economics(
     cache_hit = _compute_cache_hit_rate(cache_read, input_tok)
     io_ratio = input_tok / output_tok if output_tok > 0 else 0.0
     cost = _estimate_cost(input_tok, output_tok, cache_read, cache_create, model)
-    waste_cost = _estimate_waste_cost(classified_spans, model)
+    waste_cost, cal_ratio = _estimate_waste_cost(
+        classified_spans, model, billed_output_tokens=output_tok,
+    )
     positional = _compute_positional_breakdown(classified_spans)
     growth = _compute_input_growth(session)
 
@@ -42,6 +44,7 @@ def compute_economics(
         cost_model=model,
         positional=positional,
         input_growth=growth,
+        waste_output_calibration_ratio=round(cal_ratio, 4),
     )
 
 
@@ -91,16 +94,42 @@ def _estimate_cost(
     )
 
 
+def _assistant_span_token_total(classified_spans: list[ClassifiedSpan]) -> int:
+    """Heuristic token count for assistant-origin spans (matches billed output scope)."""
+    return sum(
+        cs.span.token_count for cs in classified_spans
+        if cs.span.source_role == "assistant"
+    )
+
+
+def _assistant_waste_tokens(classified_spans: list[ClassifiedSpan]) -> int:
+    """Waste tokens attributed to assistant messages only."""
+    return sum(
+        cs.span.token_count for cs in classified_spans
+        if cs.label not in ALIGNED_LABELS and cs.span.source_role == "assistant"
+    )
+
+
 def _estimate_waste_cost(
     classified_spans: list[ClassifiedSpan],
     cost_model: CostModel,
-) -> float:
-    """Estimate the dollar cost of waste output tokens."""
-    waste_tokens = sum(
-        cs.span.token_count for cs in classified_spans
-        if cs.label not in ALIGNED_LABELS
-    )
-    return waste_tokens * cost_model.output_rate / 1_000_000
+    billed_output_tokens: int = 0,
+) -> tuple[float, float]:
+    """Estimate USD cost of classified output waste and a calibration ratio.
+
+    Span ``token_count`` uses a char/4 heuristic and can diverge from API
+    ``output_tokens``. Scale waste $ so it tracks billed generation when usage
+    data is present.
+
+    Returns (cost_usd, calibration_ratio).
+    """
+    waste_tokens = _assistant_waste_tokens(classified_spans)
+    assistant_total = _assistant_span_token_total(classified_spans)
+    ratio = 1.0
+    if billed_output_tokens > 0 and assistant_total > 0:
+        ratio = billed_output_tokens / assistant_total
+    cost = waste_tokens * ratio * cost_model.output_rate / 1_000_000
+    return cost, ratio
 
 
 def _compute_positional_breakdown(
