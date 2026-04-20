@@ -5,9 +5,9 @@ from __future__ import annotations
 import argparse
 import io
 import sys
+from pathlib import Path
 
 from . import __version__
-from .models import SpanPhase
 
 
 def _setup_stdout_encoding():
@@ -83,6 +83,55 @@ def main(argv: list[str] | None = None) -> int:
         help="Include subagent sessions in grouped analysis"
     )
 
+    # report — Markdown summary (same analysis pipeline as analyze)
+    report_parser = subparsers.add_parser(
+        "report",
+        help="Print a Markdown summary (headline metrics, calibration, top waste, next steps)",
+    )
+    report_parser.add_argument(
+        "session_path", help="Path to a JSONL session file"
+    )
+    report_parser.add_argument(
+        "--similarity-threshold", type=float, default=0.40,
+        help="Cosine similarity threshold for alignment (default: 0.40)"
+    )
+    report_parser.add_argument(
+        "--confidence-threshold", type=float, default=0.75,
+        help="Classifier confidence threshold (default: 0.75)"
+    )
+    report_parser.add_argument(
+        "--restatement-threshold", type=float, default=0.85,
+        help="Similarity threshold for context restatement (default: 0.85)"
+    )
+    report_parser.add_argument(
+        "--phase-weights", type=str, default="0.3,0.4,0.3",
+        help="Phase weights as r,t,g (default: 0.3,0.4,0.3)"
+    )
+    report_parser.add_argument(
+        "--no-waste-patterns", action="store_true",
+        help="Disable waste pattern detection"
+    )
+    report_parser.add_argument(
+        "--cost-model", type=str, default="sonnet",
+        help="Cost model: 'sonnet' (default) or custom rates per MTok"
+    )
+    report_parser.add_argument(
+        "--no-input-analysis", action="store_true",
+        help="Disable input analysis"
+    )
+    report_parser.add_argument(
+        "--prompt-similarity-threshold", type=float, default=0.75,
+        help="Cosine similarity threshold for redundant prompts (default: 0.75)"
+    )
+    report_parser.add_argument(
+        "-o",
+        "--output",
+        dest="report_output",
+        metavar="FILE",
+        default=None,
+        help="Write Markdown to FILE instead of stdout (e.g. report.md)",
+    )
+
     # compare subcommand
     compare_parser = subparsers.add_parser(
         "compare", help="Compare TER across multiple sessions"
@@ -97,6 +146,10 @@ def main(argv: list[str] | None = None) -> int:
     compare_parser.add_argument(
         "--sort", choices=["ter", "tokens", "waste"],
         default="ter", help="Sort order (default: ter)"
+    )
+    compare_parser.add_argument(
+        "--baseline", action="store_true",
+        help="Compare exactly two sessions as before/after (Markdown delta; uses default analyze thresholds)",
     )
 
     # list subcommand
@@ -131,6 +184,8 @@ def main(argv: list[str] | None = None) -> int:
             return _cmd_compare(args)
         if args.command == "list":
             return _cmd_list(args)
+        if args.command == "report":
+            return _cmd_report(args)
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
@@ -152,51 +207,28 @@ def _cmd_analyze(args) -> int:
     if args.group:
         return _cmd_analyze_group(args)
 
-    from .loader import load_session, segment_spans
-    from .intent import extract_intent
-    from .classifier import classify_spans
-    from .compute import compute_ter
+    from .analyze_pipeline import analyze_session
     from .formatter import format_ter_result
 
-    phase_weights = _parse_phase_weights(args.phase_weights)
-
-    session = load_session(args.session_path)
-    spans = segment_spans(session)
-    intent = extract_intent(session)
-
-    classified = classify_spans(
-        spans, intent,
-        similarity_threshold=args.similarity_threshold,
-        confidence_threshold=args.confidence_threshold,
-    )
-
-    result = compute_ter(
-        classified,
-        session_id=session.session_id,
-        intent=intent,
-        phase_weights=phase_weights,
-    )
-
-    if not args.no_waste_patterns:
-        from .waste import detect_waste_patterns
-        result.waste_patterns = detect_waste_patterns(
-            classified,
-            restatement_threshold=args.restatement_threshold,
-            session=session,
-        )
-
-    from .economics import compute_economics
-    cost_model = _parse_cost_model(args.cost_model)
-    result.economics = compute_economics(session, classified, cost_model)
-
-    if not args.no_input_analysis:
-        from .input_analysis import analyze_input
-        result.input_analysis = analyze_input(
-            session,
-            similarity_threshold=args.prompt_similarity_threshold,
-        )
-
+    result = analyze_session(args)
     print(format_ter_result(result, fmt=args.output_format))
+    return 0
+
+
+def _cmd_report(args) -> int:
+    """Markdown one-screen summary for humans."""
+    from .analyze_pipeline import analyze_session
+    from .session_report import format_session_report_markdown
+
+    result = analyze_session(args)
+    md = format_session_report_markdown(result)
+    out = getattr(args, "report_output", None)
+    if out:
+        Path(out).write_text(md, encoding="utf-8")
+        if not args.quiet:
+            print(f"Wrote {out}", file=sys.stderr)
+    else:
+        print(md)
     return 0
 
 
@@ -218,8 +250,10 @@ def _cmd_analyze_group(args) -> int:
         args.group = False
         return _cmd_analyze(args)
 
-    phase_weights = _parse_phase_weights(args.phase_weights)
-    cost_model = _parse_cost_model(args.cost_model)
+    from .config_parse import parse_cost_model, parse_phase_weights
+
+    phase_weights = parse_phase_weights(args.phase_weights)
+    cost_model = parse_cost_model(args.cost_model)
 
     def _analyze_session(path):
         session = load_session(path)
@@ -263,14 +297,9 @@ def _cmd_analyze_group(args) -> int:
 
 def _cmd_compare(args) -> int:
     """Execute the compare subcommand."""
-    from .loader import load_session, segment_spans
-    from .intent import extract_intent
-    from .classifier import classify_spans
-    from .compute import compute_ter
-    from .formatter import format_comparison
-
     from pathlib import Path
-    from .economics import compute_economics
+
+    from .formatter import format_comparison
 
     # Expand directory paths to all .jsonl files inside them.
     paths = []
@@ -285,6 +314,33 @@ def _cmd_compare(args) -> int:
         print("No .jsonl files found.", file=sys.stderr)
         return 1
 
+    if getattr(args, "baseline", False):
+        if len(paths) != 2:
+            print(
+                "Error: --baseline requires exactly two session files.",
+                file=sys.stderr,
+            )
+            return 1
+        for p in paths:
+            if Path(p).is_dir():
+                print(
+                    "Error: --baseline requires file paths, not directories.",
+                    file=sys.stderr,
+                )
+                return 1
+        from .analyze_pipeline import analyze_session, default_analyze_args
+        from .session_report import format_baseline_markdown
+
+        ra = analyze_session(default_analyze_args(paths[0]))
+        rb = analyze_session(default_analyze_args(paths[1]))
+        print(format_baseline_markdown(ra, rb))
+        return 0
+
+    from .loader import load_session, segment_spans
+    from .intent import extract_intent
+    from .classifier import classify_spans
+    from .compute import compute_ter
+    from .economics import compute_economics
     from .waste import detect_waste_patterns
 
     results = []
@@ -361,52 +417,6 @@ def _cmd_list(args) -> int:
                 print(f"     {s['path']}")
 
     return 0
-
-
-def _parse_cost_model(value: str):
-    """Parse cost model argument."""
-    from .models import CostModel
-    if value.lower() == "sonnet":
-        return CostModel()
-    parts = value.split(",")
-    if len(parts) != 4:
-        raise ValueError(
-            f"Cost model must be 'sonnet' or 4 comma-separated rates, got: {value}"
-        )
-    try:
-        return CostModel(
-            input_rate=float(parts[0]),
-            output_rate=float(parts[1]),
-            cache_read_rate=float(parts[2]),
-            cache_write_rate=float(parts[3]),
-        )
-    except ValueError:
-        raise ValueError(f"Invalid cost model rates: {value}")
-
-
-def _parse_phase_weights(weights_str: str) -> dict[SpanPhase, float]:
-    """Parse comma-separated phase weights."""
-    parts = weights_str.split(",")
-    if len(parts) != 3:
-        raise ValueError(
-            f"Phase weights must be 3 comma-separated values, got: {weights_str}"
-        )
-    try:
-        r, t, g = float(parts[0]), float(parts[1]), float(parts[2])
-    except ValueError:
-        raise ValueError(f"Invalid phase weight values: {weights_str}")
-
-    total = r + t + g
-    if abs(total - 1.0) > 0.01:
-        raise ValueError(
-            f"Phase weights must sum to 1.0, got {total}: {weights_str}"
-        )
-
-    return {
-        SpanPhase.REASONING: r,
-        SpanPhase.TOOL_USE: t,
-        SpanPhase.GENERATION: g,
-    }
 
 
 if __name__ == "__main__":

@@ -44,7 +44,8 @@ class TestClassifySpan:
         label, conf = _classify_span(
             sim=0.8, phase=SpanPhase.REASONING,
             is_repetition=True, repetition_similarity=0.92,
-            similarity_threshold=0.40, span_text="some reasoning text",
+            similarity_threshold=0.40, confidence_threshold=0.75,
+            span_text="some reasoning text",
         )
         assert label == SpanLabel.REDUNDANT_REASONING
         assert conf == 0.92
@@ -54,16 +55,28 @@ class TestClassifySpan:
         label, conf = _classify_span(
             sim=0.5, phase=SpanPhase.TOOL_USE,
             is_repetition=True, repetition_similarity=0.90,
-            similarity_threshold=0.40, span_text="Bash ls -la",
+            similarity_threshold=0.40, confidence_threshold=0.75,
+            span_text="Bash ls -la",
         )
         assert label == SpanLabel.UNNECESSARY_TOOL_CALL
+
+    def test_weak_repetition_respects_confidence_threshold(self):
+        """Near-threshold self-similarity stays aligned when confidence bar is high."""
+        label, conf = _classify_span(
+            sim=0.5, phase=SpanPhase.REASONING,
+            is_repetition=True, repetition_similarity=0.76,
+            similarity_threshold=0.40, confidence_threshold=0.80,
+            span_text="thinking again",
+        )
+        assert label == SpanLabel.ALIGNED_REASONING
 
     def test_repetition_generation_is_waste(self):
         """Self-repetition in generation phase → over-explanation."""
         label, conf = _classify_span(
             sim=0.6, phase=SpanPhase.GENERATION,
             is_repetition=True, repetition_similarity=0.95,
-            similarity_threshold=0.40, span_text="here is the answer again",
+            similarity_threshold=0.40, confidence_threshold=0.75,
+            span_text="here is the answer again",
         )
         assert label == SpanLabel.OVER_EXPLANATION
 
@@ -72,7 +85,8 @@ class TestClassifySpan:
         label, conf = _classify_span(
             sim=0.3, phase=SpanPhase.REASONING,
             is_repetition=False, repetition_similarity=0.0,
-            similarity_threshold=0.40, span_text="Let me think about how to approach this problem step by step",
+            similarity_threshold=0.40, confidence_threshold=0.75,
+            span_text="Let me think about how to approach this problem step by step",
         )
         assert label == SpanLabel.ALIGNED_REASONING
 
@@ -81,7 +95,8 @@ class TestClassifySpan:
         label, conf = _classify_span(
             sim=0.05, phase=SpanPhase.REASONING,
             is_repetition=False, repetition_similarity=0.0,
-            similarity_threshold=0.40, span_text="hmm okay let me see",
+            similarity_threshold=0.40, confidence_threshold=0.75,
+            span_text="hmm okay let me see",
         )
         assert label == SpanLabel.REDUNDANT_REASONING
 
@@ -90,7 +105,8 @@ class TestClassifySpan:
         label, conf = _classify_span(
             sim=0.05, phase=SpanPhase.TOOL_USE,
             is_repetition=False, repetition_similarity=0.0,
-            similarity_threshold=0.40, span_text="Read some/file.py",
+            similarity_threshold=0.40, confidence_threshold=0.75,
+            span_text="Read some/file.py",
         )
         assert label == SpanLabel.ALIGNED_TOOL_CALL
 
@@ -99,7 +115,8 @@ class TestClassifySpan:
         label, conf = _classify_span(
             sim=0.2, phase=SpanPhase.GENERATION,
             is_repetition=False, repetition_similarity=0.0,
-            similarity_threshold=0.40, span_text="Here is your answer.",
+            similarity_threshold=0.40, confidence_threshold=0.75,
+            span_text="Here is your answer.",
         )
         assert label == SpanLabel.ALIGNED_RESPONSE
 
@@ -109,7 +126,8 @@ class TestClassifySpan:
         label, conf = _classify_span(
             sim=0.03, phase=SpanPhase.GENERATION,
             is_repetition=False, repetition_similarity=0.0,
-            similarity_threshold=0.40, span_text=long_text,
+            similarity_threshold=0.40, confidence_threshold=0.75,
+            span_text=long_text,
         )
         assert label == SpanLabel.OVER_EXPLANATION
 
@@ -118,7 +136,8 @@ class TestClassifySpan:
         label, conf = _classify_span(
             sim=0.9, phase=SpanPhase.REASONING,
             is_repetition=False, repetition_similarity=0.0,
-            similarity_threshold=0.40, span_text="analyzing the user's request for auth",
+            similarity_threshold=0.40, confidence_threshold=0.75,
+            span_text="analyzing the user's request for auth",
         )
         assert label == SpanLabel.ALIGNED_REASONING
         assert conf >= 0.5

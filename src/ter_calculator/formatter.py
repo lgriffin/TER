@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import io
 
-from .models import InputAnalysis, TERResult, WastePattern
+from .models import CostModel, InputAnalysis, TERResult, WastePattern
 from .waste import summarize_waste
 
 
@@ -241,28 +241,51 @@ def _format_rich(result: TERResult) -> str:
 
 
 def _compute_waste_cost(result: TERResult) -> float:
-    """Compute total waste cost from the waste breakdown (all sources)."""
+    """Compute total waste $ from breakdown rows (mixed input/output pricing)."""
     rows = _build_waste_breakdown(result)
     if not rows:
         return 0.0
-    cost_rate = 15.0
-    if result.economics:
-        cost_rate = result.economics.cost_model.output_rate
-    total_tokens = sum(t for _, t, _ in rows)
-    return total_tokens * cost_rate / 1_000_000
+    cm = result.economics.cost_model if result.economics else CostModel()
+    scale = (
+        result.economics.waste_output_calibration_ratio
+        if result.economics else 1.0
+    )
+    total = 0.0
+    for _label, tokens, _count, kind in rows:
+        rate = cm.output_rate if kind == "output" else cm.input_rate
+        eff = float(tokens) * (scale if kind == "output" else 1.0)
+        total += eff * rate / 1_000_000
+    return total
 
 
-def _build_waste_breakdown(result: TERResult) -> list[tuple[str, int, int]]:
-    """Build waste breakdown rows: (label, tokens, instance_count).
+def _pattern_pricing(pattern_type: str) -> str:
+    """Structural patterns whose token cost is mostly input-side context."""
+    if pattern_type in (
+        "repetitive_read",
+        "bash_antipattern",
+        "failed_tool_retry",
+        "repeated_command",
+    ):
+        return "input"
+    return "output"
 
-    Combines classified span waste (by label) with structural pattern
-    waste (repetitive reads, edit fragmentation) without double-counting.
+
+def _build_waste_breakdown(
+    result: TERResult,
+) -> list[tuple[str, int, int, str]]:
+    """Build rows: (label, tokens, instance_count, pricing_kind).
+
+    ``pricing_kind`` is ``output`` (billed as generation / assistant tool
+    JSON) or ``input`` (tool results re-sent as context). Output-priced
+    rows are scaled elsewhere to match API ``output_tokens`` when known.
+
+    Skips pattern rows that duplicate classified span categories.
     """
     from .models import ALIGNED_LABELS
 
-    rows: list[tuple[str, int, int]] = []
+    rows: list[tuple[str, int, int, str]] = []
 
-    # Classified output waste by category.
+    # Classified waste: assistant spans priced as output; rare user spans as input.
     category_map = {
         "redundant_reasoning": "Redundant Reasoning",
         "unnecessary_tool_call": "Unnecessary Tool Calls",
@@ -270,8 +293,14 @@ def _build_waste_breakdown(result: TERResult) -> list[tuple[str, int, int]]:
     }
     cat_tokens: dict[str, int] = {}
     cat_counts: dict[str, int] = {}
+    user_waste_tokens = 0
+    user_waste_count = 0
     for cs in result.classified_spans:
         if cs.label in ALIGNED_LABELS:
+            continue
+        if cs.span.source_role != "assistant":
+            user_waste_tokens += cs.span.token_count
+            user_waste_count += 1
             continue
         label = cs.label.value
         cat = category_map.get(label, label.replace("_", " ").title())
@@ -280,10 +309,16 @@ def _build_waste_breakdown(result: TERResult) -> list[tuple[str, int, int]]:
 
     for cat in category_map.values():
         if cat in cat_tokens:
-            rows.append((cat, cat_tokens[cat], cat_counts[cat]))
+            rows.append((cat, cat_tokens[cat], cat_counts[cat], "output"))
 
-    # Waste patterns grouped by type.
-    # Skip types whose waste is already counted from classified spans.
+    if user_waste_tokens > 0:
+        rows.append((
+            "User-side context (waste)",
+            user_waste_tokens,
+            max(1, user_waste_count),
+            "input",
+        ))
+
     pattern_labels = {
         "reasoning_loop": "Reasoning Loops",
         "duplicate_tool_call": "Duplicate Tool Calls",
@@ -294,9 +329,10 @@ def _build_waste_breakdown(result: TERResult) -> list[tuple[str, int, int]]:
         "failed_tool_retry": "Failed Tool Retries",
         "repeated_command": "Repeated Commands",
     }
-    # Map pattern types to the classified span category they overlap with.
     pattern_overlap = {
         "reasoning_loop": "Redundant Reasoning",
+        "duplicate_tool_call": "Unnecessary Tool Calls",
+        "context_restatement": "Over-Explanation",
     }
     by_type: dict[str, list[WastePattern]] = {}
     for wp in (result.waste_patterns or []):
@@ -305,10 +341,11 @@ def _build_waste_breakdown(result: TERResult) -> list[tuple[str, int, int]]:
     for ptype, wps in by_type.items():
         overlap_cat = pattern_overlap.get(ptype)
         if overlap_cat and overlap_cat in cat_tokens:
-            continue  # Already counted from classified spans
+            continue
         label = pattern_labels.get(ptype, ptype.replace("_", " ").title())
         tokens = sum(wp.tokens_wasted for wp in wps)
-        rows.append((label, tokens, len(wps)))
+        kind = _pattern_pricing(ptype)
+        rows.append((label, tokens, len(wps), kind))
 
     rows.sort(key=lambda r: r[1], reverse=True)
     return rows
@@ -322,11 +359,12 @@ def _format_waste_breakdown_rich(console, result: TERResult) -> None:
     if not rows:
         return
 
-    cost_rate = 15.0  # default output rate $/MTok
-    if result.economics:
-        cost_rate = result.economics.cost_model.output_rate
-
-    total_waste = sum(t for _, t, _ in rows)
+    total_waste = sum(t for _, t, _, _ in rows)
+    scale = (
+        result.economics.waste_output_calibration_ratio
+        if result.economics else 1.0
+    )
+    cm = result.economics.cost_model if result.economics else CostModel()
 
     table = Table(show_header=True, show_edge=True, title="Waste Breakdown")
     table.add_column("Source", style="bold", width=22)
@@ -335,19 +373,21 @@ def _format_waste_breakdown_rich(console, result: TERResult) -> None:
     table.add_column("Cost", justify="right", width=8)
     table.add_column("Count", justify="right", width=6, style="dim")
 
-    for label, tokens, count in rows:
+    for label, tokens, count, kind in rows:
         pct = (tokens / total_waste * 100) if total_waste > 0 else 0
-        cost = tokens * cost_rate / 1_000_000
+        rate = cm.output_rate if kind == "output" else cm.input_rate
+        eff = float(tokens) * (scale if kind == "output" else 1.0)
+        row_cost = eff * rate / 1_000_000
         table.add_row(
             label,
             f"{tokens:,}",
             f"{pct:.0f}%",
-            f"${cost:.4f}",
+            f"${row_cost:.4f}",
             str(count),
         )
 
     table.add_section()
-    total_cost = total_waste * cost_rate / 1_000_000
+    total_cost = _compute_waste_cost(result)
     table.add_row(
         "[bold]Total[/bold]",
         f"[bold]{total_waste:,}[/bold]",
@@ -746,17 +786,23 @@ def _format_text(result: TERResult) -> str:
     # Waste breakdown.
     rows = _build_waste_breakdown(result)
     if rows:
-        cost_rate = 15.0
-        if result.economics:
-            cost_rate = result.economics.cost_model.output_rate
-        total_waste = sum(t for _, t, _ in rows)
+        total_waste = sum(t for _, t, _, _ in rows)
+        scale = (
+            result.economics.waste_output_calibration_ratio
+            if result.economics else 1.0
+        )
+        cm = result.economics.cost_model if result.economics else CostModel()
         lines.extend(["", "Waste Breakdown:"])
         lines.append(f"  {'Source':<24} {'Tokens':>10} {'%':>5} {'Cost':>10} {'Count':>6}")
-        for label, tokens, count in rows:
+        for label, tokens, count, kind in rows:
             pct = (tokens / total_waste * 100) if total_waste > 0 else 0
-            cost = tokens * cost_rate / 1_000_000
-            lines.append(f"  {label:<24} {tokens:>10,} {pct:>4.0f}% ${cost:>8.4f} {count:>6}")
-        total_cost = total_waste * cost_rate / 1_000_000
+            rate = cm.output_rate if kind == "output" else cm.input_rate
+            eff = float(tokens) * (scale if kind == "output" else 1.0)
+            row_cost = eff * rate / 1_000_000
+            lines.append(
+                f"  {label:<24} {tokens:>10,} {pct:>4.0f}% ${row_cost:>8.4f} {count:>6}"
+            )
+        total_cost = _compute_waste_cost(result)
         lines.append(f"  {'Total':<24} {total_waste:>10,}  100% ${total_cost:>8.4f}")
 
     # Input analysis.
@@ -897,23 +943,29 @@ def _ter_result_to_dict(result: TERResult) -> dict:
         }
     rows = _build_waste_breakdown(result)
     if rows:
-        cost_rate = 15.0
-        if result.economics:
-            cost_rate = result.economics.cost_model.output_rate
-        total_waste = sum(t for _, t, _ in rows)
+        total_waste = sum(t for _, t, _, _ in rows)
+        scale = (
+            result.economics.waste_output_calibration_ratio
+            if result.economics else 1.0
+        )
+        cm = result.economics.cost_model if result.economics else CostModel()
+        sources = []
+        for label, tokens, count, kind in rows:
+            rate = cm.output_rate if kind == "output" else cm.input_rate
+            eff = float(tokens) * (scale if kind == "output" else 1.0)
+            row_cost = eff * rate / 1_000_000
+            sources.append({
+                "source": label,
+                "tokens": tokens,
+                "percentage": round(tokens / total_waste * 100, 1) if total_waste > 0 else 0,
+                "cost_usd": round(row_cost, 6),
+                "count": count,
+                "pricing": kind,
+            })
         data["waste_breakdown"] = {
-            "sources": [
-                {
-                    "source": label,
-                    "tokens": tokens,
-                    "percentage": round(tokens / total_waste * 100, 1) if total_waste > 0 else 0,
-                    "cost_usd": round(tokens * cost_rate / 1_000_000, 6),
-                    "count": count,
-                }
-                for label, tokens, count in rows
-            ],
+            "sources": sources,
             "total_tokens": total_waste,
-            "total_cost_usd": round(total_waste * cost_rate / 1_000_000, 6),
+            "total_cost_usd": round(_compute_waste_cost(result), 6),
         }
     if result.economics is not None:
         econ = result.economics
@@ -926,6 +978,7 @@ def _ter_result_to_dict(result: TERResult) -> dict:
             "cache_hit_rate": econ.cache_hit_rate,
             "estimated_cost_usd": econ.estimated_cost_usd,
             "estimated_waste_cost_usd": econ.estimated_waste_cost_usd,
+            "waste_output_calibration_ratio": econ.waste_output_calibration_ratio,
             "cost_model": {
                 "input_rate": econ.cost_model.input_rate,
                 "output_rate": econ.cost_model.output_rate,
