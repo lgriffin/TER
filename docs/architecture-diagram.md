@@ -410,7 +410,7 @@ No circular dependencies. All modules depend on `models.py`. Only `cli.py` depen
 
 ## 7. Implementation Status
 
-All 8 improvement areas have been implemented as new modules (5,507 lines total):
+All 8 improvement areas plus 4 real-time capability adaptation modules have been implemented:
 
 | # | Improvement | Module | Lines | Key Capabilities |
 |---|-------------|--------|-------|-----------------|
@@ -422,6 +422,10 @@ All 8 improvement areas have been implemented as new modules (5,507 lines total)
 | 6 | Architecture — Extensibility | `plugins.py` | 748 | WasteDetector/OutputFormatter/Middleware protocols, plugin registry, ter.toml config |
 | 7 | Data Quality — Input Validation | `validation.py` | 867 | JSONL schema validation, session validation, health reports, completeness scoring |
 | 8 | Value Stream — Lead Time | `acceleration.py` | 1038 | Incremental cache, quick mode, watch mode, parallel embedding |
+| 9 | Real-Time Monitoring | `real_time.py` | ~400 | Rolling TER, drift detection, live session watching, multi-session dashboard |
+| 10 | Overthinking Detection | `overthinking.py` | ~350 | Entropy-based novelty tracking, reasoning phase classification, optimal cutoff finding |
+| 11 | Adaptive Budget | `adaptive_budget.py` | ~350 | Complexity estimation, model tier routing, historical budget learning |
+| 12 | Cost Model & Density | `cost_model.py` | ~380 | Cost-weighted TER, semantic density scoring, pricing tiers, cost reports |
 
 ### Enhanced Module Dependency Graph
 
@@ -438,14 +442,19 @@ graph BT
     formatter["formatter.py"]
     cli["cli.py"]
 
-    emb["embedding_cache.py<br/>NEW: cache + merge + GPU"]
-    tok["token_counting.py<br/>NEW: calibrated counting"]
-    iex["intent_extraction.py<br/>NEW: sliding + hierarchical"]
-    wd["waste_detectors.py<br/>NEW: 5 extra patterns"]
-    fb["feedback.py<br/>NEW: hints + trending + CI"]
-    pl["plugins.py<br/>NEW: registry + config"]
-    val["validation.py<br/>NEW: schema + health"]
-    acc["acceleration.py<br/>NEW: cache + quick + watch"]
+    emb["embedding_cache.py<br/>cache + merge + GPU"]
+    tok["token_counting.py<br/>calibrated counting"]
+    iex["intent_extraction.py<br/>sliding + hierarchical"]
+    wd["waste_detectors.py<br/>5 extra patterns"]
+    fb["feedback.py<br/>hints + trending + CI"]
+    pl["plugins.py<br/>registry + config"]
+    val["validation.py<br/>schema + health"]
+    acc["acceleration.py<br/>cache + quick + watch"]
+
+    rt["real_time.py<br/>BRIDGE: rolling TER + drift"]
+    ot["overthinking.py<br/>BRIDGE: entropy + cutoff"]
+    ab["adaptive_budget.py<br/>BRIDGE: complexity + routing"]
+    cm["cost_model.py<br/>BRIDGE: cost TER + density"]
 
     loader --> models
     intent --> models
@@ -464,6 +473,11 @@ graph BT
     val --> models
     acc --> models
 
+    rt --> models
+    ot --> models
+    ab --> models
+    cm --> models
+
     cli --> loader
     cli --> intent
     cli --> classifier
@@ -475,14 +489,20 @@ graph BT
     cli --> val
     cli --> acc
     cli --> fb
+    cli --> rt
+    cli --> ab
+    cli --> cm
 
     intent --> emb
     intent --> iex
     classifier --> emb
     classifier --> tok
     waste --> wd
+    waste --> ot
     loader --> val
     compute --> fb
+    compute --> cm
+    rt --> acc
 
     style models fill:#e1f5fe
     style cli fill:#fff3e0
@@ -494,4 +514,8 @@ graph BT
     style pl fill:#e8f5e9
     style val fill:#e8f5e9
     style acc fill:#e8f5e9
+    style rt fill:#fce4ec
+    style ot fill:#fce4ec
+    style ab fill:#fce4ec
+    style cm fill:#fce4ec
 ```
