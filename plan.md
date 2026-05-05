@@ -46,15 +46,22 @@ Build the 9 core modules defined in `specs/001-ter-calculator/plan.md`:
 ### 1C. Success Criteria ✅ COMPLETE
 
 - ✅ `ter analyze <session>` produces correct TER with waste patterns
-- ⏳ `ter watch <project>` streams live TER updates for active sessions (CLI integration pending - Phase 2)
-- ⏳ `ter budget <session>` recommends thinking token budget for similar future tasks (CLI integration pending - Phase 2)
-- ⏳ Cost-weighted TER available via `--cost-weighted` flag (CLI integration pending - Phase 2)
-- ⏳ Overthinking warnings appear in waste pattern output (CLI integration pending - Phase 2)
+- ✅ `ter watch <project>` streams live TER updates for active sessions
+- ✅ `ter budget <intent-text>` recommends thinking token budget and model tier
+- ✅ Cost-weighted TER available via `--cost-weighted` flag
+- ✅ Overthinking analysis available via `--check-overthinking` flag
 
 **Testing Status:**
 - 163 comprehensive unit tests added for all Phase 1B modules
 - 100% test pass rate (327 total tests: 163 new + 164 existing)
 - See `docs/TESTING_PHASE_1B.md` for full test coverage report
+
+**CLI Integration Status (2026-05-05):**
+- All 4 Phase 1B modules integrated into CLI
+- `ter watch` - Live monitoring with drift detection
+- `ter budget` - Budget recommendations with historical learning
+- `--cost-weighted` - Cost analysis with semantic density
+- `--check-overthinking` - Reasoning efficiency analysis
 
 ---
 
@@ -226,16 +233,21 @@ Phase 4 (Intelligence) ← depends on Phase 3 + sufficient data volume
 ## Immediate Next Steps
 
 1. ✅ ~~Build core pipeline (Phase 1A)~~ COMPLETE
-2. ✅ ~~Integrate the 4 new bridge modules~~ COMPLETE (code implemented, CLI integration pending)
-3. ✅ ~~Add comprehensive test coverage for Phase 1B modules~~ COMPLETE (PR #1 - 2026-05-05)
-4. **🔜 PR #2**: CLI Integration for Phase 1B features
-   - `ter budget <intent-text>` command
-   - `ter watch <session-path>` command  
-   - `--cost-weighted` flag for analyze
-   - `--check-overthinking` flag for analyze
-5. **🔜 PR #3**: Dynamic Token Budget Controller (Phase 2B)
+2. ✅ ~~Integrate the 4 new bridge modules~~ COMPLETE
+3. ✅ ~~Add comprehensive test coverage for Phase 1B modules~~ COMPLETE (PR #13 - 2026-05-05)
+4. ✅ ~~CLI Integration for Phase 1B features~~ COMPLETE (PR #14 - 2026-05-05)
+   - ✅ `ter budget <intent-text>` command
+   - ✅ `ter watch <project-path>` command  
+   - ✅ `--cost-weighted` flag for analyze
+   - ✅ `--check-overthinking` flag for analyze
+   - ✅ README.md updated with Phase 1B features
+5. **🔜 Next**: Collect baseline data and validation
+   - Use `ter watch` on real sessions to collect rolling TER data
+   - Validate `ter budget` recommendations against actual outcomes
+   - Test `--cost-weighted` and `--check-overthinking` on sample sessions
+   - Build up historical budget data for learning
+6. **🔜 PR #3**: Dynamic Token Budget Controller (Phase 2B)
    - Decide intervention mechanism (MCP server vs Claude Code hook)
    - Real-time budget adjustments
    - Mid-session intervention system
-6. Validate against sample sessions in `sample_sessions/`
 7. Collect baseline TER data across 50+ sessions to inform Phase 2 decisions
