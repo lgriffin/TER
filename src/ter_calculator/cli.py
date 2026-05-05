@@ -82,6 +82,14 @@ def main(argv: list[str] | None = None) -> int:
         "--group", action="store_true",
         help="Include subagent sessions in grouped analysis"
     )
+    analyze_parser.add_argument(
+        "--cost-weighted", action="store_true",
+        help="Include cost-weighted TER analysis"
+    )
+    analyze_parser.add_argument(
+        "--check-overthinking", action="store_true",
+        help="Analyze reasoning efficiency and detect overthinking"
+    )
 
     # report — Markdown summary (same analysis pipeline as analyze)
     report_parser = subparsers.add_parser(
@@ -131,6 +139,14 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Write Markdown to FILE instead of stdout (e.g. report.md)",
     )
+    report_parser.add_argument(
+        "--cost-weighted", action="store_true",
+        help="Include cost-weighted TER analysis"
+    )
+    report_parser.add_argument(
+        "--check-overthinking", action="store_true",
+        help="Analyze reasoning efficiency and detect overthinking"
+    )
 
     # compare subcommand
     compare_parser = subparsers.add_parser(
@@ -169,6 +185,46 @@ def main(argv: list[str] | None = None) -> int:
         help="Maximum sessions to list (default: 20)"
     )
 
+    # watch subcommand
+    watch_parser = subparsers.add_parser(
+        "watch", help="Monitor active sessions in real-time"
+    )
+    watch_parser.add_argument(
+        "project_path", help="Path to Claude Code project directory"
+    )
+    watch_parser.add_argument(
+        "--poll-interval", type=float, default=2.0,
+        help="Seconds between polls (default: 2.0)"
+    )
+    watch_parser.add_argument(
+        "--format", dest="output_format", choices=["text", "json"],
+        default="text", help="Output format (default: text)"
+    )
+    watch_parser.add_argument(
+        "--model", type=str, default=None,
+        help="Path to custom sentence-transformers model (optional)"
+    )
+
+    # budget subcommand
+    budget_parser = subparsers.add_parser(
+        "budget", help="Get token budget recommendations for a task"
+    )
+    budget_parser.add_argument(
+        "intent_text", help="Task description for budget estimation"
+    )
+    budget_parser.add_argument(
+        "--use-history", action="store_true",
+        help="Enable historical learning from past sessions"
+    )
+    budget_parser.add_argument(
+        "--history-path", type=str, default=None,
+        help="Custom path to budget_history.json"
+    )
+    budget_parser.add_argument(
+        "--format", dest="output_format", choices=["text", "json"],
+        default="text", help="Output format (default: text)"
+    )
+
     args = parser.parse_args(argv)
 
     _setup_stdout_encoding()
@@ -186,6 +242,10 @@ def main(argv: list[str] | None = None) -> int:
             return _cmd_list(args)
         if args.command == "report":
             return _cmd_report(args)
+        if args.command == "watch":
+            return _cmd_watch(args)
+        if args.command == "budget":
+            return _cmd_budget(args)
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
@@ -415,6 +475,137 @@ def _cmd_list(args) -> int:
                 sub_str = f", {s['subagent_count']} subagents" if s["subagent_count"] else ""
                 print(f"  {i}. {s['name']} ({size_kb:.1f} KB{sub_str})")
                 print(f"     {s['path']}")
+
+    return 0
+
+
+def _cmd_budget(args) -> int:
+    """Execute the budget subcommand for token budget recommendations."""
+    import json as json_mod
+    from .adaptive_budget import recommend_budget, HistoricalBudgetAnalyzer
+
+    if not args.intent_text.strip():
+        print("Error: Intent text cannot be empty", file=sys.stderr)
+        return 1
+
+    # Load historical data if requested
+    history = None
+    if args.use_history:
+        try:
+            history = HistoricalBudgetAnalyzer(
+                history_path=args.history_path if args.history_path else None
+            )
+        except Exception as e:
+            print(f"Warning: Could not load history: {e}", file=sys.stderr)
+
+    # Get recommendation
+    try:
+        rec = recommend_budget(args.intent_text, history=history)
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        if args.verbose:
+            import traceback
+            traceback.print_exc(file=sys.stderr)
+        return 1
+
+    # Format output
+    if args.output_format == "json":
+        print(json_mod.dumps({
+            "complexity": rec.complexity.value,
+            "model_tier": rec.model_tier.value,
+            "max_thinking_tokens": rec.max_thinking_tokens,
+            "estimated_total_tokens": rec.estimated_total_tokens,
+            "estimated_cost_usd": rec.estimated_cost_usd,
+            "confidence": rec.confidence,
+            "reasoning": rec.reasoning
+        }, indent=2))
+    else:
+        print("Budget Recommendation")
+        print("═" * 50)
+        print(f"Complexity: {rec.complexity.value} ({rec.confidence:.0%} confidence)")
+        print(f"Model: {rec.model_tier.value}")
+        print(f"Max Thinking Tokens: {rec.max_thinking_tokens:,}")
+        print(f"Est. Total Tokens: {rec.estimated_total_tokens:,}")
+        print(f"Est. Cost: ${rec.estimated_cost_usd:.4f}")
+        print(f"\nReasoning:\n{rec.reasoning}")
+
+    return 0
+
+
+def _print_signal(signal, fmt):
+    """Format and print a TER signal from live monitoring."""
+    import json as json_mod
+
+    if fmt == "json":
+        print(json_mod.dumps({
+            "session_id": signal.session_id,
+            "timestamp": signal.timestamp.isoformat(),
+            "ter": round(signal.aggregate_ter, 4),
+            "raw_ratio": round(signal.raw_ratio, 4),
+            "drift": signal.drift.value,
+            "drift_magnitude": round(signal.drift_magnitude, 4),
+            "warnings": signal.warnings,
+            "warning_level": signal.warning_level.value,
+            "tokens": {
+                "total": signal.total_tokens,
+                "aligned": signal.aligned_tokens,
+                "waste": signal.waste_tokens
+            }
+        }))
+    else:
+        # Text format with drift indicators
+        drift_arrow = "↑" if signal.drift.value == "improving" else "↓" if signal.drift.value == "degrading" else "→"
+        waste_pct = (signal.waste_tokens / signal.total_tokens * 100) if signal.total_tokens > 0 else 0
+
+        print(f"[{signal.session_id[:8]}] TER: {signal.aggregate_ter:.2f} {drift_arrow} | "
+              f"Tokens: {signal.total_tokens:,} | Waste: {signal.waste_tokens:,} ({waste_pct:.0f}%)")
+
+        if signal.warnings:
+            for warning in signal.warnings:
+                print(f"  ⚠ {warning}")
+
+
+def _cmd_watch(args) -> int:
+    """Execute the watch subcommand for live session monitoring."""
+    from .real_time import LiveDashboard
+    from pathlib import Path
+
+    project_path = Path(args.project_path)
+    if not project_path.exists():
+        print(f"Error: Project path not found: {project_path}", file=sys.stderr)
+        return 1
+
+    # Create dashboard
+    try:
+        dashboard = LiveDashboard(
+            project_dir=project_path,
+            poll_interval=args.poll_interval,
+            model=None,  # Use fast trigram embeddings
+            on_signal=lambda sig: _print_signal(sig, args.output_format)
+        )
+    except Exception as e:
+        print(f"Error initializing dashboard: {e}", file=sys.stderr)
+        if args.verbose:
+            import traceback
+            traceback.print_exc(file=sys.stderr)
+        return 1
+
+    try:
+        if args.output_format == "text":
+            print(f"Watching: {project_path}")
+            print("Press Ctrl+C to stop...\n")
+        dashboard.run()  # Blocking call
+    except KeyboardInterrupt:
+        dashboard.stop()
+        if args.output_format == "text":
+            print("\nStopped monitoring.")
+        return 0
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        if args.verbose:
+            import traceback
+            traceback.print_exc(file=sys.stderr)
+        return 1
 
     return 0
 

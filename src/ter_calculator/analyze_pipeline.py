@@ -73,4 +73,41 @@ def analyze_session(args) -> "TERResult":
             similarity_threshold=args.prompt_similarity_threshold,
         )
 
+    if hasattr(args, 'cost_weighted') and args.cost_weighted:
+        from .cost_model import generate_cost_report
+        from .models import ALIGNED_LABELS
+
+        # Extract usage dict from session economics
+        usage = {
+            "input_tokens": result.economics.total_input_tokens if result.economics else 0,
+            "output_tokens": result.economics.total_output_tokens if result.economics else 0,
+            "cache_creation_tokens": result.economics.total_cache_creation_tokens if result.economics else 0,
+            "cache_read_tokens": result.economics.total_cache_read_tokens if result.economics else 0,
+        }
+
+        # Generate cost report
+        result.cost_report = generate_cost_report(
+            spans=[{"phase": cs.span.phase.value,
+                    "token_count": cs.span.token_count,
+                    "is_aligned": cs.label in ALIGNED_LABELS,
+                    "text": cs.span.text} for cs in classified],
+            full_text=" ".join(cs.span.text for cs in classified),
+            model=args.cost_model,
+            raw_ter=result.aggregate_ter,
+            usage=usage
+        )
+
+    if hasattr(args, 'check_overthinking') and args.check_overthinking:
+        from .overthinking import analyze_overthinking
+        from .models import SpanPhase
+
+        # Extract reasoning spans
+        reasoning_spans = [
+            cs.span.text for cs in classified
+            if cs.span.phase == SpanPhase.REASONING
+        ]
+
+        if len(reasoning_spans) >= 3:  # MIN_REASONING_SPANS
+            result.overthinking_result = analyze_overthinking(reasoning_spans)
+
     return result
