@@ -237,6 +237,14 @@ def _format_rich(result: TERResult) -> str:
     if result.input_analysis is not None:
         _format_input_analysis_rich(console, result.input_analysis)
 
+    # --- Cost report ---
+    if result.cost_report is not None:
+        _format_cost_report_rich(console, result.cost_report)
+
+    # --- Overthinking analysis ---
+    if result.overthinking_result is not None:
+        _format_overthinking_rich(console, result.overthinking_result)
+
     return buf.getvalue().rstrip()
 
 
@@ -715,6 +723,68 @@ def _format_input_analysis_rich(console, ia: InputAnalysis) -> None:
             )
 
 
+def _format_cost_report_rich(console, cost_report) -> None:
+    """Render cost report section using Rich."""
+    from rich.table import Table
+
+    console.print("\n[bold]Cost Analysis[/bold]")
+
+    # Cost-weighted TER table
+    cost_table = Table(show_header=True, show_edge=True)
+    cost_table.add_column("Metric", style="cyan", width=20)
+    cost_table.add_column("Value", justify="right", width=16)
+
+    cwter = cost_report.cost_ter
+    cost_table.add_row("Cost-Weighted TER", f"{cwter.cost_weighted_ter:.4f}")
+    cost_table.add_row("Raw TER", f"{cwter.raw_ter:.4f}")
+    cost_table.add_row("Total Cost", f"${cwter.total_cost_usd:.4f}")
+    cost_table.add_row("Waste Cost", f"${cwter.waste_cost_usd:.4f}")
+    waste_pct = (cwter.waste_cost_usd / cwter.total_cost_usd * 100) if cwter.total_cost_usd > 0 else 0
+    cost_table.add_row("Waste %", f"{waste_pct:.1f}%")
+    cost_table.add_row("Semantic Density", f"{cost_report.session_density.density_score:.2%}")
+    cost_table.add_row("Redundancy", f"{cost_report.session_density.redundancy_ratio:.2%}")
+
+    console.print(cost_table)
+
+    # Recommendations
+    if cost_report.recommendations:
+        console.print("\n[bold]Recommendations:[/bold]")
+        for rec in cost_report.recommendations:
+            console.print(f"  • {rec}")
+
+
+def _format_overthinking_rich(console, ot) -> None:
+    """Render overthinking analysis section using Rich."""
+    from rich.table import Table
+
+    console.print("\n[bold]Overthinking Analysis[/bold]")
+
+    # Status
+    status_color = "red" if ot.is_overthinking else "green"
+    status_text = "OVERTHINKING DETECTED" if ot.is_overthinking else "Efficient Reasoning"
+    console.print(f"Status: [{status_color}]{status_text}[/{status_color}]")
+
+    # Overthinking metrics table
+    ot_table = Table(show_header=True, show_edge=True)
+    ot_table.add_column("Metric", style="cyan", width=20)
+    ot_table.add_column("Value", justify="right", width=16)
+
+    ot_table.add_row("Total Reasoning", f"{ot.total_reasoning_tokens:,} tokens")
+    ot_table.add_row("Useful", f"{ot.useful_reasoning_tokens:,} tokens")
+    ot_table.add_row("Efficiency", f"{ot.reasoning_efficiency:.0%}")
+    ot_table.add_row("Wasted", f"{ot.wasted_reasoning_tokens:,} tokens")
+
+    if ot.optimal_cutoff_index is not None:
+        ot_table.add_row("Optimal Cutoff", f"Span {ot.optimal_cutoff_index} (of {len(ot.segments)})")
+
+    ot_table.add_row("Recommended Budget", f"{ot.recommended_budget:,} tokens")
+
+    console.print(ot_table)
+
+    # Explanation
+    console.print(f"\n{ot.explanation}")
+
+
 # --- Plain text formatting ---
 
 
@@ -1055,6 +1125,35 @@ def _ter_result_to_dict(result: TERResult) -> dict:
                     for p in ia.prompt_response_alignment.pairs
                 ],
             },
+        }
+    if result.cost_report is not None:
+        cr = result.cost_report
+        data["cost_report"] = {
+            "cost_weighted_ter": cr.cost_ter.cost_weighted_ter,
+            "raw_ter": cr.cost_ter.raw_ter,
+            "total_cost_usd": cr.cost_ter.total_cost_usd,
+            "waste_cost_usd": cr.cost_ter.waste_cost_usd,
+            "savings_if_perfect": cr.cost_ter.savings_if_perfect,
+            "semantic_density": {
+                "density_score": cr.session_density.density_score,
+                "vocabulary_richness": cr.session_density.vocabulary_richness,
+                "information_entropy": cr.session_density.information_entropy,
+                "redundancy_ratio": cr.session_density.redundancy_ratio,
+            },
+            "recommendations": cr.recommendations,
+            "model_tier": cr.model_tier,
+        }
+    if result.overthinking_result is not None:
+        ot = result.overthinking_result
+        data["overthinking_analysis"] = {
+            "is_overthinking": ot.is_overthinking,
+            "total_reasoning_tokens": ot.total_reasoning_tokens,
+            "useful_reasoning_tokens": ot.useful_reasoning_tokens,
+            "wasted_reasoning_tokens": ot.wasted_reasoning_tokens,
+            "reasoning_efficiency": ot.reasoning_efficiency,
+            "optimal_cutoff_index": ot.optimal_cutoff_index,
+            "recommended_budget": ot.recommended_budget,
+            "explanation": ot.explanation,
         }
     return data
 
