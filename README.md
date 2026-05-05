@@ -1,6 +1,8 @@
 # TER Calculator
 
-Token Efficiency Ratio (TER) calculator for Claude Code sessions. Measures how efficiently an AI coding agent uses its token budget by classifying output token spans as **aligned** (contributing to the task) or **waste** (redundant reasoning, unnecessary tool calls, over-explanation), and surfaces the economics of each session -- cost, cache efficiency, context growth, and where waste concentrates. Supports grouped analysis of parent + subagent sessions and input-side analysis including prompt redundancy, intent drift, and prompt-response alignment.
+Token Efficiency Ratio (TER) calculator for Claude Code sessions. Measures how efficiently an AI coding agent uses its token budget by classifying output token spans as **aligned** (contributing to the task) or **waste** (redundant reasoning, unnecessary tool calls, over-explanation), and surfaces the economics of each session -- cost, cache efficiency, context growth, and where waste concentrates.
+
+**New in Phase 1B:** Real-time session monitoring, adaptive budget recommendations, cost-weighted analysis, and overthinking detection for proactive efficiency optimization.
 
 ## Why TER?
 
@@ -29,6 +31,55 @@ TER bridges both. The core score measures output quality (0-1, where 1 = every t
 | Failed tool retries | Tool calls failing and being retried | Check for incorrect paths, permissions, or assumptions |
 | Edit fragmentation | Many sequential edits to the same file | Model should batch changes into fewer operations |
 
+## Phase 1B: Real-Time & Adaptive Features
+
+Beyond post-hoc analysis, TER now provides **real-time monitoring** and **proactive recommendations**:
+
+### Live Session Monitoring (`ter watch`)
+
+Monitor active Claude Code sessions as they run, with rolling TER computation:
+
+- **Real-time TER updates** - See efficiency scores update as messages are added
+- **Drift detection** - Automatic detection of improving/degrading/stable trends
+- **Live warnings** - Get alerted when TER drops below thresholds
+- **Multi-session tracking** - Monitor all active sessions in a project simultaneously
+
+Use this to catch efficiency issues **while they're happening** rather than after the fact.
+
+### Adaptive Budget Recommendations (`ter budget`)
+
+Get model and token budget recommendations **before** starting a task:
+
+- **Complexity classification** - Analyzes task description to classify as simple/standard/complex
+- **Model tier routing** - Recommends haiku/sonnet/opus based on task complexity
+- **Token budget estimates** - Suggests thinking token limits and total token estimates
+- **Cost predictions** - Estimates session cost before you start
+- **Historical learning** - Learns from past sessions to improve recommendations over time
+
+Use this to **right-size** model selection and prevent over/under-provisioning compute.
+
+### Cost-Weighted Analysis (`--cost-weighted`)
+
+Extends TER with dollar-cost awareness:
+
+- **Cost-weighted TER** - Weights waste by actual dollar cost, not just token count (thinking tokens cost less than output tokens, cached tokens cost less than fresh input)
+- **Semantic density** - Measures information content per token (vocabulary richness, entropy, redundancy)
+- **Phase cost breakdown** - Shows where your dollars are going (reasoning/tool/generation)
+- **Alternative model savings** - Calculates how much you'd save by switching to a cheaper model with similar TER
+
+Use this to understand **financial efficiency**, not just token efficiency.
+
+### Overthinking Detection (`--check-overthinking`)
+
+Identifies when reasoning tokens plateau in marginal value:
+
+- **Reasoning efficiency** - Percentage of reasoning tokens that contributed value
+- **Optimal cutoff detection** - Identifies the span where novelty drops and reasoning becomes repetitive
+- **Waste quantification** - Calculates how many reasoning tokens were wasted on filler
+- **Budget recommendations** - Suggests thinking token limits to prevent overthinking
+
+Use this to detect the **"illusion of thinking"** phenomenon where models continue reasoning after finding the answer.
+
 ## Installation
 
 The Python package lives in the **`TER/`** subdirectory of this repository (where `pyproject.toml` is). From the repo root:
@@ -51,6 +102,62 @@ pip install -e ".[dev]"
 ```bash
 ter analyze path/to/session.jsonl
 ```
+
+### Live monitoring (NEW)
+
+Monitor active sessions in real-time with rolling TER computation:
+
+```bash
+ter watch ~/.claude/projects/your-project
+```
+
+Shows live updates as sessions progress, including:
+- Current TER and token counts
+- Drift detection (improving/degrading/stable)
+- Real-time warnings for efficiency issues
+
+### Budget recommendations (NEW)
+
+Get token budget and model recommendations for a task before starting:
+
+```bash
+ter budget "Fix the authentication bug in login.py"
+ter budget "Implement full e-commerce checkout with Stripe" --use-history
+```
+
+Returns:
+- Complexity classification (simple/standard/complex)
+- Recommended model tier (haiku/sonnet/opus)
+- Suggested thinking token budget
+- Estimated total tokens and cost
+
+### Cost-weighted analysis (NEW)
+
+Include cost analysis with dollar-weighted TER:
+
+```bash
+ter analyze path/to/session.jsonl --cost-weighted
+```
+
+Adds:
+- Cost-weighted TER (weights waste by dollar cost, not just token count)
+- Semantic density scoring (information per token)
+- Per-phase cost breakdown
+- Alternative model savings recommendations
+
+### Overthinking detection (NEW)
+
+Analyze reasoning efficiency and detect when thinking plateaus:
+
+```bash
+ter analyze path/to/session.jsonl --check-overthinking
+```
+
+Shows:
+- Reasoning efficiency percentage
+- Optimal cutoff point where value drops
+- Wasted reasoning tokens
+- Recommended thinking budget
 
 ### Grouped analysis (parent + subagents)
 
@@ -116,6 +223,18 @@ ter analyze <path>
   --group                      Include subagent sessions in grouped analysis
   --no-input-analysis          Disable input analysis (token breakdown, drift, alignment)
   --prompt-similarity-threshold  Cosine similarity for flagging redundant prompts (default: 0.75)
+  --cost-weighted              Include cost-weighted TER analysis (NEW)
+  --check-overthinking         Analyze reasoning efficiency and detect overthinking (NEW)
+
+ter watch <project-path>
+  --poll-interval SECONDS      Seconds between polls (default: 2.0)
+  --format text|json           Output format (default: text)
+  --model PATH                 Path to custom sentence-transformers model (optional)
+
+ter budget <intent-text>
+  --use-history                Enable historical learning from past sessions
+  --history-path PATH          Custom path to budget_history.json
+  --format text|json           Output format (default: text)
 
 ter compare <paths_or_dirs...>
   --format text|json
@@ -129,7 +248,7 @@ ter list [path]
 
 ter report <path>
   -o, --output FILE          Write Markdown to FILE instead of stdout
-  (same threshold/cost flags as analyze)
+  (same threshold/cost/analysis flags as analyze)
 ```
 
 ## Try It
@@ -139,6 +258,16 @@ Sample sessions are included in `sample_sessions/`. Run TER against them to see 
 ```bash
 # Analyze a single session
 ter analyze sample_sessions/b1a1450c-b006-40fe-8f9c-f15622a94324.jsonl
+
+# Analyze with cost and overthinking detection (NEW)
+ter analyze sample_sessions/b1a1450c-b006-40fe-8f9c-f15622a94324.jsonl --cost-weighted --check-overthinking
+
+# Get budget recommendation for a task (NEW)
+ter budget "Fix the authentication bug in login.py"
+ter budget "Implement a full user dashboard with charts" --use-history
+
+# Monitor active sessions in real-time (NEW)
+ter watch ~/.claude/projects/your-project
 
 # Grouped analysis (parent + subagents)
 ter analyze sample_sessions/b1a1450c-b006-40fe-8f9c-f15622a94324.jsonl --group
@@ -296,7 +425,7 @@ When `--group` is used, TER discovers subagent sessions from the filesystem and 
 
 ```
 src/ter_calculator/
-  cli.py              CLI (analyze, report, compare, list; --group)
+  cli.py              CLI (analyze, report, compare, list, watch, budget)
   analyze_pipeline.py Shared full-session analysis (analyze + report)
   config_parse.py     Cost model & phase-weight parsing
   session_report.py   Markdown report + baseline delta formatting
@@ -309,6 +438,12 @@ src/ter_calculator/
   input_analysis.py   Input-side analysis (token breakdown, redundancy, drift, alignment)
   formatter.py        Rich/text/JSON output formatting (single, comparison, grouped)
   models.py           Data models and enums
+  
+  # Phase 1B: Real-time & Adaptive Features
+  real_time.py        Live session monitoring with rolling TER and drift detection
+  adaptive_budget.py  Token budget recommendations based on task complexity
+  cost_model.py       Cost-weighted TER and semantic density analysis
+  overthinking.py     Reasoning efficiency analysis and waste detection
 ```
 
 ## Development

@@ -182,6 +182,8 @@ class TERResult:
     classified_spans: list[ClassifiedSpan] = field(default_factory=list)
     economics: SessionEconomics | None = None
     input_analysis: InputAnalysis | None = None
+    cost_report: Any | None = None  # CostReport from cost_model.py (avoid circular import)
+    overthinking_result: Any | None = None  # OverthinkingResult from overthinking.py (avoid circular import)
 
 
 @dataclass
