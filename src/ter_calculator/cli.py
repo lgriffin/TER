@@ -40,7 +40,12 @@ def main(argv: list[str] | None = None) -> int:
         "analyze", help="Analyze a Claude Code session"
     )
     analyze_parser.add_argument(
-        "session_path", help="Path to a JSONL session file"
+        "session_path", nargs="?", default=None,
+        help="Path to a JSONL session file (optional if --latest is used)"
+    )
+    analyze_parser.add_argument(
+        "--latest", action="store_true",
+        help="Analyze the most recent session (based on file modification time)"
     )
     analyze_parser.add_argument(
         "--format", dest="output_format", choices=["text", "json"],
@@ -97,7 +102,12 @@ def main(argv: list[str] | None = None) -> int:
         help="Print a Markdown summary (headline metrics, calibration, top waste, next steps)",
     )
     report_parser.add_argument(
-        "session_path", help="Path to a JSONL session file"
+        "session_path", nargs="?", default=None,
+        help="Path to a JSONL session file (optional if --latest is used)"
+    )
+    report_parser.add_argument(
+        "--latest", action="store_true",
+        help="Report on the most recent session (based on file modification time)"
     )
     report_parser.add_argument(
         "--similarity-threshold", type=float, default=0.40,
@@ -190,7 +200,12 @@ def main(argv: list[str] | None = None) -> int:
         "watch", help="Monitor active sessions in real-time"
     )
     watch_parser.add_argument(
-        "project_path", help="Path to Claude Code project directory"
+        "project_path", nargs="?", default=None,
+        help="Path to Claude Code project directory (optional if --latest is used)"
+    )
+    watch_parser.add_argument(
+        "--latest", action="store_true",
+        help="Watch the most recent session (based on file modification time)"
     )
     watch_parser.add_argument(
         "--poll-interval", type=float, default=2.0,
@@ -264,6 +279,16 @@ def main(argv: list[str] | None = None) -> int:
 
 def _cmd_analyze(args) -> int:
     """Execute the analyze subcommand."""
+    # Resolve --latest flag
+    if args.latest:
+        from .loader import find_latest_session
+        args.session_path = str(find_latest_session(args.session_path))
+        if not args.quiet:
+            print(f"Using latest session: {args.session_path}", file=sys.stderr)
+    elif args.session_path is None:
+        print("Error: Either provide a session_path or use --latest", file=sys.stderr)
+        return 1
+
     if args.group:
         return _cmd_analyze_group(args)
 
@@ -277,6 +302,16 @@ def _cmd_analyze(args) -> int:
 
 def _cmd_report(args) -> int:
     """Markdown one-screen summary for humans."""
+    # Resolve --latest flag
+    if args.latest:
+        from .loader import find_latest_session
+        args.session_path = str(find_latest_session(args.session_path))
+        if not args.quiet:
+            print(f"Using latest session: {args.session_path}", file=sys.stderr)
+    elif args.session_path is None:
+        print("Error: Either provide a session_path or use --latest", file=sys.stderr)
+        return 1
+
     from .analyze_pipeline import analyze_session
     from .session_report import format_session_report_markdown
 
@@ -550,15 +585,36 @@ def _print_signal(signal, fmt):
                 "total": signal.total_tokens,
                 "aligned": signal.aligned_tokens,
                 "waste": signal.waste_tokens
-            }
+            },
+            "phase_ter": getattr(signal, 'phase_ter', {}),
+            "waste_sources": getattr(signal, 'waste_sources', {})
         }))
     else:
         # Text format with drift indicators
         drift_arrow = "↑" if signal.drift.value == "improving" else "↓" if signal.drift.value == "degrading" else "→"
         waste_pct = (signal.waste_tokens / signal.total_tokens * 100) if signal.total_tokens > 0 else 0
+        aligned_pct = (signal.aligned_tokens / signal.total_tokens * 100) if signal.total_tokens > 0 else 0
 
-        print(f"[{signal.session_id[:8]}] TER: {signal.aggregate_ter:.2f} {drift_arrow} | "
-              f"Tokens: {signal.total_tokens:,} | Waste: {signal.waste_tokens:,} ({waste_pct:.0f}%)")
+        # Show both aggregate TER (phase-weighted) and raw ratio (actual waste %)
+        print(f"[{signal.session_id[:8]}] TER: {signal.aggregate_ter:.2f} (weighted) | "
+              f"Raw: {signal.raw_ratio:.2f} {drift_arrow} | "
+              f"Tokens: {signal.total_tokens:,} | "
+              f"Aligned: {signal.aligned_tokens:,} ({aligned_pct:.0f}%) | "
+              f"Waste: {signal.waste_tokens:,} ({waste_pct:.0f}%)")
+
+        # Show phase breakdown if available
+        if hasattr(signal, 'phase_ter') and signal.phase_ter:
+            phase_strs = [f"{p[:3]}: {ter:.2f}" for p, ter in signal.phase_ter.items()]
+            print(f"  Phases: {' | '.join(phase_strs)}")
+
+        # Show waste sources if available
+        if hasattr(signal, 'waste_sources') and signal.waste_sources:
+            waste_items = []
+            for source, count in signal.waste_sources.items():
+                if count > 0:
+                    waste_items.append(f"{source}: {count}")
+            if waste_items:
+                print(f"  Waste: {', '.join(waste_items)}")
 
         if signal.warnings:
             for warning in signal.warnings:
@@ -570,7 +626,20 @@ def _cmd_watch(args) -> int:
     from .real_time import LiveDashboard
     from pathlib import Path
 
-    project_path = Path(args.project_path)
+    # Resolve --latest flag
+    if args.latest:
+        from .loader import find_latest_session
+        latest_session = find_latest_session(args.project_path)
+        # For watch, we need the project directory, not the session file
+        project_path = latest_session.parent
+        if not args.quiet:
+            print(f"Watching latest session: {latest_session.name}", file=sys.stderr)
+    elif args.project_path is None:
+        print("Error: Either provide a project_path or use --latest", file=sys.stderr)
+        return 1
+    else:
+        project_path = Path(args.project_path)
+
     if not project_path.exists():
         print(f"Error: Project path not found: {project_path}", file=sys.stderr)
         return 1
