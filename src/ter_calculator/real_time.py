@@ -136,8 +136,9 @@ class RollingTERState:
     intent_embedding: NDArray[np.float32] | None = None
     intent_text: str = ""
     intent_confidence: float = 0.0
+    intent_embeddings: list[NDArray[np.float32]] = field(default_factory=list)
 
-    last_request_ids: set[str] = field(default_factory=set)
+    last_request_ids: dict[str, int] = field(default_factory=dict)
     last_file_position: int = 0
 
     @property
@@ -279,13 +280,11 @@ def compute_rolling_ter(
     for line_data in new_lines:
         request_id = _get_request_id(line_data)
         if request_id and request_id in state.last_request_ids:
-            usage = _get_usage(line_data)
-            prev_output = 0
-            if usage.get("output_tokens", 0) > prev_output:
-                pass
             continue
         if request_id:
-            state.last_request_ids.add(request_id)
+            state.last_request_ids[request_id] = _get_usage(line_data).get(
+                "output_tokens", 0
+            )
 
         msg = line_data.get("message", {})
         role = msg.get("role", "")
@@ -293,21 +292,54 @@ def compute_rolling_ter(
 
         if role == "user":
             for block in blocks:
-                if block.get("type") == "text" and block.get("text"):
+                block_type = block.get("type", "")
+                if block_type == "text" and block.get("text"):
                     user_text = block["text"]
                     if state.intent_text:
                         state.intent_text += " " + user_text
                     else:
                         state.intent_text = user_text
                     if embed_fn is not None:
-                        state.intent_embedding = embed_fn(
-                            state.intent_text, normalize_embeddings=True
+                        prompt_emb = embed_fn(
+                            user_text, normalize_embeddings=True
                         ).astype(np.float32)
                     else:
-                        state.intent_embedding = _embed_text_fast(state.intent_text)
+                        prompt_emb = _embed_text_fast(user_text)
+                    state.intent_embeddings.append(prompt_emb)
+                    state.intent_embedding = np.mean(
+                        state.intent_embeddings, axis=0
+                    ).astype(np.float32)
+                    norm = np.linalg.norm(state.intent_embedding)
+                    if norm > 0:
+                        state.intent_embedding /= norm
                     state.intent_confidence = min(
                         1.0, len(state.intent_text.split()) / 20
                     )
+                elif block_type == "tool_result":
+                    content = block.get("content", "")
+                    text = content if isinstance(content, str) else json.dumps(content)
+                    if text:
+                        tokens = _estimate_tokens(text)
+                        phase = "tool_use"
+                        state.total_tokens += tokens
+                        state.phase_total[phase] += tokens
+                        state.span_count += 1
+                        if state.intent_embedding is not None:
+                            if embed_fn is not None:
+                                span_emb = embed_fn(
+                                    text, normalize_embeddings=True
+                                ).astype(np.float32)
+                            else:
+                                span_emb = _embed_text_fast(text)
+                            sim = _cosine_similarity(span_emb, state.intent_embedding)
+                            is_aligned = sim >= SIM_THRESHOLD
+                        else:
+                            is_aligned = True
+                        if is_aligned:
+                            state.aligned_tokens += tokens
+                            state.phase_aligned[phase] += tokens
+                        else:
+                            state.waste_tokens += tokens
             continue
 
         if role != "assistant":
