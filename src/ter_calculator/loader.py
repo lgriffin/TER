@@ -148,6 +148,60 @@ def discover_subagents(parent_path: str | Path) -> list[Path]:
     return sorted(subagent_dir.glob("*.jsonl"))
 
 
+def find_latest_session(project_path: str | Path | None = None) -> Path:
+    """Find the most recent session file based on modification time.
+
+    Args:
+        project_path: Path to Claude Code project directory. If None, uses
+                     ~/.claude/projects and finds the most recent project.
+
+    Returns:
+        Path to the latest .jsonl session file.
+
+    Raises:
+        FileNotFoundError: If no sessions found or project path doesn't exist.
+    """
+    if project_path is None:
+        # Find most recent project in ~/.claude/projects
+        home = Path.home()
+        claude_dir = home / ".claude" / "projects"
+        if not claude_dir.exists():
+            raise FileNotFoundError(
+                "No Claude Code projects found at ~/.claude/projects/"
+            )
+
+        # Find all sessions across all projects, sorted by modification time
+        all_sessions = []
+        for jsonl_file in claude_dir.rglob("*.jsonl"):
+            if "subagents" not in jsonl_file.parts:
+                all_sessions.append(jsonl_file)
+
+        if not all_sessions:
+            raise FileNotFoundError(
+                f"No session files found in {claude_dir}"
+            )
+
+        # Return the most recently modified
+        return max(all_sessions, key=lambda p: p.stat().st_mtime)
+
+    # Use specified project path
+    project_dir = Path(project_path)
+    if not project_dir.exists():
+        raise FileNotFoundError(f"Project directory not found: {project_path}")
+
+    # Find all sessions in this project, excluding subagents
+    sessions = []
+    for jsonl_file in project_dir.rglob("*.jsonl"):
+        if "subagents" not in jsonl_file.parts:
+            sessions.append(jsonl_file)
+
+    if not sessions:
+        raise FileNotFoundError(f"No session files found in {project_path}")
+
+    # Return the most recently modified
+    return max(sessions, key=lambda p: p.stat().st_mtime)
+
+
 def _deduplicate_entries(entries: list[dict]) -> list[dict]:
     """Deduplicate entries by requestId, keeping highest output_tokens."""
     seen_request_ids: dict[str, int] = {}  # requestId -> index in result
