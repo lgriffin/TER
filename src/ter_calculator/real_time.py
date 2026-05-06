@@ -125,6 +125,9 @@ class RollingTERState:
     phase_aligned: dict[str, int] = field(
         default_factory=lambda: {"reasoning": 0, "tool_use": 0, "generation": 0}
     )
+    phase_waste: dict[str, int] = field(
+        default_factory=lambda: {"reasoning": 0, "tool_use": 0, "generation": 0}
+    )
 
     message_count: int = 0
     span_count: int = 0
@@ -158,6 +161,16 @@ class RollingTERState:
             return 0.0
         return self.aligned_tokens / self.total_tokens
 
+    def get_phase_ter_scores(self) -> dict[str, float]:
+        """Get TER score for each phase."""
+        scores = {}
+        for phase in ("reasoning", "tool_use", "generation"):
+            total = self.phase_total[phase]
+            scores[phase] = (
+                self.phase_aligned[phase] / total if total > 0 else 1.0
+            )
+        return scores
+
 
 @dataclass(frozen=True, slots=True)
 class TERSignal:
@@ -175,6 +188,8 @@ class TERSignal:
     drift_magnitude: float
     warnings: list[str] = field(default_factory=list)
     warning_level: WarningLevel = WarningLevel.INFO
+    phase_ter: dict[str, float] = field(default_factory=dict)
+    waste_sources: dict[str, int] = field(default_factory=dict)
 
     @property
     def is_healthy(self) -> bool:
@@ -374,6 +389,7 @@ def compute_rolling_ter(
                 message_aligned += tokens
             else:
                 state.waste_tokens += tokens
+                state.phase_waste[phase] += tokens
 
         if message_total == 0:
             continue
@@ -408,6 +424,15 @@ def compute_rolling_ter(
             if level == WarningLevel.INFO:
                 level = WarningLevel.CAUTION
 
+        # Get phase-specific TER scores
+        phase_ter = state.get_phase_ter_scores()
+
+        # Build waste sources breakdown
+        waste_sources = {}
+        for phase, waste in state.phase_waste.items():
+            if waste > 0:
+                waste_sources[phase] = waste
+
         signal = TERSignal(
             session_id=line_data.get("sessionId", "unknown"),
             timestamp=time.time(),
@@ -421,6 +446,8 @@ def compute_rolling_ter(
             drift_magnitude=drift_mag,
             warnings=warnings,
             warning_level=level,
+            phase_ter=phase_ter,
+            waste_sources=waste_sources,
         )
         signals.append(signal)
 
