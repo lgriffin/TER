@@ -445,9 +445,11 @@ def rolling_state_with_recent_values(ctx, values):
     state.aligned_tokens = 300
     state.waste_tokens = 200
     state.message_count = len(parsed)
-    # Set up intent so classification works
-    state.intent_embedding = np.ones(384, dtype=np.float32) / np.sqrt(384)
-    state.intent_text = "test intent"
+    # Set up intent with a realistic embedding (not uniform, which has
+    # artificially high similarity to everything via trigram hashing).
+    from ter_calculator.real_time import _embed_text_fast
+    state.intent_embedding = _embed_text_fast("fix the authentication bug in login flow")
+    state.intent_text = "fix the authentication bug in login flow"
     state.intent_confidence = 1.0
     ctx["state"] = state
 
@@ -455,8 +457,15 @@ def rolling_state_with_recent_values(ctx, values):
 @when("the next assistant message produces a TER that continues the decline")
 def next_declining_message(ctx):
     state = ctx["state"]
-    # Produce a message that will have low TER to continue the decline
-    line = _make_assistant_line("Completely unrelated tangent about cooking recipes and gardening tips.")
+    # Produce a long generation message (>50 words) with low intent similarity
+    # to trigger waste classification under the aligned-by-default logic.
+    line = _make_assistant_line(
+        "Completely unrelated tangent about cooking recipes and gardening tips. "
+        "First you need to preheat the oven to three hundred and fifty degrees "
+        "then prepare the batter by mixing flour sugar eggs and butter together "
+        "in a large bowl until smooth. Pour the mixture into a greased pan and "
+        "bake for approximately thirty minutes until golden brown on top."
+    )
     signals = compute_rolling_ter(state, [line])
     ctx["signals"] = signals
     ctx["signal"] = signals[0] if signals else None
