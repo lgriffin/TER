@@ -652,25 +652,27 @@ def _print_signal(signal, fmt, log_fh=None):
 
 def _cmd_watch(args) -> int:
     """Execute the watch subcommand for live session monitoring."""
-    from .real_time import LiveDashboard
+    from .real_time import LiveDashboard, SessionMonitor
     from pathlib import Path
 
-    # Resolve --latest flag
+    single_file = None
+
     if args.latest:
         from .loader import find_latest_session
         latest_session = find_latest_session(args.project_path)
-        project_path = latest_session.parent
+        single_file = latest_session
         if not args.quiet:
             print(f"Watching latest session: {latest_session.name}", file=sys.stderr)
     elif args.project_path is None:
         print("Error: Either provide a project_path or use --latest", file=sys.stderr)
         return 1
     else:
-        project_path = Path(args.project_path)
-
-    if not project_path.exists():
-        print(f"Error: Project path not found: {project_path}", file=sys.stderr)
-        return 1
+        target = Path(args.project_path)
+        if target.is_file() and target.suffix == ".jsonl":
+            single_file = target
+        elif not target.exists():
+            print(f"Error: Project path not found: {target}", file=sys.stderr)
+            return 1
 
     log_fh = None
     log_path = getattr(args, "log_file", None)
@@ -685,14 +687,22 @@ def _cmd_watch(args) -> int:
             signal_count += 1
             _print_signal(sig, args.output_format, log_fh=log_fh)
 
-        dashboard = LiveDashboard(
-            project_dir=project_path,
-            poll_interval=args.poll_interval,
-            model=None,
-            on_signal=on_signal,
-        )
+        if single_file is not None:
+            monitor = SessionMonitor(
+                single_file,
+                poll_interval=args.poll_interval,
+                model=None,
+                on_signal=on_signal,
+            )
+        else:
+            monitor = LiveDashboard(
+                project_dir=Path(args.project_path),
+                poll_interval=args.poll_interval,
+                model=None,
+                on_signal=on_signal,
+            )
     except Exception as e:
-        print(f"Error initializing dashboard: {e}", file=sys.stderr)
+        print(f"Error initializing monitor: {e}", file=sys.stderr)
         if args.verbose:
             import traceback
             traceback.print_exc(file=sys.stderr)
@@ -700,15 +710,16 @@ def _cmd_watch(args) -> int:
             log_fh.close()
         return 1
 
+    watch_target = single_file or args.project_path
     try:
         if args.output_format == "text":
-            print(f"Watching: {project_path}")
+            print(f"Watching: {watch_target}")
             if log_path:
                 print(f"Logging to: {log_path}")
             print("Press Ctrl+C to stop...\n")
-        dashboard.run()
+        monitor.run()
     except KeyboardInterrupt:
-        dashboard.stop()
+        monitor.stop()
         if args.output_format == "text":
             print("\nStopped monitoring.")
             if log_path:
