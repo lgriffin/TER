@@ -186,6 +186,7 @@ class TERSignal:
     waste_tokens: int
     drift: DriftDirection
     drift_magnitude: float
+    is_live: bool = False
     warnings: list[str] = field(default_factory=list)
     warning_level: WarningLevel = WarningLevel.INFO
     phase_ter: dict[str, float] = field(default_factory=dict)
@@ -286,6 +287,24 @@ def _get_usage(line_data: dict[str, Any]) -> dict[str, int]:
     """Extract token usage dict."""
     msg = line_data.get("message", {})
     return msg.get("usage", {})
+
+
+def _get_message_timestamp(line_data: dict[str, Any]) -> float:
+    """Extract the message timestamp as a unix float, falling back to now."""
+    ts = line_data.get("timestamp")
+    if isinstance(ts, (int, float)):
+        return float(ts)
+    if isinstance(ts, str):
+        from datetime import datetime, timezone
+        try:
+            dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+            return dt.timestamp()
+        except ValueError:
+            pass
+    return time.time()
+
+
+_LIVE_THRESHOLD_SEC = 30.0
 
 
 def compute_rolling_ter(
@@ -461,9 +480,10 @@ def compute_rolling_ter(
             if waste > 0:
                 waste_sources[phase] = waste
 
+        msg_ts = _get_message_timestamp(line_data)
         signal = TERSignal(
             session_id=line_data.get("sessionId", "unknown"),
-            timestamp=time.time(),
+            timestamp=msg_ts,
             aggregate_ter=current_ter,
             raw_ratio=ratio,
             message_index=state.message_count,
@@ -474,6 +494,7 @@ def compute_rolling_ter(
             drift_magnitude=drift_mag,
             warnings=warnings,
             warning_level=level,
+            is_live=(time.time() - msg_ts) < _LIVE_THRESHOLD_SEC,
             phase_ter=phase_ter,
             waste_sources=waste_sources,
         )
