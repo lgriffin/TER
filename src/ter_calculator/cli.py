@@ -219,6 +219,10 @@ def main(argv: list[str] | None = None) -> int:
         "--model", type=str, default=None,
         help="Path to custom sentence-transformers model (optional)"
     )
+    watch_parser.add_argument(
+        "--log", dest="log_file", metavar="FILE", default=None,
+        help="Append signals as JSONL to FILE for later analysis"
+    )
 
     # budget subcommand
     budget_parser = subparsers.add_parser(
@@ -567,36 +571,61 @@ def _cmd_budget(args) -> int:
     return 0
 
 
-def _print_signal(signal, fmt):
+def _signal_to_dict(signal) -> dict:
+    """Convert a TERSignal to a JSON-serialisable dict."""
+    from datetime import datetime, timezone
+
+    return {
+        "session_id": signal.session_id,
+        "timestamp": datetime.fromtimestamp(signal.timestamp, tz=timezone.utc).isoformat(),
+        "is_live": signal.is_live,
+        "ter": round(signal.aggregate_ter, 4),
+        "raw_ratio": round(signal.raw_ratio, 4),
+        "message_index": signal.message_index,
+        "drift": signal.drift.value,
+        "drift_magnitude": round(signal.drift_magnitude, 4),
+        "warnings": signal.warnings,
+        "warning_level": signal.warning_level.value,
+        "tokens": {
+            "total": signal.total_tokens,
+            "aligned": signal.aligned_tokens,
+            "waste": signal.waste_tokens,
+        },
+        "phase_ter": getattr(signal, "phase_ter", {}),
+        "waste_sources": getattr(signal, "waste_sources", {}),
+    }
+
+
+_last_was_live = False
+
+
+def _print_signal(signal, fmt, log_fh=None):
     """Format and print a TER signal from live monitoring."""
+    global _last_was_live
     import json as json_mod
 
+    record = _signal_to_dict(signal)
+
+    if log_fh is not None:
+        log_fh.write(json_mod.dumps(record) + "\n")
+        log_fh.flush()
+
     if fmt == "json":
-        print(json_mod.dumps({
-            "session_id": signal.session_id,
-            "timestamp": signal.timestamp.isoformat(),
-            "ter": round(signal.aggregate_ter, 4),
-            "raw_ratio": round(signal.raw_ratio, 4),
-            "drift": signal.drift.value,
-            "drift_magnitude": round(signal.drift_magnitude, 4),
-            "warnings": signal.warnings,
-            "warning_level": signal.warning_level.value,
-            "tokens": {
-                "total": signal.total_tokens,
-                "aligned": signal.aligned_tokens,
-                "waste": signal.waste_tokens
-            },
-            "phase_ter": getattr(signal, 'phase_ter', {}),
-            "waste_sources": getattr(signal, 'waste_sources', {})
-        }))
+        print(json_mod.dumps(record))
     else:
-        # Text format with drift indicators
+        from datetime import datetime, timezone
+
+        if signal.is_live and not _last_was_live:
+            print("\n--- LIVE ---\n")
+        _last_was_live = signal.is_live
+
+        tag = "LIVE" if signal.is_live else "HISTORY"
+        msg_time = datetime.fromtimestamp(signal.timestamp, tz=timezone.utc).astimezone().strftime("%H:%M:%S")
         drift_arrow = "↑" if signal.drift.value == "improving" else "↓" if signal.drift.value == "degrading" else "→"
         waste_pct = (signal.waste_tokens / signal.total_tokens * 100) if signal.total_tokens > 0 else 0
         aligned_pct = (signal.aligned_tokens / signal.total_tokens * 100) if signal.total_tokens > 0 else 0
 
-        # Show both aggregate TER (phase-weighted) and raw ratio (actual waste %)
-        print(f"[{signal.session_id[:8]}] TER: {signal.aggregate_ter:.2f} (weighted) | "
+        print(f"[{msg_time}] [{tag}] [{signal.session_id[:8]}] TER: {signal.aggregate_ter:.2f} (weighted) | "
               f"Raw: {signal.raw_ratio:.2f} {drift_arrow} | "
               f"Tokens: {signal.total_tokens:,} | "
               f"Aligned: {signal.aligned_tokens:,} ({aligned_pct:.0f}%) | "
@@ -623,51 +652,78 @@ def _print_signal(signal, fmt):
 
 def _cmd_watch(args) -> int:
     """Execute the watch subcommand for live session monitoring."""
-    from .real_time import LiveDashboard
+    from .real_time import LiveDashboard, SessionMonitor
     from pathlib import Path
 
-    # Resolve --latest flag
+    single_file = None
+
     if args.latest:
         from .loader import find_latest_session
         latest_session = find_latest_session(args.project_path)
-        # For watch, we need the project directory, not the session file
-        project_path = latest_session.parent
+        single_file = latest_session
         if not args.quiet:
             print(f"Watching latest session: {latest_session.name}", file=sys.stderr)
     elif args.project_path is None:
         print("Error: Either provide a project_path or use --latest", file=sys.stderr)
         return 1
     else:
-        project_path = Path(args.project_path)
+        target = Path(args.project_path)
+        if target.is_file() and target.suffix == ".jsonl":
+            single_file = target
+        elif not target.exists():
+            print(f"Error: Project path not found: {target}", file=sys.stderr)
+            return 1
 
-    if not project_path.exists():
-        print(f"Error: Project path not found: {project_path}", file=sys.stderr)
-        return 1
+    log_fh = None
+    log_path = getattr(args, "log_file", None)
+    signal_count = 0
 
-    # Create dashboard
     try:
-        dashboard = LiveDashboard(
-            project_dir=project_path,
-            poll_interval=args.poll_interval,
-            model=None,  # Use fast trigram embeddings
-            on_signal=lambda sig: _print_signal(sig, args.output_format)
-        )
+        if log_path:
+            log_fh = open(log_path, "a", encoding="utf-8")
+
+        def on_signal(sig):
+            nonlocal signal_count
+            signal_count += 1
+            _print_signal(sig, args.output_format, log_fh=log_fh)
+
+        if single_file is not None:
+            monitor = SessionMonitor(
+                single_file,
+                poll_interval=args.poll_interval,
+                model=None,
+                on_signal=on_signal,
+            )
+        else:
+            monitor = LiveDashboard(
+                project_dir=Path(args.project_path),
+                poll_interval=args.poll_interval,
+                model=None,
+                on_signal=on_signal,
+            )
     except Exception as e:
-        print(f"Error initializing dashboard: {e}", file=sys.stderr)
+        print(f"Error initializing monitor: {e}", file=sys.stderr)
         if args.verbose:
             import traceback
             traceback.print_exc(file=sys.stderr)
+        if log_fh:
+            log_fh.close()
         return 1
 
+    watch_target = single_file or args.project_path
     try:
         if args.output_format == "text":
-            print(f"Watching: {project_path}")
+            print(f"Watching: {watch_target}")
+            if log_path:
+                print(f"Logging to: {log_path}")
             print("Press Ctrl+C to stop...\n")
-        dashboard.run()  # Blocking call
+        monitor.run()
     except KeyboardInterrupt:
-        dashboard.stop()
+        monitor.stop()
         if args.output_format == "text":
             print("\nStopped monitoring.")
+            if log_path:
+                print(f"Wrote {signal_count} signals to {log_path}")
         return 0
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
@@ -675,6 +731,9 @@ def _cmd_watch(args) -> int:
             import traceback
             traceback.print_exc(file=sys.stderr)
         return 1
+    finally:
+        if log_fh:
+            log_fh.close()
 
     return 0
 
