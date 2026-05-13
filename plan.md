@@ -1,6 +1,6 @@
 # TER: From Post-Hoc Analysis to Real-Time Capability Adaptation
 
-**Date**: 2026-05-01 | **Status**: Draft — for refinement  
+**Date**: 2026-05-13 | **Status**: Active  
 **Goal**: Evolve TER from a session-replay analyzer into a real-time efficiency signal that drives adaptive model behavior, token budgeting, and cost optimization.
 
 ---
@@ -14,161 +14,216 @@ The core insight from recent research (SelfBudgeter, IARS, Route-To-Reason, Appl
 
 ---
 
-## Current State (v0.x — Post-Hoc Analyzer)
+## Completed Work
 
-- Batch analysis of completed JSONL sessions
-- Embedding-based intent alignment (all-MiniLM-L6-v2, 384-dim)
-- 3 core + 5 extended waste patterns
-- Phase-weighted TER scoring (R:0.3, T:0.4, G:0.3)
-- Plugin system, validation, caching, acceleration modules designed
-- **Gap**: No core pipeline implemented yet (models.py, loader.py, etc. pending)
+### Phase 1 — Foundation (v0.x)
 
----
+**Core pipeline**: 9 modules (`models.py`, `loader.py`, `intent.py`, `classifier.py`, `waste.py`, `compute.py`, `formatter.py`, `compare.py`, `cli.py`) providing batch analysis of JSONL sessions with embedding-based intent alignment, 3 core + 5 extended waste patterns, and phase-weighted TER scoring.
 
-## Phase 1 — Foundation ✅ COMPLETE
+**Bridge modules**: `real_time.py`, `adaptive_budget.py`, `cost_model.py`, `overthinking.py` — live monitoring, budget recommendations, cost-weighted TER, and reasoning value analysis.
 
-**Objective**: Get the core pipeline working end-to-end and add the four modules that bridge toward real-time.
+**BDD test suite**: 538 tests across 37 feature files covering core pipeline, real-time, budgets, cost economics, waste detection, validation, and performance.
 
-### 1A. Core Pipeline ✅ COMPLETE
+### Phase 1.5 — Watch Improvements (PR #18, 2026-05-13)
 
-Build the 9 core modules defined in `specs/001-ter-calculator/plan.md`:
-- `models.py`, `loader.py`, `intent.py`, `classifier.py`, `waste.py`, `compute.py`, `formatter.py`, `compare.py`, `cli.py`
+Fixed three critical issues discovered during real-world usage:
 
-### 1B. Real-Time Bridge Modules ✅ COMPLETE (Tested: 2026-05-05)
+| Issue | Root Cause | Fix |
+|-------|-----------|-----|
+| Live watch showed 91% waste vs post-hoc 8% | Binary similarity gate (`sim >= 0.40 = aligned`) too aggressive | Adopted classifier's "aligned by default" philosophy with phase-specific heuristics |
+| Watch not polling for new messages | Line-counting bug in `_read_new_lines` skipped appended content | Replaced with byte-offset `seek()` |
+| No way to save watch output | Missing feature | Added `--log FILE` flag for JSONL output |
+| Can't tell live from replay | All signals looked the same | Added `[HH:MM:SS] [LIVE/HISTORY]` tags using message timestamps |
+| `--latest` replayed all sessions | Passed parent directory to LiveDashboard | Now uses SessionMonitor for single-file targeting |
+| `python -m ter_calculator` didn't work | Missing `__main__.py` | Added entry point |
 
-| Module | Purpose | Key Capability |
-|--------|---------|----------------|
-| `real_time.py` | Live session monitoring | Watch active JSONL files, compute rolling TER on each new message, emit efficiency signals as the session progresses |
-| `adaptive_budget.py` | Token budget recommendations | Classify task complexity from intent, recommend thinking token budgets and model tier based on historical TER for similar tasks |
-| `cost_model.py` | Cost-weighted TER + semantic density | Extend TER with dollar-cost weighting (input/output/cached pricing), compute semantic density (information per token) |
-| `overthinking.py` | Reasoning value analysis | Detect when reasoning tokens plateau in marginal value using entropy/mutual-information proxies, recommend early termination points |
-
-### 1C. Success Criteria ✅ COMPLETE
-
-- ✅ `ter analyze <session>` produces correct TER with waste patterns
-- ✅ `ter watch <project>` streams live TER updates for active sessions
-- ✅ `ter budget <intent-text>` recommends thinking token budget and model tier
-- ✅ Cost-weighted TER available via `--cost-weighted` flag
-- ✅ Overthinking analysis available via `--check-overthinking` flag
-
-**Testing Status:**
-- 163 comprehensive unit tests added for all Phase 1B modules
-- 100% test pass rate (327 total tests: 163 new + 164 existing)
-- See `docs/TESTING_PHASE_1B.md` for full test coverage report
-
-**CLI Integration Status (2026-05-05):**
-- All 4 Phase 1B modules integrated into CLI
-- `ter watch` - Live monitoring with drift detection
-- `ter budget` - Budget recommendations with historical learning
-- `--cost-weighted` - Cost analysis with semantic density
-- `--check-overthinking` - Reasoning efficiency analysis
+**Key finding — embedding quality gap**: The fast trigram-hash embeddings used for live monitoring lack semantic discriminative power. Cosine similarities between unrelated English texts cluster around 0.40-0.60, making intent-based waste detection unreliable. Repetition detection was added for reasoning/generation phases (threshold 0.88), but tool_use repetition produces false positives because structurally similar but semantically different tool calls (e.g., reading different files) hash to near-identical vectors. Tool calls remain always-aligned in live mode; post-hoc analysis with sentence-transformers catches the remaining ~8% waste.
 
 ---
 
-## Phase 2 — Adaptive Routing (v1.x)
+## Phase 2 — Embedding Quality & Live Accuracy
 
-**Objective**: Use TER signals to route tasks to the right model at the right cost.
+**Objective**: Close the gap between live watch and post-hoc analysis so that `ter watch` produces actionable, trustworthy signals in real time.
 
-### 2A. Task Complexity Classifier
+**Why this before routing/budgets**: The Phase 2 features in the original plan (task routing, budget control, prompt compression) all depend on accurate real-time TER signals. If watch shows 0% waste when post-hoc shows 8%, the routing decisions will be wrong. Fix the signal first.
 
-- Train a lightweight classifier on historical TER data: {intent embedding, session length, waste patterns} → complexity tier (simple/standard/complex)
-- Use Anthropic's model tiers: Haiku for simple (TER historically > 0.85), Sonnet for standard, Opus for complex (TER historically < 0.5 due to task difficulty, not waste)
-- Research reference: Route-To-Reason achieves 60% token reduction with joint model+strategy routing
+### 2A. Lazy-Loaded Sentence-Transformer for Watch
 
-### 2B. Dynamic Token Budget Controller
+The trigram hash was a premature optimization. Real sessions produce one assistant message every 2-10 seconds; embedding a few text spans per message with MiniLM-L6-v2 takes ~10ms on CPU. The polling interval (2s) provides ample budget.
 
-- Before a session starts, estimate complexity from the prompt and recommend `max_thinking_tokens`
-- During a session, monitor rolling TER and signal when thinking is plateauing (overthinking detector)
-- Research reference: TALE achieves 81% accuracy at 32% of vanilla CoT token cost; SelfBudgeter shows monotonic budget-to-complexity mapping
-- Implementation: expose as an MCP server or Claude Code hook that injects budget hints
+- Load `sentence-transformers/all-MiniLM-L6-v2` on first signal (lazy init, not at startup)
+- Cache the model instance on `SessionMonitor` / `LiveDashboard`
+- Fall back to trigram hash if `sentence-transformers` is not installed (keep it optional)
+- Keep `--model` flag for overriding with custom models
+- **Success**: live TER within 3 percentage points of post-hoc TER on the same session
 
-### 2C. Prompt Compression Integration
+### 2B. Tool Call Deduplication
 
-- When rolling TER degrades mid-session due to context size (context rot), trigger prompt compression
-- Integrate LLMLingua-2 or similar for hard prompt compression (up to 20x compression, 1.5-point quality drop)
-- Research reference: Chroma's context rot research shows performance degrades with input size even when task difficulty is constant
-- Track compression-adjusted TER to measure net benefit
+Post-hoc catches "unnecessary tool calls" via repetition detection with semantic embeddings. With proper embeddings from 2A, enable tool_use repetition detection in live mode:
+
+- Compare tool call name + input against recent same-name calls (exact JSON match, not embedding)
+- Flag exact duplicates as waste (e.g., running `mvn test` twice with no edits between)
+- Different files with the same tool (e.g., `Read Gun.java` vs `Read Brain.java`) remain aligned
+- **Success**: live watch catches the same ~5% tool waste that post-hoc identifies
+
+### 2C. Bash Anti-Pattern Detection in Live Mode
+
+The post-hoc `waste.py` already detects bash anti-patterns (30% of waste in test sessions). Port this to live:
+
+- Check assistant bash commands against the anti-pattern catalog as they appear
+- Requires access to the command text, not just embeddings
+- Flag commands matching known anti-patterns (unnecessary `cat | grep`, re-running failed commands without changes, etc.)
+- **Success**: live watch catches bash anti-patterns that currently show up only in post-hoc
 
 ### 2D. Success Criteria
 
-- Model routing reduces average cost per session by 30%+ without quality regression
-- Dynamic budgets reduce thinking tokens by 40%+ on simple tasks
-- Context compression prevents TER degradation in sessions > 50k input tokens
+- Live TER within 3 points of post-hoc TER on the same session
+- Zero false-positive waste flags on legitimate different-file tool calls
+- Watch startup remains under 3 seconds (model lazy-loads after first message)
 
 ---
 
-## Phase 3 — Closed-Loop Adaptation (v2.x)
+## Phase 3 — Intervention Mechanisms
 
-**Objective**: Real-time TER feeds back into the active session, adjusting behavior mid-stream.
+**Objective**: Move from observation to action. TER signals feed back into the active session.
 
-### 3A. Intent-Aware Reasoning Scheduler (IARS-inspired)
+**Decision resolved**: Use Claude Code hooks as the intervention mechanism. They execute shell commands in response to events (tool calls, messages), can modify the session context, and require no separate server process. This is simpler than an MCP server and already supported by the Claude Code CLI.
 
-- Monitor reasoning tokens in real time, classify reasoning state: {exploring, confirming, ambiguous, near-answer}
-- Issue adaptive directives: "you've been exploring for 2000 tokens with declining novelty — commit to an approach"
-- Research reference: IARS operates purely at inference time with no retraining
-- Implementation: Claude Code hook that injects system prompt amendments based on TER signals
+### 3A. TER Watch as a Claude Code Hook
 
-### 3B. Waste Pattern Prevention (not just detection)
+Package `ter watch` as a hook that runs on each assistant message:
 
-- **Preventive reasoning loop breaker**: When TER detects the start of a reasoning loop (2 consecutive similar reasoning spans), inject a prompt: "You appear to be restating prior reasoning. Move to action."
-- **Duplicate tool call preventer**: Before a tool call executes, check against the session's tool call history. If duplicate, inject: "You already ran this command at step N with result X."
-- **Permission loop circuit breaker**: After 2 denied tool calls of the same type, inject: "This tool call has been denied. Try a different approach."
-- Research reference: Anthropic's context engineering guidance — "errors should steer agents toward more efficient behaviors"
+- Hook triggers on `assistant_message` events
+- Runs TER classification on the new message content
+- If waste signals exceed a threshold, outputs a warning that Claude Code surfaces to the user
+- Configuration via `.claude/settings.json` with customizable thresholds
 
-### 3C. Semantic Density Optimization
+### 3B. Waste Pattern Prevention
 
-- Measure semantic density of each generation span (information per token via embedding space density)
-- When density drops below a threshold, signal the model to be more concise
-- Research reference: SDE paper (April 2026) — higher semantic density per token correlates with better output quality and fewer hallucinations
+Preventive interventions injected via hooks:
+
+- **Reasoning loop breaker**: When 2 consecutive reasoning spans have >0.88 embedding similarity, inject: "You appear to be restating prior reasoning. Move to action."
+- **Duplicate tool call preventer**: Before a tool call executes (pre-tool hook), check against session tool history. If exact duplicate: "You already ran this at step N with result X."
+- **Permission loop circuit breaker**: After 2 denied tool calls of the same type: "This tool call has been denied. Try a different approach."
+
+### 3C. Dynamic Token Budget Hints
+
+Expose `ter budget` recommendations as a hook:
+
+- On session start, analyze the initial prompt and inject a `max_thinking_tokens` recommendation into the system prompt
+- Mid-session, if rolling TER shows reasoning plateauing (overthinking detector from `overthinking.py`), inject a budget reduction hint
+- Track whether budget hints actually reduce waste (A/B comparison via `--log` output)
 
 ### 3D. Success Criteria
 
-- Average session TER improves by 20%+ compared to Phase 1 baseline
-- Reasoning loops reduced by 80%+ through preventive intervention
-- No false-positive interventions (intervention precision > 95%)
+- Average session TER improves by 15%+ with hooks enabled vs disabled
+- Reasoning loops reduced by 60%+ through preventive intervention
+- Intervention precision > 95% (no false-positive interruptions)
+- Hook latency < 500ms per message (must not slow down the session)
 
 ---
 
-## Phase 4 — Intelligence Layer (v3.x)
+## Phase 4 — Cross-Session Intelligence
 
-**Objective**: TER becomes a learning system that improves across sessions, users, and organizations.
+**Objective**: TER becomes a learning system that improves across sessions, users, and projects.
 
-### 4A. Cross-Session Learning
+### 4A. Persistent TER Store
 
-- Build TER profiles per user, per project, per task type
-- Identify which prompt patterns correlate with high TER and recommend them
-- Track TER trends over time — are users getting more efficient?
-- Surface: "Your refactoring sessions average 0.62 TER. Users who add explicit scope constraints average 0.81."
+- Store session TER results in a local SQLite database (`~/.claude/ter/history.db`)
+- Schema: session_id, project, timestamp, aggregate_ter, phase_ter, waste_breakdown, token_count, cost
+- Queryable via `ter history` command with filters (project, date range, TER range)
 
-### 4B. Organizational Benchmarks
+### 4B. Project-Level TER Profiles
 
-- Aggregate TER across team members (anonymized) to establish baselines
-- Identify systemic waste patterns (e.g., "All sessions on the auth module have low tool-use TER because the test suite is slow")
-- Feed into engineering process decisions: "Adding a pre-commit hook for auth tests would eliminate 40% of duplicate tool calls in that module"
+- Aggregate TER data per project directory
+- Identify which projects have systemic waste patterns
+- Surface recommendations: "Sessions in this project average 0.72 TER. The main waste source is redundant file reads — consider using `--latest` flag or narrowing your prompts."
 
 ### 4C. Predictive TER
 
 - Given a prompt and project context, predict the TER before the session starts
-- "This prompt is likely to produce a 0.55 TER session. Consider: adding explicit scope, specifying the target file, or using a simpler model."
-- Train on historical {prompt, context, TER outcome} data
+- Use historical {prompt embedding, project, TER outcome} data
+- Minimum viable: simple nearest-neighbor lookup on intent embeddings
+- "This prompt is likely to produce a 0.55 TER session. Consider: adding explicit scope or specifying the target file."
+- Requires 50+ sessions per project for reliable predictions
 
 ### 4D. Cost Optimization Dashboard
 
-- Real-time dashboard showing: TER, cost, model distribution, token budget utilization
-- Projected savings from optimization recommendations
-- ROI tracking: "TER improvements this month saved $X in API costs"
+- `ter dashboard` command showing: TER trends, cost over time, model distribution, waste breakdown
+- Rich terminal UI using `rich` (already a dependency)
+- Weekly/monthly summaries: "This week: 12 sessions, avg TER 0.81, total cost $45.20, estimated waste $3.60"
 
 ### 4E. Success Criteria
 
 - Predictive TER accuracy within 0.1 of actual for 80%+ of sessions
-- Measurable team-wide TER improvement trend over 30 days
-- Cost savings quantified and tracked
+- Measurable project-wide TER improvement trend over 30 days
+- Cost savings quantified and tracked per project
+
+---
+
+## Technical Decisions
+
+### Resolved
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Intervention mechanism | Claude Code hooks | Already supported, no separate server, shell-level access |
+| Embedding model for live | sentence-transformers/all-MiniLM-L6-v2 (lazy-loaded) | 10ms per span is fast enough for 2s polling; trigram hash too inaccurate |
+| Tool call deduplication | Exact JSON match on name+input | Embedding similarity unreliable for structured tool call data |
+| Live classification philosophy | Aligned by default, matching classifier.py | Prevents false waste inflation |
+
+### Open
+
+1. **Prompt compression**: LLMLingua-2 vs custom token filtering? LLMLingua-2 adds a PyTorch dependency. Defer until context rot is observed in real sessions.
+2. **Privacy**: TER analysis touches session content. What anonymization is needed for cross-session features? Decide before Phase 4.
+3. **Calibration data volume**: How many sessions per project before predictive TER becomes reliable? Empirical testing needed.
+4. **Model routing**: Haiku/Sonnet/Opus routing requires API access to switch models mid-session. Is this feasible via hooks, or does it need API middleware?
+
+---
+
+## Dependency Map
+
+```
+Phase 1 (Foundation) ✅ COMPLETE
+Phase 1.5 (Watch Fixes) ✅ COMPLETE
+
+Phase 2 (Embedding Quality)
+├── 2A. Lazy sentence-transformer ← no deps, start here
+├── 2B. Tool deduplication ← benefits from 2A but can use exact match
+└── 2C. Bash anti-pattern live detection ← needs waste.py patterns
+
+Phase 3 (Intervention) ← depends on accurate signals from Phase 2
+├── 3A. Hook packaging ← needs 2A for accurate signals
+├── 3B. Waste prevention ← needs 2B + 2C
+├── 3C. Budget hints ← needs overthinking.py + adaptive_budget.py
+└── All require Claude Code hooks API understanding
+
+Phase 4 (Intelligence) ← depends on Phase 3 + sufficient data
+├── 4A. Persistent store ← no deps, can start early
+├── 4B. Project profiles ← needs 4A
+├── 4C. Predictive TER ← needs 4A + 50+ sessions
+└── 4D. Dashboard ← needs 4A + cost_model.py
+```
+
+---
+
+## Immediate Next Steps
+
+1. ✅ ~~Build core pipeline (Phase 1A)~~ COMPLETE
+2. ✅ ~~Bridge modules + tests + CLI (Phase 1B)~~ COMPLETE
+3. ✅ ~~BDD specification suite~~ COMPLETE (PR #17, 538 tests)
+4. ✅ ~~Fix watch alignment, polling, timestamps~~ COMPLETE (PR #18)
+5. **Next: Phase 2A** — Lazy-load sentence-transformers in live watch
+   - Replace trigram hash with real embeddings for accurate live classification
+   - Keep trigram as fallback when sentence-transformers not installed
+   - Validate live TER matches post-hoc within 3 points
+6. **Then: Phase 2B** — Tool call deduplication via exact JSON match
+7. **Then: Phase 2C** — Port bash anti-pattern detection to live mode
+8. **Parallel: Phase 4A** — Start building persistent TER store (can begin any time)
 
 ---
 
 ## Research References
-
-These are the key papers and resources informing this roadmap:
 
 | Reference | Relevance |
 |-----------|-----------|
@@ -187,67 +242,18 @@ These are the key papers and resources informing this roadmap:
 
 ---
 
-## Technical Decisions to Make
+## Lessons Learned
 
-These are open questions for Phase 2+ that need resolution:
+Insights from real-world usage that should inform future work:
 
-1. **Intervention mechanism**: MCP server vs. Claude Code hooks vs. system prompt injection vs. API middleware? Each has different latency and capability tradeoffs.
-2. **Model for complexity classification**: Fine-tuned classifier on TER data vs. LLM-as-judge vs. embedding-space clustering? Depends on data volume.
-3. **Prompt compression library**: LLMLingua-2 vs. custom token filtering vs. API-side compression? LLMLingua-2 adds a PyTorch dependency.
-4. **Real-time latency budget**: How fast must TER signals be to be useful for mid-session intervention? Sub-second? Sub-100ms?
-5. **Privacy and data**: TER analysis touches session content. What anonymization is needed for cross-session and organizational features?
-6. **Calibration data**: How much historical session data is needed before adaptive budgets and predictive TER become reliable? Minimum viable dataset.
+1. **Trigram hashing was a premature optimization**. Live monitoring has a 2-second polling interval — 10ms for a proper embedding is negligible. The accuracy loss from trigram hashing (0% waste vs 8% actual) made the live signal useless for decision-making. Always measure the actual latency budget before optimizing.
 
----
+2. **"Aligned by default" is the right philosophy**. Agent tool calls are intentional actions, not idle chatter. The binary similarity gate classified 91% as waste on a session that was actually 96% efficient. Waste requires positive evidence (repetition, filler, verbosity), not just low similarity.
 
-## Dependency Map
+3. **Tool call similarity is structural, not semantic**. `Read Gun.java` and `Read Brain.java` share 90%+ trigram similarity because the path prefix dominates. Deduplication needs exact match on the discriminating parts (file path, command text), not embedding similarity.
 
-```
-Phase 1 (Foundation)
-├── Core Pipeline (1A) ← must complete first
-├── Real-Time Monitor (1B) ← depends on loader + models
-├── Adaptive Budget (1B) ← depends on compute + intent
-├── Cost Model (1B) ← depends on models + compute
-└── Overthinking (1B) ← depends on models + classifier
+4. **File polling needs byte offsets, not line counting**. Line counting across re-opens drifts when blank lines or parse errors occur. Byte-offset `seek()` is correct and simpler.
 
-Phase 2 (Routing) ← depends on Phase 1 complete + historical data
-├── Task Classifier (2A) ← needs Phase 1 TER data
-├── Budget Controller (2B) ← needs overthinking + adaptive_budget
-├── Prompt Compression (2C) ← needs real_time + cost_model
-└── All require intervention mechanism decision
+5. **Users need to know if output is live or historical**. Without timestamps and LIVE/HISTORY tags, watch output is ambiguous — you can't tell if the session is still active or if you're looking at stale replay.
 
-Phase 3 (Closed-Loop) ← depends on Phase 2 + intervention mechanism
-├── IARS (3A) ← needs budget controller + real_time
-├── Waste Prevention (3B) ← needs waste detectors + real_time
-└── Density Optimization (3C) ← needs cost_model semantic density
-
-Phase 4 (Intelligence) ← depends on Phase 3 + sufficient data volume
-├── Cross-Session Learning (4A) ← needs persistent TER store
-├── Org Benchmarks (4B) ← needs cross-session + auth
-├── Predictive TER (4C) ← needs large training set
-└── Cost Dashboard (4D) ← needs cost_model + trending
-```
-
----
-
-## Immediate Next Steps
-
-1. ✅ ~~Build core pipeline (Phase 1A)~~ COMPLETE
-2. ✅ ~~Integrate the 4 new bridge modules~~ COMPLETE
-3. ✅ ~~Add comprehensive test coverage for Phase 1B modules~~ COMPLETE (PR #13 - 2026-05-05)
-4. ✅ ~~CLI Integration for Phase 1B features~~ COMPLETE (PR #14 - 2026-05-05)
-   - ✅ `ter budget <intent-text>` command
-   - ✅ `ter watch <project-path>` command  
-   - ✅ `--cost-weighted` flag for analyze
-   - ✅ `--check-overthinking` flag for analyze
-   - ✅ README.md updated with Phase 1B features
-5. **🔜 Next**: Collect baseline data and validation
-   - Use `ter watch` on real sessions to collect rolling TER data
-   - Validate `ter budget` recommendations against actual outcomes
-   - Test `--cost-weighted` and `--check-overthinking` on sample sessions
-   - Build up historical budget data for learning
-6. **🔜 PR #3**: Dynamic Token Budget Controller (Phase 2B)
-   - Decide intervention mechanism (MCP server vs Claude Code hook)
-   - Real-time budget adjustments
-   - Mid-session intervention system
-7. Collect baseline TER data across 50+ sessions to inform Phase 2 decisions
+6. **`--latest` should mean "the one file", not "the directory containing the latest file"**. Multi-session replay buries the live signal under hundreds of historical lines.
