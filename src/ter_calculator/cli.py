@@ -578,6 +578,7 @@ def _signal_to_dict(signal) -> dict:
     return {
         "session_id": signal.session_id,
         "timestamp": datetime.fromtimestamp(signal.timestamp, tz=timezone.utc).isoformat(),
+        "is_live": signal.is_live,
         "ter": round(signal.aggregate_ter, 4),
         "raw_ratio": round(signal.raw_ratio, 4),
         "message_index": signal.message_index,
@@ -595,8 +596,12 @@ def _signal_to_dict(signal) -> dict:
     }
 
 
+_last_was_live = False
+
+
 def _print_signal(signal, fmt, log_fh=None):
     """Format and print a TER signal from live monitoring."""
+    global _last_was_live
     import json as json_mod
 
     record = _signal_to_dict(signal)
@@ -608,13 +613,19 @@ def _print_signal(signal, fmt, log_fh=None):
     if fmt == "json":
         print(json_mod.dumps(record))
     else:
-        # Text format with drift indicators
+        from datetime import datetime, timezone
+
+        if signal.is_live and not _last_was_live:
+            print("\n--- LIVE ---\n")
+        _last_was_live = signal.is_live
+
+        tag = "LIVE" if signal.is_live else "HISTORY"
+        msg_time = datetime.fromtimestamp(signal.timestamp, tz=timezone.utc).astimezone().strftime("%H:%M:%S")
         drift_arrow = "↑" if signal.drift.value == "improving" else "↓" if signal.drift.value == "degrading" else "→"
         waste_pct = (signal.waste_tokens / signal.total_tokens * 100) if signal.total_tokens > 0 else 0
         aligned_pct = (signal.aligned_tokens / signal.total_tokens * 100) if signal.total_tokens > 0 else 0
 
-        # Show both aggregate TER (phase-weighted) and raw ratio (actual waste %)
-        print(f"[{signal.session_id[:8]}] TER: {signal.aggregate_ter:.2f} (weighted) | "
+        print(f"[{msg_time}] [{tag}] [{signal.session_id[:8]}] TER: {signal.aggregate_ter:.2f} (weighted) | "
               f"Raw: {signal.raw_ratio:.2f} {drift_arrow} | "
               f"Tokens: {signal.total_tokens:,} | "
               f"Aligned: {signal.aligned_tokens:,} ({aligned_pct:.0f}%) | "
