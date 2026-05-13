@@ -186,6 +186,7 @@ class TERSignal:
     waste_tokens: int
     drift: DriftDirection
     drift_magnitude: float
+    is_live: bool = False
     warnings: list[str] = field(default_factory=list)
     warning_level: WarningLevel = WarningLevel.INFO
     phase_ter: dict[str, float] = field(default_factory=dict)
@@ -238,6 +239,33 @@ def _embed_text_fast(text: str) -> NDArray[np.float32]:
     return vec
 
 
+def _is_aligned(sim: float, phase: str, text: str) -> bool:
+    """Classify a span as aligned or waste, mirroring classifier.py philosophy.
+
+    Aligned by default. Only waste if a specific signal fires:
+    - Tool calls are always aligned (actions, not words).
+    - Reasoning is waste only if below threshold AND short filler.
+    - Generation is waste only if below threshold AND long verbose text.
+
+    Thresholds are derived from SIM_THRESHOLD to work with both trigram-hash
+    and sentence-transformer embeddings.
+    """
+    if phase == "tool_use":
+        return True
+
+    if phase == "reasoning":
+        if sim < SIM_THRESHOLD and len(text.split()) < 15:
+            return False
+        return True
+
+    if phase == "generation":
+        if sim < SIM_THRESHOLD and len(text.split()) > 50:
+            return False
+        return True
+
+    return True
+
+
 def _extract_blocks_from_line(line_data: dict[str, Any]) -> list[dict[str, Any]]:
     """Pull content blocks from a JSONL line."""
     msg = line_data.get("message", {})
@@ -259,6 +287,24 @@ def _get_usage(line_data: dict[str, Any]) -> dict[str, int]:
     """Extract token usage dict."""
     msg = line_data.get("message", {})
     return msg.get("usage", {})
+
+
+def _get_message_timestamp(line_data: dict[str, Any]) -> float:
+    """Extract the message timestamp as a unix float, falling back to now."""
+    ts = line_data.get("timestamp")
+    if isinstance(ts, (int, float)):
+        return float(ts)
+    if isinstance(ts, str):
+        from datetime import datetime, timezone
+        try:
+            dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+            return dt.timestamp()
+        except ValueError:
+            pass
+    return time.time()
+
+
+_LIVE_THRESHOLD_SEC = 30.0
 
 
 def compute_rolling_ter(
@@ -332,14 +378,15 @@ def compute_rolling_ter(
                             else:
                                 span_emb = _embed_text_fast(text)
                             sim = _cosine_similarity(span_emb, state.intent_embedding)
-                            is_aligned = sim >= SIM_THRESHOLD
+                            aligned = _is_aligned(sim, phase, text)
                         else:
-                            is_aligned = True
-                        if is_aligned:
+                            aligned = True
+                        if aligned:
                             state.aligned_tokens += tokens
                             state.phase_aligned[phase] += tokens
                         else:
                             state.waste_tokens += tokens
+                            state.phase_waste[phase] += tokens
             continue
 
         if role != "assistant":
@@ -379,11 +426,11 @@ def compute_rolling_ter(
                 else:
                     span_emb = _embed_text_fast(text)
                 sim = _cosine_similarity(span_emb, state.intent_embedding)
-                is_aligned = sim >= SIM_THRESHOLD
+                aligned = _is_aligned(sim, phase, text)
             else:
-                is_aligned = True
+                aligned = True
 
-            if is_aligned:
+            if aligned:
                 state.aligned_tokens += tokens
                 state.phase_aligned[phase] += tokens
                 message_aligned += tokens
@@ -433,9 +480,10 @@ def compute_rolling_ter(
             if waste > 0:
                 waste_sources[phase] = waste
 
+        msg_ts = _get_message_timestamp(line_data)
         signal = TERSignal(
             session_id=line_data.get("sessionId", "unknown"),
-            timestamp=time.time(),
+            timestamp=msg_ts,
             aggregate_ter=current_ter,
             raw_ratio=ratio,
             message_index=state.message_count,
@@ -446,6 +494,7 @@ def compute_rolling_ter(
             drift_magnitude=drift_mag,
             warnings=warnings,
             warning_level=level,
+            is_live=(time.time() - msg_ts) < _LIVE_THRESHOLD_SEC,
             phase_ter=phase_ter,
             waste_sources=waste_sources,
         )
@@ -504,26 +553,25 @@ class SessionMonitor:
         self.on_signal = on_signal
         self.state = RollingTERState()
         self._stop = False
-        self._lines_read = 0
+        self._file_pos = 0
 
     def _read_new_lines(self) -> list[dict[str, Any]]:
-        """Read lines added since last poll."""
+        """Read lines appended since last poll using byte-offset seek."""
         if not self.path.exists():
             return []
         new_lines: list[dict[str, Any]] = []
         try:
             with open(self.path, "r", encoding="utf-8") as fh:
-                for i, raw in enumerate(fh):
-                    if i < self._lines_read:
-                        continue
+                fh.seek(self._file_pos)
+                for raw in fh:
                     raw = raw.strip()
                     if not raw:
                         continue
                     try:
                         new_lines.append(json.loads(raw))
                     except json.JSONDecodeError:
-                        logger.debug("Skipping malformed JSONL line %d", i)
-                self._lines_read = i + 1 if new_lines else self._lines_read
+                        logger.debug("Skipping malformed JSONL line")
+                self._file_pos = fh.tell()
         except OSError as exc:
             logger.warning("Could not read %s: %s", self.path, exc)
         return new_lines
