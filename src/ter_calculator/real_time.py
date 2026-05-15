@@ -23,6 +23,7 @@ import json
 import logging
 import math
 import os
+import re
 import time
 from dataclasses import dataclass, field
 from enum import Enum
@@ -71,6 +72,40 @@ PHASE_WEIGHTS: dict[str, float] = {
 
 SIM_THRESHOLD = 0.40
 CONF_THRESHOLD = 0.75
+
+_SIM_REASONING = 0.55
+"""Similarity floor for reasoning spans — trigram hashing yields ~0.3–0.5
+between unrelated English text, so 0.40 barely fires."""
+
+_SIM_GENERATION = 0.50
+"""Similarity floor for generation spans."""
+
+_SIM_FLOOR = 0.25
+"""Below this, content is clearly off-topic regardless of length."""
+
+_TOOL_DEDUP_WINDOW = 10
+"""How many recent tool signatures to keep for duplicate detection."""
+
+_REPEATED_CMD_THRESHOLD = 3
+"""Bash command must repeat this many times to count as waste."""
+
+_BASH_ANTIPATTERN_RES: list[re.Pattern[str]] = [
+    re.compile(r"(?:^|\|\s*)cat\s+"),
+    re.compile(r"(?:^|\|\s*)head\s+"),
+    re.compile(r"(?:^|\|\s*)tail\s+"),
+    re.compile(r"(?:^|\|\s*)grep\s+"),
+    re.compile(r"(?:^|\|\s*)rg\s+"),
+    re.compile(r"^find\s+"),
+]
+
+_ERROR_MARKERS = [
+    "<tool_use_error>",
+    "File does not exist",
+    "command not found",
+    "No such file or directory",
+    "Permission denied",
+    "File has not been read yet",
+]
 
 _BLOCK_TYPE_TO_PHASE: dict[str, str] = {
     "thinking": "reasoning",
@@ -140,6 +175,11 @@ class RollingTERState:
 
     last_request_ids: dict[str, int] = field(default_factory=dict)
     last_file_position: int = 0
+
+    tool_signatures: list[str] = field(default_factory=list)
+    file_read_counts: dict[str, int] = field(default_factory=dict)
+    bash_command_counts: dict[str, int] = field(default_factory=dict)
+    waste_by_type: dict[str, int] = field(default_factory=dict)
 
     @property
     def aggregate_ter(self) -> float:
@@ -240,30 +280,98 @@ def _embed_text_fast(text: str) -> NDArray[np.float32]:
 
 
 def _is_aligned(sim: float, phase: str, text: str) -> bool:
-    """Classify a span as aligned or waste, mirroring classifier.py philosophy.
+    """Classify a span as aligned or waste based on intent similarity.
 
-    Aligned by default. Only waste if a specific signal fires:
-    - Tool calls are always aligned (actions, not words).
-    - Reasoning is waste only if below threshold AND short filler.
-    - Generation is waste only if below threshold AND long verbose text.
-
-    Thresholds are derived from SIM_THRESHOLD to work with both trigram-hash
-    and sentence-transformer embeddings.
+    Thresholds are calibrated for the trigram-hash embedding, which yields
+    moderate cosine similarity (~0.3–0.5) even between unrelated English
+    texts.  Tool-use pattern waste (duplicates, antipatterns) is handled
+    separately by _check_tool_patterns.
     """
     if phase == "tool_use":
         return True
 
+    word_count = len(text.split())
+
+    if sim < _SIM_FLOOR and word_count > 5:
+        return False
+
     if phase == "reasoning":
-        if sim < SIM_THRESHOLD and len(text.split()) < 15:
+        if sim < _SIM_REASONING and word_count > 25:
             return False
         return True
 
     if phase == "generation":
-        if sim < SIM_THRESHOLD and len(text.split()) > 50:
+        if sim < _SIM_GENERATION and word_count > 20:
             return False
         return True
 
     return True
+
+
+def _is_bash_antipattern(cmd: str) -> bool:
+    """Check if a Bash command should use a dedicated tool instead."""
+    cmd = cmd.strip()
+    return any(p.search(cmd) for p in _BASH_ANTIPATTERN_RES)
+
+
+def _normalize_bash_cmd(cmd: str) -> str:
+    """Normalize a bash command for repeat detection."""
+    cmd = cmd.strip()
+    cmd = re.sub(r'\s*\|\s*(tail|head)\s+-\d+\s*$', '', cmd)
+    cmd = re.sub(r'\s+', ' ', cmd)
+    return cmd
+
+
+def _has_error_markers(text: str) -> bool:
+    """Check if tool result text indicates an error."""
+    if text.startswith("Error:") or text.startswith("Exit code 1"):
+        return True
+    return any(marker in text for marker in _ERROR_MARKERS)
+
+
+def _check_tool_patterns(
+    state: RollingTERState,
+    block: dict[str, Any],
+) -> tuple[bool, str]:
+    """Check a tool_use block for waste patterns.
+
+    Returns (is_aligned, waste_type).  Mutates state to track history.
+    """
+    tool_name = block.get("name", "")
+    tool_input = block.get("input", {})
+
+    sig = f"{tool_name}:{json.dumps(tool_input, sort_keys=True)}"
+
+    recent = state.tool_signatures[-_TOOL_DEDUP_WINDOW:]
+    is_duplicate = sig in recent
+    state.tool_signatures.append(sig)
+    if len(state.tool_signatures) > _TOOL_DEDUP_WINDOW * 2:
+        state.tool_signatures = state.tool_signatures[-_TOOL_DEDUP_WINDOW * 2:]
+
+    if is_duplicate:
+        return False, "duplicate_tool_call"
+
+    if tool_name == "Read":
+        fp = tool_input.get("file_path", "")
+        if fp:
+            count = state.file_read_counts.get(fp, 0) + 1
+            state.file_read_counts[fp] = count
+            if count > 1:
+                return False, "repetitive_read"
+
+    if tool_name == "Bash":
+        cmd = tool_input.get("command", "")
+        if cmd:
+            if _is_bash_antipattern(cmd):
+                return False, "bash_antipattern"
+            norm = _normalize_bash_cmd(cmd)
+            if norm:
+                count = state.bash_command_counts.get(norm, 0) + 1
+                state.bash_command_counts[norm] = count
+                if count >= _REPEATED_CMD_THRESHOLD:
+                    return False, "repeated_command"
+
+    return True, ""
 
 
 def _extract_blocks_from_line(line_data: dict[str, Any]) -> list[dict[str, Any]]:
@@ -370,7 +478,11 @@ def compute_rolling_ter(
                         state.total_tokens += tokens
                         state.phase_total[phase] += tokens
                         state.span_count += 1
-                        if state.intent_embedding is not None:
+                        waste_type = ""
+                        if _has_error_markers(text):
+                            aligned = False
+                            waste_type = "failed_tool"
+                        elif state.intent_embedding is not None:
                             if embed_fn is not None:
                                 span_emb = embed_fn(
                                     text, normalize_embeddings=True
@@ -387,6 +499,10 @@ def compute_rolling_ter(
                         else:
                             state.waste_tokens += tokens
                             state.phase_waste[phase] += tokens
+                            if waste_type:
+                                state.waste_by_type[waste_type] = (
+                                    state.waste_by_type.get(waste_type, 0) + tokens
+                                )
             continue
 
         if role != "assistant":
@@ -430,6 +546,10 @@ def compute_rolling_ter(
             else:
                 aligned = True
 
+            waste_type = ""
+            if block_type == "tool_use" and aligned:
+                aligned, waste_type = _check_tool_patterns(state, block)
+
             if aligned:
                 state.aligned_tokens += tokens
                 state.phase_aligned[phase] += tokens
@@ -437,6 +557,10 @@ def compute_rolling_ter(
             else:
                 state.waste_tokens += tokens
                 state.phase_waste[phase] += tokens
+                if waste_type:
+                    state.waste_by_type[waste_type] = (
+                        state.waste_by_type.get(waste_type, 0) + tokens
+                    )
 
         if message_total == 0:
             continue
@@ -474,11 +598,14 @@ def compute_rolling_ter(
         # Get phase-specific TER scores
         phase_ter = state.get_phase_ter_scores()
 
-        # Build waste sources breakdown
-        waste_sources = {}
+        # Build waste sources breakdown (phases + pattern types)
+        waste_sources: dict[str, int] = {}
         for phase, waste in state.phase_waste.items():
             if waste > 0:
                 waste_sources[phase] = waste
+        for wtype, wtokens in state.waste_by_type.items():
+            if wtokens > 0:
+                waste_sources[wtype] = wtokens
 
         msg_ts = _get_message_timestamp(line_data)
         signal = TERSignal(
