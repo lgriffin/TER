@@ -248,15 +248,10 @@ def _compute_waste_cost(result: TERResult) -> float:
     if not rows:
         return 0.0
     cm = result.economics.cost_model if result.economics else CostModel()
-    scale = (
-        result.economics.waste_output_calibration_ratio
-        if result.economics else 1.0
-    )
     total = 0.0
     for _label, tokens, _count, kind in rows:
         rate = cm.output_rate if kind == "output" else cm.input_rate
-        eff = float(tokens) * (scale if kind == "output" else 1.0)
-        total += eff * rate / 1_000_000
+        total += float(tokens) * rate / 1_000_000
     return total
 
 
@@ -362,10 +357,6 @@ def _format_waste_breakdown_rich(console, result: TERResult) -> None:
         return
 
     total_waste = sum(t for _, t, _, _ in rows)
-    scale = (
-        result.economics.waste_output_calibration_ratio
-        if result.economics else 1.0
-    )
     cm = result.economics.cost_model if result.economics else CostModel()
 
     table = Table(show_header=True, show_edge=True, title="Waste Breakdown")
@@ -378,8 +369,7 @@ def _format_waste_breakdown_rich(console, result: TERResult) -> None:
     for label, tokens, count, kind in rows:
         pct = (tokens / total_waste * 100) if total_waste > 0 else 0
         rate = cm.output_rate if kind == "output" else cm.input_rate
-        eff = float(tokens) * (scale if kind == "output" else 1.0)
-        row_cost = eff * rate / 1_000_000
+        row_cost = float(tokens) * rate / 1_000_000
         table.add_row(
             label,
             f"{tokens:,}",
@@ -851,18 +841,13 @@ def _format_text(result: TERResult) -> str:
     rows = _build_waste_breakdown(result)
     if rows:
         total_waste = sum(t for _, t, _, _ in rows)
-        scale = (
-            result.economics.waste_output_calibration_ratio
-            if result.economics else 1.0
-        )
         cm = result.economics.cost_model if result.economics else CostModel()
         lines.extend(["", "Waste Breakdown:"])
         lines.append(f"  {'Source':<24} {'Tokens':>10} {'%':>5} {'Cost':>10} {'Count':>6}")
         for label, tokens, count, kind in rows:
             pct = (tokens / total_waste * 100) if total_waste > 0 else 0
             rate = cm.output_rate if kind == "output" else cm.input_rate
-            eff = float(tokens) * (scale if kind == "output" else 1.0)
-            row_cost = eff * rate / 1_000_000
+            row_cost = float(tokens) * rate / 1_000_000
             lines.append(
                 f"  {label:<24} {tokens:>10,} {pct:>4.0f}% ${row_cost:>8.4f} {count:>6}"
             )
@@ -1008,16 +993,11 @@ def _ter_result_to_dict(result: TERResult) -> dict:
     rows = _build_waste_breakdown(result)
     if rows:
         total_waste = sum(t for _, t, _, _ in rows)
-        scale = (
-            result.economics.waste_output_calibration_ratio
-            if result.economics else 1.0
-        )
         cm = result.economics.cost_model if result.economics else CostModel()
         sources = []
         for label, tokens, count, kind in rows:
             rate = cm.output_rate if kind == "output" else cm.input_rate
-            eff = float(tokens) * (scale if kind == "output" else 1.0)
-            row_cost = eff * rate / 1_000_000
+            row_cost = float(tokens) * rate / 1_000_000
             sources.append({
                 "source": label,
                 "tokens": tokens,
@@ -1042,7 +1022,6 @@ def _ter_result_to_dict(result: TERResult) -> dict:
             "cache_hit_rate": econ.cache_hit_rate,
             "estimated_cost_usd": econ.estimated_cost_usd,
             "estimated_waste_cost_usd": econ.estimated_waste_cost_usd,
-            "waste_output_calibration_ratio": econ.waste_output_calibration_ratio,
             "cost_model": {
                 "input_rate": econ.cost_model.input_rate,
                 "output_rate": econ.cost_model.output_rate,
