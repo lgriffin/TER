@@ -45,9 +45,13 @@ __all__ = [
     "WarningLevel",
     "compute_rolling_ter",
     "detect_drift",
+    "load_embedding_model",
 ]
 
 logger = logging.getLogger(__name__)
+
+# Global model cache for lazy loading
+_EMBEDDING_MODEL_CACHE: Any | None = None
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -61,8 +65,6 @@ DRIFT_WINDOW = 5
 
 DRIFT_THRESHOLD = 0.10
 """Absolute TER change within the drift window that triggers a drift warning."""
-
-EMBEDDING_DIM = 384
 
 PHASE_WEIGHTS: dict[str, float] = {
     "reasoning": 0.3,
@@ -113,6 +115,47 @@ _BLOCK_TYPE_TO_PHASE: dict[str, str] = {
     "tool_result": "tool_use",
     "text": "generation",
 }
+
+
+# ---------------------------------------------------------------------------
+# Model Loading
+# ---------------------------------------------------------------------------
+
+
+def load_embedding_model(model_name: str = "sentence-transformers/all-MiniLM-L6-v2") -> Any:
+    """Lazy-load the sentence-transformers model for embeddings.
+
+    The model is cached globally so it's only loaded once per process.
+    This keeps the CLI fast for commands that don't need embeddings while
+    ensuring live monitoring always uses accurate semantic embeddings.
+
+    Args:
+        model_name: HuggingFace model identifier
+
+    Returns:
+        Loaded SentenceTransformer model
+
+    Raises:
+        ImportError: If sentence-transformers is not installed
+    """
+    global _EMBEDDING_MODEL_CACHE
+
+    if _EMBEDDING_MODEL_CACHE is not None:
+        return _EMBEDDING_MODEL_CACHE
+
+    try:
+        from sentence_transformers import SentenceTransformer
+    except ImportError as e:
+        raise ImportError(
+            "sentence-transformers is required for live monitoring. "
+            "Install with: pip install sentence-transformers"
+        ) from e
+
+    logger.info("Loading embedding model: %s", model_name)
+    _EMBEDDING_MODEL_CACHE = SentenceTransformer(model_name)
+    logger.info("Model loaded successfully")
+
+    return _EMBEDDING_MODEL_CACHE
 
 
 # ---------------------------------------------------------------------------
@@ -191,6 +234,10 @@ class RollingTERState:
 
     # Track assistant-only waste for cost calculation (matches post-hoc)
     assistant_waste_tokens: int = 0
+
+    # Tool call deduplication (Phase 2B)
+    tool_call_history: dict[str, list[str]] = field(default_factory=dict)
+    """Track recent tool calls by name for deduplication. Maps tool_name -> [recent inputs]."""
 
     @property
     def aggregate_ter(self) -> float:
@@ -354,36 +401,13 @@ def _cosine_similarity(a: NDArray[np.float32], b: NDArray[np.float32]) -> float:
     return float(np.dot(a, b) / (norm_a * norm_b))
 
 
-def _embed_text_fast(text: str) -> NDArray[np.float32]:
-    """Lightweight pseudo-embedding using character trigram hashing.
-
-    For real-time monitoring we cannot afford the full sentence-transformers
-    model on every message.  Instead we produce a deterministic 384-dim vector
-    from character trigram hashes.  This is less semantically rich but runs
-    in <1ms and provides a usable similarity signal for drift detection.
-    """
-    vec = np.zeros(EMBEDDING_DIM, dtype=np.float32)
-    text_lower = text.lower()
-    if len(text_lower) < 3:
-        vec[0] = 1.0
-        return vec
-    for i in range(len(text_lower) - 2):
-        trigram = text_lower[i : i + 3]
-        idx = int(hashlib.md5(trigram.encode()).hexdigest(), 16) % EMBEDDING_DIM
-        vec[idx] += 1.0
-    norm = np.linalg.norm(vec)
-    if norm > 0:
-        vec /= norm
-    return vec
-
-
 def _is_aligned(sim: float, phase: str, text: str) -> bool:
     """Classify a span as aligned or waste based on intent similarity.
 
-    Thresholds are calibrated for the trigram-hash embedding, which yields
-    moderate cosine similarity (~0.3–0.5) even between unrelated English
-    texts.  Tool-use pattern waste (duplicates, antipatterns) is handled
-    separately by _check_tool_patterns.
+    Aligned by default. Only waste if a specific signal fires:
+    - Tool calls are always aligned (actions, not words).
+    - Reasoning is waste only if below threshold AND short filler.
+    - Generation is waste only if below threshold AND long verbose text.
     """
     if phase == "tool_use":
         return True
@@ -406,70 +430,51 @@ def _is_aligned(sim: float, phase: str, text: str) -> bool:
     return True
 
 
-def _is_bash_antipattern(cmd: str) -> bool:
-    """Check if a Bash command should use a dedicated tool instead."""
-    cmd = cmd.strip()
-    return any(p.search(cmd) for p in _BASH_ANTIPATTERN_RES)
-
-
-def _normalize_bash_cmd(cmd: str) -> str:
-    """Normalize a bash command for repeat detection."""
-    cmd = cmd.strip()
-    cmd = re.sub(r'\s*\|\s*(tail|head)\s+-\d+\s*$', '', cmd)
-    cmd = re.sub(r'\s+', ' ', cmd)
-    return cmd
-
-
-def _has_error_markers(text: str) -> bool:
-    """Check if tool result text indicates an error."""
-    if text.startswith("Error:") or text.startswith("Exit code 1"):
-        return True
-    return any(marker in text for marker in _ERROR_MARKERS)
-
-
-def _check_tool_patterns(
+def _is_duplicate_tool_call(
+    tool_name: str,
+    tool_input_json: str,
     state: RollingTERState,
-    block: dict[str, Any],
-) -> tuple[bool, str]:
-    """Check a tool_use block for waste patterns.
+    window: int = 10,
+) -> bool:
+    """Check if this tool call duplicates a recent one with the same name and input."""
+    if tool_name not in state.tool_call_history:
+        state.tool_call_history[tool_name] = []
 
-    Returns (is_aligned, waste_type).  Mutates state to track history.
-    """
-    tool_name = block.get("name", "")
-    tool_input = block.get("input", {})
+    history = state.tool_call_history[tool_name]
+    is_duplicate = tool_input_json in history
+    history.append(tool_input_json)
 
-    sig = f"{tool_name}:{json.dumps(tool_input, sort_keys=True)}"
+    if len(history) > window:
+        state.tool_call_history[tool_name] = history[-window:]
 
-    recent = state.tool_signatures[-_TOOL_DEDUP_WINDOW:]
-    is_duplicate = sig in recent
-    state.tool_signatures.append(sig)
-    if len(state.tool_signatures) > _TOOL_DEDUP_WINDOW * 2:
-        state.tool_signatures = state.tool_signatures[-_TOOL_DEDUP_WINDOW * 2:]
+    return is_duplicate
 
-    if is_duplicate:
-        return False, "duplicate_tool_call"
 
-    if tool_name == "Read":
-        fp = tool_input.get("file_path", "")
-        if fp:
-            count = state.file_read_counts.get(fp, 0) + 1
-            state.file_read_counts[fp] = count
-            if count > 1:
-                return False, "repetitive_read"
+# Bash anti-pattern rules: (regex, recommended tool, description)
+_BASH_ANTIPATTERNS: list[tuple[re.Pattern[str], str, str]] = [
+    (re.compile(r"(?:^|\|\s*)cat\s+"), "Read", "cat → Read"),
+    (re.compile(r"(?:^|\|\s*)head\s+"), "Read", "head → Read"),
+    (re.compile(r"(?:^|\|\s*)tail\s+"), "Read", "tail → Read"),
+    (re.compile(r"(?:^|\|\s*)grep\s+"), "Grep", "grep → Grep"),
+    (re.compile(r"(?:^|\|\s*)rg\s+"), "Grep", "rg → Grep"),
+    (re.compile(r"^find\s+"), "Glob", "find → Glob"),
+]
 
-    if tool_name == "Bash":
-        cmd = tool_input.get("command", "")
-        if cmd:
-            if _is_bash_antipattern(cmd):
-                return False, "bash_antipattern"
-            norm = _normalize_bash_cmd(cmd)
-            if norm:
-                count = state.bash_command_counts.get(norm, 0) + 1
-                state.bash_command_counts[norm] = count
-                if count >= _REPEATED_CMD_THRESHOLD:
-                    return False, "repeated_command"
 
-    return True, ""
+def _is_bash_antipattern(tool_name: str, tool_input: dict[str, Any]) -> bool:
+    """Check if a Bash command matches an anti-pattern."""
+    if tool_name != "Bash":
+        return False
+
+    command = tool_input.get("command", "").strip()
+    if not command:
+        return False
+
+    for pattern, _, _ in _BASH_ANTIPATTERNS:
+        if pattern.search(command):
+            return True
+
+    return False
 
 
 def _extract_blocks_from_line(line_data: dict[str, Any]) -> list[dict[str, Any]]:
@@ -516,17 +521,23 @@ def compute_rolling_ter(
     state: RollingTERState,
     new_lines: list[dict[str, Any]],
     *,
-    model: Any | None = None,
+    model: Any,
 ) -> list[TERSignal]:
     """Process new JSONL lines and update rolling TER state.
 
-    If *model* is provided (a SentenceTransformer), it is used for proper
-    semantic embedding.  Otherwise falls back to the fast trigram hash.
+    Uses the provided SentenceTransformer model for semantic embeddings,
+    enabling accurate waste detection in real-time.
 
-    Returns one TERSignal per assistant message processed.
+    Args:
+        state: Rolling state accumulator
+        new_lines: New JSONL entries to process
+        model: SentenceTransformer model for embeddings
+
+    Returns:
+        List of TERSignal objects, one per assistant message processed
     """
     signals: list[TERSignal] = []
-    embed_fn = model.encode if model is not None else None
+    embed_fn = model.encode
 
     for line_data in new_lines:
         request_id = _get_request_id(line_data)
@@ -550,12 +561,9 @@ def compute_rolling_ter(
                         state.intent_text += " " + user_text
                     else:
                         state.intent_text = user_text
-                    if embed_fn is not None:
-                        prompt_emb = embed_fn(
-                            user_text, normalize_embeddings=True
-                        ).astype(np.float32)
-                    else:
-                        prompt_emb = _embed_text_fast(user_text)
+                    prompt_emb = embed_fn(
+                        user_text, normalize_embeddings=True
+                    ).astype(np.float32)
                     state.intent_embeddings.append(prompt_emb)
                     state.intent_embedding = np.mean(
                         state.intent_embeddings, axis=0
@@ -575,17 +583,10 @@ def compute_rolling_ter(
                         state.total_tokens += tokens
                         state.phase_total[phase] += tokens
                         state.span_count += 1
-                        waste_type = ""
-                        if _has_error_markers(text):
-                            aligned = False
-                            waste_type = "failed_tool"
-                        elif state.intent_embedding is not None:
-                            if embed_fn is not None:
-                                span_emb = embed_fn(
-                                    text, normalize_embeddings=True
-                                ).astype(np.float32)
-                            else:
-                                span_emb = _embed_text_fast(text)
+                        if state.intent_embedding is not None:
+                            span_emb = embed_fn(
+                                text, normalize_embeddings=True
+                            ).astype(np.float32)
                             sim = _cosine_similarity(span_emb, state.intent_embedding)
                             aligned = _is_aligned(sim, phase, text)
                         else:
@@ -634,12 +635,15 @@ def compute_rolling_ter(
             phase = _BLOCK_TYPE_TO_PHASE.get(block_type, "generation")
 
             text = block.get("text", "")
+            tool_name = ""
+            tool_input_json = ""
+
             if block_type == "thinking":
                 text = block.get("thinking", "")
             elif block_type == "tool_use":
                 tool_name = block.get("name", "")
-                tool_input = json.dumps(block.get("input", {}), sort_keys=True)
-                text = f"{tool_name} {tool_input}"
+                tool_input_json = json.dumps(block.get("input", {}), sort_keys=True)
+                text = f"{tool_name} {tool_input_json}"
             elif block_type == "tool_result":
                 content = block.get("content", "")
                 text = content if isinstance(content, str) else json.dumps(content)
@@ -653,13 +657,26 @@ def compute_rolling_ter(
             state.span_count += 1
             message_total += tokens
 
-            if state.intent_embedding is not None:
-                if embed_fn is not None:
-                    span_emb = embed_fn(text, normalize_embeddings=True).astype(
-                        np.float32
+            # Check for duplicate tool calls (Phase 2B) and bash antipatterns (Phase 2C)
+            is_duplicate_tool = False
+            is_bash_antipattern = False
+
+            if block_type == "tool_use" and tool_name:
+                if tool_input_json:
+                    is_duplicate_tool = _is_duplicate_tool_call(
+                        tool_name, tool_input_json, state
                     )
-                else:
-                    span_emb = _embed_text_fast(text)
+                # Check bash antipatterns
+                tool_input_dict = block.get("input", {})
+                is_bash_antipattern = _is_bash_antipattern(tool_name, tool_input_dict)
+
+            if is_duplicate_tool or is_bash_antipattern:
+                # Duplicate or antipattern tool calls are always waste
+                aligned = False
+            elif state.intent_embedding is not None:
+                span_emb = embed_fn(text, normalize_embeddings=True).astype(
+                    np.float32
+                )
                 sim = _cosine_similarity(span_emb, state.intent_embedding)
                 aligned = _is_aligned(sim, phase, text)
             else:
