@@ -421,22 +421,25 @@ def _is_aligned(sim: float, phase: str, text: str) -> bool:
     - Tool calls are always aligned (actions, not words).
     - Reasoning is waste only if below threshold AND short filler.
     - Generation is waste only if below threshold AND long verbose text.
+
+    Thresholds match classifier.py's derived values so live and post-hoc
+    classify generation/reasoning waste identically:
+      filler_sim_max  = max(0.06, min(0.14, SIM_THRESHOLD * 0.28)) ≈ 0.11
+      verbose_sim_max = max(0.05, min(0.12, SIM_THRESHOLD * 0.22)) ≈ 0.09
     """
     if phase == "tool_use":
         return True
 
-    word_count = len(text.split())
-
-    if sim < _SIM_FLOOR and word_count > 5:
-        return False
+    filler_sim_max = max(0.06, min(0.14, SIM_THRESHOLD * 0.28))
+    verbose_sim_max = max(0.05, min(0.12, SIM_THRESHOLD * 0.22))
 
     if phase == "reasoning":
-        if sim < _SIM_REASONING and word_count > 25:
+        if sim < filler_sim_max and len(text.split()) < 15:
             return False
         return True
 
     if phase == "generation":
-        if sim < _SIM_GENERATION and word_count > 20:
+        if sim < verbose_sim_max and len(text.split()) > 50:
             return False
         return True
 
