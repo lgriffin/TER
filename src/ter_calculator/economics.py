@@ -115,21 +115,29 @@ def _estimate_waste_cost(
     cost_model: CostModel,
     billed_output_tokens: int = 0,
 ) -> tuple[float, float]:
-    """Estimate USD cost of classified output waste and a calibration ratio.
+    """Estimate USD cost of classified output waste.
 
-    Span ``token_count`` uses a char/4 heuristic and can diverge from API
-    ``output_tokens``. Scale waste $ so it tracks billed generation when usage
-    data is present.
+    Waste tokens are in text/tool_use spans where char/4 is accurate (~20%
+    error). We do not scale by a session-level calibration ratio because that
+    ratio is dominated by thinking tokens — which are partly redacted in stored
+    JSONL, making the ratio unreliable, and which are not waste anyway.
 
-    Returns (cost_usd, calibration_ratio).
+    User-side waste (tool_results re-sent as context) uses the input rate.
+
+    Returns (cost_usd, calibration_ratio=1.0).
     """
-    waste_tokens = _assistant_waste_tokens(classified_spans)
-    assistant_total = _assistant_span_token_total(classified_spans)
-    ratio = 1.0
-    if billed_output_tokens > 0 and assistant_total > 0:
-        ratio = billed_output_tokens / assistant_total
-    cost = waste_tokens * ratio * cost_model.output_rate / 1_000_000
-    return cost, ratio
+    from .models import ALIGNED_LABELS
+
+    cost = 0.0
+    for cs in classified_spans:
+        if cs.label in ALIGNED_LABELS:
+            continue
+        if cs.span.source_role == "assistant":
+            cost += cs.span.token_count * cost_model.output_rate / 1_000_000
+        else:
+            cost += cs.span.token_count * cost_model.input_rate / 1_000_000
+
+    return cost, 1.0
 
 
 def _compute_positional_breakdown(

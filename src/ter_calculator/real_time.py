@@ -74,6 +74,8 @@ PHASE_WEIGHTS: dict[str, float] = {
 
 SIM_THRESHOLD = 0.40
 CONF_THRESHOLD = 0.75
+REPETITION_THRESHOLD = 0.88  # Matches classifier.py _check_repetition
+REPETITION_WINDOW = 10       # How many recent same-phase spans to compare against
 
 _SIM_REASONING = 0.55
 """Similarity floor for reasoning spans — trigram hashing yields ~0.3–0.5
@@ -232,12 +234,23 @@ class RollingTERState:
     turn_context_sizes: list[int] = field(default_factory=list)
     session_start_time: float | None = None
 
-    # Track assistant-only waste for cost calculation (matches post-hoc)
+    # Waste tracking for cost calculation: assistant at output rate, user at input rate
     assistant_waste_tokens: int = 0
+    user_waste_tokens: int = 0
 
     # Tool call deduplication (Phase 2B)
     tool_call_history: dict[str, list[str]] = field(default_factory=dict)
-    """Track recent tool calls by name for deduplication. Maps tool_name -> [recent inputs]."""
+
+    # Repetition detection: recent embeddings per phase (reasoning, tool_use, generation)
+    recent_phase_embeddings: dict[str, list] = field(
+        default_factory=lambda: {"reasoning": [], "tool_use": [], "generation": []}
+    )
+
+    # Cross-message tool tracking for repetitive reads and failed retries
+    pending_tool_calls: dict[str, tuple] = field(default_factory=dict)
+    # tool_use_id → (tool_name, file_path)
+    file_read_history: dict[str, list] = field(default_factory=dict)
+    # file_path → [token_count_per_read]
 
     @property
     def aggregate_ter(self) -> float:
@@ -298,18 +311,18 @@ class RollingTERState:
         )
 
     def get_estimated_waste_cost(self, cost_model: Any = None) -> float:
-        """Estimate waste cost in USD based on assistant-only waste tokens.
+        """Estimate waste cost in USD.
 
-        Matches post-hoc calculation which only counts assistant-origin waste,
-        excluding user-side waste like tool results.
+        Matches post-hoc pricing: no calibration, char/4 tokens × rate directly.
+          - Assistant waste (reasoning loops, bash antipatterns) → output rate
+          - User-side waste (repetitive reads, error retries) → input rate
         """
         output_rate = 15.00 if cost_model is None else cost_model.output_rate
-        # Calibrate assistant waste to output_tokens if available
-        if self.total_output_tokens > 0 and self.total_tokens > 0:
-            calibration = self.total_output_tokens / self.total_tokens
-        else:
-            calibration = 1.0
-        return self.assistant_waste_tokens * calibration * output_rate / 1_000_000
+        input_rate = 3.00 if cost_model is None else cost_model.input_rate
+        return (
+            self.assistant_waste_tokens * output_rate / 1_000_000
+            + self.user_waste_tokens * input_rate / 1_000_000
+        )
 
     def get_context_growth_rate(self) -> float:
         """Calculate context growth rate: final / first context size."""
@@ -477,6 +490,44 @@ def _is_bash_antipattern(tool_name: str, tool_input: dict[str, Any]) -> bool:
     return False
 
 
+def _is_error_result_text(text: str) -> bool:
+    """Check if tool_result text indicates a failure.
+
+    Matches waste.py _is_error_result logic: prefix checks for generic
+    markers, substring checks only for specific Claude Code error strings.
+    """
+    if "<tool_use_error>" in text:
+        return True
+    if text.startswith("Error:") or text.startswith("Exit code 1"):
+        return True
+    return any(marker in text for marker in (
+        "File does not exist",
+        "command not found",
+        "No such file or directory",
+        "Permission denied",
+        "File has not been read yet",
+    ))
+
+
+def _is_repetition(
+    embedding: "NDArray[np.float32]",
+    recent: list,
+    threshold: float = REPETITION_THRESHOLD,
+) -> bool:
+    """Check if embedding closely matches any recent same-phase embedding."""
+    for prev in recent[-REPETITION_WINDOW:]:
+        if _cosine_similarity(embedding, prev) >= threshold:
+            return True
+    return False
+
+
+def _record_embedding(embedding: "NDArray[np.float32]", recent: list) -> None:
+    """Append embedding to recent list, capping at REPETITION_WINDOW."""
+    recent.append(embedding)
+    if len(recent) > REPETITION_WINDOW:
+        del recent[0]
+
+
 def _extract_blocks_from_line(line_data: dict[str, Any]) -> list[dict[str, Any]]:
     """Pull content blocks from a JSONL line."""
     msg = line_data.get("message", {})
@@ -579,28 +630,36 @@ def compute_rolling_ter(
                     text = content if isinstance(content, str) else json.dumps(content)
                     if text:
                         tokens = _estimate_tokens(text)
-                        phase = "tool_use"
                         state.total_tokens += tokens
-                        state.phase_total[phase] += tokens
+                        state.phase_total["tool_use"] += tokens
                         state.span_count += 1
-                        if state.intent_embedding is not None:
-                            span_emb = embed_fn(
-                                text, normalize_embeddings=True
-                            ).astype(np.float32)
-                            sim = _cosine_similarity(span_emb, state.intent_embedding)
-                            aligned = _is_aligned(sim, phase, text)
-                        else:
-                            aligned = True
-                        if aligned:
-                            state.aligned_tokens += tokens
-                            state.phase_aligned[phase] += tokens
-                        else:
+
+                        # Embed and check repetition against recent tool_use spans
+                        span_emb = embed_fn(
+                            text, normalize_embeddings=True
+                        ).astype(np.float32)
+                        recent_tu = state.recent_phase_embeddings["tool_use"]
+                        is_repeated = _is_repetition(span_emb, recent_tu)
+
+                        # Check for error result (failed retry)
+                        is_error = _is_error_result_text(text)
+
+                        # Track file reads for context (not for waste detection —
+                        # repetitive reads are caught by embedding repetition above)
+                        tool_use_id = block.get("tool_use_id", "")
+                        if tool_use_id in state.pending_tool_calls:
+                            t_name, file_path = state.pending_tool_calls[tool_use_id]
+                            if t_name == "Read" and file_path:
+                                state.file_read_history.setdefault(file_path, []).append(tokens)
+
+                        if is_repeated or is_error:
                             state.waste_tokens += tokens
-                            state.phase_waste[phase] += tokens
-                            if waste_type:
-                                state.waste_by_type[waste_type] = (
-                                    state.waste_by_type.get(waste_type, 0) + tokens
-                                )
+                            state.phase_waste["tool_use"] += tokens
+                            state.user_waste_tokens += tokens  # priced at input rate
+                        else:
+                            state.aligned_tokens += tokens
+                            state.phase_aligned["tool_use"] += tokens
+                            _record_embedding(span_emb, recent_tu)
             continue
 
         if role != "assistant":
@@ -644,6 +703,11 @@ def compute_rolling_ter(
                 tool_name = block.get("name", "")
                 tool_input_json = json.dumps(block.get("input", {}), sort_keys=True)
                 text = f"{tool_name} {tool_input_json}"
+                # Record for tool_result matching (repetitive reads / failed retries)
+                tool_use_id = block.get("id", "")
+                if tool_use_id and tool_name:
+                    file_path = block.get("input", {}).get("file_path", "")
+                    state.pending_tool_calls[tool_use_id] = (tool_name, file_path)
             elif block_type == "tool_result":
                 content = block.get("content", "")
                 text = content if isinstance(content, str) else json.dumps(content)
@@ -657,26 +721,33 @@ def compute_rolling_ter(
             state.span_count += 1
             message_total += tokens
 
+            # Embed the span
+            span_emb = embed_fn(text, normalize_embeddings=True).astype(np.float32)
+
             # Check for duplicate tool calls (Phase 2B) and bash antipatterns (Phase 2C)
             is_duplicate_tool = False
             is_bash_antipattern = False
-
             if block_type == "tool_use" and tool_name:
                 if tool_input_json:
                     is_duplicate_tool = _is_duplicate_tool_call(
                         tool_name, tool_input_json, state
                     )
-                # Check bash antipatterns
                 tool_input_dict = block.get("input", {})
                 is_bash_antipattern = _is_bash_antipattern(tool_name, tool_input_dict)
 
-            if is_duplicate_tool or is_bash_antipattern:
-                # Duplicate or antipattern tool calls are always waste
+            # Check repetition against recent same-phase spans.
+            # Only for reasoning/generation: tool_use uses exact-match dedup (Phase 2B)
+            # and file-read tracking instead, since tool results are structurally similar
+            # even when semantically different (e.g., different file contents).
+            recent_embs = state.recent_phase_embeddings.get(phase, [])
+            is_repeated = (
+                phase in ("reasoning", "generation")
+                and _is_repetition(span_emb, recent_embs)
+            )
+
+            if is_duplicate_tool or is_bash_antipattern or is_repeated:
                 aligned = False
             elif state.intent_embedding is not None:
-                span_emb = embed_fn(text, normalize_embeddings=True).astype(
-                    np.float32
-                )
                 sim = _cosine_similarity(span_emb, state.intent_embedding)
                 aligned = _is_aligned(sim, phase, text)
             else:
@@ -690,14 +761,12 @@ def compute_rolling_ter(
                 state.aligned_tokens += tokens
                 state.phase_aligned[phase] += tokens
                 message_aligned += tokens
+                # Track embedding for future repetition detection (reasoning/generation only)
+                if phase in ("reasoning", "generation"):
+                    _record_embedding(span_emb, state.recent_phase_embeddings[phase])
             else:
                 state.waste_tokens += tokens
                 state.phase_waste[phase] += tokens
-                if waste_type:
-                    state.waste_by_type[waste_type] = (
-                        state.waste_by_type.get(waste_type, 0) + tokens
-                    )
-                # Track assistant-only waste for cost calculation (matches post-hoc)
                 state.assistant_waste_tokens += tokens
 
         if message_total == 0:
