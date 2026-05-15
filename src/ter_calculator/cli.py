@@ -611,12 +611,12 @@ def _print_signal(signal, fmt, log_fh=None):
         log_fh.flush()
 
     if fmt == "json":
-        print(json_mod.dumps(record))
+        print(json_mod.dumps(record), flush=True)
     else:
         from datetime import datetime, timezone
 
         if signal.is_live and not _last_was_live:
-            print("\n--- LIVE ---\n")
+            print("\n--- LIVE ---\n", flush=True)
         _last_was_live = signal.is_live
 
         tag = "LIVE" if signal.is_live else "HISTORY"
@@ -629,12 +629,12 @@ def _print_signal(signal, fmt, log_fh=None):
               f"Raw: {signal.raw_ratio:.2f} {drift_arrow} | "
               f"Tokens: {signal.total_tokens:,} | "
               f"Aligned: {signal.aligned_tokens:,} ({aligned_pct:.0f}%) | "
-              f"Waste: {signal.waste_tokens:,} ({waste_pct:.0f}%)")
+              f"Waste: {signal.waste_tokens:,} ({waste_pct:.0f}%)", flush=True)
 
         # Show phase breakdown if available
         if hasattr(signal, 'phase_ter') and signal.phase_ter:
             phase_strs = [f"{p[:3]}: {ter:.2f}" for p, ter in signal.phase_ter.items()]
-            print(f"  Phases: {' | '.join(phase_strs)}")
+            print(f"  Phases: {' | '.join(phase_strs)}", flush=True)
 
         # Show waste sources if available
         if hasattr(signal, 'waste_sources') and signal.waste_sources:
@@ -643,11 +643,11 @@ def _print_signal(signal, fmt, log_fh=None):
                 if count > 0:
                     waste_items.append(f"{source}: {count}")
             if waste_items:
-                print(f"  Waste: {', '.join(waste_items)}")
+                print(f"  Waste: {', '.join(waste_items)}", flush=True)
 
         if signal.warnings:
             for warning in signal.warnings:
-                print(f"  ⚠ {warning}")
+                print(f"  ⚠ {warning}", flush=True)
 
 
 def _cmd_watch(args) -> int:
@@ -670,6 +670,12 @@ def _cmd_watch(args) -> int:
         target = Path(args.project_path)
         if target.is_file() and target.suffix == ".jsonl":
             single_file = target
+        elif target.is_dir():
+            session_jsonl = target.parent / (target.name + ".jsonl")
+            if session_jsonl.is_file():
+                single_file = session_jsonl
+                if not args.quiet:
+                    print(f"Watching session file: {session_jsonl.name}", file=sys.stderr)
         elif not target.exists():
             print(f"Error: Project path not found: {target}", file=sys.stderr)
             return 1
@@ -713,10 +719,10 @@ def _cmd_watch(args) -> int:
     watch_target = single_file or args.project_path
     try:
         if args.output_format == "text":
-            print(f"Watching: {watch_target}")
+            print(f"Watching: {watch_target}", flush=True)
             if log_path:
-                print(f"Logging to: {log_path}")
-            print("Press Ctrl+C to stop...\n")
+                print(f"Logging to: {log_path}", flush=True)
+            print("Press Ctrl+C to stop...\n", flush=True)
         monitor.run()
     except KeyboardInterrupt:
         monitor.stop()

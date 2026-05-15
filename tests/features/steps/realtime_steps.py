@@ -681,7 +681,7 @@ def poll_once(ctx):
         path = ctx.get("session_path", ctx.get("jsonl_path"))
         interval = ctx.get("poll_interval", 2.0)
         on_signal = ctx.get("on_signal_callback")
-        ctx["monitor"] = SessionMonitor(path, poll_interval=interval, on_signal=on_signal)
+        ctx["monitor"] = SessionMonitor(path, poll_interval=interval, on_signal=on_signal, skip_history=False)
     signals = ctx["monitor"].poll_once()
     ctx["signals"] = signals
 
