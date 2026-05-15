@@ -181,6 +181,17 @@ class RollingTERState:
     bash_command_counts: dict[str, int] = field(default_factory=dict)
     waste_by_type: dict[str, int] = field(default_factory=dict)
 
+    # Economics tracking for live dashboard
+    total_input_tokens: int = 0
+    total_output_tokens: int = 0
+    total_cache_creation_tokens: int = 0
+    total_cache_read_tokens: int = 0
+    turn_context_sizes: list[int] = field(default_factory=list)
+    session_start_time: float | None = None
+
+    # Track assistant-only waste for cost calculation (matches post-hoc)
+    assistant_waste_tokens: int = 0
+
     @property
     def aggregate_ter(self) -> float:
         if self.total_tokens == 0:
@@ -211,6 +222,81 @@ class RollingTERState:
             )
         return scores
 
+    def get_cache_hit_rate(self) -> float:
+        """Calculate cache hit rate: cache_read / (cache_read + input)."""
+        total = self.total_cache_read_tokens + self.total_input_tokens
+        if total == 0:
+            return 0.0
+        return self.total_cache_read_tokens / total
+
+    def get_estimated_cost(self, cost_model: Any = None) -> float:
+        """Estimate session cost in USD using default Sonnet rates."""
+        # Default Sonnet 4.5 rates (per million tokens)
+        input_rate = 3.00
+        output_rate = 15.00
+        cache_read_rate = 0.30
+        cache_write_rate = 3.75
+
+        if cost_model is not None:
+            input_rate = cost_model.input_rate
+            output_rate = cost_model.output_rate
+            cache_read_rate = cost_model.cache_read_rate
+            cache_write_rate = cost_model.cache_write_rate
+
+        return (
+            self.total_input_tokens * input_rate / 1_000_000
+            + self.total_output_tokens * output_rate / 1_000_000
+            + self.total_cache_read_tokens * cache_read_rate / 1_000_000
+            + self.total_cache_creation_tokens * cache_write_rate / 1_000_000
+        )
+
+    def get_estimated_waste_cost(self, cost_model: Any = None) -> float:
+        """Estimate waste cost in USD based on assistant-only waste tokens.
+
+        Matches post-hoc calculation which only counts assistant-origin waste,
+        excluding user-side waste like tool results.
+        """
+        output_rate = 15.00 if cost_model is None else cost_model.output_rate
+        # Calibrate assistant waste to output_tokens if available
+        if self.total_output_tokens > 0 and self.total_tokens > 0:
+            calibration = self.total_output_tokens / self.total_tokens
+        else:
+            calibration = 1.0
+        return self.assistant_waste_tokens * calibration * output_rate / 1_000_000
+
+    def get_context_growth_rate(self) -> float:
+        """Calculate context growth rate: final / first context size."""
+        if len(self.turn_context_sizes) < 2:
+            return 1.0
+        # Filter out tiny contexts (< 100 tokens)
+        significant = [c for c in self.turn_context_sizes if c > 100]
+        if len(significant) < 2:
+            return 1.0
+        return significant[-1] / significant[0] if significant[0] > 0 else 1.0
+
+    def is_context_bloat_detected(self) -> bool:
+        """Detect context bloat: super-linear growth AND >2x size increase."""
+        if len(self.turn_context_sizes) < 3:
+            return False
+        # Detect super-linear growth via second differences
+        deltas = [
+            self.turn_context_sizes[i + 1] - self.turn_context_sizes[i]
+            for i in range(len(self.turn_context_sizes) - 1)
+        ]
+        if len(deltas) < 2:
+            return False
+        second_deltas = [deltas[i + 1] - deltas[i] for i in range(len(deltas) - 1)]
+        avg_second = sum(second_deltas) / len(second_deltas)
+        is_superlinear = avg_second > 0
+        growth_rate = self.get_context_growth_rate()
+        return is_superlinear and growth_rate > 2.0
+
+    def get_session_duration(self, current_time: float) -> float:
+        """Get session duration in seconds."""
+        if self.session_start_time is None:
+            return 0.0
+        return current_time - self.session_start_time
+
 
 @dataclass(frozen=True, slots=True)
 class TERSignal:
@@ -231,6 +317,18 @@ class TERSignal:
     warning_level: WarningLevel = WarningLevel.INFO
     phase_ter: dict[str, float] = field(default_factory=dict)
     waste_sources: dict[str, int] = field(default_factory=dict)
+
+    # Economics fields for live dashboard
+    total_input_tokens: int = 0
+    total_output_tokens: int = 0
+    cache_creation_tokens: int = 0
+    cache_read_tokens: int = 0
+    cache_hit_rate: float = 0.0
+    estimated_cost_usd: float = 0.0
+    estimated_waste_cost_usd: float = 0.0
+    context_growth_rate: float = 1.0
+    context_bloat_detected: bool = False
+    session_duration_seconds: float = 0.0
 
     @property
     def is_healthy(self) -> bool:
@@ -387,8 +485,7 @@ def _extract_blocks_from_line(line_data: dict[str, Any]) -> list[dict[str, Any]]
 
 def _get_request_id(line_data: dict[str, Any]) -> str | None:
     """Extract requestId for deduplication."""
-    msg = line_data.get("message", {})
-    return msg.get("requestId") or msg.get("request_id")
+    return line_data.get("requestId") or line_data.get("request_id")
 
 
 def _get_usage(line_data: dict[str, Any]) -> dict[str, int]:
@@ -508,6 +605,26 @@ def compute_rolling_ter(
         if role != "assistant":
             continue
 
+        # Extract usage data for economics tracking
+        usage = _get_usage(line_data)
+        msg_ts = _get_message_timestamp(line_data)
+
+        # Initialize session start time on first assistant message
+        if state.session_start_time is None:
+            state.session_start_time = msg_ts
+
+        # Update economics accumulators
+        if usage:
+            state.total_input_tokens += usage.get("input_tokens", 0)
+            state.total_output_tokens += usage.get("output_tokens", 0)
+            state.total_cache_creation_tokens += usage.get("cache_creation_input_tokens", 0)
+            state.total_cache_read_tokens += usage.get("cache_read_input_tokens", 0)
+
+            # Track context size (input + cache_read)
+            context_size = usage.get("input_tokens", 0) + usage.get("cache_read_input_tokens", 0)
+            if context_size > 0:
+                state.turn_context_sizes.append(context_size)
+
         state.message_count += 1
         message_aligned = 0
         message_total = 0
@@ -517,7 +634,9 @@ def compute_rolling_ter(
             phase = _BLOCK_TYPE_TO_PHASE.get(block_type, "generation")
 
             text = block.get("text", "")
-            if block_type == "tool_use":
+            if block_type == "thinking":
+                text = block.get("thinking", "")
+            elif block_type == "tool_use":
                 tool_name = block.get("name", "")
                 tool_input = json.dumps(block.get("input", {}), sort_keys=True)
                 text = f"{tool_name} {tool_input}"
@@ -561,6 +680,8 @@ def compute_rolling_ter(
                     state.waste_by_type[waste_type] = (
                         state.waste_by_type.get(waste_type, 0) + tokens
                     )
+                # Track assistant-only waste for cost calculation (matches post-hoc)
+                state.assistant_waste_tokens += tokens
 
         if message_total == 0:
             continue
@@ -607,7 +728,22 @@ def compute_rolling_ter(
             if wtokens > 0:
                 waste_sources[wtype] = wtokens
 
-        msg_ts = _get_message_timestamp(line_data)
+        # Calculate economics metrics
+        cache_hit_rate = state.get_cache_hit_rate()
+        estimated_cost = state.get_estimated_cost()
+        estimated_waste_cost = state.get_estimated_waste_cost()
+        context_growth_rate = state.get_context_growth_rate()
+        context_bloat = state.is_context_bloat_detected()
+        session_duration = state.get_session_duration(msg_ts)
+
+        # Add context bloat warning
+        if context_bloat and "bloat" not in " ".join(warnings).lower():
+            warnings.append(
+                f"Context bloat detected: {context_growth_rate:.1f}x growth"
+            )
+            if level == WarningLevel.INFO:
+                level = WarningLevel.CAUTION
+
         signal = TERSignal(
             session_id=line_data.get("sessionId", "unknown"),
             timestamp=msg_ts,
@@ -624,6 +760,17 @@ def compute_rolling_ter(
             is_live=(time.time() - msg_ts) < _LIVE_THRESHOLD_SEC,
             phase_ter=phase_ter,
             waste_sources=waste_sources,
+            # Economics fields
+            total_input_tokens=state.total_input_tokens,
+            total_output_tokens=state.total_output_tokens,
+            cache_creation_tokens=state.total_cache_creation_tokens,
+            cache_read_tokens=state.total_cache_read_tokens,
+            cache_hit_rate=cache_hit_rate,
+            estimated_cost_usd=estimated_cost,
+            estimated_waste_cost_usd=estimated_waste_cost,
+            context_growth_rate=context_growth_rate,
+            context_bloat_detected=context_bloat,
+            session_duration_seconds=session_duration,
         )
         signals.append(signal)
 
