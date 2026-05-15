@@ -80,14 +80,8 @@ def _compute_group_aggregates(all_results: list[TERResult]) -> dict:
 
 # --- Rich formatting ---
 
-
-def _ter_color(value: float) -> str:
-    """Return Rich color for a TER score."""
-    if value >= 0.7:
-        return "green"
-    if value >= 0.4:
-        return "yellow"
-    return "red"
+# Import shared components
+from .rich_components import ter_color as _ter_color
 
 
 def _format_rich(result: TERResult) -> str:

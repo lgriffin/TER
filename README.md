@@ -105,16 +105,48 @@ ter analyze path/to/session.jsonl
 
 ### Live monitoring (NEW)
 
-Monitor active sessions in real-time with rolling TER computation:
+Monitor active sessions in real-time with an **interactive dashboard** that updates as the session progresses:
 
 ```bash
+# Dashboard mode (default) - rich interactive display
 ter watch ~/.claude/projects/your-project
+
+# Watch a specific session file
+ter watch path/to/session.jsonl
+
+# Stream mode - line-by-line output
+ter watch --stream ~/.claude/projects/your-project
 ```
 
-Shows live updates as sessions progress, including:
-- Current TER and token counts
-- Drift detection (improving/degrading/stable)
-- Real-time warnings for efficiency issues
+**Dashboard mode** displays (default):
+```
+╭───────────── TER Live Monitor — Session: 711bb9b1 — 🟢 LIVE ─────────────╮
+│ TER: 0.97  │  Waste: 7.5%  │  Cost: $2.45  │  Waste $: $0.06           │
+│ Drift: stable →  │  Messages: 49  │  Active: 15m 32s  │  Rate: 3,380 tok/min │
+╰──────────────────────────────────────────────────────────────────────────╯
+  Phases           Reasoning        Tool Use       Generation   
+  Score               1.00            0.92            1.00      
+                    ████████        ██████          ████████    
+  Tokens     Output: 52,497  │  Aligned: 48,553  │  Waste: 3,944
+             Input: 7,700  │  Cache: 3.2M  │  Hit: 99.8%
+  Context    Growth: 5.7x over 49 turns  ⚠️  BLOAT DETECTED
+Recent TER:  ▇▇▇▇▇▇▆▇▇▇  (0.97)
+```
+
+Features:
+- **Real-time TER and cost tracking** with live updates
+- **Phase breakdown** (reasoning/tool use/generation)
+- **Cache hit rate** and input/output token metrics
+- **Context growth monitoring** with bloat detection
+- **Session duration** and tokens-per-minute rate
+- **TER trend sparkline** showing recent history
+- **Live warnings** when efficiency degrades
+- **Updates in-place** (no scrolling) for clean monitoring
+
+**Stream mode** provides traditional line-by-line output:
+- Useful for logging or piping to other tools
+- Each new message prints a status line
+- Add `--log FILE` to save signals as JSONL for later analysis
 
 ### Budget recommendations (NEW)
 
@@ -229,6 +261,9 @@ ter analyze <path>
 ter watch <project-path>
   --poll-interval SECONDS      Seconds between polls (default: 2.0)
   --format text|json           Output format (default: text)
+  --stream                     Use streaming line-by-line output instead of dashboard
+  --latest                     Watch the most recent session by modification time
+  --log FILE                   Append signals as JSONL to FILE for later analysis
   --model PATH                 Path to custom sentence-transformers model (optional)
 
 ter budget <intent-text>
@@ -266,8 +301,9 @@ ter analyze sample_sessions/b1a1450c-b006-40fe-8f9c-f15622a94324.jsonl --cost-we
 ter budget "Fix the authentication bug in login.py"
 ter budget "Implement a full user dashboard with charts" --use-history
 
-# Monitor active sessions in real-time (NEW)
+# Monitor active sessions in real-time with live dashboard (NEW)
 ter watch ~/.claude/projects/your-project
+ter watch --stream ~/.claude/projects/your-project  # Stream mode
 
 # Grouped analysis (parent + subagents)
 ter analyze sample_sessions/b1a1450c-b006-40fe-8f9c-f15622a94324.jsonl --group
