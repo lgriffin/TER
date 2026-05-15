@@ -673,6 +673,7 @@ class SessionMonitor:
         poll_interval: float = DEFAULT_POLL_INTERVAL_SEC,
         model: Any | None = None,
         on_signal: Callable[[TERSignal], None] | None = None,
+        skip_history: bool = True,
     ) -> None:
         self.path = Path(path)
         self.poll_interval = poll_interval
@@ -681,6 +682,7 @@ class SessionMonitor:
         self.state = RollingTERState()
         self._stop = False
         self._file_pos = 0
+        self._caught_up = not skip_history
 
     def _read_new_lines(self) -> list[dict[str, Any]]:
         """Read lines appended since last poll using byte-offset seek."""
@@ -709,6 +711,13 @@ class SessionMonitor:
         if not new_lines:
             return []
         signals = compute_rolling_ter(self.state, new_lines, model=self.model)
+        if not self._caught_up:
+            self._caught_up = True
+            if signals:
+                last = signals[-1]
+                if self.on_signal:
+                    self.on_signal(last)
+            return signals
         if self.on_signal:
             for sig in signals:
                 self.on_signal(sig)
@@ -751,11 +760,13 @@ class LiveDashboard:
         poll_interval: float = DEFAULT_POLL_INTERVAL_SEC,
         model: Any | None = None,
         on_signal: Callable[[TERSignal], None] | None = None,
+        skip_history: bool = True,
     ) -> None:
         self.project_dir = Path(project_dir)
         self.poll_interval = poll_interval
         self.model = model
         self.on_signal = on_signal
+        self.skip_history = skip_history
         self._monitors: dict[str, SessionMonitor] = {}
         self._stop = False
 
@@ -773,6 +784,7 @@ class LiveDashboard:
                 poll_interval=self.poll_interval,
                 model=self.model,
                 on_signal=self.on_signal,
+                skip_history=self.skip_history,
             )
             self._monitors[key] = mon
             logger.info("Tracking new session: %s", path.name)
