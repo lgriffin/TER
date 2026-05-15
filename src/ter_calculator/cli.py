@@ -656,12 +656,19 @@ def _print_signal(signal, fmt, log_fh=None):
 
 def _cmd_watch(args) -> int:
     """Execute the watch subcommand for live session monitoring."""
-    from .real_time import LiveDashboard, SessionMonitor
+    from .real_time import LiveDashboard, SessionMonitor, load_embedding_model
     from pathlib import Path
 
     # Dashboard is default for text format, unless --stream is specified
     use_stream = getattr(args, "stream", False)
     use_dashboard = args.output_format == "text" and not use_stream
+
+    # Load embedding model for accurate live classification
+    try:
+        model = load_embedding_model()
+    except ImportError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
 
     single_file = None
 
@@ -718,14 +725,14 @@ def _cmd_watch(args) -> int:
             monitor = SessionMonitor(
                 single_file,
                 poll_interval=args.poll_interval,
-                model=None,
+                model=model,
                 on_signal=on_signal,
             )
         else:
             monitor = LiveDashboard(
                 project_dir=Path(args.project_path),
                 poll_interval=args.poll_interval,
-                model=None,
+                model=model,
                 on_signal=on_signal,
             )
     except Exception as e:
