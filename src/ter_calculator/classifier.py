@@ -8,9 +8,21 @@ Classification philosophy:
   3. It's a generation span that restates what was already said
 - Cosine similarity to intent is used as a SIGNAL, not a binary gate.
   Low similarity doesn't mean waste — it means the span is indirect.
+
+Gold set calibration (session 711bb9b1, 60 spans, May 2026):
+- Waste and aligned reasoning spans have overlapping sim ranges (0.16–0.46).
+  Similarity alone is therefore insufficient; token count is the stronger signal.
+- Short reasoning spans (<25 words, sim<0.35) are almost universally action
+  narrations ("Let me read X", "Good! Now I'll Y") with no analytical content.
+- Repetition detection mis-fires on spans containing new specifics (line numbers,
+  identifiers). A _has_specific_reference guard prevents false positives there.
+- System artifacts ("[Request interrupted]") should be excluded before
+  classification.
 """
 
 from __future__ import annotations
+
+import re
 
 import numpy as np
 
@@ -22,6 +34,26 @@ from .models import (
     SpanPhase,
     TokenSpan,
 )
+
+# Matches line-number references and long integers (e.g. "line 341", "lines 715, 722").
+_SPECIFIC_REF_RE = re.compile(r"\blines?\s+\d+|\b\d{3,}\b")
+
+# System artifact patterns that should never be classified as waste.
+_SYSTEM_ARTIFACT_RE = re.compile(r"^\s*\[Request interrupted", re.IGNORECASE)
+
+# Per-phase repetition thresholds.
+#
+# Tool calls share structural JSON (tool name, keys) regardless of topic, so
+# two WebSearch calls for unrelated queries embed at ~0.85–0.92.  Using the
+# same 0.88 threshold as reasoning causes false positives in heterogeneous
+# sessions (session 94103fcd: dinosaur search + Man Utd kit search flagged as
+# duplicate).  Raising the tool_use threshold to 0.93 means only near-identical
+# calls (same query, same arguments) are flagged — genuine redundancy.
+_REPETITION_THRESHOLDS: dict[SpanPhase, float] = {
+    SpanPhase.REASONING: 0.88,
+    SpanPhase.TOOL_USE: 0.93,
+    SpanPhase.GENERATION: 0.88,
+}
 
 
 def cosine_similarity(vec_a: np.ndarray, vec_b: np.ndarray) -> float:
@@ -35,7 +67,7 @@ def cosine_similarity(vec_a: np.ndarray, vec_b: np.ndarray) -> float:
 
 def classify_spans(
     spans: list[TokenSpan],
-    intent: IntentVector,
+    intent: IntentVector | list[IntentVector],
     similarity_threshold: float = 0.40,
     confidence_threshold: float = 0.75,
 ) -> list[ClassifiedSpan]:
@@ -60,9 +92,16 @@ def classify_spans(
     for i, span in enumerate(spans):
         span.embedding = embeddings[i]
 
+    # Normalise intent to a list so downstream code is uniform.
+    # When a list of IntentVectors is provided (SlidingIntentExtractor output),
+    # each span is scored against the nearest intent segment (max similarity).
+    # This prevents blurred global intent from flagging spans from topic B as
+    # waste simply because they don't match topic A's embedding.
+    intent_list = intent if isinstance(intent, list) else [intent]
+
     # Compute intent similarity for all spans.
     intent_sims = [
-        cosine_similarity(embeddings[i], intent.embedding)
+        max(cosine_similarity(embeddings[i], iv.embedding) for iv in intent_list)
         for i in range(len(spans))
     ]
 
@@ -74,8 +113,11 @@ def classify_spans(
         sim = intent_sims[i]
 
         # Check for self-repetition against recent same-phase spans.
+        # Phase-specific threshold: tool calls need a higher bar (0.93) because
+        # they are structurally similar across topics by design.
         is_repetition, rep_sim = _check_repetition(
-            i, span.phase, embeddings, prior_by_phase
+            i, span.phase, embeddings, prior_by_phase,
+            repetition_threshold=_REPETITION_THRESHOLDS.get(span.phase, 0.88),
         )
 
         # Classify based on phase + signals.
@@ -111,6 +153,9 @@ def _check_repetition(
 ) -> tuple[bool, float]:
     """Check if a span closely duplicates a recent same-phase span.
 
+    The threshold is phase-specific — callers should pass the value from
+    ``_REPETITION_THRESHOLDS`` rather than the default.
+
     Returns (is_repetition, highest_similarity_to_prior).
     """
     prior_indices = prior_by_phase[phase]
@@ -128,6 +173,16 @@ def _check_repetition(
     return max_sim >= repetition_threshold, max_sim
 
 
+def _has_specific_reference(text: str) -> bool:
+    """Return True if the span contains line numbers or long numeric identifiers.
+
+    Used to protect spans like "both pass model=None on lines 341 and 358" from
+    being flagged as redundant_reasoning purely on surface-form similarity — they
+    contain actionable specifics even when they structurally echo earlier spans.
+    """
+    return bool(_SPECIFIC_REF_RE.search(text))
+
+
 def _classify_span(
     sim: float,
     phase: SpanPhase,
@@ -141,6 +196,14 @@ def _classify_span(
 
     Default: aligned. Waste only if a specific signal fires.
     """
+    # Guard: system artifacts are never waste — they are not agent reasoning.
+    if _SYSTEM_ARTIFACT_RE.match(span_text):
+        if phase == SpanPhase.REASONING:
+            return SpanLabel.ALIGNED_REASONING, 0.5
+        return SpanLabel.ALIGNED_RESPONSE, 0.5
+
+    word_count = len(span_text.split())
+
     # Signal 1: Self-repetition (strongest waste signal).
     if is_repetition:
         # Require strong agreement with a prior span; avoids borderline
@@ -151,6 +214,13 @@ def _classify_span(
             if phase == SpanPhase.TOOL_USE:
                 return SpanLabel.ALIGNED_TOOL_CALL, max(0.6, sim)
             return SpanLabel.ALIGNED_RESPONSE, max(0.5, sim)
+
+        # Gold set finding: spans with specific line-number references introduce
+        # new information even when surface form closely echoes a prior span.
+        # Don't fire redundant_reasoning on spans with numeric specifics.
+        if phase == SpanPhase.REASONING and _has_specific_reference(span_text):
+            return SpanLabel.ALIGNED_REASONING, max(0.5, sim)
+
         confidence = repetition_similarity
         if phase == SpanPhase.REASONING:
             return SpanLabel.REDUNDANT_REASONING, confidence
@@ -166,9 +236,25 @@ def _classify_span(
     verbose_sim_max = max(0.05, min(0.12, similarity_threshold * 0.22))
 
     if phase == SpanPhase.REASONING:
-        # Reasoning with very low relevance AND short text (filler).
-        if sim < filler_sim_max and len(span_text.split()) < 15:
+        # Tier 1 (existing): very low sim + very short → filler.
+        if sim < filler_sim_max and word_count < 15:
             return SpanLabel.REDUNDANT_REASONING, 0.5
+
+        # Tier 2 (gold set calibrated): short action-narration spans.
+        # Gold set analysis of session 711bb9b1 (60 uncertain spans) showed
+        # that reasoning spans with sim < 0.35 and fewer than 25 words are
+        # almost exclusively action announcements ("Let me read X", "Good! Now
+        # I'll add Y") with no analytical content. Aligned spans in this sim
+        # range reliably have ≥ 25 words (they include analysis or rationale).
+        short_narration_sim_max = 0.35
+        short_narration_words_max = 25
+        if (
+            sim < short_narration_sim_max
+            and word_count < short_narration_words_max
+            and not _has_specific_reference(span_text)
+        ):
+            return SpanLabel.REDUNDANT_REASONING, 0.6
+
         return SpanLabel.ALIGNED_REASONING, max(0.5, sim)
 
     if phase == SpanPhase.TOOL_USE:
@@ -179,7 +265,7 @@ def _classify_span(
     if phase == SpanPhase.GENERATION:
         # Generation with extremely low relevance is suspicious,
         # but only if it's also substantial (short responses are fine).
-        if sim < verbose_sim_max and len(span_text.split()) > 50:
+        if sim < verbose_sim_max and word_count > 50:
             return SpanLabel.OVER_EXPLANATION, 0.4
         return SpanLabel.ALIGNED_RESPONSE, max(0.5, sim)
 

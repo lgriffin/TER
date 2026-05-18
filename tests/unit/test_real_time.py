@@ -172,6 +172,30 @@ class TestComputeRollingTER:
         assert state.intent_embedding is not None
         assert len(signals) == 0  # User messages don't generate signals
 
+    def test_intent_uses_ema_not_mean(self, mock_model):
+        """Second prompt shifts intent via EMA, not uniform mean."""
+        from ter_calculator.real_time import INTENT_DECAY
+
+        state = RollingTERState()
+        prompt1 = "Fix the bug in main.py"
+        prompt2 = "Now write tests for main.py"
+
+        compute_rolling_ter(state, [{"message": {"role": "user", "content": [{"type": "text", "text": prompt1}]}}], model=mock_model)
+        emb1 = state.intent_embedding.copy()
+
+        compute_rolling_ter(state, [{"message": {"role": "user", "content": [{"type": "text", "text": prompt2}]}}], model=mock_model)
+        emb2_raw = mock_model.encode(prompt2, normalize_embeddings=True)
+
+        expected = (INTENT_DECAY * emb2_raw + (1 - INTENT_DECAY) * emb1).astype(np.float32)
+        norm = np.linalg.norm(expected)
+        if norm > 0:
+            expected /= norm
+
+        assert not np.allclose(state.intent_embedding, emb1, atol=1e-5), (
+            "Intent should have shifted after second prompt"
+        )
+        np.testing.assert_allclose(state.intent_embedding, expected, atol=1e-5)
+
     def test_assistant_message_generates_signal(self, mock_model):
         state = RollingTERState()
         state.intent_text = "Fix bug"
