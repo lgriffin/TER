@@ -6,6 +6,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
+from .embedding_cache import estimate_tokens
 from .models import (
     ContentBlock,
     Message,
@@ -107,7 +108,7 @@ def segment_spans(session: Session) -> list[TokenSpan]:
     - tool_use, tool_result → tool_use
     - text → generation
 
-    Estimates token counts using character heuristic (len / 4).
+    Token counts use tiktoken cl100k_base (same BPE approximation as live mode).
     """
     spans: list[TokenSpan] = []
     position = 0
@@ -119,7 +120,7 @@ def segment_spans(session: Session) -> list[TokenSpan]:
                 continue
 
             phase = _block_type_to_phase(block.block_type)
-            token_count = max(1, len(text) // 4)
+            token_count = estimate_tokens(text)
 
             spans.append(TokenSpan(
                 text=text,

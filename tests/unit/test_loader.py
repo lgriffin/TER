@@ -141,10 +141,9 @@ class TestSegmentSpans:
         session = load_session(minimal_session)
         spans = segment_spans(session)
         for span in spans:
+            # tiktoken BPE — count must be a positive integer; exact value
+            # depends on the tokenizer and we don't hard-code char/4 any more.
             assert span.token_count >= 1
-            # Heuristic: len/4
-            expected = max(1, len(span.text) // 4)
-            assert span.token_count == expected
 
     def test_position_ordering(self, sample_session_path):
         session = load_session(sample_session_path)

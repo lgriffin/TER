@@ -405,30 +405,10 @@ class TERSignal:
 # ---------------------------------------------------------------------------
 
 
-def _get_tiktoken_enc():
-    """Lazily load tiktoken encoder (cl100k_base ≈ Claude's BPE tokenizer)."""
-    global _TIKTOKEN_ENC
-    if _TIKTOKEN_ENC is None:
-        import tiktoken
-        _TIKTOKEN_ENC = tiktoken.get_encoding("cl100k_base")
-    return _TIKTOKEN_ENC
-
-
-_TIKTOKEN_ENC: Any | None = None
-
-
 def _estimate_tokens(text: str) -> int:
-    """Estimate token count using tiktoken cl100k_base (GPT-4 BPE encoding).
-
-    cl100k_base is the closest publicly available approximation to Claude's
-    tokenizer — both use BPE on the same byte-level vocabulary. Accuracy is
-    within ~5–10% of actual Claude counts, far better than the char/4 heuristic
-    which underestimates code and reasoning content by 2–3x.
-    """
-    try:
-        return max(1, len(_get_tiktoken_enc().encode(text)))
-    except Exception:
-        return max(1, len(text) // 4)
+    """Estimate token count — delegates to the shared tiktoken helper."""
+    from .embedding_cache import estimate_tokens
+    return estimate_tokens(text)
 
 
 def _cosine_similarity(a: NDArray[np.float32], b: NDArray[np.float32]) -> float:

@@ -546,11 +546,12 @@ class QuickAnalyser:
                 if role == "user":
                     user_prompts.append(content)
                 else:
+                    from ter_calculator.embedding_cache import estimate_tokens
                     spans.append({
                         "text": content,
                         "phase": "generation",
                         "position": position,
-                        "token_count": max(1, len(content) // 4),
+                        "token_count": estimate_tokens(content),
                     })
                     position += 1
                 continue
@@ -596,11 +597,12 @@ class QuickAnalyser:
                         continue
 
                     if text.strip():
+                        from ter_calculator.embedding_cache import estimate_tokens
                         spans.append({
                             "text": text,
                             "phase": phase,
                             "position": position,
-                            "token_count": max(1, len(text) // 4),
+                            "token_count": estimate_tokens(text),
                         })
                         position += 1
 
