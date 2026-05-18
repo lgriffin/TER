@@ -55,8 +55,8 @@ Feature: Rolling TER Computation
     And the tool_use phase score defaults to 1.0
     And the aggregate TER includes the default scores weighted at 0.3 and 0.4
 
-  Scenario: User tool_result blocks are counted as tool_use phase spans
+  Scenario: User tool_result blocks are tracked for dedup but excluded from TER phase totals
     When a user message contains a tool_result block with content "file contents here"
-    Then the tokens from that block are added to the tool_use phase totals
+    Then the tool_use phase totals are unchanged
     And the state span_count is incremented by 1
-    And the tool_result tokens are classified against the current intent embedding using threshold 0.40
+    And the total_tokens and aligned_tokens are unchanged

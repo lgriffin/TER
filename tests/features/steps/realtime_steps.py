@@ -363,10 +363,12 @@ def user_tool_result(ctx, content):
     compute_rolling_ter(state, [line], model=ctx["mock_model"])
 
 
-@then("the tokens from that block are added to the tool_use phase totals")
-def check_tool_result_tokens(ctx):
+@then("the tool_use phase totals are unchanged")
+def check_tool_result_excluded_from_phase(ctx):
+    # Tool_results are user-side input tokens; TER only measures model output.
+    # They must not pollute the phase_total used to compute aggregate_ter.
     state = ctx["state"]
-    assert state.phase_total["tool_use"] > 0
+    assert state.phase_total["tool_use"] == 0
 
 
 @then(parsers.parse("the state span_count is incremented by {count:d}"))
@@ -375,13 +377,12 @@ def check_span_count_incremented(ctx, count):
     assert state.span_count == ctx["_initial_span_count"] + count
 
 
-@then("the tool_result tokens are classified against the current intent embedding using threshold 0.40")
-def check_tool_result_classification(ctx):
+@then("the total_tokens and aligned_tokens are unchanged")
+def check_tool_result_excluded_from_totals(ctx):
+    # Tool_result tokens must not enter the TER denominator or numerator.
     state = ctx["state"]
-    # The tool_result tokens have been processed; total_tokens should reflect them
-    assert state.total_tokens > 0
-    # The classification happened (aligned or waste), so their sum should equal total
-    assert state.aligned_tokens + state.waste_tokens == state.total_tokens
+    assert state.total_tokens == 0
+    assert state.aligned_tokens == 0
 
 
 # ===========================================================================
