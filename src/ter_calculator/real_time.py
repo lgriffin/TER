@@ -50,9 +50,6 @@ __all__ = [
 
 logger = logging.getLogger(__name__)
 
-# Global model cache for lazy loading
-_EMBEDDING_MODEL_CACHE: Any | None = None
-
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -73,6 +70,10 @@ PHASE_WEIGHTS: dict[str, float] = {
 }
 
 SIM_THRESHOLD = 0.40
+
+INTENT_DECAY = 0.3
+"""EMA decay factor for live intent tracking. α=0.3 gives a half-life of ~2 turns,
+meaning a prompt from 5 turns ago contributes only ~17% weight to the current intent."""
 CONF_THRESHOLD = 0.75
 REPETITION_THRESHOLD = 0.88  # Matches classifier.py _check_repetition
 REPETITION_WINDOW = 10       # How many recent same-phase spans to compare against
@@ -124,40 +125,24 @@ _BLOCK_TYPE_TO_PHASE: dict[str, str] = {
 # ---------------------------------------------------------------------------
 
 
-def load_embedding_model(model_name: str = "sentence-transformers/all-MiniLM-L6-v2") -> Any:
-    """Lazy-load the sentence-transformers model for embeddings.
+def load_embedding_model(model_name: str = "all-MiniLM-L12-v2") -> Any:
+    """Return the shared sentence-transformers model for live embeddings.
 
-    The model is cached globally so it's only loaded once per process.
-    This keeps the CLI fast for commands that don't need embeddings while
-    ensuring live monitoring always uses accurate semantic embeddings.
+    Delegates to the process-wide cache in ``embedding_cache.get_embedding_model``
+    so the model is loaded at most once regardless of how many modules call it.
 
     Args:
-        model_name: HuggingFace model identifier
+        model_name: Short HuggingFace model name.  The default is always correct
+                    for TER; the parameter is kept for API compatibility.
 
     Returns:
-        Loaded SentenceTransformer model
+        Loaded SentenceTransformer model.
 
     Raises:
-        ImportError: If sentence-transformers is not installed
+        ImportError: If sentence-transformers is not installed.
     """
-    global _EMBEDDING_MODEL_CACHE
-
-    if _EMBEDDING_MODEL_CACHE is not None:
-        return _EMBEDDING_MODEL_CACHE
-
-    try:
-        from sentence_transformers import SentenceTransformer
-    except ImportError as e:
-        raise ImportError(
-            "sentence-transformers is required for live monitoring. "
-            "Install with: pip install sentence-transformers"
-        ) from e
-
-    logger.info("Loading embedding model: %s", model_name)
-    _EMBEDDING_MODEL_CACHE = SentenceTransformer(model_name)
-    logger.info("Model loaded successfully")
-
-    return _EMBEDDING_MODEL_CACHE
+    from .embedding_cache import get_embedding_model
+    return get_embedding_model(model_name)
 
 
 # ---------------------------------------------------------------------------
@@ -216,9 +201,15 @@ class RollingTERState:
     intent_embedding: NDArray[np.float32] | None = None
     intent_text: str = ""
     intent_confidence: float = 0.0
-    intent_embeddings: list[NDArray[np.float32]] = field(default_factory=list)
 
-    last_request_ids: dict[str, int] = field(default_factory=dict)
+    # Per-line dedup: keyed by uuid (unique per JSONL line) so that sibling
+    # lines from the same API call (thinking + tool_use sharing a requestId)
+    # are each processed once.
+    seen_line_ids: set[str] = field(default_factory=set)
+    # Per-request dedup: keyed by requestId so economics (input/output/cache
+    # tokens) are counted exactly once per API call even when that call
+    # produces multiple JSONL lines.
+    seen_usage_request_ids: set[str] = field(default_factory=set)
     last_file_position: int = 0
 
     tool_signatures: list[str] = field(default_factory=list)
@@ -240,6 +231,13 @@ class RollingTERState:
 
     # Tool call deduplication (Phase 2B)
     tool_call_history: dict[str, list[str]] = field(default_factory=dict)
+
+    # Tool call counters for dashboard display
+    total_tool_calls: int = 0
+    unique_tool_types: set = field(default_factory=set)
+
+    # Extended thinking detection — set when any thinking block is seen
+    has_thinking_blocks: bool = False
 
     # Repetition detection: recent embeddings per phase (reasoning, tool_use, generation)
     recent_phase_embeddings: dict[str, list] = field(
@@ -390,6 +388,13 @@ class TERSignal:
     context_bloat_detected: bool = False
     session_duration_seconds: float = 0.0
 
+    # Tool call stats for dashboard display
+    total_tool_calls: int = 0
+    unique_tool_types: int = 0
+
+    # Extended thinking flag — output token count is incomplete when True
+    has_thinking_blocks: bool = False
+
     @property
     def is_healthy(self) -> bool:
         return self.warning_level == WarningLevel.INFO and self.drift != DriftDirection.DEGRADING
@@ -401,8 +406,9 @@ class TERSignal:
 
 
 def _estimate_tokens(text: str) -> int:
-    """Cheap character heuristic: 1 token ~ 4 chars."""
-    return max(1, len(text) // 4)
+    """Estimate token count — delegates to the shared tiktoken helper."""
+    from .embedding_cache import estimate_tokens
+    return estimate_tokens(text)
 
 
 def _cosine_similarity(a: NDArray[np.float32], b: NDArray[np.float32]) -> float:
@@ -548,9 +554,19 @@ def _extract_blocks_from_line(line_data: dict[str, Any]) -> list[dict[str, Any]]
     return []
 
 
-def _get_request_id(line_data: dict[str, Any]) -> str | None:
-    """Extract requestId for deduplication."""
-    return line_data.get("requestId") or line_data.get("request_id")
+def _get_line_id(line_data: dict[str, Any]) -> str | None:
+    """Extract a unique identifier for this JSONL line.
+
+    Claude Code writes each block of a multi-block response as a separate line,
+    all sharing the same requestId.  Using the per-line uuid avoids skipping
+    tool_use/thinking lines whose requestId was already seen via an earlier
+    sibling (e.g. thinking → tool_use blocks of the same API call).
+    """
+    return (
+        line_data.get("uuid")
+        or line_data.get("requestId")
+        or line_data.get("request_id")
+    )
 
 
 def _get_usage(line_data: dict[str, Any]) -> dict[str, int]:
@@ -600,13 +616,11 @@ def compute_rolling_ter(
     embed_fn = model.encode
 
     for line_data in new_lines:
-        request_id = _get_request_id(line_data)
-        if request_id and request_id in state.last_request_ids:
+        line_id = _get_line_id(line_data)
+        if line_id and line_id in state.seen_line_ids:
             continue
-        if request_id:
-            state.last_request_ids[request_id] = _get_usage(line_data).get(
-                "output_tokens", 0
-            )
+        if line_id:
+            state.seen_line_ids.add(line_id)
 
         msg = line_data.get("message", {})
         role = msg.get("role", "")
@@ -624,13 +638,16 @@ def compute_rolling_ter(
                     prompt_emb = embed_fn(
                         user_text, normalize_embeddings=True
                     ).astype(np.float32)
-                    state.intent_embeddings.append(prompt_emb)
-                    state.intent_embedding = np.mean(
-                        state.intent_embeddings, axis=0
-                    ).astype(np.float32)
-                    norm = np.linalg.norm(state.intent_embedding)
-                    if norm > 0:
-                        state.intent_embedding /= norm
+                    if state.intent_embedding is None:
+                        state.intent_embedding = prompt_emb
+                    else:
+                        state.intent_embedding = (
+                            INTENT_DECAY * prompt_emb
+                            + (1 - INTENT_DECAY) * state.intent_embedding
+                        ).astype(np.float32)
+                        norm = np.linalg.norm(state.intent_embedding)
+                        if norm > 0:
+                            state.intent_embedding /= norm
                     state.intent_confidence = min(
                         1.0, len(state.intent_text.split()) / 20
                     )
@@ -680,8 +697,11 @@ def compute_rolling_ter(
         if state.session_start_time is None:
             state.session_start_time = msg_ts
 
-        # Update economics accumulators
-        if usage:
+        # Update economics accumulators — guard against double-counting when
+        # multiple JSONL lines share the same requestId (Claude Code writes
+        # one line per block: thinking, tool_use, text all have identical usage).
+        api_request_id = line_data.get("requestId") or line_data.get("request_id")
+        if usage and (not api_request_id or api_request_id not in state.seen_usage_request_ids):
             state.total_input_tokens += usage.get("input_tokens", 0)
             state.total_output_tokens += usage.get("output_tokens", 0)
             state.total_cache_creation_tokens += usage.get("cache_creation_input_tokens", 0)
@@ -691,6 +711,9 @@ def compute_rolling_ter(
             context_size = usage.get("input_tokens", 0) + usage.get("cache_read_input_tokens", 0)
             if context_size > 0:
                 state.turn_context_sizes.append(context_size)
+
+        if api_request_id:
+            state.seen_usage_request_ids.add(api_request_id)
 
         state.message_count += 1
         message_aligned = 0
@@ -706,10 +729,14 @@ def compute_rolling_ter(
 
             if block_type == "thinking":
                 text = block.get("thinking", "")
+                state.has_thinking_blocks = True
             elif block_type == "tool_use":
                 tool_name = block.get("name", "")
                 tool_input_json = json.dumps(block.get("input", {}), sort_keys=True)
                 text = f"{tool_name} {tool_input_json}"
+                state.total_tool_calls += 1
+                if tool_name:
+                    state.unique_tool_types.add(tool_name)
                 # Record for tool_result matching (repetitive reads / failed retries)
                 tool_use_id = block.get("id", "")
                 if tool_use_id and tool_name:
@@ -860,6 +887,9 @@ def compute_rolling_ter(
             context_growth_rate=context_growth_rate,
             context_bloat_detected=context_bloat,
             session_duration_seconds=session_duration,
+            total_tool_calls=state.total_tool_calls,
+            unique_tool_types=len(state.unique_tool_types),
+            has_thinking_blocks=state.has_thinking_blocks,
         )
         signals.append(signal)
 

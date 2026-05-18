@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import json
+
 from .classifier import cosine_similarity
+from .embedding_cache import estimate_tokens
 from .intent import embed_texts
 from .models import (
     InputAnalysis,
@@ -59,8 +62,19 @@ def compute_token_breakdown(session: Session) -> TokenBreakdown:
 
     for msg in session.messages:
         for block in msg.content_blocks:
-            text = block.text or ""
-            token_count = max(1, len(text) // 4) if text else 0
+            # tool_use blocks store content in tool_name/tool_input, not text.
+            if block.block_type == "tool_use":
+                parts = [block.tool_name or ""]
+                if block.tool_input:
+                    try:
+                        parts.append(json.dumps(block.tool_input, separators=(",", ":")))
+                    except (TypeError, ValueError):
+                        pass
+                text = " ".join(p for p in parts if p) or block.text or ""
+            else:
+                text = block.text or ""
+
+            token_count = estimate_tokens(text) if text else 0
 
             if msg.role == "user":
                 if block.block_type == "tool_result":

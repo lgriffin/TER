@@ -12,6 +12,7 @@ from .rich_components import (
     create_phases_table,
     create_ter_header_panel,
     create_tokens_table,
+    create_tools_section,
     create_warnings_section,
     create_waste_patterns_section,
     format_duration,
@@ -119,6 +120,15 @@ def create_dashboard_renderable(signal: TERSignal, recent_ter_values: list[float
         if warnings_section:
             elements.append(warnings_section)
 
+    # Add tools section if any tool calls were made
+    tools_section = create_tools_section(
+        total_tool_calls=signal.total_tool_calls,
+        unique_tool_types=signal.unique_tool_types,
+        waste_tool_tokens=signal.waste_sources.get("tool_use", 0),
+    )
+    if tools_section:
+        elements.append(tools_section)
+
     # Add TER trend sparkline if we have history
     if recent_ter_values and len(recent_ter_values) > 1:
         sparkline = format_sparkline(recent_ter_values, width=20)
@@ -130,6 +140,12 @@ def create_dashboard_renderable(signal: TERSignal, recent_ter_values: list[float
             (f"  ({signal.aggregate_ter:.2f})", color),
         )
         elements.append(trend_text)
+
+        if signal.has_thinking_blocks:
+            elements.append(Text(
+                "Output tokens excludes extended thinking",
+                style="dim italic",
+            ))
 
     # Add footer with timestamp
     update_time = datetime.fromtimestamp(signal.timestamp, tz=timezone.utc).astimezone().strftime("%H:%M:%S")
