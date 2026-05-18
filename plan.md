@@ -212,6 +212,7 @@ Expose `ter budget` recommendations as a hook:
 ```
 Phase 1 (Foundation) ✅ COMPLETE
 Phase 1.5 (Watch Fixes) ✅ COMPLETE
+Phase 1.6 (Context Orchestrator) ✅ COMPLETE
 
 Phase 2 (Embedding Quality)
 ├── 2A. Lazy sentence-transformer ← no deps, start here
@@ -225,9 +226,9 @@ Phase 3 (Intervention) ← depends on accurate signals from Phase 2
 └── All require Claude Code hooks API understanding
 
 Phase 4 (Intelligence) ← depends on Phase 3 + sufficient data
-├── 4A. Persistent store ← no deps, can start early
-├── 4B. Project profiles ← needs 4A
-├── 4C. Predictive TER ← needs 4A + 50+ sessions
+├── 4A. Persistent store ← partially done via fragment_store.py (SQLite)
+├── 4B. Project profiles ← needs 4A + context_graph.py
+├── 4C. Predictive TER ← needs 4A + 50+ sessions + budget_optimizer.py
 └── 4D. Dashboard ← needs 4A + cost_model.py
 ```
 
@@ -239,13 +240,11 @@ Phase 4 (Intelligence) ← depends on Phase 3 + sufficient data
 2. ✅ ~~Bridge modules + tests + CLI (Phase 1B)~~ COMPLETE
 3. ✅ ~~BDD specification suite~~ COMPLETE (PR #17, 538 tests)
 4. ✅ ~~Fix watch alignment, polling, timestamps~~ COMPLETE (PR #18)
-5. **Next: Phase 2A** — Lazy-load sentence-transformers in live watch
-   - Replace trigram hash with real embeddings for accurate live classification
-   - Keep trigram as fallback when sentence-transformers not installed
-   - Validate live TER matches post-hoc within 3 points
-6. **Then: Phase 2B** — Tool call deduplication via exact JSON match
-7. **Then: Phase 2C** — Port bash anti-pattern detection to live mode
-8. **Parallel: Phase 4A** — Start building persistent TER store (can begin any time)
+5. ✅ ~~Context Orchestrator (Phase 1.6)~~ COMPLETE — 5 modules, 93 unit tests, `ter context` CLI
+6. **Next: Phase 2A** — Lazy-load sentence-transformers in live watch
+7. **Then: Phase 2B** — Tool call deduplication via exact JSON match
+8. **Then: Phase 2C** — Port bash anti-pattern detection to live mode
+9. **Parallel: Phase 4A** — Extend fragment_store.py into full persistent TER store
 
 ---
 

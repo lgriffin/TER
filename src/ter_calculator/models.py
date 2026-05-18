@@ -263,3 +263,122 @@ class InputAnalysis:
     prompt_response_alignment: PromptResponseAlignment = field(
         default_factory=PromptResponseAlignment
     )
+
+
+# ---------------------------------------------------------------------------
+# Context Orchestrator models
+# ---------------------------------------------------------------------------
+
+
+class EdgeType(Enum):
+    DEPENDENCY = "dependency"
+    DERIVATION = "derivation"
+    CO_OCCURRENCE = "co_occurrence"
+
+
+class ConsistencyMode(Enum):
+    STRICT = "strict"
+    RELAXED = "relaxed"
+
+
+@dataclass
+class Fragment:
+    id: str
+    text: str
+    token_count: int
+    phase: SpanPhase
+    origin_session: str
+    created_at: float = 0.0
+    ttl_seconds: int = 3600
+    embedding: np.ndarray | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class FragmentNode:
+    fragment_id: str
+    creation_timestamp: float
+    origin_session: str
+    token_weight: int
+    staleness_ttl: int = 3600
+
+
+@dataclass
+class FragmentEdge:
+    source_id: str
+    target_id: str
+    edge_type: EdgeType
+    weight: float = 1.0
+
+
+@dataclass(frozen=True, slots=True)
+class ScoredFragment:
+    fragment_id: str
+    relevance_score: float
+    token_cost: int
+    phase: SpanPhase
+    is_cached: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class OptimizationResult:
+    selected_fragment_ids: list[str]
+    total_tokens: int
+    total_relevance: float
+    budget_used: int
+    budget_ceiling: int
+    pruned_count: int
+    reasoning: str
+
+
+@dataclass
+class PromptTemplate:
+    template_text: str
+    required_fragment_ids: list[str] = field(default_factory=list)
+
+
+@dataclass
+class FragmentManifest:
+    fragment_ids: list[str]
+    total_tokens: int
+    cache_hits: int
+    cache_misses: int
+
+
+@dataclass
+class DeltaPrompt:
+    template: PromptTemplate
+    manifest: FragmentManifest
+    delta_fragments: list[Fragment]
+    total_tokens_saved: int
+    compression_ratio: float
+
+
+@dataclass
+class InvalidationEvent:
+    fragment_id: str
+    timestamp: float
+    reason: str
+
+
+@dataclass
+class FragmentVersion:
+    fragment_id: str
+    version: int
+    content_hash: str
+    timestamp: float
+
+
+@dataclass
+class VersionSkew:
+    fragment_id: str
+    sessions_involved: list[str]
+    versions_seen: dict[str, int]
+    severity: str  # LOW, MEDIUM, HIGH
+
+
+@dataclass
+class ConsistencyAction:
+    block: bool
+    message: str
+    refresh_fragment_ids: list[str] = field(default_factory=list)
