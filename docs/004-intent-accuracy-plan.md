@@ -263,6 +263,27 @@ similarity distributions remain compatible with these thresholds, whereas
 bge-small scores unrelated content at ~0.41 — above the alignment threshold —
 which would require all threshold values to be recalibrated from scratch.
 
+**Addendum — multi-block JSONL deduplication bug (session 21a318e0):**
+
+Claude Code serialises each content block of a single API response as a
+separate JSONL line, all sharing the same `requestId`.  The original
+deduplication strategy in all three parsers (`loader.py`, `acceleration.py`,
+`real_time.py`) treated `requestId` as a unique-per-line key, so only the
+first sibling line was processed; every subsequent block (typically the
+`tool_use` or `thinking` block) was silently discarded.
+
+Observed symptoms: live monitor reported 1 tool call for a session with 4;
+post-hoc analysis was missing entire `thinking` spans from extended-thinking
+responses.
+
+Fix applied to all three parsers:
+- `loader.py` — `_deduplicate_entries` now **merges** content lists of sibling
+  lines into the first occurrence rather than keeping only one entry.
+- `acceleration.py` — `_parse_session` applies the same merge strategy.
+- `real_time.py` — deduplication split into two guards: per-line `uuid` (to
+  prevent re-processing the same line) and per-`requestId` for economics
+  (to count input/output tokens once per API call).
+
 **Addendum — tool-use repetition threshold (session 94103fcd):**
 
 Post-implementation validation on session 94103fcd (a mixed general-knowledge
