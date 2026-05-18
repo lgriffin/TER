@@ -482,7 +482,11 @@ class QuickAnalyser:
         messages: list[dict[str, Any]] = []
         session_id = ""
 
-        # Deduplicate by requestId -- keep highest output_tokens.
+        # Merge sibling lines that share a requestId.
+        # Claude Code writes one JSONL line per content block (thinking,
+        # tool_use, text) for the same API response — all sharing the same
+        # requestId.  Keeping only the "best" entry by output_tokens silently
+        # dropped the other blocks.  Instead, merge their content lists.
         seen_requests: dict[str, dict[str, Any]] = {}
 
         with open(path, encoding="utf-8") as f:
@@ -504,12 +508,22 @@ class QuickAnalyser:
 
                 request_id = msg.get("requestId") or entry.get("requestId")
                 usage = msg.get("usage", {})
-                output_tokens = usage.get("output_tokens", 0) if usage else 0
 
                 if request_id:
-                    existing = seen_requests.get(request_id)
-                    if existing is None or output_tokens > existing.get("_output_tokens", 0):
-                        seen_requests[request_id] = {**entry, "_output_tokens": output_tokens}
+                    if request_id not in seen_requests:
+                        seen_requests[request_id] = dict(entry)
+                        seen_requests[request_id].setdefault("message", {})
+                    else:
+                        base_msg = seen_requests[request_id].setdefault("message", {})
+                        base_content = base_msg.get("content", [])
+                        new_content = msg.get("content", [])
+                        if isinstance(new_content, list) and new_content:
+                            if isinstance(base_content, list):
+                                base_content.extend(new_content)
+                            else:
+                                base_msg["content"] = list(new_content)
+                        if not base_msg.get("usage") and usage:
+                            base_msg["usage"] = usage
                 else:
                     messages.append(entry)
 

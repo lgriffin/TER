@@ -80,7 +80,11 @@ class TestLoadSession:
             load_session(str(f))
 
     def test_deduplication(self, tmp_path):
-        """Entries with same requestId should be deduplicated."""
+        """Sibling JSONL lines sharing a requestId are merged into one Message.
+
+        Claude Code writes one line per content block (thinking, tool_use, text)
+        with the same requestId.  All blocks must end up on a single Message.
+        """
         data = [
             {
                 "type": "user",
@@ -95,18 +99,18 @@ class TestLoadSession:
                 "requestId": "r1",
                 "message": {
                     "role": "assistant",
-                    "content": [{"type": "text", "text": "partial"}],
-                    "usage": {"input_tokens": 10, "output_tokens": 3},
+                    "content": [{"type": "thinking", "thinking": "let me think"}],
+                    "usage": {"input_tokens": 10, "output_tokens": 20},
                 },
             },
             {
                 "type": "assistant",
-                "uuid": "a1-full",
+                "uuid": "a1-tool",
                 "sessionId": "s1",
                 "requestId": "r1",
                 "message": {
                     "role": "assistant",
-                    "content": [{"type": "text", "text": "full response"}],
+                    "content": [{"type": "tool_use", "name": "Bash", "input": {"command": "ls"}}],
                     "usage": {"input_tokens": 10, "output_tokens": 20},
                 },
             },
@@ -116,8 +120,10 @@ class TestLoadSession:
 
         session = load_session(str(f))
         assistant_msgs = [m for m in session.messages if m.role == "assistant"]
-        assert len(assistant_msgs) == 1
-        assert session.total_tokens == 20  # Kept the higher one
+        assert len(assistant_msgs) == 1  # Merged into one Message
+        block_types = {b.block_type for b in assistant_msgs[0].content_blocks}
+        assert block_types == {"thinking", "tool_use"}  # Both blocks present
+        assert session.total_tokens == 20  # Usage counted once
 
 
 class TestSegmentSpans:

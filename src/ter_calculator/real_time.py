@@ -202,7 +202,14 @@ class RollingTERState:
     intent_text: str = ""
     intent_confidence: float = 0.0
 
-    last_request_ids: dict[str, int] = field(default_factory=dict)
+    # Per-line dedup: keyed by uuid (unique per JSONL line) so that sibling
+    # lines from the same API call (thinking + tool_use sharing a requestId)
+    # are each processed once.
+    seen_line_ids: set[str] = field(default_factory=set)
+    # Per-request dedup: keyed by requestId so economics (input/output/cache
+    # tokens) are counted exactly once per API call even when that call
+    # produces multiple JSONL lines.
+    seen_usage_request_ids: set[str] = field(default_factory=set)
     last_file_position: int = 0
 
     tool_signatures: list[str] = field(default_factory=list)
@@ -567,9 +574,19 @@ def _extract_blocks_from_line(line_data: dict[str, Any]) -> list[dict[str, Any]]
     return []
 
 
-def _get_request_id(line_data: dict[str, Any]) -> str | None:
-    """Extract requestId for deduplication."""
-    return line_data.get("requestId") or line_data.get("request_id")
+def _get_line_id(line_data: dict[str, Any]) -> str | None:
+    """Extract a unique identifier for this JSONL line.
+
+    Claude Code writes each block of a multi-block response as a separate line,
+    all sharing the same requestId.  Using the per-line uuid avoids skipping
+    tool_use/thinking lines whose requestId was already seen via an earlier
+    sibling (e.g. thinking → tool_use blocks of the same API call).
+    """
+    return (
+        line_data.get("uuid")
+        or line_data.get("requestId")
+        or line_data.get("request_id")
+    )
 
 
 def _get_usage(line_data: dict[str, Any]) -> dict[str, int]:
@@ -619,13 +636,11 @@ def compute_rolling_ter(
     embed_fn = model.encode
 
     for line_data in new_lines:
-        request_id = _get_request_id(line_data)
-        if request_id and request_id in state.last_request_ids:
+        line_id = _get_line_id(line_data)
+        if line_id and line_id in state.seen_line_ids:
             continue
-        if request_id:
-            state.last_request_ids[request_id] = _get_usage(line_data).get(
-                "output_tokens", 0
-            )
+        if line_id:
+            state.seen_line_ids.add(line_id)
 
         msg = line_data.get("message", {})
         role = msg.get("role", "")
@@ -702,8 +717,11 @@ def compute_rolling_ter(
         if state.session_start_time is None:
             state.session_start_time = msg_ts
 
-        # Update economics accumulators
-        if usage:
+        # Update economics accumulators — guard against double-counting when
+        # multiple JSONL lines share the same requestId (Claude Code writes
+        # one line per block: thinking, tool_use, text all have identical usage).
+        api_request_id = line_data.get("requestId") or line_data.get("request_id")
+        if usage and (not api_request_id or api_request_id not in state.seen_usage_request_ids):
             state.total_input_tokens += usage.get("input_tokens", 0)
             state.total_output_tokens += usage.get("output_tokens", 0)
             state.total_cache_creation_tokens += usage.get("cache_creation_input_tokens", 0)
@@ -713,6 +731,9 @@ def compute_rolling_ter(
             context_size = usage.get("input_tokens", 0) + usage.get("cache_read_input_tokens", 0)
             if context_size > 0:
                 state.turn_context_sizes.append(context_size)
+
+        if api_request_id:
+            state.seen_usage_request_ids.add(api_request_id)
 
         state.message_count += 1
         message_aligned = 0
