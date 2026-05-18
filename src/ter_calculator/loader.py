@@ -247,6 +247,8 @@ def _parse_content_blocks(content) -> list[ContentBlock]:
 
         block_type = item.get("type", "text")
         text = item.get("text")
+        if text is None and block_type == "thinking":
+            text = item.get("thinking")
         if text is None:
             raw_content = item.get("content")
             if isinstance(raw_content, str):
