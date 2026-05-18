@@ -18,7 +18,7 @@ import json
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -33,6 +33,7 @@ __all__ = [
     "SkippedSpanResult",
     "EmbeddingCache",
     "DeviceConfig",
+    "get_embedding_model",
     "merge_adjacent_spans",
     "filter_short_spans",
     "detect_device",
@@ -57,7 +58,69 @@ DEFAULT_CACHE_DIR = Path.home() / ".cache" / "ter" / "embeddings"
 """Default location for the on-disk embedding cache."""
 
 EMBEDDING_DIM = 384
-"""Dimensionality of the all-MiniLM-L6-v2 embeddings."""
+"""Dimensionality of the all-MiniLM-L12-v2 embeddings."""
+
+DEFAULT_MODEL_NAME = "all-MiniLM-L12-v2"
+"""Canonical model name used across the TER pipeline."""
+
+# ---------------------------------------------------------------------------
+# Shared model cache — single instance across all modules in the process
+# ---------------------------------------------------------------------------
+
+_MODEL_CACHE: dict[str, Any] = {}
+
+
+def get_embedding_model(model_name: str = DEFAULT_MODEL_NAME) -> Any:
+    """Return the sentence-transformers model, loading it at most once per name.
+
+    This is the single canonical loader for the TER process.  All three modules
+    that need an embedding model (intent.py, intent_extraction.py, real_time.py)
+    delegate here so the ~117 MB model is never held in more than one copy.
+
+    Noise suppression (HuggingFace progress bars, transformers verbosity) is
+    applied exactly once, on first load.
+
+    Args:
+        model_name: Short HuggingFace model name (e.g. ``"all-MiniLM-L12-v2"``).
+                    The cache is keyed on this string, so callers must use a
+                    consistent name — the default is always correct for TER.
+
+    Returns:
+        Loaded and cached ``SentenceTransformer`` instance.
+
+    Raises:
+        ImportError: If ``sentence-transformers`` is not installed.
+    """
+    if model_name in _MODEL_CACHE:
+        return _MODEL_CACHE[model_name]
+
+    import logging
+    import os
+    import warnings
+
+    try:
+        from sentence_transformers import SentenceTransformer
+    except ImportError as exc:
+        raise ImportError(
+            "sentence-transformers is required. Install with: "
+            "pip install sentence-transformers"
+        ) from exc
+
+    # Suppress noisy model-loading output on first load.
+    os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
+    os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
+    os.environ.setdefault("HF_HUB_VERBOSITY", "error")
+    for lib in ("huggingface_hub", "transformers", "sentence_transformers"):
+        logging.getLogger(lib).setLevel(logging.ERROR)
+
+    logger.info("Loading embedding model: %s", model_name)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        model = SentenceTransformer(model_name)
+
+    _MODEL_CACHE[model_name] = model
+    logger.info("Embedding model loaded and cached.")
+    return model
 
 
 # ---------------------------------------------------------------------------

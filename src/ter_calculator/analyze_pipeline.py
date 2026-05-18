@@ -28,7 +28,7 @@ def analyze_session(args) -> "TERResult":
     """Run full TER pipeline for one JSONL session. `args` matches analyze subcommand."""
     from .config_parse import parse_cost_model, parse_phase_weights
     from .loader import load_session, segment_spans
-    from .intent import extract_intent
+    from .intent_extraction import SlidingIntentExtractor
     from .classifier import classify_spans
     from .compute import compute_ter
     from .economics import compute_economics
@@ -37,11 +37,11 @@ def analyze_session(args) -> "TERResult":
 
     session = load_session(args.session_path)
     spans = segment_spans(session)
-    intent = extract_intent(session)
+    intents = SlidingIntentExtractor().extract(session.user_prompts)
 
     classified = classify_spans(
         spans,
-        intent,
+        intents,
         similarity_threshold=args.similarity_threshold,
         confidence_threshold=args.confidence_threshold,
     )
@@ -49,7 +49,7 @@ def analyze_session(args) -> "TERResult":
     result = compute_ter(
         classified,
         session_id=session.session_id,
-        intent=intent,
+        intent=intents[0],
         phase_weights=phase_weights,
     )
 

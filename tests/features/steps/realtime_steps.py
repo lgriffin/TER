@@ -152,18 +152,23 @@ def process_user_message(ctx, text):
     compute_rolling_ter(state, [line], model=ctx["mock_model"])
 
 
-@then(parsers.parse("the intent_embeddings list contains {count:d} entries"))
-def check_intent_embeddings_count(ctx, count):
-    state = ctx["state"]
-    assert len(state.intent_embeddings) == count
-
-
-@then("the intent_embedding is the normalised mean of both prompt embeddings")
-def check_mean_embedding(ctx):
+@then("the intent_embedding has shifted toward the second prompt")
+def check_ema_shift(ctx):
+    """Verify EMA: after two prompts, the intent embedding is not equal to the
+    first prompt's embedding — it has been blended with the second via EMA."""
     state = ctx["state"]
     assert state.intent_embedding is not None
-    assert len(state.intent_embeddings) == 2
-    expected = np.mean(state.intent_embeddings, axis=0).astype(np.float32)
+    # Re-encode both prompts independently using the mock model.
+    mock_model = ctx["mock_model"]
+    emb1 = mock_model.encode("Fix the login bug", normalize_embeddings=True)
+    emb2 = mock_model.encode("Also update the password reset flow", normalize_embeddings=True)
+    # EMA result should differ from the first embedding alone.
+    assert not np.allclose(state.intent_embedding, emb1, atol=1e-5), (
+        "Intent embedding should have moved away from first prompt after EMA update"
+    )
+    # EMA blends old intent (emb1) with new prompt (emb2) at alpha=0.3.
+    from ter_calculator.real_time import INTENT_DECAY
+    expected = (INTENT_DECAY * emb2 + (1 - INTENT_DECAY) * emb1).astype(np.float32)
     norm = np.linalg.norm(expected)
     if norm > 0:
         expected /= norm
@@ -173,9 +178,11 @@ def check_mean_embedding(ctx):
 @then("the intent is not a concatenated single embedding")
 def check_not_concatenated(ctx):
     state = ctx["state"]
-    # The embedding should have the same dimensionality as a single embedding
+    # The embedding should have the same dimensionality as a single model embedding.
     assert state.intent_embedding is not None
-    assert len(state.intent_embedding) == len(state.intent_embeddings[0])
+    mock_model = ctx["mock_model"]
+    single_emb = mock_model.encode("reference", normalize_embeddings=True)
+    assert len(state.intent_embedding) == len(single_emb)
 
 
 # -- Scenario: Rolling state accumulates token totals correctly ---------------
