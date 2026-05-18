@@ -303,20 +303,23 @@ class TestEstimateWasteCost:
         assert cost == pytest.approx(30.0)
         assert ratio == pytest.approx(1.0)
 
-    def test_calibration_scales_to_billed_output(self):
+    def test_calibration_ratio_always_one(self):
+        # Calibration is removed — ratio is always 1.0, cost uses raw char/4 tokens.
         spans = [_make_classified(SpanLabel.OVER_EXPLANATION, token_count=100)]
         cost, ratio = _estimate_waste_cost(
             spans, CostModel(), billed_output_tokens=400,
         )
-        assert ratio == pytest.approx(4.0)
-        assert cost == pytest.approx(400 * 15.0 / 1_000_000)
+        assert ratio == pytest.approx(1.0)
+        assert cost == pytest.approx(100 * 15.0 / 1_000_000)
 
-    def test_user_origin_waste_not_in_output_waste_cost(self):
+    def test_user_origin_waste_priced_at_input_rate(self):
+        # User-side waste is a real cost, priced at the input rate (not output rate).
+        cm = CostModel()
         span = TokenSpan(
             text="x",
             phase=SpanPhase.GENERATION,
             position=0,
-            token_count=500_000,
+            token_count=1000,
             source_message_uuid="u1",
             source_role="user",
         )
@@ -329,9 +332,9 @@ class TestEstimateWasteCost:
             ),
         ]
         cost, ratio = _estimate_waste_cost(
-            spans, CostModel(), billed_output_tokens=100,
+            spans, cm, billed_output_tokens=100,
         )
-        assert cost == 0.0
+        assert cost == pytest.approx(1000 * cm.input_rate / 1_000_000)
         assert ratio == pytest.approx(1.0)
 
 

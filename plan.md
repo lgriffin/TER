@@ -39,6 +39,32 @@ Fixed three critical issues discovered during real-world usage:
 
 **Key finding — embedding quality gap**: The fast trigram-hash embeddings used for live monitoring lack semantic discriminative power. Cosine similarities between unrelated English texts cluster around 0.40-0.60, making intent-based waste detection unreliable. Repetition detection was added for reasoning/generation phases (threshold 0.88), but tool_use repetition produces false positives because structurally similar but semantically different tool calls (e.g., reading different files) hash to near-identical vectors. Tool calls remain always-aligned in live mode; post-hoc analysis with sentence-transformers catches the remaining ~8% waste.
 
+### Phase 1.6 — Live Dashboard (PR #?, 2026-05-15)
+
+**Objective**: Transform `ter watch` from cryptic line-by-line output into an interactive dashboard that makes live efficiency monitoring accessible and actionable.
+
+**What changed**:
+- **Dashboard mode** (new default): Rich-based interactive display with in-place updates showing TER, cost, cache hit rate, context growth, phase breakdown, warnings, and TER trend sparkline
+- **Economics tracking**: Extended `RollingTERState` to accumulate token usage, cache metrics, and cost in real-time
+- **Session metrics**: Added duration tracking, tokens/minute rate, context growth detection
+- **Stream mode**: Renamed from simple/line-by-line; available via `--stream` flag
+- **New module**: `dashboard.py` with Rich renderables for clean terminal display
+
+**Implementation**:
+| Component | What it does |
+|-----------|-------------|
+| `TERSignal` extended | Added 10 economics fields (input/output tokens, cache hit rate, cost, growth rate, duration) |
+| `RollingTERState` extended | Added economics accumulators and helper methods for cost/cache/growth calculations |
+| `compute_rolling_ter()` updated | Extracts usage data from JSONL, updates economics state, populates TERSignal |
+| `rich_components.py` created | Shared Rich rendering components (panels, tables) used by both post-hoc and live |
+| `dashboard.py` created | Live dashboard using shared components (158 lines) |
+| `formatter.py` refactored | Post-hoc analysis now uses shared components from `rich_components.py` |
+| CLI updated | Dashboard is default for `ter watch`, `--stream` for line-by-line mode |
+
+**Architecture**: Shared rendering components eliminate duplication between post-hoc (`formatter.py`) and live (`dashboard.py`) displays. Both use the same visual components from `rich_components.py`, ensuring consistent look and feel while reducing code duplication by ~150 lines.
+
+**Result**: Live monitoring now provides same visibility as post-hoc analysis, with real-time cost tracking and proactive warnings. Visual consistency achieved through shared components.
+
 ---
 
 ## Phase 2 — Embedding Quality & Live Accuracy

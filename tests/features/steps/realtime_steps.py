@@ -24,6 +24,20 @@ from ter_calculator.real_time import (
     detect_drift,
 )
 
+
+class _MockModel:
+    """Deterministic mock embedding model for BDD tests."""
+    def encode(self, text: str, normalize_embeddings: bool = True) -> np.ndarray:
+        import hashlib
+        seed = int(hashlib.md5(text.encode()).hexdigest(), 16) % (2 ** 32)
+        rng = np.random.RandomState(seed)
+        vec = rng.randn(384).astype(np.float32)
+        if normalize_embeddings:
+            norm = np.linalg.norm(vec)
+            if norm > 0:
+                vec /= norm
+        return vec
+
 scenarios(
     "../realtime/rolling_ter.feature",
     "../realtime/drift_detection.feature",
@@ -59,9 +73,10 @@ def _make_assistant_line(
         "role": "assistant",
         "content": [{"type": "text", "text": text}],
     }
+    line: dict = {"message": msg, "sessionId": session_id}
     if request_id is not None:
-        msg["requestId"] = request_id
-    return {"message": msg, "sessionId": session_id}
+        line["requestId"] = request_id  # top-level, matching real JSONL format
+    return line
 
 
 def _write_jsonl(path: Path, lines: list[dict]) -> None:
@@ -84,7 +99,7 @@ def _append_jsonl(path: Path, lines: list[dict]) -> None:
 @pytest.fixture
 def ctx():
     """Mutable shared context dict for passing state between steps."""
-    return {}
+    return {"mock_model": _MockModel()}
 
 
 # ===========================================================================
@@ -103,7 +118,7 @@ def fresh_state(ctx):
 def user_message_processed_background(ctx, text):
     state = ctx["state"]
     line = _make_user_line(text)
-    compute_rolling_ter(state, [line])
+    compute_rolling_ter(state, [line], model=ctx["mock_model"])
 
 
 # -- Scenario: One TERSignal emitted per assistant message -------------------
@@ -113,7 +128,7 @@ def process_assistant_messages_table(ctx, datatable):
     state = ctx["state"]
     rows = _table_to_dicts(datatable)
     lines = [_make_assistant_line(row["text"]) for row in rows]
-    signals = compute_rolling_ter(state, lines)
+    signals = compute_rolling_ter(state, lines, model=ctx["mock_model"])
     ctx["signals"] = signals
 
 
@@ -134,7 +149,7 @@ def check_incremented_message_index(ctx):
 def process_user_message(ctx, text):
     state = ctx["state"]
     line = _make_user_line(text)
-    compute_rolling_ter(state, [line])
+    compute_rolling_ter(state, [line], model=ctx["mock_model"])
 
 
 @then(parsers.parse("the intent_embeddings list contains {count:d} entries"))
@@ -175,7 +190,7 @@ def assistant_message_with_tokens(ctx, aligned, waste):
     total = aligned + waste
     text = "x" * (total * 4)  # 1 token ~ 4 chars
     line = _make_assistant_line(text)
-    signals = compute_rolling_ter(state, [line])
+    signals = compute_rolling_ter(state, [line], model=ctx["mock_model"])
     # The heuristic classifier might not produce exactly the requested split,
     # so we force the state to the required values for this test.
     # We track the *cumulative* intended values.
@@ -226,7 +241,7 @@ def check_token_invariant(ctx):
 def assistant_with_request_id(ctx, req_id):
     state = ctx["state"]
     line = _make_assistant_line("Doing work on the authentication module.", request_id=req_id)
-    signals = compute_rolling_ter(state, [line])
+    signals = compute_rolling_ter(state, [line], model=ctx["mock_model"])
     ctx.setdefault("signals", [])
     ctx["signals"].extend(signals)
 
@@ -345,7 +360,7 @@ def user_tool_result(ctx, content):
         },
         "sessionId": "test",
     }
-    compute_rolling_ter(state, [line])
+    compute_rolling_ter(state, [line], model=ctx["mock_model"])
 
 
 @then("the tokens from that block are added to the tool_use phase totals")
@@ -445,10 +460,7 @@ def rolling_state_with_recent_values(ctx, values):
     state.aligned_tokens = 300
     state.waste_tokens = 200
     state.message_count = len(parsed)
-    # Set up intent with a realistic embedding (not uniform, which has
-    # artificially high similarity to everything via trigram hashing).
-    from ter_calculator.real_time import _embed_text_fast
-    state.intent_embedding = _embed_text_fast("fix the authentication bug in login flow")
+    state.intent_embedding = ctx["mock_model"].encode("fix the authentication bug in login flow")
     state.intent_text = "fix the authentication bug in login flow"
     state.intent_confidence = 1.0
     ctx["state"] = state
@@ -466,7 +478,7 @@ def next_declining_message(ctx):
         "in a large bowl until smooth. Pour the mixture into a greased pan and "
         "bake for approximately thirty minutes until golden brown on top."
     )
-    signals = compute_rolling_ter(state, [line])
+    signals = compute_rolling_ter(state, [line], model=ctx["mock_model"])
     ctx["signals"] = signals
     ctx["signal"] = signals[0] if signals else None
     # Update drift context from the signal
@@ -681,7 +693,9 @@ def poll_once(ctx):
         path = ctx.get("session_path", ctx.get("jsonl_path"))
         interval = ctx.get("poll_interval", 2.0)
         on_signal = ctx.get("on_signal_callback")
-        ctx["monitor"] = SessionMonitor(path, poll_interval=interval, on_signal=on_signal, skip_history=False)
+        ctx["monitor"] = SessionMonitor(
+            path, poll_interval=interval, model=ctx["mock_model"], on_signal=on_signal, skip_history=False
+        )
     signals = ctx["monitor"].poll_once()
     ctx["signals"] = signals
 
@@ -745,7 +759,7 @@ def check_current_ter_float(ctx):
 def monitor_nonexistent_file(ctx, tmp_path):
     path = tmp_path / "nonexistent_session.jsonl"
     ctx["session_path"] = path
-    ctx["monitor"] = SessionMonitor(path)
+    ctx["monitor"] = SessionMonitor(path, model=ctx["mock_model"])
 
 
 @then("an empty list of signals is returned")
@@ -793,7 +807,7 @@ def check_callback_receives_signal(ctx):
 def monitor_running_in_thread(ctx):
     path = ctx["session_path"]
     interval = ctx.get("poll_interval", 2.0)
-    monitor = SessionMonitor(path, poll_interval=0.05)  # Fast poll for test
+    monitor = SessionMonitor(path, poll_interval=0.05, model=ctx["mock_model"])  # Fast poll for test
     ctx["monitor"] = monitor
     thread = threading.Thread(target=monitor.run, daemon=True)
     thread.start()
@@ -847,7 +861,7 @@ def project_dir_with_files(ctx, datatable):
 
 @when("a LiveDashboard is created for the project directory")
 def create_dashboard(ctx):
-    ctx["dashboard"] = LiveDashboard(ctx["project_dir"])
+    ctx["dashboard"] = LiveDashboard(ctx["project_dir"], model=ctx["mock_model"])
 
 
 @then(parsers.parse("{count:d} SessionMonitor instances are created"))
@@ -876,7 +890,7 @@ def project_dir_with_n_files(ctx, count):
         user_line = _make_user_line("Test intent")
         assistant_line = _make_assistant_line("Working on it.")
         _write_jsonl(path, [user_line, assistant_line])
-    ctx["dashboard"] = LiveDashboard(project_dir)
+    ctx["dashboard"] = LiveDashboard(project_dir, model=ctx["mock_model"])
 
 
 @then(parsers.parse("{count:d} SessionMonitor instance exists"))
@@ -942,7 +956,7 @@ def session_b_metrics(ctx, ter, total, waste):
 @when("get_summary is called")
 def call_get_summary(ctx):
     project_dir = ctx["project_dir"]
-    dashboard = LiveDashboard(project_dir)
+    dashboard = LiveDashboard(project_dir, model=ctx["mock_model"])
 
     # Poll to discover files and create monitors
     dashboard.poll_once()

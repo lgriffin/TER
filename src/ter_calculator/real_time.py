@@ -45,9 +45,13 @@ __all__ = [
     "WarningLevel",
     "compute_rolling_ter",
     "detect_drift",
+    "load_embedding_model",
 ]
 
 logger = logging.getLogger(__name__)
+
+# Global model cache for lazy loading
+_EMBEDDING_MODEL_CACHE: Any | None = None
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -62,8 +66,6 @@ DRIFT_WINDOW = 5
 DRIFT_THRESHOLD = 0.10
 """Absolute TER change within the drift window that triggers a drift warning."""
 
-EMBEDDING_DIM = 384
-
 PHASE_WEIGHTS: dict[str, float] = {
     "reasoning": 0.3,
     "tool_use": 0.4,
@@ -72,6 +74,8 @@ PHASE_WEIGHTS: dict[str, float] = {
 
 SIM_THRESHOLD = 0.40
 CONF_THRESHOLD = 0.75
+REPETITION_THRESHOLD = 0.88  # Matches classifier.py _check_repetition
+REPETITION_WINDOW = 10       # How many recent same-phase spans to compare against
 
 _SIM_REASONING = 0.55
 """Similarity floor for reasoning spans — trigram hashing yields ~0.3–0.5
@@ -113,6 +117,47 @@ _BLOCK_TYPE_TO_PHASE: dict[str, str] = {
     "tool_result": "tool_use",
     "text": "generation",
 }
+
+
+# ---------------------------------------------------------------------------
+# Model Loading
+# ---------------------------------------------------------------------------
+
+
+def load_embedding_model(model_name: str = "sentence-transformers/all-MiniLM-L6-v2") -> Any:
+    """Lazy-load the sentence-transformers model for embeddings.
+
+    The model is cached globally so it's only loaded once per process.
+    This keeps the CLI fast for commands that don't need embeddings while
+    ensuring live monitoring always uses accurate semantic embeddings.
+
+    Args:
+        model_name: HuggingFace model identifier
+
+    Returns:
+        Loaded SentenceTransformer model
+
+    Raises:
+        ImportError: If sentence-transformers is not installed
+    """
+    global _EMBEDDING_MODEL_CACHE
+
+    if _EMBEDDING_MODEL_CACHE is not None:
+        return _EMBEDDING_MODEL_CACHE
+
+    try:
+        from sentence_transformers import SentenceTransformer
+    except ImportError as e:
+        raise ImportError(
+            "sentence-transformers is required for live monitoring. "
+            "Install with: pip install sentence-transformers"
+        ) from e
+
+    logger.info("Loading embedding model: %s", model_name)
+    _EMBEDDING_MODEL_CACHE = SentenceTransformer(model_name)
+    logger.info("Model loaded successfully")
+
+    return _EMBEDDING_MODEL_CACHE
 
 
 # ---------------------------------------------------------------------------
@@ -181,6 +226,32 @@ class RollingTERState:
     bash_command_counts: dict[str, int] = field(default_factory=dict)
     waste_by_type: dict[str, int] = field(default_factory=dict)
 
+    # Economics tracking for live dashboard
+    total_input_tokens: int = 0
+    total_output_tokens: int = 0
+    total_cache_creation_tokens: int = 0
+    total_cache_read_tokens: int = 0
+    turn_context_sizes: list[int] = field(default_factory=list)
+    session_start_time: float | None = None
+
+    # Waste tracking for cost calculation: assistant at output rate, user at input rate
+    assistant_waste_tokens: int = 0
+    user_waste_tokens: int = 0
+
+    # Tool call deduplication (Phase 2B)
+    tool_call_history: dict[str, list[str]] = field(default_factory=dict)
+
+    # Repetition detection: recent embeddings per phase (reasoning, tool_use, generation)
+    recent_phase_embeddings: dict[str, list] = field(
+        default_factory=lambda: {"reasoning": [], "tool_use": [], "generation": []}
+    )
+
+    # Cross-message tool tracking for repetitive reads and failed retries
+    pending_tool_calls: dict[str, tuple] = field(default_factory=dict)
+    # tool_use_id → (tool_name, file_path)
+    file_read_history: dict[str, list] = field(default_factory=dict)
+    # file_path → [token_count_per_read]
+
     @property
     def aggregate_ter(self) -> float:
         if self.total_tokens == 0:
@@ -211,6 +282,81 @@ class RollingTERState:
             )
         return scores
 
+    def get_cache_hit_rate(self) -> float:
+        """Calculate cache hit rate: cache_read / (cache_read + input)."""
+        total = self.total_cache_read_tokens + self.total_input_tokens
+        if total == 0:
+            return 0.0
+        return self.total_cache_read_tokens / total
+
+    def get_estimated_cost(self, cost_model: Any = None) -> float:
+        """Estimate session cost in USD using default Sonnet rates."""
+        # Default Sonnet 4.5 rates (per million tokens)
+        input_rate = 3.00
+        output_rate = 15.00
+        cache_read_rate = 0.30
+        cache_write_rate = 3.75
+
+        if cost_model is not None:
+            input_rate = cost_model.input_rate
+            output_rate = cost_model.output_rate
+            cache_read_rate = cost_model.cache_read_rate
+            cache_write_rate = cost_model.cache_write_rate
+
+        return (
+            self.total_input_tokens * input_rate / 1_000_000
+            + self.total_output_tokens * output_rate / 1_000_000
+            + self.total_cache_read_tokens * cache_read_rate / 1_000_000
+            + self.total_cache_creation_tokens * cache_write_rate / 1_000_000
+        )
+
+    def get_estimated_waste_cost(self, cost_model: Any = None) -> float:
+        """Estimate waste cost in USD.
+
+        Matches post-hoc pricing: no calibration, char/4 tokens × rate directly.
+          - Assistant waste (reasoning loops, bash antipatterns) → output rate
+          - User-side waste (repetitive reads, error retries) → input rate
+        """
+        output_rate = 15.00 if cost_model is None else cost_model.output_rate
+        input_rate = 3.00 if cost_model is None else cost_model.input_rate
+        return (
+            self.assistant_waste_tokens * output_rate / 1_000_000
+            + self.user_waste_tokens * input_rate / 1_000_000
+        )
+
+    def get_context_growth_rate(self) -> float:
+        """Calculate context growth rate: final / first context size."""
+        if len(self.turn_context_sizes) < 2:
+            return 1.0
+        # Filter out tiny contexts (< 100 tokens)
+        significant = [c for c in self.turn_context_sizes if c > 100]
+        if len(significant) < 2:
+            return 1.0
+        return significant[-1] / significant[0] if significant[0] > 0 else 1.0
+
+    def is_context_bloat_detected(self) -> bool:
+        """Detect context bloat: super-linear growth AND >2x size increase."""
+        if len(self.turn_context_sizes) < 3:
+            return False
+        # Detect super-linear growth via second differences
+        deltas = [
+            self.turn_context_sizes[i + 1] - self.turn_context_sizes[i]
+            for i in range(len(self.turn_context_sizes) - 1)
+        ]
+        if len(deltas) < 2:
+            return False
+        second_deltas = [deltas[i + 1] - deltas[i] for i in range(len(deltas) - 1)]
+        avg_second = sum(second_deltas) / len(second_deltas)
+        is_superlinear = avg_second > 0
+        growth_rate = self.get_context_growth_rate()
+        return is_superlinear and growth_rate > 2.0
+
+    def get_session_duration(self, current_time: float) -> float:
+        """Get session duration in seconds."""
+        if self.session_start_time is None:
+            return 0.0
+        return current_time - self.session_start_time
+
 
 @dataclass(frozen=True, slots=True)
 class TERSignal:
@@ -231,6 +377,18 @@ class TERSignal:
     warning_level: WarningLevel = WarningLevel.INFO
     phase_ter: dict[str, float] = field(default_factory=dict)
     waste_sources: dict[str, int] = field(default_factory=dict)
+
+    # Economics fields for live dashboard
+    total_input_tokens: int = 0
+    total_output_tokens: int = 0
+    cache_creation_tokens: int = 0
+    cache_read_tokens: int = 0
+    cache_hit_rate: float = 0.0
+    estimated_cost_usd: float = 0.0
+    estimated_waste_cost_usd: float = 0.0
+    context_growth_rate: float = 1.0
+    context_bloat_detected: bool = False
+    session_duration_seconds: float = 0.0
 
     @property
     def is_healthy(self) -> bool:
@@ -256,122 +414,121 @@ def _cosine_similarity(a: NDArray[np.float32], b: NDArray[np.float32]) -> float:
     return float(np.dot(a, b) / (norm_a * norm_b))
 
 
-def _embed_text_fast(text: str) -> NDArray[np.float32]:
-    """Lightweight pseudo-embedding using character trigram hashing.
-
-    For real-time monitoring we cannot afford the full sentence-transformers
-    model on every message.  Instead we produce a deterministic 384-dim vector
-    from character trigram hashes.  This is less semantically rich but runs
-    in <1ms and provides a usable similarity signal for drift detection.
-    """
-    vec = np.zeros(EMBEDDING_DIM, dtype=np.float32)
-    text_lower = text.lower()
-    if len(text_lower) < 3:
-        vec[0] = 1.0
-        return vec
-    for i in range(len(text_lower) - 2):
-        trigram = text_lower[i : i + 3]
-        idx = int(hashlib.md5(trigram.encode()).hexdigest(), 16) % EMBEDDING_DIM
-        vec[idx] += 1.0
-    norm = np.linalg.norm(vec)
-    if norm > 0:
-        vec /= norm
-    return vec
-
-
 def _is_aligned(sim: float, phase: str, text: str) -> bool:
     """Classify a span as aligned or waste based on intent similarity.
 
-    Thresholds are calibrated for the trigram-hash embedding, which yields
-    moderate cosine similarity (~0.3–0.5) even between unrelated English
-    texts.  Tool-use pattern waste (duplicates, antipatterns) is handled
-    separately by _check_tool_patterns.
+    Aligned by default. Only waste if a specific signal fires:
+    - Tool calls are always aligned (actions, not words).
+    - Reasoning is waste only if below threshold AND short filler.
+    - Generation is waste only if below threshold AND long verbose text.
+
+    Thresholds match classifier.py's derived values so live and post-hoc
+    classify generation/reasoning waste identically:
+      filler_sim_max  = max(0.06, min(0.14, SIM_THRESHOLD * 0.28)) ≈ 0.11
+      verbose_sim_max = max(0.05, min(0.12, SIM_THRESHOLD * 0.22)) ≈ 0.09
     """
     if phase == "tool_use":
         return True
 
-    word_count = len(text.split())
-
-    if sim < _SIM_FLOOR and word_count > 5:
-        return False
+    filler_sim_max = max(0.06, min(0.14, SIM_THRESHOLD * 0.28))
+    verbose_sim_max = max(0.05, min(0.12, SIM_THRESHOLD * 0.22))
 
     if phase == "reasoning":
-        if sim < _SIM_REASONING and word_count > 25:
+        if sim < filler_sim_max and len(text.split()) < 15:
             return False
         return True
 
     if phase == "generation":
-        if sim < _SIM_GENERATION and word_count > 20:
+        if sim < verbose_sim_max and len(text.split()) > 50:
             return False
         return True
 
     return True
 
 
-def _is_bash_antipattern(cmd: str) -> bool:
-    """Check if a Bash command should use a dedicated tool instead."""
-    cmd = cmd.strip()
-    return any(p.search(cmd) for p in _BASH_ANTIPATTERN_RES)
+def _is_duplicate_tool_call(
+    tool_name: str,
+    tool_input_json: str,
+    state: RollingTERState,
+    window: int = 10,
+) -> bool:
+    """Check if this tool call duplicates a recent one with the same name and input."""
+    if tool_name not in state.tool_call_history:
+        state.tool_call_history[tool_name] = []
+
+    history = state.tool_call_history[tool_name]
+    is_duplicate = tool_input_json in history
+    history.append(tool_input_json)
+
+    if len(history) > window:
+        state.tool_call_history[tool_name] = history[-window:]
+
+    return is_duplicate
 
 
-def _normalize_bash_cmd(cmd: str) -> str:
-    """Normalize a bash command for repeat detection."""
-    cmd = cmd.strip()
-    cmd = re.sub(r'\s*\|\s*(tail|head)\s+-\d+\s*$', '', cmd)
-    cmd = re.sub(r'\s+', ' ', cmd)
-    return cmd
+# Bash anti-pattern rules: (regex, recommended tool, description)
+_BASH_ANTIPATTERNS: list[tuple[re.Pattern[str], str, str]] = [
+    (re.compile(r"(?:^|\|\s*)cat\s+"), "Read", "cat → Read"),
+    (re.compile(r"(?:^|\|\s*)head\s+"), "Read", "head → Read"),
+    (re.compile(r"(?:^|\|\s*)tail\s+"), "Read", "tail → Read"),
+    (re.compile(r"(?:^|\|\s*)grep\s+"), "Grep", "grep → Grep"),
+    (re.compile(r"(?:^|\|\s*)rg\s+"), "Grep", "rg → Grep"),
+    (re.compile(r"^find\s+"), "Glob", "find → Glob"),
+]
 
 
-def _has_error_markers(text: str) -> bool:
-    """Check if tool result text indicates an error."""
+def _is_bash_antipattern(tool_name: str, tool_input: dict[str, Any]) -> bool:
+    """Check if a Bash command matches an anti-pattern."""
+    if tool_name != "Bash":
+        return False
+
+    command = tool_input.get("command", "").strip()
+    if not command:
+        return False
+
+    for pattern, _, _ in _BASH_ANTIPATTERNS:
+        if pattern.search(command):
+            return True
+
+    return False
+
+
+def _is_error_result_text(text: str) -> bool:
+    """Check if tool_result text indicates a failure.
+
+    Matches waste.py _is_error_result logic: prefix checks for generic
+    markers, substring checks only for specific Claude Code error strings.
+    """
+    if "<tool_use_error>" in text:
+        return True
     if text.startswith("Error:") or text.startswith("Exit code 1"):
         return True
-    return any(marker in text for marker in _ERROR_MARKERS)
+    return any(marker in text for marker in (
+        "File does not exist",
+        "command not found",
+        "No such file or directory",
+        "Permission denied",
+        "File has not been read yet",
+    ))
 
 
-def _check_tool_patterns(
-    state: RollingTERState,
-    block: dict[str, Any],
-) -> tuple[bool, str]:
-    """Check a tool_use block for waste patterns.
+def _is_repetition(
+    embedding: "NDArray[np.float32]",
+    recent: list,
+    threshold: float = REPETITION_THRESHOLD,
+) -> bool:
+    """Check if embedding closely matches any recent same-phase embedding."""
+    for prev in recent[-REPETITION_WINDOW:]:
+        if _cosine_similarity(embedding, prev) >= threshold:
+            return True
+    return False
 
-    Returns (is_aligned, waste_type).  Mutates state to track history.
-    """
-    tool_name = block.get("name", "")
-    tool_input = block.get("input", {})
 
-    sig = f"{tool_name}:{json.dumps(tool_input, sort_keys=True)}"
-
-    recent = state.tool_signatures[-_TOOL_DEDUP_WINDOW:]
-    is_duplicate = sig in recent
-    state.tool_signatures.append(sig)
-    if len(state.tool_signatures) > _TOOL_DEDUP_WINDOW * 2:
-        state.tool_signatures = state.tool_signatures[-_TOOL_DEDUP_WINDOW * 2:]
-
-    if is_duplicate:
-        return False, "duplicate_tool_call"
-
-    if tool_name == "Read":
-        fp = tool_input.get("file_path", "")
-        if fp:
-            count = state.file_read_counts.get(fp, 0) + 1
-            state.file_read_counts[fp] = count
-            if count > 1:
-                return False, "repetitive_read"
-
-    if tool_name == "Bash":
-        cmd = tool_input.get("command", "")
-        if cmd:
-            if _is_bash_antipattern(cmd):
-                return False, "bash_antipattern"
-            norm = _normalize_bash_cmd(cmd)
-            if norm:
-                count = state.bash_command_counts.get(norm, 0) + 1
-                state.bash_command_counts[norm] = count
-                if count >= _REPEATED_CMD_THRESHOLD:
-                    return False, "repeated_command"
-
-    return True, ""
+def _record_embedding(embedding: "NDArray[np.float32]", recent: list) -> None:
+    """Append embedding to recent list, capping at REPETITION_WINDOW."""
+    recent.append(embedding)
+    if len(recent) > REPETITION_WINDOW:
+        del recent[0]
 
 
 def _extract_blocks_from_line(line_data: dict[str, Any]) -> list[dict[str, Any]]:
@@ -387,8 +544,7 @@ def _extract_blocks_from_line(line_data: dict[str, Any]) -> list[dict[str, Any]]
 
 def _get_request_id(line_data: dict[str, Any]) -> str | None:
     """Extract requestId for deduplication."""
-    msg = line_data.get("message", {})
-    return msg.get("requestId") or msg.get("request_id")
+    return line_data.get("requestId") or line_data.get("request_id")
 
 
 def _get_usage(line_data: dict[str, Any]) -> dict[str, int]:
@@ -419,17 +575,23 @@ def compute_rolling_ter(
     state: RollingTERState,
     new_lines: list[dict[str, Any]],
     *,
-    model: Any | None = None,
+    model: Any,
 ) -> list[TERSignal]:
     """Process new JSONL lines and update rolling TER state.
 
-    If *model* is provided (a SentenceTransformer), it is used for proper
-    semantic embedding.  Otherwise falls back to the fast trigram hash.
+    Uses the provided SentenceTransformer model for semantic embeddings,
+    enabling accurate waste detection in real-time.
 
-    Returns one TERSignal per assistant message processed.
+    Args:
+        state: Rolling state accumulator
+        new_lines: New JSONL entries to process
+        model: SentenceTransformer model for embeddings
+
+    Returns:
+        List of TERSignal objects, one per assistant message processed
     """
     signals: list[TERSignal] = []
-    embed_fn = model.encode if model is not None else None
+    embed_fn = model.encode
 
     for line_data in new_lines:
         request_id = _get_request_id(line_data)
@@ -453,12 +615,9 @@ def compute_rolling_ter(
                         state.intent_text += " " + user_text
                     else:
                         state.intent_text = user_text
-                    if embed_fn is not None:
-                        prompt_emb = embed_fn(
-                            user_text, normalize_embeddings=True
-                        ).astype(np.float32)
-                    else:
-                        prompt_emb = _embed_text_fast(user_text)
+                    prompt_emb = embed_fn(
+                        user_text, normalize_embeddings=True
+                    ).astype(np.float32)
                     state.intent_embeddings.append(prompt_emb)
                     state.intent_embedding = np.mean(
                         state.intent_embeddings, axis=0
@@ -474,39 +633,60 @@ def compute_rolling_ter(
                     text = content if isinstance(content, str) else json.dumps(content)
                     if text:
                         tokens = _estimate_tokens(text)
-                        phase = "tool_use"
                         state.total_tokens += tokens
-                        state.phase_total[phase] += tokens
+                        state.phase_total["tool_use"] += tokens
                         state.span_count += 1
-                        waste_type = ""
-                        if _has_error_markers(text):
-                            aligned = False
-                            waste_type = "failed_tool"
-                        elif state.intent_embedding is not None:
-                            if embed_fn is not None:
-                                span_emb = embed_fn(
-                                    text, normalize_embeddings=True
-                                ).astype(np.float32)
-                            else:
-                                span_emb = _embed_text_fast(text)
-                            sim = _cosine_similarity(span_emb, state.intent_embedding)
-                            aligned = _is_aligned(sim, phase, text)
-                        else:
-                            aligned = True
-                        if aligned:
-                            state.aligned_tokens += tokens
-                            state.phase_aligned[phase] += tokens
-                        else:
+
+                        # Embed and check repetition against recent tool_use spans
+                        span_emb = embed_fn(
+                            text, normalize_embeddings=True
+                        ).astype(np.float32)
+                        recent_tu = state.recent_phase_embeddings["tool_use"]
+                        is_repeated = _is_repetition(span_emb, recent_tu)
+
+                        # Check for error result (failed retry)
+                        is_error = _is_error_result_text(text)
+
+                        # Track file reads for context (not for waste detection —
+                        # repetitive reads are caught by embedding repetition above)
+                        tool_use_id = block.get("tool_use_id", "")
+                        if tool_use_id in state.pending_tool_calls:
+                            t_name, file_path = state.pending_tool_calls[tool_use_id]
+                            if t_name == "Read" and file_path:
+                                state.file_read_history.setdefault(file_path, []).append(tokens)
+
+                        if is_repeated or is_error:
                             state.waste_tokens += tokens
-                            state.phase_waste[phase] += tokens
-                            if waste_type:
-                                state.waste_by_type[waste_type] = (
-                                    state.waste_by_type.get(waste_type, 0) + tokens
-                                )
+                            state.phase_waste["tool_use"] += tokens
+                            state.user_waste_tokens += tokens  # priced at input rate
+                        else:
+                            state.aligned_tokens += tokens
+                            state.phase_aligned["tool_use"] += tokens
+                            _record_embedding(span_emb, recent_tu)
             continue
 
         if role != "assistant":
             continue
+
+        # Extract usage data for economics tracking
+        usage = _get_usage(line_data)
+        msg_ts = _get_message_timestamp(line_data)
+
+        # Initialize session start time on first assistant message
+        if state.session_start_time is None:
+            state.session_start_time = msg_ts
+
+        # Update economics accumulators
+        if usage:
+            state.total_input_tokens += usage.get("input_tokens", 0)
+            state.total_output_tokens += usage.get("output_tokens", 0)
+            state.total_cache_creation_tokens += usage.get("cache_creation_input_tokens", 0)
+            state.total_cache_read_tokens += usage.get("cache_read_input_tokens", 0)
+
+            # Track context size (input + cache_read)
+            context_size = usage.get("input_tokens", 0) + usage.get("cache_read_input_tokens", 0)
+            if context_size > 0:
+                state.turn_context_sizes.append(context_size)
 
         state.message_count += 1
         message_aligned = 0
@@ -517,10 +697,20 @@ def compute_rolling_ter(
             phase = _BLOCK_TYPE_TO_PHASE.get(block_type, "generation")
 
             text = block.get("text", "")
-            if block_type == "tool_use":
+            tool_name = ""
+            tool_input_json = ""
+
+            if block_type == "thinking":
+                text = block.get("thinking", "")
+            elif block_type == "tool_use":
                 tool_name = block.get("name", "")
-                tool_input = json.dumps(block.get("input", {}), sort_keys=True)
-                text = f"{tool_name} {tool_input}"
+                tool_input_json = json.dumps(block.get("input", {}), sort_keys=True)
+                text = f"{tool_name} {tool_input_json}"
+                # Record for tool_result matching (repetitive reads / failed retries)
+                tool_use_id = block.get("id", "")
+                if tool_use_id and tool_name:
+                    file_path = block.get("input", {}).get("file_path", "")
+                    state.pending_tool_calls[tool_use_id] = (tool_name, file_path)
             elif block_type == "tool_result":
                 content = block.get("content", "")
                 text = content if isinstance(content, str) else json.dumps(content)
@@ -534,13 +724,33 @@ def compute_rolling_ter(
             state.span_count += 1
             message_total += tokens
 
-            if state.intent_embedding is not None:
-                if embed_fn is not None:
-                    span_emb = embed_fn(text, normalize_embeddings=True).astype(
-                        np.float32
+            # Embed the span
+            span_emb = embed_fn(text, normalize_embeddings=True).astype(np.float32)
+
+            # Check for duplicate tool calls (Phase 2B) and bash antipatterns (Phase 2C)
+            is_duplicate_tool = False
+            is_bash_antipattern = False
+            if block_type == "tool_use" and tool_name:
+                if tool_input_json:
+                    is_duplicate_tool = _is_duplicate_tool_call(
+                        tool_name, tool_input_json, state
                     )
-                else:
-                    span_emb = _embed_text_fast(text)
+                tool_input_dict = block.get("input", {})
+                is_bash_antipattern = _is_bash_antipattern(tool_name, tool_input_dict)
+
+            # Check repetition against recent same-phase spans.
+            # Only for reasoning/generation: tool_use uses exact-match dedup (Phase 2B)
+            # and file-read tracking instead, since tool results are structurally similar
+            # even when semantically different (e.g., different file contents).
+            recent_embs = state.recent_phase_embeddings.get(phase, [])
+            is_repeated = (
+                phase in ("reasoning", "generation")
+                and _is_repetition(span_emb, recent_embs)
+            )
+
+            if is_duplicate_tool or is_bash_antipattern or is_repeated:
+                aligned = False
+            elif state.intent_embedding is not None:
                 sim = _cosine_similarity(span_emb, state.intent_embedding)
                 aligned = _is_aligned(sim, phase, text)
             else:
@@ -554,13 +764,13 @@ def compute_rolling_ter(
                 state.aligned_tokens += tokens
                 state.phase_aligned[phase] += tokens
                 message_aligned += tokens
+                # Track embedding for future repetition detection (reasoning/generation only)
+                if phase in ("reasoning", "generation"):
+                    _record_embedding(span_emb, state.recent_phase_embeddings[phase])
             else:
                 state.waste_tokens += tokens
                 state.phase_waste[phase] += tokens
-                if waste_type:
-                    state.waste_by_type[waste_type] = (
-                        state.waste_by_type.get(waste_type, 0) + tokens
-                    )
+                state.assistant_waste_tokens += tokens
 
         if message_total == 0:
             continue
@@ -607,7 +817,22 @@ def compute_rolling_ter(
             if wtokens > 0:
                 waste_sources[wtype] = wtokens
 
-        msg_ts = _get_message_timestamp(line_data)
+        # Calculate economics metrics
+        cache_hit_rate = state.get_cache_hit_rate()
+        estimated_cost = state.get_estimated_cost()
+        estimated_waste_cost = state.get_estimated_waste_cost()
+        context_growth_rate = state.get_context_growth_rate()
+        context_bloat = state.is_context_bloat_detected()
+        session_duration = state.get_session_duration(msg_ts)
+
+        # Add context bloat warning
+        if context_bloat and "bloat" not in " ".join(warnings).lower():
+            warnings.append(
+                f"Context bloat detected: {context_growth_rate:.1f}x growth"
+            )
+            if level == WarningLevel.INFO:
+                level = WarningLevel.CAUTION
+
         signal = TERSignal(
             session_id=line_data.get("sessionId", "unknown"),
             timestamp=msg_ts,
@@ -624,6 +849,17 @@ def compute_rolling_ter(
             is_live=(time.time() - msg_ts) < _LIVE_THRESHOLD_SEC,
             phase_ter=phase_ter,
             waste_sources=waste_sources,
+            # Economics fields
+            total_input_tokens=state.total_input_tokens,
+            total_output_tokens=state.total_output_tokens,
+            cache_creation_tokens=state.total_cache_creation_tokens,
+            cache_read_tokens=state.total_cache_read_tokens,
+            cache_hit_rate=cache_hit_rate,
+            estimated_cost_usd=estimated_cost,
+            estimated_waste_cost_usd=estimated_waste_cost,
+            context_growth_rate=context_growth_rate,
+            context_bloat_detected=context_bloat,
+            session_duration_seconds=session_duration,
         )
         signals.append(signal)
 
