@@ -494,16 +494,22 @@ def _is_bash_antipattern(tool_name: str, tool_input: dict[str, Any]) -> bool:
 
 
 def _is_error_result_text(text: str) -> bool:
-    """Check if tool_result text indicates a failure.
+    """Check if tool_result text indicates a failure or native interception.
 
     Matches waste.py _is_error_result logic: prefix checks for generic
     markers, substring checks only for specific Claude Code error strings.
+    Also catches Claude Code's native read-deduplication message (v2.1.86+),
+    which records an interception in the JSONL as a tool_result but costs
+    output tokens on the tool_use block side.
     """
     if "<tool_use_error>" in text:
         return True
     if text.startswith("Error:") or text.startswith("Exit code 1"):
         return True
+    if text.startswith("Wasted call"):
+        return True
     return any(marker in text for marker in (
+        "file unchanged since your last Read",
         "File does not exist",
         "command not found",
         "No such file or directory",
@@ -633,8 +639,10 @@ def compute_rolling_ter(
                     text = content if isinstance(content, str) else json.dumps(content)
                     if text:
                         tokens = _estimate_tokens(text)
-                        state.total_tokens += tokens
-                        state.phase_total["tool_use"] += tokens
+                        # Tool_results are user-side input tokens — the model does not
+                        # control their size, so they are excluded from TER phase
+                        # accounting (total_tokens, phase_total, aligned, waste).
+                        # They are tracked only for waste cost and dedup detection.
                         state.span_count += 1
 
                         # Embed and check repetition against recent tool_use spans
@@ -644,7 +652,7 @@ def compute_rolling_ter(
                         recent_tu = state.recent_phase_embeddings["tool_use"]
                         is_repeated = _is_repetition(span_emb, recent_tu)
 
-                        # Check for error result (failed retry)
+                        # Check for error result (failed retry) or native interception
                         is_error = _is_error_result_text(text)
 
                         # Track file reads for context (not for waste detection —
@@ -656,12 +664,8 @@ def compute_rolling_ter(
                                 state.file_read_history.setdefault(file_path, []).append(tokens)
 
                         if is_repeated or is_error:
-                            state.waste_tokens += tokens
-                            state.phase_waste["tool_use"] += tokens
                             state.user_waste_tokens += tokens  # priced at input rate
                         else:
-                            state.aligned_tokens += tokens
-                            state.phase_aligned["tool_use"] += tokens
                             _record_embedding(span_emb, recent_tu)
             continue
 
@@ -755,10 +759,6 @@ def compute_rolling_ter(
                 aligned = _is_aligned(sim, phase, text)
             else:
                 aligned = True
-
-            waste_type = ""
-            if block_type == "tool_use" and aligned:
-                aligned, waste_type = _check_tool_patterns(state, block)
 
             if aligned:
                 state.aligned_tokens += tokens
