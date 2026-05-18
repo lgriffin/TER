@@ -6,6 +6,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
+from .embedding_cache import estimate_tokens
 from .models import (
     ContentBlock,
     Message,
@@ -19,8 +20,8 @@ from .models import (
 def load_session(path: str | Path) -> Session:
     """Load a Claude Code session from a JSONL file.
 
-    Parses each line, constructs Message objects, deduplicates by requestId
-    (keeps the entry with the highest output_tokens), and builds a Session.
+    Parses each line, merges sibling lines that share a requestId (Claude Code
+    writes one line per content block), and builds a Session.
     """
     path = Path(path)
     if not path.exists():
@@ -107,7 +108,7 @@ def segment_spans(session: Session) -> list[TokenSpan]:
     - tool_use, tool_result → tool_use
     - text → generation
 
-    Estimates token counts using character heuristic (len / 4).
+    Token counts use tiktoken cl100k_base (same BPE approximation as live mode).
     """
     spans: list[TokenSpan] = []
     position = 0
@@ -119,7 +120,7 @@ def segment_spans(session: Session) -> list[TokenSpan]:
                 continue
 
             phase = _block_type_to_phase(block.block_type)
-            token_count = max(1, len(text) // 4)
+            token_count = estimate_tokens(text)
 
             spans.append(TokenSpan(
                 text=text,
@@ -203,8 +204,20 @@ def find_latest_session(project_path: str | Path | None = None) -> Path:
 
 
 def _deduplicate_entries(entries: list[dict]) -> list[dict]:
-    """Deduplicate entries by requestId, keeping highest output_tokens."""
-    seen_request_ids: dict[str, int] = {}  # requestId -> index in result
+    """Merge per-block JSONL lines that share a requestId into one entry.
+
+    Claude Code writes one JSONL line per content block (thinking, tool_use,
+    text) even when they belong to the same API response — all sharing the
+    same requestId.  The previous strategy of keeping only the entry with the
+    highest output_tokens silently dropped the other blocks (e.g. the
+    tool_use line when a thinking block was logged first).
+
+    Instead we merge the content lists of all sibling lines into the first
+    occurrence so the resulting Message contains every block.
+    """
+    import copy
+
+    seen: dict[str, int] = {}  # requestId -> index in result
     result: list[dict] = []
 
     for entry in entries:
@@ -213,18 +226,22 @@ def _deduplicate_entries(entries: list[dict]) -> list[dict]:
             result.append(entry)
             continue
 
-        usage = entry.get("message", {}).get("usage", {})
-        output_tokens = usage.get("output_tokens", 0) if usage else 0
-
-        if request_id in seen_request_ids:
-            idx = seen_request_ids[request_id]
-            existing_usage = result[idx].get("message", {}).get("usage", {})
-            existing_output = existing_usage.get("output_tokens", 0) if existing_usage else 0
-            if output_tokens > existing_output:
-                result[idx] = entry
+        if request_id in seen:
+            base = result[seen[request_id]]
+            base_msg = base.setdefault("message", {})
+            base_content = base_msg.get("content")
+            new_content = entry.get("message", {}).get("content", [])
+            if isinstance(new_content, list) and new_content:
+                if isinstance(base_content, list):
+                    base_content.extend(new_content)
+                else:
+                    base_msg["content"] = list(new_content)
+            # Backfill usage if the first sibling didn't carry it.
+            if not base_msg.get("usage") and entry.get("message", {}).get("usage"):
+                base_msg["usage"] = entry["message"]["usage"]
         else:
-            seen_request_ids[request_id] = len(result)
-            result.append(entry)
+            seen[request_id] = len(result)
+            result.append(copy.deepcopy(entry))
 
     return result
 

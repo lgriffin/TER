@@ -16,12 +16,11 @@ Feature: Rolling TER Computation
     Then exactly 3 TERSignal objects are returned
     And each signal has an incremented message_index starting from 1
 
-  Scenario: User messages update intent via per-prompt embedding averaging
+  Scenario: User messages update intent via exponential moving average
     Given a fresh RollingTERState
     When a user message "Fix the login bug" is processed
     And a user message "Also update the password reset flow" is processed
-    Then the intent_embeddings list contains 2 entries
-    And the intent_embedding is the normalised mean of both prompt embeddings
+    Then the intent_embedding has shifted toward the second prompt
     And the intent is not a concatenated single embedding
 
   Scenario: Rolling state accumulates token totals correctly

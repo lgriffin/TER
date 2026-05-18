@@ -47,43 +47,22 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Embedding helpers (lazy-loaded, mirrors intent.py pattern)
+# Embedding helpers — delegate to shared model cache
 # ---------------------------------------------------------------------------
 
-_model = None
-
-
-def _get_model():
-    """Lazily load the sentence-transformers model."""
-    global _model
-    if _model is None:
-        import warnings
-
-        os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
-        os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
-        os.environ.setdefault("HF_HUB_VERBOSITY", "error")
-        for name in ("huggingface_hub", "transformers", "sentence_transformers"):
-            logging.getLogger(name).setLevel(logging.ERROR)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            from sentence_transformers import SentenceTransformer
-
-            _model = SentenceTransformer("all-MiniLM-L6-v2")
-    return _model
+from .embedding_cache import get_embedding_model
 
 
 def _embed(text: str) -> NDArray[np.float32]:
     """Embed a single text string into a 384-dim vector."""
-    model = _get_model()
-    return model.encode(text, convert_to_numpy=True)
+    return get_embedding_model().encode(text, convert_to_numpy=True)
 
 
 def _embed_batch(texts: list[str]) -> NDArray[np.float32]:
     """Embed multiple texts in a single batched call."""
     if not texts:
         return np.zeros((0, 384), dtype=np.float32)
-    model = _get_model()
-    return model.encode(texts, convert_to_numpy=True)
+    return get_embedding_model().encode(texts, convert_to_numpy=True)
 
 
 def _cosine_similarity(a: NDArray[np.float32], b: NDArray[np.float32]) -> float:

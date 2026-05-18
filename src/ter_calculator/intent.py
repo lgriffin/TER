@@ -4,33 +4,8 @@ from __future__ import annotations
 
 import numpy as np
 
+from .embedding_cache import get_embedding_model
 from .models import IntentVector, Session
-
-# Lazy-loaded model to avoid import-time download.
-_model = None
-
-
-def _get_model():
-    global _model
-    if _model is None:
-        import logging
-        import os
-        import warnings
-
-        # Suppress noisy model-loading output before any HF imports:
-        #   - HF Hub "unauthenticated requests" nag
-        #   - transformers progress bars and load reports
-        #   - position_ids UNEXPECTED warning (harmless, old checkpoint format)
-        os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
-        os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
-        os.environ.setdefault("HF_HUB_VERBOSITY", "error")
-        for name in ("huggingface_hub", "transformers", "sentence_transformers"):
-            logging.getLogger(name).setLevel(logging.ERROR)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            from sentence_transformers import SentenceTransformer
-            _model = SentenceTransformer("all-MiniLM-L6-v2")
-    return _model
 
 
 def extract_intent(session: Session) -> IntentVector:
@@ -50,7 +25,7 @@ def extract_intent(session: Session) -> IntentVector:
         )
 
     combined_text = _combine_prompts_weighted(prompts)
-    model = _get_model()
+    model = get_embedding_model()
     embedding = model.encode(combined_text, convert_to_numpy=True)
 
     confidence = _compute_confidence(prompts)
@@ -65,16 +40,14 @@ def extract_intent(session: Session) -> IntentVector:
 
 def embed_text(text: str) -> np.ndarray:
     """Generate embedding for a single text string."""
-    model = _get_model()
-    return model.encode(text, convert_to_numpy=True)
+    return get_embedding_model().encode(text, convert_to_numpy=True)
 
 
 def embed_texts(texts: list[str]) -> np.ndarray:
     """Generate embeddings for multiple texts (batched)."""
     if not texts:
         return np.zeros((0, 384))
-    model = _get_model()
-    return model.encode(texts, convert_to_numpy=True)
+    return get_embedding_model().encode(texts, convert_to_numpy=True)
 
 
 def _combine_prompts_weighted(prompts: list[str]) -> str:

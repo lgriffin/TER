@@ -338,6 +338,49 @@ def create_warnings_section(warnings: list[str]) -> "Table | None":
     return table
 
 
+def create_tools_section(
+    total_tool_calls: int,
+    unique_tool_types: int,
+    waste_tool_tokens: int = 0,
+) -> "Table | None":
+    """Create a tool call summary row.
+
+    Args:
+        total_tool_calls: Total tool calls made in the session.
+        unique_tool_types: Number of distinct tool names used.
+        waste_tool_tokens: Tokens classified as waste in tool_use phase.
+
+    Returns:
+        Rich Table object or None if no tool calls yet.
+    """
+    from rich.table import Table
+    from rich.text import Text
+
+    if total_tool_calls == 0:
+        return None
+
+    table = Table(show_header=False, show_edge=False, box=None, padding=(0, 2), expand=False)
+    table.add_column("Label", style="bold", width=12)
+    table.add_column("Value", width=70)
+
+    parts: list = [
+        ("Calls: ", ""),
+        (f"{total_tool_calls}", "cyan"),
+        ("  │  ", "dim"),
+        ("Types: ", ""),
+        (f"{unique_tool_types}", "cyan"),
+    ]
+    if waste_tool_tokens > 0:
+        parts.extend([
+            ("  │  ", "dim"),
+            ("Waste: ", ""),
+            (f"{waste_tool_tokens:,} tok", "red"),
+        ])
+
+    table.add_row("Tools", Text.assemble(*parts))
+    return table
+
+
 def create_waste_patterns_section(
     waste_sources: dict[str, int],
     top_n: int = 3,

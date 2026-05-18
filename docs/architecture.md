@@ -1,6 +1,6 @@
 # TER Calculator -- Architecture
 
-**Date**: 2026-05-15 | **Branch**: `feature/context-orchestrator`
+**Date**: 2026-05-18 | **Branch**: `004-intent-accuracy`
 
 ---
 
@@ -23,7 +23,8 @@ prompts, and coordinates version consistency across concurrent sessions.
 
 | Dependency | Role |
 |---|---|
-| `sentence-transformers` | Embedding model (`all-MiniLM-L6-v2`, 384-dim, ~22 MB) |
+| `sentence-transformers` | Embedding model (`all-MiniLM-L12-v2`, 384-dim, ~33 MB) |
+| `tiktoken` | BPE token counting for live estimation (`cl100k_base` encoding) |
 | `numpy` | Vectorised cosine similarity, knapsack DP table |
 | `rich` | Terminal formatting (tables, colour-coded scores) |
 | `sqlite3` (stdlib) | Fragment store and edge persistence |
@@ -54,6 +55,7 @@ graph BT
 
     subgraph bridge["Bridge Modules"]
         rt["real_time.py"]
+        dash["dashboard.py"]
         ab["adaptive_budget.py"]
         cm["cost_model.py"]
         ot["overthinking.py"]
@@ -68,6 +70,7 @@ graph BT
         pl["plugins.py"]
         val["validation.py"]
         acc["acceleration.py"]
+        rc["rich_components.py"]
     end
 
     subgraph inputa["Input Analysis"]
@@ -119,6 +122,7 @@ graph BT
     %% Core inter-module edges
     intent --> emb
     intent --> iex
+    iex --> emb
     classifier --> emb
     classifier --> tok
     waste --> wd
@@ -126,7 +130,10 @@ graph BT
     loader --> val
     compute --> fb
     compute --> cm
+    rt --> emb
     rt --> acc
+    dash --> rc
+    formatter --> rc
 
     %% Context Orchestrator internal chain
     cg --> fs
@@ -150,28 +157,43 @@ graph BT
     cli --> acc
     cli --> fb
     cli --> rt
+    cli --> dash
     cli --> ab
     cli --> cm
 
-    style models fill:#e1f5fe
-    style cli fill:#fff3e0
-    style fs fill:#f3e5f5
-    style cg fill:#f3e5f5
-    style bo fill:#f3e5f5
-    style dc fill:#f3e5f5
-    style con fill:#f3e5f5
-    style emb fill:#e8f5e9
-    style tok fill:#e8f5e9
-    style iex fill:#e8f5e9
-    style wd fill:#e8f5e9
-    style fb fill:#e8f5e9
-    style pl fill:#e8f5e9
-    style val fill:#e8f5e9
-    style acc fill:#e8f5e9
-    style rt fill:#fce4ec
-    style ot fill:#fce4ec
-    style ab fill:#fce4ec
-    style cm fill:#fce4ec
+    style models fill:#e1f5fe,color:#000
+    style cli fill:#fff3e0,color:#000
+    style loader fill:#e3f2fd,color:#000
+    style intent fill:#e3f2fd,color:#000
+    style classifier fill:#e3f2fd,color:#000
+    style waste fill:#e3f2fd,color:#000
+    style compute fill:#e3f2fd,color:#000
+    style formatter fill:#e3f2fd,color:#000
+    style compare fill:#e3f2fd,color:#000
+    style analyze fill:#e3f2fd,color:#000
+    style cfgparse fill:#e3f2fd,color:#000
+    style sessrpt fill:#e3f2fd,color:#000
+    style ia fill:#fffde7,color:#000
+    style ec fill:#fffde7,color:#000
+    style fs fill:#f3e5f5,color:#000
+    style cg fill:#f3e5f5,color:#000
+    style bo fill:#f3e5f5,color:#000
+    style dc fill:#f3e5f5,color:#000
+    style con fill:#f3e5f5,color:#000
+    style emb fill:#e8f5e9,color:#000
+    style tok fill:#e8f5e9,color:#000
+    style iex fill:#e8f5e9,color:#000
+    style wd fill:#e8f5e9,color:#000
+    style fb fill:#e8f5e9,color:#000
+    style pl fill:#e8f5e9,color:#000
+    style val fill:#e8f5e9,color:#000
+    style acc fill:#e8f5e9,color:#000
+    style rc fill:#e8f5e9,color:#000
+    style rt fill:#fce4ec,color:#000
+    style dash fill:#fce4ec,color:#000
+    style ot fill:#fce4ec,color:#000
+    style ab fill:#fce4ec,color:#000
+    style cm fill:#fce4ec,color:#000
 ```
 
 ### Context Orchestrator Internal Dependencies
@@ -210,13 +232,13 @@ flowchart LR
     end
 
     subgraph S2["2. INTENT"]
-        B1["Combine user prompts"] --> B2["Generate 384-dim<br/>embedding"]
-        B2 --> B3["Score confidence"]
+        B1["Segment prompts by topic<br/>(SlidingIntentExtractor)"] --> B2["Generate 384-dim<br/>embedding per segment"]
+        B2 --> B3["List[IntentVector]<br/>one per topic segment"]
     end
 
     subgraph S3["3. CLASSIFY"]
-        C1["Embed each span"] --> C2["Cosine similarity<br/>vs intent vector"]
-        C2 --> C3["Apply thresholds<br/>sim=0.40 conf=0.75"]
+        C1["Embed each span"] --> C2["Max cosine similarity<br/>across intent segments"]
+        C2 --> C3["Apply thresholds<br/>sim=0.40 conf=0.75<br/>short-narration gate"]
         C3 --> C4["Label:<br/>aligned / waste<br/>per phase"]
     end
 
@@ -248,7 +270,7 @@ flowchart LR
     subgraph SHARD["1. SHARD"]
         X1["TokenSpans from<br/>analysis pipeline"] --> X2["Normalise + SHA-256<br/>content hash"]
         X2 --> X3["Deduplicate against<br/>existing store"]
-        X3 --> X4["Embed new fragments<br/>(all-MiniLM-L6-v2)"]
+        X3 --> X4["Embed new fragments<br/>(all-MiniLM-L12-v2)"]
     end
 
     subgraph STORE["2. STORE"]
@@ -560,10 +582,16 @@ Single-row table tracking migration version (currently version 1).
 
 ### Model
 
-- **Model**: `all-MiniLM-L6-v2` via `sentence-transformers`
+- **Model**: `all-MiniLM-L12-v2` via `sentence-transformers`
 - **Dimensionality**: 384
-- **Download size**: ~22 MB (cached locally after first run)
+- **Download size**: ~33 MB (cached locally after first run)
 - **Inference**: CPU by default; GPU auto-detected when available
+- **Upgrade rationale**: benchmarked against `all-MiniLM-L6-v2` and
+  `BAAI/bge-small-en-v1.5` on MTEB (`CodeSearchNetRetrieval` nDCG@10,
+  `STSBenchmark` Spearman r). L12-v2 gains +1.3 pp on code retrieval over
+  L6-v2 with no threshold shift. `bge-small-en-v1.5` scored higher on MTEB but
+  shifted cosine similarity distributions enough to break existing absolute
+  thresholds without a full recalibration.
 
 ### Similarity Function
 
@@ -589,12 +617,19 @@ enabling cross-session deduplication without comparing embeddings.
 
 ### Thresholds
 
-| Parameter | Default | Used In |
-|---|---|---|
-| Alignment similarity | 0.40 | `classifier.py` -- span is aligned if cosine sim >= threshold |
-| Alignment confidence | 0.75 | `classifier.py` -- minimum classifier confidence |
-| Redundancy pruning | 0.85 | `budget_optimizer.py` -- prune near-duplicate fragments |
-| Relevance floor | 0.10 | `budget_optimizer.py` -- discard low-relevance fragments before knapsack |
+| Parameter | Default | Used In | Notes |
+|---|---|---|---|
+| Alignment similarity | 0.40 | `classifier.py` | Span is aligned if cosine sim >= threshold |
+| Alignment confidence | 0.75 | `classifier.py` | Minimum classifier confidence for waste label |
+| Repetition — reasoning / generation | 0.88 | `classifier.py` | Max similarity to a recent same-phase span to fire waste label |
+| Repetition — tool_use | 0.93 | `classifier.py` | Higher bar: tool calls share JSON structure across unrelated topics |
+| Short-narration sim | 0.35 | `classifier.py` | Reasoning spans below this sim AND below 25 words → waste (gold set calibrated) |
+| Short-narration words | 25 | `classifier.py` | Word count ceiling for the short-narration gate |
+| Filler sim max | ~0.11 | `classifier.py` | Derived: `max(0.06, min(0.14, threshold × 0.28))` |
+| Verbose sim max | ~0.09 | `classifier.py` | Derived: `max(0.05, min(0.12, threshold × 0.22))` |
+| Redundancy pruning | 0.85 | `budget_optimizer.py` | Prune near-duplicate fragments |
+| Relevance floor | 0.10 | `budget_optimizer.py` | Discard low-relevance fragments before knapsack |
+
 
 ### Budget Optimisation Strategy
 
