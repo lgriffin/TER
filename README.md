@@ -1,5 +1,8 @@
 # TER Calculator
 
+[![CI](https://github.com/lgriffin/TER/actions/workflows/ci.yml/badge.svg)](https://github.com/lgriffin/TER/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+
 Token Efficiency Ratio (TER) calculator for Claude Code sessions. Measures how efficiently an AI coding agent uses its token budget by classifying output token spans as **aligned** (contributing to intent) or **waste** (redundant reasoning, unnecessary tool calls, over-explanation), and surfaces session economics, context optimization, and cross-session consistency.
 
 ## Features
@@ -349,14 +352,23 @@ See [docs/architecture.md](docs/architecture.md) for detailed diagrams and data 
 - [Context Orchestrator](docs/context-orchestrator.md) -- patent implementation reference
 - [User Guide](docs/user-guide.md) -- installation, workflows, troubleshooting
 
+## Contributing
+
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on setting up your development environment, running tests, and submitting pull requests.
+
+This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## Development
 
 ```bash
-# Run tests (93 context orchestrator + 538 BDD + existing unit tests)
+# Run tests
 pytest
 
 # Lint
 ruff check src/
+
+# Type check
+mypy src/
 
 # Run specific test modules
 pytest tests/unit/test_fragment_store.py -v
