@@ -18,6 +18,58 @@ def _setup_stdout_encoding():
         )
 
 
+def _add_analysis_args(parser: argparse.ArgumentParser) -> None:
+    """Add the shared analysis arguments used by both analyze and report."""
+    parser.add_argument(
+        "session_path", nargs="?", default=None,
+        help="Path to a JSONL session file (optional if --latest is used)"
+    )
+    parser.add_argument(
+        "--latest", action="store_true",
+        help="Use the most recent session (based on file modification time)"
+    )
+    parser.add_argument(
+        "--similarity-threshold", type=float, default=0.40,
+        help="Cosine similarity threshold for alignment (default: 0.40)"
+    )
+    parser.add_argument(
+        "--confidence-threshold", type=float, default=0.75,
+        help="Classifier confidence threshold (default: 0.75)"
+    )
+    parser.add_argument(
+        "--restatement-threshold", type=float, default=0.85,
+        help="Similarity threshold for context restatement (default: 0.85)"
+    )
+    parser.add_argument(
+        "--phase-weights", type=str, default="0.3,0.4,0.3",
+        help="Phase weights as r,t,g (default: 0.3,0.4,0.3)"
+    )
+    parser.add_argument(
+        "--no-waste-patterns", action="store_true",
+        help="Disable waste pattern detection"
+    )
+    parser.add_argument(
+        "--cost-model", type=str, default="sonnet",
+        help="Cost model: 'sonnet' (default) or custom 'input,output,cache_read,cache_write' rates per MTok"
+    )
+    parser.add_argument(
+        "--no-input-analysis", action="store_true",
+        help="Disable input analysis (user/model token breakdown, drift, and alignment)"
+    )
+    parser.add_argument(
+        "--prompt-similarity-threshold", type=float, default=0.75,
+        help="Cosine similarity threshold for flagging redundant prompts (default: 0.75)"
+    )
+    parser.add_argument(
+        "--cost-weighted", action="store_true",
+        help="Include cost-weighted TER analysis"
+    )
+    parser.add_argument(
+        "--check-overthinking", action="store_true",
+        help="Analyze reasoning efficiency and detect overthinking"
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="ter",
@@ -39,61 +91,14 @@ def main(argv: list[str] | None = None) -> int:
     analyze_parser = subparsers.add_parser(
         "analyze", help="Analyze a Claude Code session"
     )
-    analyze_parser.add_argument(
-        "session_path", nargs="?", default=None,
-        help="Path to a JSONL session file (optional if --latest is used)"
-    )
-    analyze_parser.add_argument(
-        "--latest", action="store_true",
-        help="Analyze the most recent session (based on file modification time)"
-    )
+    _add_analysis_args(analyze_parser)
     analyze_parser.add_argument(
         "--format", dest="output_format", choices=["text", "json"],
         default="text", help="Output format (default: text)"
     )
     analyze_parser.add_argument(
-        "--similarity-threshold", type=float, default=0.40,
-        help="Cosine similarity threshold for alignment (default: 0.40)"
-    )
-    analyze_parser.add_argument(
-        "--confidence-threshold", type=float, default=0.75,
-        help="Classifier confidence threshold (default: 0.75)"
-    )
-    analyze_parser.add_argument(
-        "--restatement-threshold", type=float, default=0.85,
-        help="Similarity threshold for context restatement (default: 0.85)"
-    )
-    analyze_parser.add_argument(
-        "--phase-weights", type=str, default="0.3,0.4,0.3",
-        help="Phase weights as r,t,g (default: 0.3,0.4,0.3)"
-    )
-    analyze_parser.add_argument(
-        "--no-waste-patterns", action="store_true",
-        help="Disable waste pattern detection"
-    )
-    analyze_parser.add_argument(
-        "--cost-model", type=str, default="sonnet",
-        help="Cost model: 'sonnet' (default) or custom 'input,output,cache_read,cache_write' rates per MTok"
-    )
-    analyze_parser.add_argument(
-        "--no-input-analysis", action="store_true",
-        help="Disable input analysis (user/model token breakdown, drift, and alignment)"
-    )
-    analyze_parser.add_argument(
-        "--prompt-similarity-threshold", type=float, default=0.75,
-        help="Cosine similarity threshold for flagging redundant prompts (default: 0.75)"
-    )
-    analyze_parser.add_argument(
         "--group", action="store_true",
         help="Include subagent sessions in grouped analysis"
-    )
-    analyze_parser.add_argument(
-        "--cost-weighted", action="store_true",
-        help="Include cost-weighted TER analysis"
-    )
-    analyze_parser.add_argument(
-        "--check-overthinking", action="store_true",
-        help="Analyze reasoning efficiency and detect overthinking"
     )
 
     # report — Markdown summary (same analysis pipeline as analyze)
@@ -101,46 +106,7 @@ def main(argv: list[str] | None = None) -> int:
         "report",
         help="Print a Markdown summary (headline metrics, calibration, top waste, next steps)",
     )
-    report_parser.add_argument(
-        "session_path", nargs="?", default=None,
-        help="Path to a JSONL session file (optional if --latest is used)"
-    )
-    report_parser.add_argument(
-        "--latest", action="store_true",
-        help="Report on the most recent session (based on file modification time)"
-    )
-    report_parser.add_argument(
-        "--similarity-threshold", type=float, default=0.40,
-        help="Cosine similarity threshold for alignment (default: 0.40)"
-    )
-    report_parser.add_argument(
-        "--confidence-threshold", type=float, default=0.75,
-        help="Classifier confidence threshold (default: 0.75)"
-    )
-    report_parser.add_argument(
-        "--restatement-threshold", type=float, default=0.85,
-        help="Similarity threshold for context restatement (default: 0.85)"
-    )
-    report_parser.add_argument(
-        "--phase-weights", type=str, default="0.3,0.4,0.3",
-        help="Phase weights as r,t,g (default: 0.3,0.4,0.3)"
-    )
-    report_parser.add_argument(
-        "--no-waste-patterns", action="store_true",
-        help="Disable waste pattern detection"
-    )
-    report_parser.add_argument(
-        "--cost-model", type=str, default="sonnet",
-        help="Cost model: 'sonnet' (default) or custom rates per MTok"
-    )
-    report_parser.add_argument(
-        "--no-input-analysis", action="store_true",
-        help="Disable input analysis"
-    )
-    report_parser.add_argument(
-        "--prompt-similarity-threshold", type=float, default=0.75,
-        help="Cosine similarity threshold for redundant prompts (default: 0.75)"
-    )
+    _add_analysis_args(report_parser)
     report_parser.add_argument(
         "-o",
         "--output",
@@ -148,14 +114,6 @@ def main(argv: list[str] | None = None) -> int:
         metavar="FILE",
         default=None,
         help="Write Markdown to FILE instead of stdout (e.g. report.md)",
-    )
-    report_parser.add_argument(
-        "--cost-weighted", action="store_true",
-        help="Include cost-weighted TER analysis"
-    )
-    report_parser.add_argument(
-        "--check-overthinking", action="store_true",
-        help="Analyze reasoning efficiency and detect overthinking"
     )
 
     # compare subcommand
