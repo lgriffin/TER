@@ -318,6 +318,42 @@ def main(argv: list[str] | None = None) -> int:
         help="Consistency mode (default: relaxed)"
     )
 
+    # hook subcommand — Claude Code hook utilities
+    hook_parser = subparsers.add_parser(
+        "hook",
+        help="Claude Code hook utilities",
+    )
+    hook_sub = hook_parser.add_subparsers(dest="hook_command")
+
+    hook_monitor = hook_sub.add_parser(
+        "monitor",
+        help="PostToolUse hook: reads event from stdin, outputs guidance JSON",
+    )
+    hook_monitor.add_argument(
+        "--min-repetitive-reads", type=int, default=3,
+        help="File read count to trigger alert (default: 3)",
+    )
+    hook_monitor.add_argument(
+        "--min-edit-fragments", type=int, default=3,
+        help="Consecutive same-file edits to trigger alert (default: 3)",
+    )
+    hook_monitor.add_argument(
+        "--min-repeated-commands", type=int, default=3,
+        help="Repeated bash command count to trigger alert (default: 3)",
+    )
+    hook_monitor.add_argument(
+        "--min-duplicate-calls", type=int, default=2,
+        help="Duplicate tool call count to trigger alert (default: 2)",
+    )
+    hook_monitor.add_argument(
+        "--no-bash-antipatterns", action="store_true",
+        help="Disable bash anti-pattern checking",
+    )
+    hook_monitor.add_argument(
+        "--state-dir", type=str, default=None,
+        help="Override state file directory (default: system temp)",
+    )
+
     args = parser.parse_args(argv)
 
     _setup_stdout_encoding()
@@ -341,6 +377,8 @@ def main(argv: list[str] | None = None) -> int:
             return _cmd_budget(args)
         if args.command == "context":
             return _cmd_context(args)
+        if args.command == "hook":
+            return _cmd_hook(args)
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
@@ -1144,6 +1182,66 @@ def _cmd_context_check(args) -> int:
 
     store.close()
     graph.close()
+    return 0
+
+
+def _cmd_hook(args) -> int:
+    """Dispatch hook sub-subcommands."""
+    hook_cmd = getattr(args, "hook_command", None)
+    if not hook_cmd:
+        print("Usage: ter hook {monitor}", file=sys.stderr)
+        return 1
+    if hook_cmd == "monitor":
+        return _cmd_hook_monitor(args)
+    print(f"Unknown hook command: {hook_cmd}", file=sys.stderr)
+    return 1
+
+
+def _cmd_hook_monitor(args) -> int:
+    """Execute the hook monitor: read stdin, process, output JSON."""
+    import json as json_mod
+
+    from .hook_monitor import (
+        HookConfig,
+        format_guidance,
+        format_notification,
+        load_state,
+        process_tool_event,
+        save_state,
+    )
+
+    try:
+        raw = sys.stdin.read()
+        event_data = json_mod.loads(raw)
+    except (json_mod.JSONDecodeError, ValueError) as e:
+        print(f"Invalid JSON on stdin: {e}", file=sys.stderr)
+        return 1
+
+    session_id = event_data.get("session_id", "unknown")
+
+    config = HookConfig(
+        min_repetitive_reads=args.min_repetitive_reads,
+        min_edit_fragments=args.min_edit_fragments,
+        min_repeated_commands=args.min_repeated_commands,
+        min_duplicate_calls=args.min_duplicate_calls,
+        enable_bash_antipatterns=not args.no_bash_antipatterns,
+        state_dir=args.state_dir,
+    )
+
+    state = load_state(session_id, config)
+    alerts, state = process_tool_event(event_data, state, config)
+    save_state(state, config)
+
+    if alerts:
+        guidance = format_guidance(alerts)
+        notification = format_notification(alerts)
+        output: dict[str, str] = {"additionalContext": guidance}
+        if notification:
+            output["systemMessage"] = notification
+        print(json_mod.dumps(output))
+    else:
+        print(json_mod.dumps({}))
+
     return 0
 
 
