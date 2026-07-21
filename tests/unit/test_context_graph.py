@@ -164,8 +164,7 @@ class TestBuildFromSession:
         frags = [_frag("a"), _frag("b"), _frag("c")]
         graph.build_from_session(frags)
         co_occur = [
-            e for e in graph.all_edges()
-            if e.edge_type == EdgeType.CO_OCCURRENCE
+            e for e in graph.all_edges() if e.edge_type == EdgeType.CO_OCCURRENCE
         ]
         assert len(co_occur) == 3  # a-b, a-c, b-c
 
@@ -177,19 +176,25 @@ class TestBuildFromSession:
 
 class TestPruneStale:
     def test_prune_removes_expired(self, graph):
-        graph.add_node("old", {
-            "created_at": 1.0,
-            "ttl_seconds": 1,
-        })
+        graph.add_node(
+            "old",
+            {
+                "created_at": 1.0,
+                "ttl_seconds": 1,
+            },
+        )
         graph.add_edge("old", "other", EdgeType.DEPENDENCY)
         removed = graph.prune_stale(max_age_hours=0)
         assert removed >= 1
 
     def test_prune_keeps_fresh(self, graph):
-        graph.add_node("fresh", {
-            "created_at": time.time(),
-            "ttl_seconds": 99999,
-        })
+        graph.add_node(
+            "fresh",
+            {
+                "created_at": time.time(),
+                "ttl_seconds": 99999,
+            },
+        )
         removed = graph.prune_stale(max_age_hours=0)
         assert removed == 0
 

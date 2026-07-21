@@ -59,6 +59,7 @@ __all__ = [
 # Configuration
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class HookConfig:
     min_repetitive_reads: int = 3
@@ -75,6 +76,7 @@ class HookConfig:
 
 MAX_TOOL_CALL_ENTRIES = 500
 
+
 @dataclass
 class HookSessionState:
     session_id: str = ""
@@ -89,6 +91,7 @@ class HookSessionState:
 # Alerts
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class WasteAlert:
     pattern_type: str
@@ -102,26 +105,44 @@ class WasteAlert:
 # ---------------------------------------------------------------------------
 
 _BASH_ANTIPATTERNS: list[tuple[re.Pattern[str], str, str]] = [
-    (re.compile(r"(?:^|\|\s*)cat\s+"), "Read",
-     "Use the Read tool instead of `cat` for reading files"),
-    (re.compile(r"(?:^|\|\s*)head\s+"), "Read",
-     "Use the Read tool with offset/limit instead of `head`"),
-    (re.compile(r"(?:^|\|\s*)tail\s+"), "Read",
-     "Use the Read tool with offset/limit instead of `tail`"),
-    (re.compile(r"(?:^|\|\s*)grep\s+"), "Grep",
-     "Use the Grep tool instead of `grep` for searching"),
-    (re.compile(r"(?:^|\|\s*)rg\s+"), "Grep",
-     "Use the Grep tool instead of `rg` for searching"),
-    (re.compile(r"^find\s+"), "Glob",
-     "Use the Glob tool instead of `find` for finding files"),
+    (
+        re.compile(r"(?:^|\|\s*)cat\s+"),
+        "Read",
+        "Use the Read tool instead of `cat` for reading files",
+    ),
+    (
+        re.compile(r"(?:^|\|\s*)head\s+"),
+        "Read",
+        "Use the Read tool with offset/limit instead of `head`",
+    ),
+    (
+        re.compile(r"(?:^|\|\s*)tail\s+"),
+        "Read",
+        "Use the Read tool with offset/limit instead of `tail`",
+    ),
+    (
+        re.compile(r"(?:^|\|\s*)grep\s+"),
+        "Grep",
+        "Use the Grep tool instead of `grep` for searching",
+    ),
+    (
+        re.compile(r"(?:^|\|\s*)rg\s+"),
+        "Grep",
+        "Use the Grep tool instead of `rg` for searching",
+    ),
+    (
+        re.compile(r"^find\s+"),
+        "Glob",
+        "Use the Glob tool instead of `find` for finding files",
+    ),
 ]
 
 
 def _normalize_bash_command(cmd: str) -> str:
     """Normalize a bash command for deduplication (from waste.py)."""
     cmd = cmd.strip()
-    cmd = re.sub(r'\s*\|\s*(tail|head)\s+-\d+\s*$', '', cmd)
-    cmd = re.sub(r'\s+', ' ', cmd)
+    cmd = re.sub(r"\s*\|\s*(tail|head)\s+-\d+\s*$", "", cmd)
+    cmd = re.sub(r"\s+", " ", cmd)
     return cmd
 
 
@@ -134,6 +155,7 @@ def _compute_tool_signature(tool_name: str, tool_input: dict[str, Any]) -> str:
 # ---------------------------------------------------------------------------
 # Individual checkers
 # ---------------------------------------------------------------------------
+
 
 def check_bash_antipattern(
     tool_name: str,
@@ -300,6 +322,7 @@ def check_repeated_command(
 # Orchestration
 # ---------------------------------------------------------------------------
 
+
 def process_tool_event(
     event_data: dict[str, Any],
     state: HookSessionState,
@@ -321,25 +344,37 @@ def process_tool_event(
             alerts.append(alert)
 
     alert = check_repetitive_read(
-        tool_name, tool_input, state, cfg.min_repetitive_reads,
+        tool_name,
+        tool_input,
+        state,
+        cfg.min_repetitive_reads,
     )
     if alert:
         alerts.append(alert)
 
     alert = check_edit_fragmentation(
-        tool_name, tool_input, state, cfg.min_edit_fragments,
+        tool_name,
+        tool_input,
+        state,
+        cfg.min_edit_fragments,
     )
     if alert:
         alerts.append(alert)
 
     alert = check_duplicate_tool_call(
-        tool_name, tool_input, state, cfg.min_duplicate_calls,
+        tool_name,
+        tool_input,
+        state,
+        cfg.min_duplicate_calls,
     )
     if alert:
         alerts.append(alert)
 
     alert = check_repeated_command(
-        tool_name, tool_input, state, cfg.min_repeated_commands,
+        tool_name,
+        tool_input,
+        state,
+        cfg.min_repeated_commands,
     )
     if alert:
         alerts.append(alert)
@@ -350,6 +385,7 @@ def process_tool_event(
 # ---------------------------------------------------------------------------
 # Guidance formatting
 # ---------------------------------------------------------------------------
+
 
 def format_guidance(alerts: list[WasteAlert]) -> str:
     if not alerts:
@@ -378,6 +414,7 @@ def format_notification(alerts: list[WasteAlert]) -> str:
 # ---------------------------------------------------------------------------
 # State persistence
 # ---------------------------------------------------------------------------
+
 
 def _get_state_dir(config: HookConfig | None = None) -> Path:
     if config and config.state_dir:

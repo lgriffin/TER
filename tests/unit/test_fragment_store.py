@@ -41,7 +41,7 @@ class TestNormalization:
 
     def test_unicode_nfc(self):
         text_nfd = "é"  # e + combining accent
-        text_nfc = "é"        # precomposed e-acute
+        text_nfc = "é"  # precomposed e-acute
         assert _normalize_text(text_nfd) == _normalize_text(text_nfc)
 
     def test_deterministic_hash(self):

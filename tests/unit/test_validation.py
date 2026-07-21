@@ -112,9 +112,7 @@ class TestValidateJsonlLine:
 
     def test_valid_assistant_line_with_text_block(self):
         content = [{"type": "text", "text": "Response"}]
-        line = _make_line(
-            line_type="assistant", role="assistant", content=content
-        )
+        line = _make_line(line_type="assistant", role="assistant", content=content)
         result = validate_jsonl_line(line, line_number=1)
         assert result.valid is True
         assert result.errors == []
@@ -162,12 +160,14 @@ class TestValidateJsonlLine:
         assert any("Missing required message fields" in e for e in result.errors)
 
     def test_message_not_dict(self):
-        raw = json.dumps({
-            "type": "user",
-            "uuid": "u1",
-            "sessionId": "s1",
-            "message": "not a dict",
-        })
+        raw = json.dumps(
+            {
+                "type": "user",
+                "uuid": "u1",
+                "sessionId": "s1",
+                "message": "not a dict",
+            }
+        )
         result = validate_jsonl_line(raw, line_number=1)
         assert result.valid is False
         assert any("'message' must be a dict" in e for e in result.errors)
@@ -249,9 +249,7 @@ class TestValidateJsonlLine:
         assert any("missing 'id'" in e for e in result.errors)
 
     def test_tool_result_block_valid(self):
-        content = [
-            {"type": "tool_result", "tool_use_id": "t1", "content": "OK"}
-        ]
+        content = [{"type": "tool_result", "tool_use_id": "t1", "content": "OK"}]
         line = _make_line(role="user", content=content)
         result = validate_jsonl_line(line, line_number=1)
         assert result.valid is True
@@ -347,12 +345,8 @@ class TestValidateSession:
 
     def test_timestamp_out_of_order(self):
         entries = [
-            _make_user_line(
-                uuid="u1", timestamp="2026-04-01T10:00:05.000Z"
-            ),
-            _make_assistant_line(
-                uuid="a1", timestamp="2026-04-01T10:00:01.000Z"
-            ),
+            _make_user_line(uuid="u1", timestamp="2026-04-01T10:00:05.000Z"),
+            _make_assistant_line(uuid="a1", timestamp="2026-04-01T10:00:01.000Z"),
         ]
         result = validate_session(entries)
         assert result.valid is False
@@ -685,9 +679,7 @@ class TestGenerateHealthReport:
     def test_basic_health_report(self):
         entries = [
             _make_user_line(content="Hello"),
-            _make_assistant_line(
-                content=[{"type": "text", "text": "Hi there!"}]
-            ),
+            _make_assistant_line(content=[{"type": "text", "text": "Hi there!"}]),
         ]
         report = generate_health_report(entries)
         assert report.user_message_count == 1
@@ -793,9 +785,7 @@ class TestGenerateHealthReport:
     def test_fallback_to_estimated_tokens(self):
         entries = [
             _make_user_line(content="Hello world"),
-            _make_assistant_line(
-                content=[{"type": "text", "text": "Goodbye world"}]
-            ),
+            _make_assistant_line(content=[{"type": "text", "text": "Goodbye world"}]),
         ]
         report = generate_health_report(entries)
         assert report.estimated_total_tokens > 0
@@ -929,7 +919,5 @@ class TestDataclassDefaults:
         assert hr.estimated_analysis_seconds == 0.0
 
     def test_completeness_assessment_defaults(self):
-        ca = CompletenessAssessment(
-            is_complete=True, completeness_score=1.0
-        )
+        ca = CompletenessAssessment(is_complete=True, completeness_score=1.0)
         assert ca.issues == []

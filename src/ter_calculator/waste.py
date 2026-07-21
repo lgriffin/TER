@@ -31,9 +31,7 @@ def detect_waste_patterns(
     patterns: list[WastePattern] = []
     patterns.extend(detect_reasoning_loops(classified_spans))
     patterns.extend(detect_duplicate_tool_calls(classified_spans))
-    patterns.extend(
-        detect_context_restatement(classified_spans, restatement_threshold)
-    )
+    patterns.extend(detect_context_restatement(classified_spans, restatement_threshold))
     if session is not None:
         patterns.extend(detect_repetitive_reads(session))
         patterns.extend(detect_edit_fragmentation(session))
@@ -56,9 +54,7 @@ def summarize_waste(
     - top_patterns: the most impactful waste patterns
     - explanation: human-readable summary string
     """
-    waste_spans = [
-        cs for cs in classified_spans if cs.label not in ALIGNED_LABELS
-    ]
+    waste_spans = [cs for cs in classified_spans if cs.label not in ALIGNED_LABELS]
 
     total_waste = sum(cs.span.token_count for cs in waste_spans)
     total_all = sum(cs.span.token_count for cs in classified_spans)
@@ -76,9 +72,9 @@ def summarize_waste(
         by_phase[phase] = by_phase.get(phase, 0) + cs.span.token_count
 
     # Top patterns by tokens wasted.
-    top_patterns = sorted(
-        waste_patterns, key=lambda p: p.tokens_wasted, reverse=True
-    )[:5]
+    top_patterns = sorted(waste_patterns, key=lambda p: p.tokens_wasted, reverse=True)[
+        :5
+    ]
 
     # Build explanation.
     explanation = _build_explanation(
@@ -137,8 +133,7 @@ def _build_explanation(
     if top_patterns:
         p = top_patterns[0]
         lines.append(
-            f"The most impactful pattern: {p.description} "
-            f"({p.tokens_wasted:,} tokens)."
+            f"The most impactful pattern: {p.description} ({p.tokens_wasted:,} tokens)."
         )
 
     return " ".join(lines)
@@ -156,8 +151,10 @@ def detect_reasoning_loops(
     consecutive: list[ClassifiedSpan] = []
 
     for cs in classified_spans:
-        if (cs.span.phase == SpanPhase.REASONING
-                and cs.label == SpanLabel.REDUNDANT_REASONING):
+        if (
+            cs.span.phase == SpanPhase.REASONING
+            and cs.label == SpanLabel.REDUNDANT_REASONING
+        ):
             consecutive.append(cs)
         else:
             if len(consecutive) >= min_consecutive:
@@ -182,9 +179,9 @@ def detect_duplicate_tool_calls(
     patterns: list[WastePattern] = []
     seen_sigs: set[str] = set()
     tool_spans = [
-        cs for cs in classified_spans
-        if cs.span.phase == SpanPhase.TOOL_USE
-        and cs.span.block_type == "tool_use"
+        cs
+        for cs in classified_spans
+        if cs.span.phase == SpanPhase.TOOL_USE and cs.span.block_type == "tool_use"
     ]
 
     for i, cs in enumerate(tool_spans):
@@ -198,15 +195,17 @@ def detect_duplicate_tool_calls(
             if prev_sig == sig:
                 # Deduplicate: only report once per unique signature.
                 if sig not in seen_sigs:
-                    patterns.append(WastePattern(
-                        pattern_type="duplicate_tool_call",
-                        description=f"Duplicate tool call: {sig[:60]}",
-                        start_position=tool_spans[j].span.position,
-                        end_position=cs.span.position,
-                        spans_involved=2,
-                        tokens_wasted=cs.span.token_count,
-                        details={"signature": sig},
-                    ))
+                    patterns.append(
+                        WastePattern(
+                            pattern_type="duplicate_tool_call",
+                            description=f"Duplicate tool call: {sig[:60]}",
+                            start_position=tool_spans[j].span.position,
+                            end_position=cs.span.position,
+                            spans_involved=2,
+                            tokens_wasted=cs.span.token_count,
+                            details={"signature": sig},
+                        )
+                    )
                     seen_sigs.add(sig)
                 break
 
@@ -233,21 +232,22 @@ def detect_context_restatement(
                 continue
             sim = cosine_similarity(cs.span.embedding, prior.span.embedding)
             if sim >= similarity_threshold:
-                patterns.append(WastePattern(
-                    pattern_type="context_restatement",
-                    description=(
-                        f"Response restates prior content "
-                        f"(similarity: {sim:.2f})"
-                    ),
-                    start_position=cs.span.position,
-                    end_position=cs.span.position,
-                    spans_involved=1,
-                    tokens_wasted=cs.span.token_count,
-                    details={
-                        "similarity": round(sim, 4),
-                        "prior_position": prior.span.position,
-                    },
-                ))
+                patterns.append(
+                    WastePattern(
+                        pattern_type="context_restatement",
+                        description=(
+                            f"Response restates prior content (similarity: {sim:.2f})"
+                        ),
+                        start_position=cs.span.position,
+                        end_position=cs.span.position,
+                        spans_involved=1,
+                        tokens_wasted=cs.span.token_count,
+                        details={
+                            "similarity": round(sim, 4),
+                            "prior_position": prior.span.position,
+                        },
+                    )
+                )
                 break
 
         prior_gen.append(cs)
@@ -293,10 +293,12 @@ def detect_repetitive_reads(
         if msg.role != "assistant":
             continue
         for block in msg.content_blocks:
-            if (block.block_type == "tool_use"
-                    and block.tool_name == "Read"
-                    and block.tool_use_id
-                    and block.tool_input):
+            if (
+                block.block_type == "tool_use"
+                and block.tool_name == "Read"
+                and block.tool_use_id
+                and block.tool_input
+            ):
                 fp = block.tool_input.get("file_path", "")
                 if fp:
                     tool_file_map[block.tool_use_id] = fp
@@ -321,22 +323,24 @@ def detect_repetitive_reads(
             continue
         redundant_tokens = sum(token_list[1:])
         short_name = fp.rsplit("/", 1)[-1].rsplit("\\", 1)[-1]
-        patterns.append(WastePattern(
-            pattern_type="repetitive_read",
-            description=(
-                f"{short_name} read {len(token_list)}x "
-                f"({redundant_tokens:,} redundant tokens)"
-            ),
-            start_position=0,
-            end_position=0,
-            spans_involved=len(token_list),
-            tokens_wasted=redundant_tokens,
-            details={
-                "file_path": fp,
-                "read_count": len(token_list),
-                "per_read_tokens": token_list,
-            },
-        ))
+        patterns.append(
+            WastePattern(
+                pattern_type="repetitive_read",
+                description=(
+                    f"{short_name} read {len(token_list)}x "
+                    f"({redundant_tokens:,} redundant tokens)"
+                ),
+                start_position=0,
+                end_position=0,
+                spans_involved=len(token_list),
+                tokens_wasted=redundant_tokens,
+                details={
+                    "file_path": fp,
+                    "read_count": len(token_list),
+                    "per_read_tokens": token_list,
+                },
+            )
+        )
 
     patterns.sort(key=lambda p: p.tokens_wasted, reverse=True)
     return patterns
@@ -358,9 +362,11 @@ def detect_edit_fragmentation(
         if msg.role != "assistant":
             continue
         for block in msg.content_blocks:
-            if (block.block_type == "tool_use"
-                    and block.tool_name in ("Edit", "Write")
-                    and block.tool_input):
+            if (
+                block.block_type == "tool_use"
+                and block.tool_name in ("Edit", "Write")
+                and block.tool_input
+            ):
                 fp = block.tool_input.get("file_path", "")
                 if fp:
                     text = block.text or ""
@@ -376,22 +382,24 @@ def detect_edit_fragmentation(
         if current_file and len(current_run) >= min_consecutive:
             fragmented_tokens = sum(t for _, t in current_run[1:])
             short_name = current_file.rsplit("/", 1)[-1].rsplit("\\", 1)[-1]
-            patterns.append(WastePattern(
-                pattern_type="edit_fragmentation",
-                description=(
-                    f"{len(current_run)} consecutive edits to {short_name} "
-                    f"({fragmented_tokens:,} fragmented tokens)"
-                ),
-                start_position=0,
-                end_position=0,
-                spans_involved=len(current_run),
-                tokens_wasted=fragmented_tokens,
-                details={
-                    "file_path": current_file,
-                    "edit_count": len(current_run),
-                    "operations": [name for name, _ in current_run],
-                },
-            ))
+            patterns.append(
+                WastePattern(
+                    pattern_type="edit_fragmentation",
+                    description=(
+                        f"{len(current_run)} consecutive edits to {short_name} "
+                        f"({fragmented_tokens:,} fragmented tokens)"
+                    ),
+                    start_position=0,
+                    end_position=0,
+                    spans_involved=len(current_run),
+                    tokens_wasted=fragmented_tokens,
+                    details={
+                        "file_path": current_file,
+                        "edit_count": len(current_run),
+                        "operations": [name for name, _ in current_run],
+                    },
+                )
+            )
 
     for name, fp, tokens in ops:
         if fp == current_file:
@@ -443,9 +451,11 @@ def detect_bash_antipatterns(
     for msg in session.messages:
         if msg.role == "assistant":
             for block in msg.content_blocks:
-                if (block.block_type == "tool_use"
-                        and block.tool_name == "Bash"
-                        and block.tool_input):
+                if (
+                    block.block_type == "tool_use"
+                    and block.tool_name == "Bash"
+                    and block.tool_input
+                ):
                     cmd = block.tool_input.get("command", "")
                     result = _classify_bash_command(cmd)
                     if result and block.tool_use_id:
@@ -465,28 +475,25 @@ def detect_bash_antipatterns(
         by_tool.setdefault(tool, []).append((desc, tuid))
 
     patterns: list[WastePattern] = []
-    total_tokens = sum(
-        tool_result_tokens.get(tuid, 0)
-        for _, _, tuid in instances
-    )
+    total_tokens = sum(tool_result_tokens.get(tuid, 0) for _, _, tuid in instances)
 
-    patterns.append(WastePattern(
-        pattern_type="bash_antipattern",
-        description=(
-            f"{len(instances)} Bash calls should use dedicated tools "
-            f"({total_tokens:,} tokens)"
-        ),
-        start_position=0,
-        end_position=0,
-        spans_involved=len(instances),
-        tokens_wasted=total_tokens,
-        details={
-            "instance_count": len(instances),
-            "by_tool": {
-                tool: len(items) for tool, items in by_tool.items()
+    patterns.append(
+        WastePattern(
+            pattern_type="bash_antipattern",
+            description=(
+                f"{len(instances)} Bash calls should use dedicated tools "
+                f"({total_tokens:,} tokens)"
+            ),
+            start_position=0,
+            end_position=0,
+            spans_involved=len(instances),
+            tokens_wasted=total_tokens,
+            details={
+                "instance_count": len(instances),
+                "by_tool": {tool: len(items) for tool, items in by_tool.items()},
             },
-        },
-    ))
+        )
+    )
 
     return patterns
 
@@ -524,20 +531,21 @@ def detect_failed_tool_retries(
     # Sum token cost of failed calls and their error results.
     total_tokens = sum(result_tokens.get(eid, 0) for eid in error_ids)
 
-    return [WastePattern(
-        pattern_type="failed_tool_retry",
-        description=(
-            f"{len(error_ids)} failed tool calls "
-            f"({total_tokens:,} wasted tokens)"
-        ),
-        start_position=0,
-        end_position=0,
-        spans_involved=len(error_ids),
-        tokens_wasted=total_tokens,
-        details={
-            "error_count": len(error_ids),
-        },
-    )]
+    return [
+        WastePattern(
+            pattern_type="failed_tool_retry",
+            description=(
+                f"{len(error_ids)} failed tool calls ({total_tokens:,} wasted tokens)"
+            ),
+            start_position=0,
+            end_position=0,
+            spans_involved=len(error_ids),
+            tokens_wasted=total_tokens,
+            details={
+                "error_count": len(error_ids),
+            },
+        )
+    ]
 
 
 def _is_error_result(block: ContentBlock) -> bool:
@@ -574,10 +582,12 @@ def detect_repeated_commands(
     for msg in session.messages:
         if msg.role == "assistant":
             for block in msg.content_blocks:
-                if (block.block_type == "tool_use"
-                        and block.tool_name == "Bash"
-                        and block.tool_input
-                        and block.tool_use_id):
+                if (
+                    block.block_type == "tool_use"
+                    and block.tool_name == "Bash"
+                    and block.tool_input
+                    and block.tool_use_id
+                ):
                     cmd = block.tool_input.get("command", "")
                     norm = _normalize_bash_command(cmd)
                     if norm:
@@ -600,21 +610,23 @@ def detect_repeated_commands(
         # First invocation is needed; subsequent are waste.
         redundant_tokens = sum(result_tokens.get(t, 0) for t in tuids[1:])
         short_cmd = norm[:60] + "..." if len(norm) > 60 else norm
-        patterns.append(WastePattern(
-            pattern_type="repeated_command",
-            description=(
-                f"'{short_cmd}' run {len(tuids)}x "
-                f"({redundant_tokens:,} redundant tokens)"
-            ),
-            start_position=0,
-            end_position=0,
-            spans_involved=len(tuids),
-            tokens_wasted=redundant_tokens,
-            details={
-                "command": norm,
-                "run_count": len(tuids),
-            },
-        ))
+        patterns.append(
+            WastePattern(
+                pattern_type="repeated_command",
+                description=(
+                    f"'{short_cmd}' run {len(tuids)}x "
+                    f"({redundant_tokens:,} redundant tokens)"
+                ),
+                start_position=0,
+                end_position=0,
+                spans_involved=len(tuids),
+                tokens_wasted=redundant_tokens,
+                details={
+                    "command": norm,
+                    "run_count": len(tuids),
+                },
+            )
+        )
 
     patterns.sort(key=lambda p: p.tokens_wasted, reverse=True)
     return patterns
@@ -628,7 +640,7 @@ def _normalize_bash_command(cmd: str) -> str:
     """
     cmd = cmd.strip()
     # Remove trailing pipe to tail/head with varying line counts.
-    cmd = re.sub(r'\s*\|\s*(tail|head)\s+-\d+\s*$', '', cmd)
+    cmd = re.sub(r"\s*\|\s*(tail|head)\s+-\d+\s*$", "", cmd)
     # Normalize whitespace.
-    cmd = re.sub(r'\s+', ' ', cmd)
+    cmd = re.sub(r"\s+", " ", cmd)
     return cmd

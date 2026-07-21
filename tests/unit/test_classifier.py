@@ -44,9 +44,12 @@ class TestClassifySpan:
     def test_repetition_reasoning_is_waste(self):
         """Self-repetition in reasoning phase → redundant reasoning."""
         label, conf = _classify_span(
-            sim=0.8, phase=SpanPhase.REASONING,
-            is_repetition=True, repetition_similarity=0.92,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.8,
+            phase=SpanPhase.REASONING,
+            is_repetition=True,
+            repetition_similarity=0.92,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text="some reasoning text",
         )
         assert label == SpanLabel.REDUNDANT_REASONING
@@ -55,9 +58,12 @@ class TestClassifySpan:
     def test_repetition_tool_use_is_waste(self):
         """Self-repetition in tool_use phase → unnecessary tool call."""
         label, conf = _classify_span(
-            sim=0.5, phase=SpanPhase.TOOL_USE,
-            is_repetition=True, repetition_similarity=0.90,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.5,
+            phase=SpanPhase.TOOL_USE,
+            is_repetition=True,
+            repetition_similarity=0.90,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text="Bash ls -la",
         )
         assert label == SpanLabel.UNNECESSARY_TOOL_CALL
@@ -65,9 +71,12 @@ class TestClassifySpan:
     def test_weak_repetition_respects_confidence_threshold(self):
         """Near-threshold self-similarity stays aligned when confidence bar is high."""
         label, conf = _classify_span(
-            sim=0.5, phase=SpanPhase.REASONING,
-            is_repetition=True, repetition_similarity=0.76,
-            similarity_threshold=0.40, confidence_threshold=0.80,
+            sim=0.5,
+            phase=SpanPhase.REASONING,
+            is_repetition=True,
+            repetition_similarity=0.76,
+            similarity_threshold=0.40,
+            confidence_threshold=0.80,
             span_text="thinking again",
         )
         assert label == SpanLabel.ALIGNED_REASONING
@@ -75,9 +84,12 @@ class TestClassifySpan:
     def test_repetition_generation_is_waste(self):
         """Self-repetition in generation phase → over-explanation."""
         label, conf = _classify_span(
-            sim=0.6, phase=SpanPhase.GENERATION,
-            is_repetition=True, repetition_similarity=0.95,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.6,
+            phase=SpanPhase.GENERATION,
+            is_repetition=True,
+            repetition_similarity=0.95,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text="here is the answer again",
         )
         assert label == SpanLabel.OVER_EXPLANATION
@@ -96,9 +108,12 @@ class TestClassifySpan:
         )
         assert len(text.split()) >= 25
         label, conf = _classify_span(
-            sim=0.3, phase=SpanPhase.REASONING,
-            is_repetition=False, repetition_similarity=0.0,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.3,
+            phase=SpanPhase.REASONING,
+            is_repetition=False,
+            repetition_similarity=0.0,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text=text,
         )
         assert label == SpanLabel.ALIGNED_REASONING
@@ -106,9 +121,12 @@ class TestClassifySpan:
     def test_reasoning_very_low_sim_short_text_is_waste(self):
         """Very low relevance + short filler text → redundant reasoning."""
         label, conf = _classify_span(
-            sim=0.05, phase=SpanPhase.REASONING,
-            is_repetition=False, repetition_similarity=0.0,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.05,
+            phase=SpanPhase.REASONING,
+            is_repetition=False,
+            repetition_similarity=0.0,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text="hmm okay let me see",
         )
         assert label == SpanLabel.REDUNDANT_REASONING
@@ -116,9 +134,12 @@ class TestClassifySpan:
     def test_tool_use_always_aligned(self):
         """Tool calls are actions, almost always intentional."""
         label, conf = _classify_span(
-            sim=0.05, phase=SpanPhase.TOOL_USE,
-            is_repetition=False, repetition_similarity=0.0,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.05,
+            phase=SpanPhase.TOOL_USE,
+            is_repetition=False,
+            repetition_similarity=0.0,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text="Read some/file.py",
         )
         assert label == SpanLabel.ALIGNED_TOOL_CALL
@@ -126,9 +147,12 @@ class TestClassifySpan:
     def test_generation_aligned_by_default(self):
         """Non-repetitive generation is aligned even with lower similarity."""
         label, conf = _classify_span(
-            sim=0.2, phase=SpanPhase.GENERATION,
-            is_repetition=False, repetition_similarity=0.0,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.2,
+            phase=SpanPhase.GENERATION,
+            is_repetition=False,
+            repetition_similarity=0.0,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text="Here is your answer.",
         )
         assert label == SpanLabel.ALIGNED_RESPONSE
@@ -137,9 +161,12 @@ class TestClassifySpan:
         """Extremely low relevance + long text → over-explanation."""
         long_text = " ".join(["word"] * 60)
         label, conf = _classify_span(
-            sim=0.03, phase=SpanPhase.GENERATION,
-            is_repetition=False, repetition_similarity=0.0,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.03,
+            phase=SpanPhase.GENERATION,
+            is_repetition=False,
+            repetition_similarity=0.0,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text=long_text,
         )
         assert label == SpanLabel.OVER_EXPLANATION
@@ -147,9 +174,12 @@ class TestClassifySpan:
     def test_high_similarity_reasoning(self):
         """High similarity reasoning is aligned with high confidence."""
         label, conf = _classify_span(
-            sim=0.9, phase=SpanPhase.REASONING,
-            is_repetition=False, repetition_similarity=0.0,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.9,
+            phase=SpanPhase.REASONING,
+            is_repetition=False,
+            repetition_similarity=0.0,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text="analyzing the user's request for auth",
         )
         assert label == SpanLabel.ALIGNED_REASONING
@@ -182,9 +212,12 @@ class TestShortNarrationGate:
     def test_short_action_announcement_is_waste(self):
         """'Let me read X' style spans with sim < 0.35 and < 25 words → waste."""
         label, _ = _classify_span(
-            sim=0.21, phase=SpanPhase.REASONING,
-            is_repetition=False, repetition_similarity=0.0,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.21,
+            phase=SpanPhase.REASONING,
+            is_repetition=False,
+            repetition_similarity=0.0,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text="Let me read the mapping definition.",
         )
         assert label == SpanLabel.REDUNDANT_REASONING
@@ -192,9 +225,12 @@ class TestShortNarrationGate:
     def test_good_now_narration_is_waste(self):
         """'Good, I'll add X before Y' style — 20 token narration → waste."""
         label, _ = _classify_span(
-            sim=0.18, phase=SpanPhase.REASONING,
-            is_repetition=False, repetition_similarity=0.0,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.18,
+            phase=SpanPhase.REASONING,
+            is_repetition=False,
+            repetition_similarity=0.0,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text="Good, I'll add the load_embedding_model function right before the Enums section.",
         )
         assert label == SpanLabel.REDUNDANT_REASONING
@@ -202,9 +238,12 @@ class TestShortNarrationGate:
     def test_short_span_with_line_ref_stays_aligned(self):
         """Short span with specific line numbers is NOT narration — keep aligned."""
         label, _ = _classify_span(
-            sim=0.22, phase=SpanPhase.REASONING,
-            is_repetition=False, repetition_similarity=0.0,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.22,
+            phase=SpanPhase.REASONING,
+            is_repetition=False,
+            repetition_similarity=0.0,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text="I need to fix lines 341 and 358 where model=None is passed.",
         )
         assert label == SpanLabel.ALIGNED_REASONING
@@ -218,9 +257,12 @@ class TestShortNarrationGate:
         )
         assert len(text.split()) >= 25
         label, _ = _classify_span(
-            sim=0.25, phase=SpanPhase.REASONING,
-            is_repetition=False, repetition_similarity=0.0,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.25,
+            phase=SpanPhase.REASONING,
+            is_repetition=False,
+            repetition_similarity=0.0,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text=text,
         )
         assert label == SpanLabel.ALIGNED_REASONING
@@ -228,9 +270,12 @@ class TestShortNarrationGate:
     def test_sim_above_threshold_stays_aligned(self):
         """Short span with sim >= 0.35 is above the narration gate threshold."""
         label, _ = _classify_span(
-            sim=0.38, phase=SpanPhase.REASONING,
-            is_repetition=False, repetition_similarity=0.0,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.38,
+            phase=SpanPhase.REASONING,
+            is_repetition=False,
+            repetition_similarity=0.0,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text="Let me check the current model configuration.",
         )
         assert label == SpanLabel.ALIGNED_REASONING
@@ -242,9 +287,12 @@ class TestSpecificReferenceRepetitionGuard:
     def test_repetition_with_line_ref_stays_aligned(self):
         """Span with line numbers fires is_repetition but should remain aligned."""
         label, _ = _classify_span(
-            sim=0.44, phase=SpanPhase.REASONING,
-            is_repetition=True, repetition_similarity=0.90,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.44,
+            phase=SpanPhase.REASONING,
+            is_repetition=True,
+            repetition_similarity=0.90,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text="Now I need to update lines 341 and 358 where model=None is passed.",
         )
         assert label == SpanLabel.ALIGNED_REASONING
@@ -252,9 +300,12 @@ class TestSpecificReferenceRepetitionGuard:
     def test_repetition_without_ref_is_waste(self):
         """Span without specific refs fires is_repetition → waste as before."""
         label, _ = _classify_span(
-            sim=0.80, phase=SpanPhase.REASONING,
-            is_repetition=True, repetition_similarity=0.92,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.80,
+            phase=SpanPhase.REASONING,
+            is_repetition=True,
+            repetition_similarity=0.92,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text="Good! Now let me find and fix the next occurrence.",
         )
         assert label == SpanLabel.REDUNDANT_REASONING
@@ -265,18 +316,24 @@ class TestSystemArtifactGuard:
 
     def test_request_interrupted_is_aligned(self):
         label, _ = _classify_span(
-            sim=0.85, phase=SpanPhase.REASONING,
-            is_repetition=True, repetition_similarity=0.95,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.85,
+            phase=SpanPhase.REASONING,
+            is_repetition=True,
+            repetition_similarity=0.95,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text="[Request interrupted by user]",
         )
         assert label == SpanLabel.ALIGNED_REASONING
 
     def test_normal_text_not_affected(self):
         label, _ = _classify_span(
-            sim=0.80, phase=SpanPhase.REASONING,
-            is_repetition=True, repetition_similarity=0.92,
-            similarity_threshold=0.40, confidence_threshold=0.75,
+            sim=0.80,
+            phase=SpanPhase.REASONING,
+            is_repetition=True,
+            repetition_similarity=0.92,
+            similarity_threshold=0.40,
+            confidence_threshold=0.75,
             span_text="some repeated reasoning content without interruption",
         )
         assert label == SpanLabel.REDUNDANT_REASONING
@@ -286,7 +343,10 @@ class TestPhaseSpecificRepetitionThresholds:
     """Tool calls need a higher repetition bar than reasoning/generation."""
 
     def test_tool_use_threshold_is_higher_than_reasoning(self):
-        assert _REPETITION_THRESHOLDS[SpanPhase.TOOL_USE] > _REPETITION_THRESHOLDS[SpanPhase.REASONING]
+        assert (
+            _REPETITION_THRESHOLDS[SpanPhase.TOOL_USE]
+            > _REPETITION_THRESHOLDS[SpanPhase.REASONING]
+        )
 
     def test_tool_use_threshold_value(self):
         assert _REPETITION_THRESHOLDS[SpanPhase.TOOL_USE] == 0.93
@@ -309,7 +369,10 @@ class TestPhaseSpecificRepetitionThresholds:
         prior_by_phase[SpanPhase.TOOL_USE] = [0]
 
         is_rep, sim = _check_repetition(
-            1, SpanPhase.TOOL_USE, embeddings, prior_by_phase,
+            1,
+            SpanPhase.TOOL_USE,
+            embeddings,
+            prior_by_phase,
             repetition_threshold=_REPETITION_THRESHOLDS[SpanPhase.TOOL_USE],
         )
         # 0.90 < 0.93 → not repetition
@@ -324,7 +387,10 @@ class TestPhaseSpecificRepetitionThresholds:
         prior_by_phase[SpanPhase.TOOL_USE] = [0]
 
         is_rep, sim = _check_repetition(
-            1, SpanPhase.TOOL_USE, embeddings, prior_by_phase,
+            1,
+            SpanPhase.TOOL_USE,
+            embeddings,
+            prior_by_phase,
             repetition_threshold=_REPETITION_THRESHOLDS[SpanPhase.TOOL_USE],
         )
         assert is_rep
@@ -343,7 +409,10 @@ class TestPhaseSpecificRepetitionThresholds:
         prior_by_phase[SpanPhase.REASONING] = [0]
 
         is_rep, sim = _check_repetition(
-            1, SpanPhase.REASONING, embeddings, prior_by_phase,
+            1,
+            SpanPhase.REASONING,
+            embeddings,
+            prior_by_phase,
             repetition_threshold=_REPETITION_THRESHOLDS[SpanPhase.REASONING],
         )
         assert is_rep
@@ -354,7 +423,9 @@ class TestCheckRepetition:
         """No prior spans → not a repetition."""
         embeddings = np.random.rand(1, 384).astype(np.float32)
         prior_by_phase = {p: [] for p in SpanPhase}
-        is_rep, sim = _check_repetition(0, SpanPhase.REASONING, embeddings, prior_by_phase)
+        is_rep, sim = _check_repetition(
+            0, SpanPhase.REASONING, embeddings, prior_by_phase
+        )
         assert is_rep is False
         assert sim == 0.0
 
@@ -364,7 +435,9 @@ class TestCheckRepetition:
         embeddings = np.stack([emb, emb])  # Two identical embeddings
         prior_by_phase = {p: [] for p in SpanPhase}
         prior_by_phase[SpanPhase.REASONING] = [0]
-        is_rep, sim = _check_repetition(1, SpanPhase.REASONING, embeddings, prior_by_phase)
+        is_rep, sim = _check_repetition(
+            1, SpanPhase.REASONING, embeddings, prior_by_phase
+        )
         assert is_rep is True
         assert sim == pytest.approx(1.0)
 
@@ -377,5 +450,7 @@ class TestCheckRepetition:
         embeddings = np.stack([emb1, emb2])
         prior_by_phase = {p: [] for p in SpanPhase}
         prior_by_phase[SpanPhase.REASONING] = [0]
-        is_rep, sim = _check_repetition(1, SpanPhase.REASONING, embeddings, prior_by_phase)
+        is_rep, sim = _check_repetition(
+            1, SpanPhase.REASONING, embeddings, prior_by_phase
+        )
         assert is_rep is False

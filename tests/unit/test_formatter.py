@@ -168,8 +168,12 @@ def _make_economics() -> SessionEconomics:
         estimated_waste_cost_usd=0.005,
         cost_model=CostModel(),
         positional=PositionalBreakdown(
-            early_ter=0.90, mid_ter=0.75, late_ter=0.50,
-            early_span_count=5, mid_span_count=5, late_span_count=5,
+            early_ter=0.90,
+            mid_ter=0.75,
+            late_ter=0.50,
+            early_span_count=5,
+            mid_span_count=5,
+            late_span_count=5,
         ),
         input_growth=InputGrowth(
             turn_input_tokens=[100, 200, 400, 800],
@@ -237,7 +241,9 @@ class TestFormatGroupedAnalysis:
         sub2 = _make_result(session_id="agent-002", aggregate_ter=0.70)
         sub2.economics = _make_economics()
 
-        output = format_grouped_analysis(parent, [sub1, sub2], fmt="text", use_rich=False)
+        output = format_grouped_analysis(
+            parent, [sub1, sub2], fmt="text", use_rich=False
+        )
         assert "Group Analysis" in output
         assert "parent-session" in output
         assert "parent" in output

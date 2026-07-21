@@ -79,6 +79,7 @@ def check_exact(context, expected):
 
 # -- Calibration --
 
+
 @given("calibration samples with known text and token count pairs")
 def calibration_samples(context):
     context["samples"] = [
@@ -126,6 +127,7 @@ def check_confidence_approx(context, c):
 
 # -- Heuristic confidence --
 
+
 @given("a natural-language text")
 def natural_language_text(context):
     context["text"] = (
@@ -141,11 +143,12 @@ def call_count_via_heuristic(context):
 
 # -- Code-heavy confidence --
 
+
 @given("a text with many structural punctuation characters like braces and semicolons")
 def code_heavy_text(context):
     context["text"] = (
-        'if (x) { y = [1, 2, 3]; z = {a: 1}; } else { w = (a < b) ? c : d; } '
-        'for (i = 0; i < 10; i++) { arr[i] = fn(i); } switch(x) { case 1: break; }'
+        "if (x) { y = [1, 2, 3]; z = {a: 1}; } else { w = (a < b) ? c : d; } "
+        "for (i = 0; i < 10; i++) { arr[i] = fn(i); } switch(x) { case 1: break; }"
     )
 
 
@@ -162,6 +165,7 @@ def check_confidence_below(context):
 
 
 # -- API counting --
+
 
 @given("the Anthropic API is available")
 def anthropic_api_available(context):
@@ -201,9 +205,7 @@ def call_count_with_api(context):
 
         tc_mod._count_tokens_via_api = patched_api
         try:
-            context["count_result"] = count_tokens(
-                context["text"], use_api=True
-            )
+            context["count_result"] = count_tokens(context["text"], use_api=True)
         finally:
             tc_mod._count_tokens_via_api = original_func
 
@@ -214,6 +216,7 @@ def check_confidence_exact_one(context):
 
 
 # -- Empty text --
+
 
 @given("an empty text string")
 def empty_text(context):
@@ -235,6 +238,7 @@ def check_estimated(context, n):
 
 
 # -- Empty samples --
+
 
 @given("an empty list of calibration samples")
 def empty_samples(context):
@@ -262,6 +266,7 @@ def cache_ttl(context, hours):
 
 
 # -- Cache miss --
+
 
 @given("a cache key that has not been stored")
 def cache_miss_key(context):
@@ -300,6 +305,7 @@ def check_miss_count(context, n):
 
 # -- Cache hit --
 
+
 @given("a cache key with a previously stored result")
 def cache_hit_key(context):
     key = "hit-key-def456"
@@ -335,6 +341,7 @@ def check_hit_count(context, n):
 
 
 # -- Expired cache entries --
+
 
 @given("a cache entry older than the TTL")
 def expired_cache_entry(context):
@@ -379,6 +386,7 @@ def check_treated_as_miss(context):
 
 # -- Invalidate --
 
+
 @given("cached results for a session file")
 def cached_results_for_session(tmp_path, context):
     cache = context["cache"]
@@ -389,6 +397,7 @@ def cached_results_for_session(tmp_path, context):
 
     # Store a cache entry using the session file's hash as the key
     from ter_calculator.acceleration import hash_file
+
     file_hash = hash_file(session_file)
     cache.get_or_compute(file_hash, lambda: {"cached": True})
 
@@ -412,6 +421,7 @@ def check_entries_removed(context):
 
 
 # -- Clear all --
+
 
 @given("a cache with multiple entries")
 def cache_with_multiple_entries(context):
@@ -459,9 +469,7 @@ def valid_session(tmp_path, context):
             "sessionId": "qs",
             "message": {
                 "role": "user",
-                "content": [
-                    {"type": "text", "text": "add login page"}
-                ],
+                "content": [{"type": "text", "text": "add login page"}],
             },
         },
         {
@@ -513,13 +521,12 @@ def check_quick_invariant(context):
 
 # -- Keywords exclude stop words --
 
-@given(
-    parsers.parse(
-        'user prompts mentioning "{kw1}", "{kw2}", and "{kw3}"'
-    )
-)
+
+@given(parsers.parse('user prompts mentioning "{kw1}", "{kw2}", and "{kw3}"'))
 def user_prompts_with_keywords(context, kw1, kw2, kw3):
-    context["prompt_text"] = f"Please fix the {kw1} and {kw2} issues. Also {kw3} system needs work."
+    context["prompt_text"] = (
+        f"Please fix the {kw1} and {kw2} issues. Also {kw3} system needs work."
+    )
     context["expected_included"] = {kw1.lower(), kw2.lower()}
     context["expected_excluded"] = {kw3.lower()}
 
@@ -527,16 +534,10 @@ def user_prompts_with_keywords(context, kw1, kw2, kw3):
 @when("keywords are extracted")
 def extract_keywords(context):
     analyser = context["analyser"]
-    context["keyword_set"] = analyser._extract_keywords(
-        [context["prompt_text"]]
-    )
+    context["keyword_set"] = analyser._extract_keywords([context["prompt_text"]])
 
 
-@then(
-    parsers.parse(
-        'the keyword set includes "{kw1}" and "{kw2}"'
-    )
-)
+@then(parsers.parse('the keyword set includes "{kw1}" and "{kw2}"'))
 def check_keywords_included(context, kw1, kw2):
     ks = context["keyword_set"]
     assert kw1.lower() in ks, f"{kw1} not found in {ks}"
@@ -549,6 +550,7 @@ def check_keywords_excluded(context, word):
 
 
 # -- Empty session --
+
 
 @given("a session JSONL file with no content spans")
 def empty_session(tmp_path, context):
@@ -564,12 +566,11 @@ def empty_session(tmp_path, context):
 
 @then(parsers.parse("aggregate_ter is {value:f}"))
 def check_aggregate(context, value):
-    assert context["quick_result"]["aggregate_ter"] == pytest.approx(
-        value, abs=0.01
-    )
+    assert context["quick_result"]["aggregate_ter"] == pytest.approx(value, abs=0.01)
 
 
 # -- Only stop words --
+
 
 @given("a session with user prompts containing only stop words")
 def stop_words_session(tmp_path, context):
@@ -579,9 +580,7 @@ def stop_words_session(tmp_path, context):
             "sessionId": "sw-sess",
             "message": {
                 "role": "user",
-                "content": [
-                    {"type": "text", "text": "the a an is are was to be"}
-                ],
+                "content": [{"type": "text", "text": "the a an is are was to be"}],
             },
         },
         {
@@ -604,6 +603,7 @@ def stop_words_session(tmp_path, context):
 
 
 # -- Keyword overlap --
+
 
 @given(parsers.parse("a set of {n:d} keywords"))
 def set_of_keywords(context, n):
@@ -634,6 +634,7 @@ def check_overlap_score(context, s):
 
 # -- Missing session file --
 
+
 @given("a path to a non-existent JSONL file")
 def nonexistent_file(tmp_path, context):
     context["session_path"] = str(tmp_path / "nope.jsonl")
@@ -646,9 +647,9 @@ def check_fnf(context):
 
 # -- Deduplication --
 
-@given(
-    "a session file with duplicate requestIds having different output_tokens"
-)
+
+@given("a session file with duplicate requestIds having different output_tokens")
+@given("a session file with sibling entries sharing a requestId")
 def session_with_dupes(tmp_path, context):
     path = tmp_path / "dupes_session.jsonl"
     lines = [
@@ -678,39 +679,50 @@ def session_with_dupes(tmp_path, context):
                 "content": [
                     {
                         "type": "text",
-                        "text": "Better login implementation with validation and error handling.",
+                        "text": (
+                            "Better login implementation with validation "
+                            "and error handling."
+                        ),
                     }
                 ],
                 "usage": {"output_tokens": 200},
             },
         },
     ]
+
     with open(path, "w", encoding="utf-8") as f:
         for line in lines:
             f.write(json.dumps(line) + "\n")
+
     context["session_path"] = str(path)
 
 
 @when("quick analysis parses the session")
+@when("the session is parsed with the quick analyser")
 def parse_session_for_dedup(context):
     data = QuickAnalyser._parse_session(context["session_path"])
     context["parsed_data"] = data
 
 
-@then(
-    "only the entry with the highest output_tokens is kept per requestId"
-)
+@then("only the entry with the highest output_tokens is kept per requestId")
+@then("all distinct content blocks for that requestId are preserved")
 def check_dedup(context):
     spans = context["parsed_data"]["spans"]
-    # Only one span for the assistant role with requestId "req-1" should remain,
-    # and it should be the one with higher output_tokens (the longer text).
+
+    # A requestId identifies one logical API response, but Claude Code may
+    # serialize that response across multiple sibling JSONL lines. The parser
+    # must merge those entries and preserve every distinct content block.
     req1_spans = [
-        s
-        for s in spans
-        if "Better login" in s["text"] or "First attempt" in s["text"]
+        span
+        for span in spans
+        if "Better login" in span["text"] or "First attempt" in span["text"]
     ]
-    assert len(req1_spans) == 1
-    assert "Better login" in req1_spans[0]["text"]
+
+    assert len(req1_spans) == 2
+    assert {span["text"] for span in req1_spans} == {
+        "First attempt at login.",
+        "Better login implementation with validation and error handling.",
+    }
 
 
 # ===========================================================================
@@ -724,6 +736,7 @@ def default_poll_interval(context):
 
 
 # -- Detect new session file --
+
 
 @given(parsers.parse("a watched directory with {n:d} existing JSONL files"))
 def watched_dir_with_files(tmp_path, context, n):
@@ -780,25 +793,20 @@ def watcher_polls(context):
 @then("a NEW_SESSION event is emitted for the new file")
 def check_new_session_event(context):
     events = context["events"]
-    new_events = [
-        e for e in events if e.event_type == WatchEventType.NEW_SESSION
-    ]
+    new_events = [e for e in events if e.event_type == WatchEventType.NEW_SESSION]
     assert len(new_events) >= 1
-    assert any(
-        "new_session" in e.file_path for e in new_events
-    )
+    assert any("new_session" in e.file_path for e in new_events)
 
 
 # -- Detect modified session file --
+
 
 @given("a watched directory with an existing JSONL file")
 def watched_dir_with_one_file(tmp_path, context):
     watch_dir = tmp_path / "watched_mod"
     watch_dir.mkdir()
     existing = watch_dir / "existing.jsonl"
-    existing.write_text(
-        json.dumps({"sessionId": "s0"}) + "\n", encoding="utf-8"
-    )
+    existing.write_text(json.dumps({"sessionId": "s0"}) + "\n", encoding="utf-8")
     context["watch_dir"] = watch_dir
     context["modified_file"] = existing
     context["watcher"] = SessionWatcher()
@@ -813,13 +821,12 @@ def change_mtime(context):
 @then("a MODIFIED_SESSION event is emitted")
 def check_modified_event(context):
     events = context["events"]
-    mod_events = [
-        e for e in events if e.event_type == WatchEventType.MODIFIED_SESSION
-    ]
+    mod_events = [e for e in events if e.event_type == WatchEventType.MODIFIED_SESSION]
     assert len(mod_events) >= 1
 
 
 # -- Callback invoked --
+
 
 @given("a watcher with a registered callback")
 def watcher_with_callback(tmp_path, context):
@@ -847,9 +854,7 @@ def new_file_and_poll(context):
 
     # Add a new file
     new_file = watch_dir / "callback_test.jsonl"
-    new_file.write_text(
-        json.dumps({"sessionId": "cb"}) + "\n", encoding="utf-8"
-    )
+    new_file.write_text(json.dumps({"sessionId": "cb"}) + "\n", encoding="utf-8")
 
     # Poll with the callback
     watcher._poll(watch_dir, context["callback"])
@@ -867,6 +872,7 @@ def check_callback_event(context):
 
 
 # -- Stop terminates --
+
 
 @given("a running watcher")
 def running_watcher(tmp_path, context):

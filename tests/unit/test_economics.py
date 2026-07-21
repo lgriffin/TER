@@ -72,10 +72,24 @@ def _make_classified(
 
 class TestAggregateUsage:
     def test_sums_assistant_usage(self):
-        session = _make_session([
-            _make_message("assistant", input_tokens=100, output_tokens=50, cache_creation=10, cache_read=200),
-            _make_message("assistant", input_tokens=150, output_tokens=80, cache_creation=20, cache_read=300),
-        ])
+        session = _make_session(
+            [
+                _make_message(
+                    "assistant",
+                    input_tokens=100,
+                    output_tokens=50,
+                    cache_creation=10,
+                    cache_read=200,
+                ),
+                _make_message(
+                    "assistant",
+                    input_tokens=150,
+                    output_tokens=80,
+                    cache_creation=20,
+                    cache_read=300,
+                ),
+            ]
+        )
         inp, out, create, read = _aggregate_usage(session)
         assert inp == 250
         assert out == 130
@@ -83,10 +97,12 @@ class TestAggregateUsage:
         assert read == 500
 
     def test_ignores_user_messages(self):
-        session = _make_session([
-            _make_message("user", input_tokens=999, output_tokens=999),
-            _make_message("assistant", input_tokens=100, output_tokens=50),
-        ])
+        session = _make_session(
+            [
+                _make_message("user", input_tokens=999, output_tokens=999),
+                _make_message("assistant", input_tokens=100, output_tokens=50),
+            ]
+        )
         inp, out, create, read = _aggregate_usage(session)
         assert inp == 100
         assert out == 50
@@ -140,7 +156,12 @@ class TestEstimateCost:
         assert cost == pytest.approx(expected)
 
     def test_custom_cost_model(self):
-        model = CostModel(input_rate=6.0, output_rate=30.0, cache_read_rate=0.60, cache_write_rate=7.50)
+        model = CostModel(
+            input_rate=6.0,
+            output_rate=30.0,
+            cache_read_rate=0.60,
+            cache_write_rate=7.50,
+        )
         cost = _estimate_cost(1_000_000, 1_000_000, 0, 0, model)
         assert cost == pytest.approx(36.0)
 
@@ -150,7 +171,9 @@ class TestEstimateCost:
 
 class TestPositionalBreakdown:
     def test_all_aligned(self):
-        spans = [_make_classified(SpanLabel.ALIGNED_RESPONSE, position=i) for i in range(9)]
+        spans = [
+            _make_classified(SpanLabel.ALIGNED_RESPONSE, position=i) for i in range(9)
+        ]
         result = _compute_positional_breakdown(spans)
         assert result.early_ter == pytest.approx(1.0)
         assert result.mid_ter == pytest.approx(1.0)
@@ -163,7 +186,8 @@ class TestPositionalBreakdown:
         spans = [
             _make_classified(SpanLabel.ALIGNED_RESPONSE, position=i) for i in range(6)
         ] + [
-            _make_classified(SpanLabel.OVER_EXPLANATION, position=i) for i in range(6, 9)
+            _make_classified(SpanLabel.OVER_EXPLANATION, position=i)
+            for i in range(6, 9)
         ]
         result = _compute_positional_breakdown(spans)
         assert result.early_ter == pytest.approx(1.0)
@@ -199,11 +223,13 @@ class TestInputGrowth:
     def test_linear_growth(self):
         # Uses input_tokens + cache_read as total context.
         # Turns with context <= 100 are filtered out.
-        session = _make_session([
-            _make_message("assistant", input_tokens=500, cache_read=500),
-            _make_message("assistant", input_tokens=500, cache_read=1500),
-            _make_message("assistant", input_tokens=500, cache_read=2500),
-        ])
+        session = _make_session(
+            [
+                _make_message("assistant", input_tokens=500, cache_read=500),
+                _make_message("assistant", input_tokens=500, cache_read=1500),
+                _make_message("assistant", input_tokens=500, cache_read=2500),
+            ]
+        )
         result = _compute_input_growth(session)
         assert result.turn_input_tokens == [1000, 2000, 3000]
         assert result.growth_rate == pytest.approx(3.0)
@@ -211,32 +237,38 @@ class TestInputGrowth:
         assert result.context_bloat_detected is False
 
     def test_superlinear_growth(self):
-        session = _make_session([
-            _make_message("assistant", input_tokens=100, cache_read=900),
-            _make_message("assistant", input_tokens=100, cache_read=1900),
-            _make_message("assistant", input_tokens=100, cache_read=3900),
-            _make_message("assistant", input_tokens=100, cache_read=8900),
-        ])
+        session = _make_session(
+            [
+                _make_message("assistant", input_tokens=100, cache_read=900),
+                _make_message("assistant", input_tokens=100, cache_read=1900),
+                _make_message("assistant", input_tokens=100, cache_read=3900),
+                _make_message("assistant", input_tokens=100, cache_read=8900),
+            ]
+        )
         result = _compute_input_growth(session)
         assert result.is_superlinear is True
         assert result.context_bloat_detected is True
 
     def test_context_bloat_requires_high_growth(self):
         # Superlinear but growth_rate <= 2.0: no bloat.
-        session = _make_session([
-            _make_message("assistant", input_tokens=500, cache_read=500),
-            _make_message("assistant", input_tokens=510, cache_read=500),
-            _make_message("assistant", input_tokens=530, cache_read=500),
-            _make_message("assistant", input_tokens=560, cache_read=500),
-        ])
+        session = _make_session(
+            [
+                _make_message("assistant", input_tokens=500, cache_read=500),
+                _make_message("assistant", input_tokens=510, cache_read=500),
+                _make_message("assistant", input_tokens=530, cache_read=500),
+                _make_message("assistant", input_tokens=560, cache_read=500),
+            ]
+        )
         result = _compute_input_growth(session)
         assert result.is_superlinear is True
         assert result.context_bloat_detected is False
 
     def test_single_turn(self):
-        session = _make_session([
-            _make_message("assistant", input_tokens=200, cache_read=300),
-        ])
+        session = _make_session(
+            [
+                _make_message("assistant", input_tokens=200, cache_read=300),
+            ]
+        )
         result = _compute_input_growth(session)
         assert result.growth_rate == pytest.approx(1.0)
         assert result.is_superlinear is False
@@ -244,23 +276,27 @@ class TestInputGrowth:
         assert result.turn_input_tokens == [500]
 
     def test_constant_input(self):
-        session = _make_session([
-            _make_message("assistant", input_tokens=500, cache_read=500),
-            _make_message("assistant", input_tokens=500, cache_read=500),
-            _make_message("assistant", input_tokens=500, cache_read=500),
-        ])
+        session = _make_session(
+            [
+                _make_message("assistant", input_tokens=500, cache_read=500),
+                _make_message("assistant", input_tokens=500, cache_read=500),
+                _make_message("assistant", input_tokens=500, cache_read=500),
+            ]
+        )
         result = _compute_input_growth(session)
         assert result.growth_rate == pytest.approx(1.0)
         assert result.is_superlinear is False
 
     def test_tiny_contexts_filtered(self):
         # Turns with context <= 100 are dropped (handshake/setup).
-        session = _make_session([
-            _make_message("assistant", input_tokens=3, cache_read=0),
-            _make_message("assistant", input_tokens=5, cache_read=0),
-            _make_message("assistant", input_tokens=500, cache_read=500),
-            _make_message("assistant", input_tokens=500, cache_read=1500),
-        ])
+        session = _make_session(
+            [
+                _make_message("assistant", input_tokens=3, cache_read=0),
+                _make_message("assistant", input_tokens=5, cache_read=0),
+                _make_message("assistant", input_tokens=500, cache_read=500),
+                _make_message("assistant", input_tokens=500, cache_read=1500),
+            ]
+        )
         result = _compute_input_growth(session)
         assert result.turn_input_tokens == [1000, 2000]
         assert result.growth_rate == pytest.approx(2.0)
@@ -307,7 +343,9 @@ class TestEstimateWasteCost:
         # Calibration is removed — ratio is always 1.0, cost uses raw char/4 tokens.
         spans = [_make_classified(SpanLabel.OVER_EXPLANATION, token_count=100)]
         cost, ratio = _estimate_waste_cost(
-            spans, CostModel(), billed_output_tokens=400,
+            spans,
+            CostModel(),
+            billed_output_tokens=400,
         )
         assert ratio == pytest.approx(1.0)
         assert cost == pytest.approx(100 * 15.0 / 1_000_000)
@@ -332,7 +370,9 @@ class TestEstimateWasteCost:
             ),
         ]
         cost, ratio = _estimate_waste_cost(
-            spans, cm, billed_output_tokens=100,
+            spans,
+            cm,
+            billed_output_tokens=100,
         )
         assert cost == pytest.approx(1000 * cm.input_rate / 1_000_000)
         assert ratio == pytest.approx(1.0)
@@ -340,11 +380,27 @@ class TestEstimateWasteCost:
 
 class TestComputeEconomics:
     def test_full_computation(self):
-        session = _make_session([
-            _make_message("assistant", input_tokens=200, output_tokens=100, cache_creation=50, cache_read=800),
-            _make_message("assistant", input_tokens=300, output_tokens=150, cache_creation=30, cache_read=1200),
-        ])
-        spans = [_make_classified(SpanLabel.ALIGNED_RESPONSE, position=i) for i in range(6)]
+        session = _make_session(
+            [
+                _make_message(
+                    "assistant",
+                    input_tokens=200,
+                    output_tokens=100,
+                    cache_creation=50,
+                    cache_read=800,
+                ),
+                _make_message(
+                    "assistant",
+                    input_tokens=300,
+                    output_tokens=150,
+                    cache_creation=30,
+                    cache_read=1200,
+                ),
+            ]
+        )
+        spans = [
+            _make_classified(SpanLabel.ALIGNED_RESPONSE, position=i) for i in range(6)
+        ]
 
         result = compute_economics(session, spans)
 
@@ -361,10 +417,16 @@ class TestComputeEconomics:
         assert result.input_growth.turn_input_tokens == [1000, 1500]
 
     def test_with_custom_cost_model(self):
-        session = _make_session([
-            _make_message("assistant", input_tokens=1_000_000, output_tokens=100_000),
-        ])
+        session = _make_session(
+            [
+                _make_message(
+                    "assistant", input_tokens=1_000_000, output_tokens=100_000
+                ),
+            ]
+        )
         spans = [_make_classified()]
         default = compute_economics(session, spans)
-        custom = compute_economics(session, spans, CostModel(input_rate=6.0, output_rate=30.0))
+        custom = compute_economics(
+            session, spans, CostModel(input_rate=6.0, output_rate=30.0)
+        )
         assert custom.estimated_cost_usd > default.estimated_cost_usd

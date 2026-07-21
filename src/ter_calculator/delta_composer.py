@@ -53,9 +53,7 @@ class LocalCache:
     def evict(self, fragment_id: str) -> None:
         self._data.pop(fragment_id, None)
 
-    def invalidate_from_events(
-        self, events: Sequence[InvalidationEvent]
-    ) -> int:
+    def invalidate_from_events(self, events: Sequence[InvalidationEvent]) -> int:
         count = 0
         for event in events:
             if event.fragment_id in self._data:

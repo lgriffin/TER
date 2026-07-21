@@ -10,34 +10,48 @@ from .models import CostModel, TERResult, WastePattern
 
 
 def format_ter_result(
-    result: TERResult, fmt: str = "text", use_rich: bool = True,
+    result: TERResult,
+    fmt: str = "text",
+    use_rich: bool = True,
 ) -> str:
     if fmt == "json":
         from .formatter_json import format_json
+
         return format_json(result)
+    if fmt == "html":
+        from .formatter_html import format_html
+
+        return format_html(result)
     if use_rich:
         try:
             from .formatter_rich import format_rich
+
             return format_rich(result)
         except (ImportError, UnicodeEncodeError):
             pass
     from .formatter_text import format_text
+
     return format_text(result)
 
 
 def format_comparison(
-    results: list[TERResult], fmt: str = "text", use_rich: bool = True,
+    results: list[TERResult],
+    fmt: str = "text",
+    use_rich: bool = True,
 ) -> str:
     if fmt == "json":
         from .formatter_json import format_comparison_json
+
         return format_comparison_json(results)
     if use_rich:
         try:
             from .formatter_rich import format_comparison_rich
+
             return format_comparison_rich(results)
         except (ImportError, UnicodeEncodeError):
             pass
     from .formatter_text import format_comparison_text
+
     return format_comparison_text(results)
 
 
@@ -49,14 +63,17 @@ def format_grouped_analysis(
 ) -> str:
     if fmt == "json":
         from .formatter_json import format_grouped_json
+
         return format_grouped_json(parent_result, subagent_results)
     if use_rich:
         try:
             from .formatter_rich import format_grouped_rich
+
             return format_grouped_rich(parent_result, subagent_results)
         except (ImportError, UnicodeEncodeError):
             pass
     from .formatter_text import format_grouped_text
+
     return format_grouped_text(parent_result, subagent_results)
 
 
@@ -70,11 +87,10 @@ def _compute_group_aggregates(all_results: list[TERResult]) -> dict:
     total_waste = sum(r.waste_tokens for r in all_results)
     weighted_ter = (
         sum(r.aggregate_ter * r.total_tokens for r in all_results) / total_tokens
-        if total_tokens > 0 else 0.0
+        if total_tokens > 0
+        else 0.0
     )
-    total_cost = sum(
-        r.economics.estimated_cost_usd for r in all_results if r.economics
-    )
+    total_cost = sum(r.economics.estimated_cost_usd for r in all_results if r.economics)
     total_waste_cost = sum(_compute_waste_cost(r) for r in all_results)
     waste_pct = (total_waste / total_tokens * 100) if total_tokens > 0 else 0.0
 
@@ -145,12 +161,14 @@ def _build_waste_breakdown(
             rows.append((cat, cat_tokens[cat], cat_counts[cat], "output"))
 
     if user_waste_tokens > 0:
-        rows.append((
-            "User-side context (waste)",
-            user_waste_tokens,
-            max(1, user_waste_count),
-            "input",
-        ))
+        rows.append(
+            (
+                "User-side context (waste)",
+                user_waste_tokens,
+                max(1, user_waste_count),
+                "input",
+            )
+        )
 
     pattern_labels = {
         "reasoning_loop": "Reasoning Loops",
@@ -168,7 +186,7 @@ def _build_waste_breakdown(
         "context_restatement": "Over-Explanation",
     }
     by_type: dict[str, list[WastePattern]] = {}
-    for wp in (result.waste_patterns or []):
+    for wp in result.waste_patterns or []:
         by_type.setdefault(wp.pattern_type, []).append(wp)
 
     for ptype, wps in by_type.items():

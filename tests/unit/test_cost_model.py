@@ -72,7 +72,9 @@ class TestPricingTier:
         tier = PRICING["sonnet"]
         assert tier.weight(TokenCategory.INPUT) == 1.0
         assert tier.weight(TokenCategory.OUTPUT) == 5.0  # 15/3
-        assert tier.weight(TokenCategory.CACHED_READ) == pytest.approx(0.1, abs=0.01)  # 0.30/3
+        assert tier.weight(TokenCategory.CACHED_READ) == pytest.approx(
+            0.1, abs=0.01
+        )  # 0.30/3
 
     def test_weight_with_zero_input_rate(self):
         tier = PricingTier(
@@ -113,7 +115,9 @@ class TestSemanticDensityScorer:
         scorer = SemanticDensityScorer()
         result_repetitive = scorer.score("word word word word")
         result_diverse = scorer.score("different unique words varied")
-        assert result_diverse.information_entropy > result_repetitive.information_entropy
+        assert (
+            result_diverse.information_entropy > result_repetitive.information_entropy
+        )
 
     def test_redundancy_detected_in_repeated_phrases(self):
         scorer = SemanticDensityScorer()
@@ -158,9 +162,7 @@ class TestSemanticDensityScorer:
     def test_low_density_text(self):
         scorer = SemanticDensityScorer()
         # Repetitive text - same words repeated
-        result = scorer.score(
-            "word word word word word word word word"
-        )
+        result = scorer.score("word word word word word word word word")
         # With word repetition, should have low vocabulary richness
         assert result.vocabulary_richness < 0.3
         assert result.density_score < 0.7
@@ -231,12 +233,20 @@ class TestComputeCostWeightedTER:
     def test_output_tokens_cost_more_than_input(self):
         """Wasting output tokens should penalize TER more than input."""
         spans_output = [
-            {"phase": "generation", "token_count": 1000, "is_aligned": False,
-             "category": "output"},
+            {
+                "phase": "generation",
+                "token_count": 1000,
+                "is_aligned": False,
+                "category": "output",
+            },
         ]
         spans_input = [
-            {"phase": "generation", "token_count": 1000, "is_aligned": False,
-             "category": "input"},
+            {
+                "phase": "generation",
+                "token_count": 1000,
+                "is_aligned": False,
+                "category": "input",
+            },
         ]
 
         result_output = compute_cost_weighted_ter(spans_output, model="sonnet")
@@ -364,7 +374,9 @@ class TestGenerateCostReport:
         spans = [
             {"phase": "generation", "token_count": 1000, "is_aligned": True},
         ]
-        report = generate_cost_report(spans, full_text="diverse unique vocabulary", model="sonnet")
+        report = generate_cost_report(
+            spans, full_text="diverse unique vocabulary", model="sonnet"
+        )
 
         assert isinstance(report.session_density, SemanticDensityResult)
         assert report.session_density.density_score > 0.0

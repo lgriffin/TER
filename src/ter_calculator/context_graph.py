@@ -107,9 +107,7 @@ class ContextGraph:
     def remove_node(self, fragment_id: str) -> None:
         self._adj.pop(fragment_id, None)
         for src in list(self._adj):
-            self._adj[src] = [
-                e for e in self._adj[src] if e.target_id != fragment_id
-            ]
+            self._adj[src] = [e for e in self._adj[src] if e.target_id != fragment_id]
         self._nodes.pop(fragment_id, None)
         self._conn.execute(
             "DELETE FROM edges WHERE source_id = ? OR target_id = ?",
@@ -140,9 +138,7 @@ class ContextGraph:
                         result.append(e)
         return result
 
-    def get_subgraph(
-        self, root_ids: list[str], max_depth: int = 3
-    ) -> ContextGraph:
+    def get_subgraph(self, root_ids: list[str], max_depth: int = 3) -> ContextGraph:
         visited: set[str] = set()
         queue: deque[tuple[str, int]] = deque()
         for rid in root_ids:
@@ -177,9 +173,7 @@ class ContextGraph:
                 if e.target_id in in_degree:
                     in_degree[e.target_id] += 1
 
-        queue: deque[str] = deque(
-            n for n, d in in_degree.items() if d == 0
-        )
+        queue: deque[str] = deque(n for n, d in in_degree.items() if d == 0)
         result: list[str] = []
 
         while queue:
@@ -231,13 +225,16 @@ class ContextGraph:
             return
 
         for frag in fragments:
-            self.add_node(frag.id, {
-                "phase": frag.phase.value,
-                "origin_session": frag.origin_session,
-                "token_weight": frag.token_count,
-                "created_at": frag.created_at,
-                "ttl_seconds": frag.ttl_seconds,
-            })
+            self.add_node(
+                frag.id,
+                {
+                    "phase": frag.phase.value,
+                    "origin_session": frag.origin_session,
+                    "token_weight": frag.token_count,
+                    "created_at": frag.created_at,
+                    "ttl_seconds": frag.ttl_seconds,
+                },
+            )
 
         by_message: dict[str, list[Fragment]] = defaultdict(list)
         for frag in fragments:
@@ -271,10 +268,8 @@ class ContextGraph:
         if len(fragments) > 1:
             weight = 1.0 / len(fragments)
             for i, fa in enumerate(fragments):
-                for fb in fragments[i + 1:]:
-                    self.add_edge(
-                        fa.id, fb.id, EdgeType.CO_OCCURRENCE, weight=weight
-                    )
+                for fb in fragments[i + 1 :]:
+                    self.add_edge(fa.id, fb.id, EdgeType.CO_OCCURRENCE, weight=weight)
 
     def prune_stale(self, max_age_hours: float = 24.0) -> int:
         cutoff = time.time() - (max_age_hours * 3600)

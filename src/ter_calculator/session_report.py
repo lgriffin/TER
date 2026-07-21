@@ -14,14 +14,18 @@ def format_session_report_markdown(result: TERResult) -> str:
     lines.append("")
 
     waste_pct = (
-        (result.waste_tokens / result.total_tokens * 100) if result.total_tokens else 0.0
+        (result.waste_tokens / result.total_tokens * 100)
+        if result.total_tokens
+        else 0.0
     )
     lines.append("## Summary")
     lines.append("")
     lines.append("| Metric | Value |")
     lines.append("|--------|-------|")
     lines.append(f"| **TER** | {result.aggregate_ter:.3f} |")
-    lines.append(f"| **Waste** | {result.waste_tokens:,} / {result.total_tokens:,} tokens ({waste_pct:.1f}%) |")
+    lines.append(
+        f"| **Waste** | {result.waste_tokens:,} / {result.total_tokens:,} tokens ({waste_pct:.1f}%) |"
+    )
     if result.economics:
         e = result.economics
         lines.append(f"| **Est. session cost** | ${e.estimated_cost_usd:.4f} |")
@@ -39,7 +43,9 @@ def format_session_report_markdown(result: TERResult) -> str:
         if e.input_growth.context_bloat_detected:
             lines.append("| **Context growth** | **BLOAT** detected |")
         else:
-            lines.append(f"| **Context growth** | rate {e.input_growth.growth_rate:.2f}× |")
+            lines.append(
+                f"| **Context growth** | rate {e.input_growth.growth_rate:.2f}× |"
+            )
     lines.append("")
 
     lines.append("## Phase scores")
@@ -75,10 +81,7 @@ def format_session_report_markdown(result: TERResult) -> str:
         top = patterns[0].pattern_type
         lines.append(f"- Address **{top}** first (largest structural waste bucket).")
     ia = result.input_analysis
-    if (
-        ia
-        and ia.prompt_similarity.prompt_redundancy_score > 0.2
-    ):
+    if ia and ia.prompt_similarity.prompt_redundancy_score > 0.2:
         lines.append(
             "- **Prompt redundancy** flagged — consolidate user asks to reduce back-and-forth."
         )
@@ -115,9 +118,7 @@ def format_baseline_markdown(
     )
     wc_a = (before.waste_tokens / before.total_tokens) if before.total_tokens else 0.0
     wc_b = (after.waste_tokens / after.total_tokens) if after.total_tokens else 0.0
-    lines.append(
-        f"| **Waste ratio** | {wc_a:.4f} | {wc_b:.4f} | {wc_b - wc_a:+.4f} |"
-    )
+    lines.append(f"| **Waste ratio** | {wc_a:.4f} | {wc_b:.4f} | {wc_b - wc_a:+.4f} |")
     if before.economics and after.economics:
         dc = after.economics.estimated_cost_usd - before.economics.estimated_cost_usd
         lines.append(

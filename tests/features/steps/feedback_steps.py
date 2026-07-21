@@ -132,9 +132,7 @@ def check_empty_hints(context):
     assert context["hints"] == []
 
 
-@then(
-    "each hint has category, suggestion, estimated_impact, and related_pattern_type"
-)
+@then("each hint has category, suggestion, estimated_impact, and related_pattern_type")
 def check_hint_fields(context):
     assert len(context["hints"]) > 0
     for h in context["hints"]:
@@ -154,11 +152,7 @@ def temp_history(tmp_path, context):
     context["history"] = TERHistory(path=context["history_path"])
 
 
-@given(
-    parsers.parse(
-        'a TER result with session_id "{sid}" and aggregate_ter {ter:f}'
-    )
-)
+@given(parsers.parse('a TER result with session_id "{sid}" and aggregate_ter {ter:f}'))
 def result_for_history(context, sid, ter):
     context["result"] = _make_ter_result(session_id=sid, aggregate_ter=ter)
 
@@ -223,9 +217,7 @@ def check_trend_direction(context, direction):
 @given(parsers.parse("recorded results with TERs {ters}"))
 def record_specific_ters(context, ters):
     for i, ter_str in enumerate(ters.split(", ")):
-        result = _make_ter_result(
-            session_id=f"s-{i}", aggregate_ter=float(ter_str)
-        )
+        result = _make_ter_result(session_id=f"s-{i}", aggregate_ter=float(ter_str))
         context["history"].record(result, project_path="/app")
 
 
@@ -308,9 +300,7 @@ def tagged_sessions(context, n, tag, ters):
 
 @when(parsers.parse('get_stats_by_tag is called for "{tag}"'))
 def call_stats_by_tag(context, tag):
-    context["tag_stats"] = get_stats_by_tag(
-        tag, history_path=context["history_path"]
-    )
+    context["tag_stats"] = get_stats_by_tag(tag, history_path=context["history_path"])
 
 
 @then(parsers.parse("the result includes session_count of {n:d}"))
@@ -366,9 +356,7 @@ def call_check(context, threshold):
     )
 )
 def call_check_phase(context, agg, phase):
-    context["check"] = check_threshold(
-        context["result"], agg, phase_threshold=phase
-    )
+    context["check"] = check_threshold(context["result"], agg, phase_threshold=phase)
 
 
 @then("the check passes")

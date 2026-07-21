@@ -10,7 +10,7 @@ from __future__ import annotations
 import enum
 import logging
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Sequence
 
 __all__ = [
@@ -185,9 +185,7 @@ def calibrate_multiplier(
         sum_tt += token_count * token_count
 
     if sum_tt == 0.0:
-        raise ValueError(
-            "No valid samples: all token counts are zero or negative"
-        )
+        raise ValueError("No valid samples: all token counts are zero or negative")
 
     return sum_ct / sum_tt
 
@@ -218,9 +216,11 @@ def _count_tokens_via_api(text: str) -> int | None:
             model="claude-sonnet-4-20250514",
             messages=[{"role": "user", "content": text}],
         )
-        return response.input_tokens
+        return int(response.input_tokens)
     except Exception:
-        logger.debug("API token counting failed; falling back to heuristic", exc_info=True)
+        logger.debug(
+            "API token counting failed; falling back to heuristic", exc_info=True
+        )
         return None
 
 

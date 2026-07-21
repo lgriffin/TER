@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 
+import numpy as np
+
 from .classifier import cosine_similarity
 from .embedding_cache import estimate_tokens
 from .intent import embed_texts
@@ -67,7 +69,9 @@ def compute_token_breakdown(session: Session) -> TokenBreakdown:
                 parts = [block.tool_name or ""]
                 if block.tool_input:
                     try:
-                        parts.append(json.dumps(block.tool_input, separators=(",", ":")))
+                        parts.append(
+                            json.dumps(block.tool_input, separators=(",", ":"))
+                        )
                     except (TypeError, ValueError):
                         pass
                 text = " ".join(p for p in parts if p) or block.text or ""
@@ -125,32 +129,31 @@ def compute_prompt_similarity(
         )
 
     embeddings = embed_texts(prompts)
-
     n = len(prompts)
+    sim_matrix = _pairwise_cosine_matrix(embeddings)
+
     matrix: list[list[float]] = []
     similar_pairs: list[PromptPair] = []
     redundant_indices: set[int] = set()
 
     for i in range(n):
-        row: list[float] = []
-        for j in range(n):
-            if i == j:
-                row.append(1.0)
-            else:
-                sim = cosine_similarity(embeddings[i], embeddings[j])
-                row.append(round(sim, 4))
-
-                if j > i and sim >= similarity_threshold:
-                    similar_pairs.append(PromptPair(
+        row = [round(float(v), 4) for v in sim_matrix[i]]
+        row[i] = 1.0
+        matrix.append(row)
+        for j in range(i + 1, n):
+            sim = row[j]
+            if sim >= similarity_threshold:
+                similar_pairs.append(
+                    PromptPair(
                         prompt_a_index=i,
                         prompt_b_index=j,
-                        similarity=round(sim, 4),
+                        similarity=sim,
                         prompt_a_text=prompts[i],
                         prompt_b_text=prompts[j],
-                    ))
-                    redundant_indices.add(i)
-                    redundant_indices.add(j)
-        matrix.append(row)
+                    )
+                )
+                redundant_indices.add(i)
+                redundant_indices.add(j)
 
     similar_pairs.sort(key=lambda p: p.similarity, reverse=True)
     redundancy_score = len(redundant_indices) / n if n > 0 else 0.0
@@ -161,6 +164,27 @@ def compute_prompt_similarity(
         prompt_redundancy_score=round(redundancy_score, 4),
         prompt_count=n,
     )
+
+
+def _pairwise_cosine_matrix(embeddings: np.ndarray) -> np.ndarray:
+    """Vectorized cosine-similarity matrix for a batch of embeddings.
+
+    Replaces an O(n^2) Python loop of individual ``cosine_similarity`` calls
+    with a single normalize + matmul, which is significantly faster for
+    sessions with many prompts (matters most for long-running sessions with
+    dozens/hundreds of user turns).
+    """
+    if embeddings.shape[0] == 0:
+        return np.zeros((0, 0))
+    norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
+    safe_norms = np.where(norms == 0, 1.0, norms)
+    normalized = embeddings / safe_norms
+    sim = normalized @ normalized.T
+    # Rows/cols for zero-vectors should be 0 similarity, not spurious 1.0/garbage.
+    zero_mask = (norms == 0).flatten()
+    sim[zero_mask, :] = 0.0
+    sim[:, zero_mask] = 0.0
+    return np.asarray(sim)
 
 
 def compute_intent_drift(prompts: list[str]) -> IntentDrift:
@@ -190,12 +214,14 @@ def compute_intent_drift(prompts: list[str]) -> IntentDrift:
         else:
             drift_type = "evolving"
 
-        steps.append(IntentDriftStep(
-            from_index=i,
-            to_index=i + 1,
-            similarity=sim,
-            drift_type=drift_type,
-        ))
+        steps.append(
+            IntentDriftStep(
+                from_index=i,
+                to_index=i + 1,
+                similarity=sim,
+                drift_type=drift_type,
+            )
+        )
 
     avg = sum(s.similarity for s in steps) / len(steps)
     trajectory = _classify_trajectory(steps)
@@ -248,20 +274,28 @@ def compute_prompt_response_alignment(
     embeddings = embed_texts(all_texts)
 
     n = len(pairs)
+    prompt_embs = embeddings[:n]
+    response_embs = embeddings[n:]
+    # Vectorized row-wise cosine similarity (only the pairs we need, not a
+    # full n x n matrix): dot(a_i, b_i) / (|a_i| * |b_i|) for every i.
+    dots = np.einsum("ij,ij->i", prompt_embs, response_embs)
+    norms = np.linalg.norm(prompt_embs, axis=1) * np.linalg.norm(response_embs, axis=1)
+    alignments = np.where(norms == 0, 0.0, dots / np.where(norms == 0, 1.0, norms))
+
     result_pairs: list[PromptResponsePair] = []
     low_count = 0
 
     for i, (idx, prompt_text, response_text) in enumerate(pairs):
-        prompt_emb = embeddings[i]
-        response_emb = embeddings[n + i]
-        alignment = round(cosine_similarity(prompt_emb, response_emb), 4)
+        alignment = round(float(alignments[i]), 4)
 
-        result_pairs.append(PromptResponsePair(
-            prompt_index=idx,
-            prompt_text=prompt_text,
-            response_text=response_text,
-            alignment=alignment,
-        ))
+        result_pairs.append(
+            PromptResponsePair(
+                prompt_index=idx,
+                prompt_text=prompt_text,
+                response_text=response_text,
+                alignment=alignment,
+            )
+        )
         if alignment < alignment_threshold:
             low_count += 1
 
@@ -293,17 +327,18 @@ def _extract_prompt_response_pairs(
         if msg.role == "user":
             # Check if this is a real user prompt (has text blocks, not just tool_result).
             user_texts = [
-                b.text for b in msg.content_blocks
-                if b.block_type == "text" and b.text
+                b.text for b in msg.content_blocks if b.block_type == "text" and b.text
             ]
             if user_texts:
                 # Flush previous pair if we have one.
                 if current_prompt is not None and response_parts:
-                    pairs.append((
-                        prompt_index,
-                        current_prompt,
-                        " ".join(response_parts),
-                    ))
+                    pairs.append(
+                        (
+                            prompt_index,
+                            current_prompt,
+                            " ".join(response_parts),
+                        )
+                    )
                     prompt_index += 1
                     response_parts = []
 

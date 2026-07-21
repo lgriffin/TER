@@ -377,18 +377,14 @@ def out_of_order_timestamps(context):
     ]
 
 
-@given(
-    "a parsed session with 5 text blocks, 3 tool_use blocks, and 2 thinking blocks"
-)
+@given("a parsed session with 5 text blocks, 3 tool_use blocks, and 2 thinking blocks")
 def session_with_counted_blocks(context):
     text_blocks = [{"type": "text", "text": f"text-{i}"} for i in range(5)]
     tool_blocks = [
         {"type": "tool_use", "id": f"tu-{i}", "name": f"Tool{i}", "input": {}}
         for i in range(3)
     ]
-    thinking_blocks = [
-        {"type": "thinking", "text": f"thinking-{i}"} for i in range(2)
-    ]
+    thinking_blocks = [{"type": "thinking", "text": f"thinking-{i}"} for i in range(2)]
     context["parsed_lines"] = [
         _make_message_entry(
             "user",
@@ -421,27 +417,21 @@ def run_session_validation(context):
 @then("a warning about missing user messages is reported")
 def check_missing_user_warning(context):
     # The validation module may report this as either a warning or error.
-    all_messages = (
-        context["session_result"].errors + context["session_result"].warnings
-    )
+    all_messages = context["session_result"].errors + context["session_result"].warnings
     combined = " ".join(all_messages).lower()
     assert "user" in combined and "message" in combined
 
 
 @then("a warning about missing assistant messages is reported")
 def check_missing_assistant_warning(context):
-    all_messages = (
-        context["session_result"].errors + context["session_result"].warnings
-    )
+    all_messages = context["session_result"].errors + context["session_result"].warnings
     combined = " ".join(all_messages).lower()
     assert "assistant" in combined and "message" in combined
 
 
 @then("a warning about timestamp ordering is reported")
 def check_timestamp_ordering_warning(context):
-    all_messages = (
-        context["session_result"].errors + context["session_result"].warnings
-    )
+    all_messages = context["session_result"].errors + context["session_result"].warnings
     combined = " ".join(all_messages).lower()
     assert "timestamp" in combined or "order" in combined
 
@@ -534,9 +524,7 @@ def session_with_1000_spans(context):
     for idx, start in enumerate(range(0, len(blocks), chunk_size)):
         chunk = blocks[start : start + chunk_size]
         role = "assistant" if idx % 2 == 1 else "user"
-        lines.append(
-            _make_message_entry(role, chunk, uuid=f"m-{idx}")
-        )
+        lines.append(_make_message_entry(role, chunk, uuid=f"m-{idx}"))
     context["parsed_lines"] = lines
 
 
@@ -604,9 +592,7 @@ def check_content_distribution(context):
 @then("estimated_analysis_seconds is approximately 0.5 seconds")
 def check_analysis_time(context):
     # The implementation uses 0.0005s per span, so 1000 spans ~ 0.5s.
-    assert context["health"].estimated_analysis_seconds == pytest.approx(
-        0.5, abs=0.15
-    )
+    assert context["health"].estimated_analysis_seconds == pytest.approx(0.5, abs=0.15)
 
 
 @then(parsers.parse("user_count is {user:d} and assistant_count is {assistant:d}"))
@@ -769,9 +755,7 @@ def check_incomplete(context):
 
 @then(parsers.parse("completeness_score is {score:f}"))
 def check_score(context, score):
-    assert context["completeness"].completeness_score == pytest.approx(
-        score, abs=0.01
-    )
+    assert context["completeness"].completeness_score == pytest.approx(score, abs=0.01)
 
 
 @then("completeness_score is below 1.0")

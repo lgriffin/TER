@@ -39,9 +39,7 @@ def parse_phase_weights(weights_str: str) -> dict[SpanPhase, float]:
 
     total = r + t + g
     if abs(total - 1.0) > 0.01:
-        raise ValueError(
-            f"Phase weights must sum to 1.0, got {total}: {weights_str}"
-        )
+        raise ValueError(f"Phase weights must sum to 1.0, got {total}: {weights_str}")
 
     return {
         SpanPhase.REASONING: r,

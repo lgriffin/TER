@@ -59,8 +59,11 @@ def declining_novelty(context):
 def high_novelty(context):
     n = context["segment_count"]
     topics = [
-        "authentication", "database schema", "API design",
-        "caching strategy", "error handling",
+        "authentication",
+        "database schema",
+        "API design",
+        "caching strategy",
+        "error handling",
     ]
     texts = []
     for i in range(n):
@@ -109,11 +112,7 @@ def check_efficiency(context, threshold):
 # ---------------------------------------------------------------------------
 
 
-@given(
-    parsers.parse(
-        'a reasoning segment containing "{kw1}" and "{kw2}" and "{kw3}"'
-    )
-)
+@given(parsers.parse('a reasoning segment containing "{kw1}" and "{kw2}" and "{kw3}"'))
 def reasoning_with_three_keywords(context, kw1, kw2, kw3):
     context["segment_text"] = (
         f"Let me think. {kw1}, I realize {kw2} the issue is clear. "
@@ -123,25 +122,18 @@ def reasoning_with_three_keywords(context, kw1, kw2, kw3):
 
 @given(parsers.parse('a reasoning segment containing "{kw1}" and "{kw2}"'))
 def reasoning_with_two_keywords(context, kw1, kw2):
-    context["segment_text"] = (
-        f"OK so {kw1} the code. Also I want to {kw2} to be sure."
-    )
+    context["segment_text"] = f"OK so {kw1} the code. Also I want to {kw2} to be sure."
 
 
 @when("the segment is classified")
 def classify_segment(context):
     classifier = ReasoningPhaseClassifier()
     context["phase"] = classifier.classify(context["segment_text"])
-    context["high_value_count"] = _count_high_value_tokens(
-        context["segment_text"]
-    )
+    context["high_value_count"] = _count_high_value_tokens(context["segment_text"])
     context["filler_ratio_value"] = _filler_ratio(context["segment_text"])
 
 
-@then(
-    "it is classified as a high-value segment with elevated"
-    " high_value_token_count"
-)
+@then("it is classified as a high-value segment with elevated high_value_token_count")
 def check_high_value(context):
     assert context["high_value_count"] > 0
 
@@ -180,9 +172,7 @@ def segments_with_novelty(context, scores):
 
 
 @when(
-    parsers.parse(
-        "find_optimal_cutoff is called with novelty_threshold {threshold:f}"
-    )
+    parsers.parse("find_optimal_cutoff is called with novelty_threshold {threshold:f}")
 )
 def call_cutoff(context, threshold):
     context["cutoff"] = find_optimal_cutoff(context["segments"])

@@ -26,20 +26,17 @@ Key components:
 
 from __future__ import annotations
 
-import hashlib
 import logging
 import math
 import re
 from collections import Counter
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Sequence
 
-import numpy as np
 
 if TYPE_CHECKING:
-    from numpy.typing import NDArray
-    from ter_calculator.models import ClassifiedSpan, TokenSpan
+    pass
 
 __all__ = [
     "EntropyTracker",
@@ -234,16 +231,34 @@ class ReasoningPhaseClassifier:
     """
 
     _EXPLORING_CUES = (
-        "let me", "could", "might", "perhaps", "what if",
-        "one approach", "another way", "option", "possible",
+        "let me",
+        "could",
+        "might",
+        "perhaps",
+        "what if",
+        "one approach",
+        "another way",
+        "option",
+        "possible",
     )
     _CONFIRMING_CUES = (
-        "yes", "correct", "right", "confirmed", "verified",
-        "this works", "that's right", "exactly",
+        "yes",
+        "correct",
+        "right",
+        "confirmed",
+        "verified",
+        "this works",
+        "that's right",
+        "exactly",
     )
     _NEAR_ANSWER_CUES = (
-        "therefore", "so the answer", "in conclusion", "final",
-        "the solution is", "here's the plan", "to summarize",
+        "therefore",
+        "so the answer",
+        "in conclusion",
+        "final",
+        "the solution is",
+        "here's the plan",
+        "to summarize",
         "putting it all together",
     )
 

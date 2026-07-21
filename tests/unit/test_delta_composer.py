@@ -75,7 +75,7 @@ class TestLocalCache:
         cache.put(f1)
         cache.put(f2)
         cache.get(f1.id)  # refresh f1
-        cache.put(f3)     # should evict f2, not f1
+        cache.put(f3)  # should evict f2, not f1
         assert cache.has(f1.id)
         assert not cache.has(f2.id)
         assert cache.has(f3.id)
@@ -224,12 +224,18 @@ class TestCreateTemplate:
         from types import SimpleNamespace
 
         blocks = [
-            SimpleNamespace(text="hello world", block_type="text",
-                            tool_name=None, tool_input=None, tool_use_id=None),
+            SimpleNamespace(
+                text="hello world",
+                block_type="text",
+                tool_name=None,
+                tool_input=None,
+                tool_use_id=None,
+            ),
         ]
         messages = [
             SimpleNamespace(
-                uuid="m1", role="user",
+                uuid="m1",
+                role="user",
                 content_blocks=blocks,
             ),
         ]
