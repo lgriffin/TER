@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import io
+import json
 import sys
 
 from . import __version__
@@ -159,50 +160,6 @@ def main(argv: list[str] | None = None) -> int:
         metavar="FILE",
         default=None,
         help="Write Markdown to FILE instead of stdout (e.g. report.md)",
-    )
-
-    # batch subcommand — Phase 1 portfolio analytics
-    batch_parser = subparsers.add_parser(
-        "batch",
-        help="Analyze a folder of JSONL sessions and build aggregate artifacts",
-    )
-    batch_parser.add_argument("input_dir", help="Folder containing .jsonl sessions")
-    batch_parser.add_argument(
-        "-o", "--output-dir", default="ter-results",
-        help="Artifact directory (default: ter-results)",
-    )
-    batch_parser.add_argument(
-        "-j", "--workers", type=int, default=None,
-        help="Parallel worker processes (default: min(8, CPU count))",
-    )
-    batch_parser.add_argument(
-        "--no-recursive", action="store_true",
-        help="Only analyze .jsonl files directly inside input_dir",
-    )
-    batch_parser.add_argument(
-        "--force", action="store_true",
-        help="Re-analyze files even when a valid output already exists",
-    )
-    batch_parser.add_argument(
-        "--ter-buckets", type=int, default=20,
-        help="Number of TER distribution buckets (default: 20 = 5%% each)",
-    )
-    batch_parser.add_argument(
-        "--format", dest="output_format", choices=["text", "json"], default="text",
-        help="Command summary format (default: text)",
-    )
-
-    dashboard_parser = subparsers.add_parser(
-        "dashboard",
-        help="Rebuild aggregate artifacts from existing *.ter.json results",
-    )
-    dashboard_parser.add_argument("result_dir", help="Directory containing *.ter.json files")
-    dashboard_parser.add_argument(
-        "--ter-buckets", type=int, default=20,
-        help="Number of TER distribution buckets (default: 20 = 5%% each)",
-    )
-    dashboard_parser.add_argument(
-        "--format", dest="output_format", choices=["text", "json"], default="text",
     )
 
     # compare subcommand
@@ -452,6 +409,83 @@ def main(argv: list[str] | None = None) -> int:
         help="Consistency mode (default: relaxed)",
     )
 
+    # history subcommand — Phase 4 cross-session intelligence
+    history_parser = subparsers.add_parser(
+        "history", help="Persistent TER history, project profiles, and predictions"
+    )
+    history_sub = history_parser.add_subparsers(dest="history_command")
+
+    history_record = history_sub.add_parser(
+        "record", help="Analyze and record one session"
+    )
+    history_record.add_argument("session_path")
+    history_record.add_argument("--project", default=None)
+    history_record.add_argument(
+        "--prompt",
+        default=None,
+        help="Optional prompt used only as a hashed fingerprint",
+    )
+    history_record.add_argument(
+        "--db", default=None, help="Override history database path"
+    )
+
+    history_list = history_sub.add_parser("list", help="List recorded sessions")
+    history_list.add_argument("--project", default=None)
+    history_list.add_argument("--min-ter", type=float, default=None)
+    history_list.add_argument("--max-ter", type=float, default=None)
+    history_list.add_argument("--limit", type=int, default=20)
+    history_list.add_argument("--db", default=None)
+    history_list.add_argument(
+        "--format", dest="output_format", choices=["text", "json"], default="text"
+    )
+
+    history_profile = history_sub.add_parser(
+        "profile", help="Summarize systemic project waste"
+    )
+    history_profile.add_argument("--project", default=None)
+    history_profile.add_argument("--db", default=None)
+    history_profile.add_argument(
+        "--format", dest="output_format", choices=["text", "json"], default="text"
+    )
+
+    history_predict = history_sub.add_parser(
+        "predict", help="Predict TER from similar historical prompts"
+    )
+    history_predict.add_argument("prompt")
+    history_predict.add_argument("--project", required=True)
+    history_predict.add_argument("--neighbors", type=int, default=5)
+    history_predict.add_argument("--db", default=None)
+    history_predict.add_argument(
+        "--format", dest="output_format", choices=["text", "json"], default="text"
+    )
+
+    dashboard_parser = subparsers.add_parser(
+        "dashboard",
+        help=(
+            "Build a portfolio dashboard from .ter.json results, or show "
+            "cross-session TER and cost trends"
+        ),
+    )
+    dashboard_parser.add_argument(
+        "result_dir",
+        nargs="?",
+        help="Directory containing existing .ter.json result files",
+    )
+    dashboard_parser.add_argument(
+        "--ter-buckets",
+        type=int,
+        default=20,
+        help="Number of buckets in the portfolio TER distribution (default: 20)",
+    )
+    dashboard_parser.add_argument(
+        "--output",
+        default=None,
+        help="Portfolio dashboard output path (default: RESULT_DIR/ter-dashboard.html)",
+    )
+    dashboard_parser.add_argument("--project", default=None)
+    dashboard_parser.add_argument("--limit", type=int, default=30)
+    dashboard_parser.add_argument("--db", default=None)
+
     # hook subcommand — Claude Code hook utilities
     hook_parser = subparsers.add_parser(
         "hook",
@@ -488,38 +522,27 @@ def main(argv: list[str] | None = None) -> int:
         help="Duplicate tool call count to trigger alert (default: 2)",
     )
     hook_monitor.add_argument(
+        "--min-denied-calls",
+        type=int,
+        default=2,
+        help="Denied calls of the same tool before circuit breaker (default: 2)",
+    )
+    hook_monitor.add_argument(
+        "--min-reasoning-loops",
+        type=int,
+        default=2,
+        help="Consecutive repetitive assistant messages before guidance (default: 2)",
+    )
+    hook_monitor.add_argument(
+        "--reasoning-similarity-threshold",
+        type=float,
+        default=0.88,
+        help="Similarity threshold for reasoning loop detection (default: 0.88)",
+    )
+    hook_monitor.add_argument(
         "--no-bash-antipatterns",
         action="store_true",
         help="Disable bash anti-pattern checking",
-    )
-    hook_monitor.add_argument(
-        "--no-live-efficiency",
-        action="store_true",
-        help="Disable rolling live-efficiency degradation detection",
-    )
-    hook_monitor.add_argument(
-        "--rolling-window", type=int, default=10,
-        help="Number of recent events used by live efficiency (default: 10)",
-    )
-    hook_monitor.add_argument(
-        "--efficiency-threshold", type=float, default=0.72,
-        help="Rolling efficiency threshold for intervention (default: 0.72)",
-    )
-    hook_monitor.add_argument(
-        "--drift-threshold", type=float, default=0.12,
-        help="Degrading-window drift threshold (default: 0.12)",
-    )
-    hook_monitor.add_argument(
-        "--acceleration-threshold", type=float, default=0.10,
-        help="Waste acceleration threshold (default: 0.10)",
-    )
-    hook_monitor.add_argument(
-        "--intervention-cooldown", type=int, default=8,
-        help="Minimum events between refresh interventions (default: 8)",
-    )
-    hook_monitor.add_argument(
-        "--min-repeated-failures", type=int, default=2,
-        help="Identical failed actions before mandatory replan (default: 2)",
     )
     hook_monitor.add_argument(
         "--state-dir",
@@ -539,10 +562,6 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "analyze":
             return _cmd_analyze(args)
-        if args.command == "batch":
-            return _cmd_batch(args)
-        if args.command == "dashboard":
-            return _cmd_dashboard(args)
         if args.command == "compare":
             return _cmd_compare(args)
         if args.command == "list":
@@ -561,6 +580,10 @@ def main(argv: list[str] | None = None) -> int:
             return _cmd_context(args)
         if args.command == "hook":
             return _cmd_hook(args)
+        if args.command == "history":
+            return _cmd_history(args)
+        if args.command == "dashboard":
+            return _cmd_dashboard(args)
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
@@ -740,17 +763,68 @@ def _cmd_hook_monitor(args) -> int:
     return implementation(args)
 
 
-def _cmd_batch(args) -> int:
-    from .commands.batch import _cmd_batch as implementation
+if __name__ == "__main__":
+    sys.exit(main())
+
+
+def _cmd_history(args) -> int:
+    from .commands.history import _cmd_history as implementation
 
     return implementation(args)
 
 
 def _cmd_dashboard(args) -> int:
-    from .commands.batch import _cmd_dashboard as implementation
+    if args.result_dir is not None:
+        from pathlib import Path
+
+        from .batch_analysis import (
+            aggregate_results,
+            build_dashboard_html,
+            load_results,
+            write_combined_jsonl,
+        )
+
+        result_dir = Path(args.result_dir)
+        if not result_dir.is_dir():
+            raise ValueError(f"Dashboard result directory does not exist: {result_dir}")
+        if args.ter_buckets <= 0:
+            raise ValueError("--ter-buckets must be greater than zero")
+
+        results, invalid = load_results(result_dir)
+        if not results:
+            raise ValueError(
+                f"No valid .ter.json result files found under {result_dir}"
+            )
+
+        summary = aggregate_results(results)
+        (result_dir / "summary.json").write_text(
+            json.dumps(summary, indent=2),
+            encoding="utf-8",
+        )
+        write_combined_jsonl(results, result_dir / "all-results.jsonl")
+        output_path = (
+            Path(args.output)
+            if args.output is not None
+            else result_dir / "ter-dashboard.html"
+        )
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(
+            build_dashboard_html(
+                results,
+                summary,
+                bucket_count=args.ter_buckets,
+            ),
+            encoding="utf-8",
+        )
+
+        if not args.quiet:
+            print(f"Dashboard written to {output_path}")
+            if invalid:
+                print(
+                    f"Skipped {len(invalid)} invalid result file(s).", file=sys.stderr
+                )
+        return 0
+
+    from .commands.history import _cmd_dashboard as implementation
 
     return implementation(args)
-
-
-if __name__ == "__main__":
-    sys.exit(main())

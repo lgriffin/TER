@@ -89,18 +89,94 @@ _PHASE_WEIGHTS: dict[str, float] = {
 _MIN_KEYWORD_LEN = 3
 
 # Stop words removed during keyword extraction (common English).
-_STOP_WORDS: frozenset[str] = frozenset({
-    "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
-    "have", "has", "had", "do", "does", "did", "will", "would", "could",
-    "should", "shall", "may", "might", "can", "must", "need",
-    "and", "but", "or", "nor", "not", "no", "if", "then", "else",
-    "for", "of", "in", "on", "at", "to", "from", "by", "with",
-    "this", "that", "these", "those", "it", "its", "my", "your",
-    "his", "her", "our", "their", "what", "which", "who", "whom",
-    "how", "when", "where", "why", "all", "each", "every", "any",
-    "some", "such", "than", "too", "very", "just", "also", "only",
-    "so", "up", "out", "about", "into", "over", "after", "before",
-})
+_STOP_WORDS: frozenset[str] = frozenset(
+    {
+        "the",
+        "a",
+        "an",
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "being",
+        "have",
+        "has",
+        "had",
+        "do",
+        "does",
+        "did",
+        "will",
+        "would",
+        "could",
+        "should",
+        "shall",
+        "may",
+        "might",
+        "can",
+        "must",
+        "need",
+        "and",
+        "but",
+        "or",
+        "nor",
+        "not",
+        "no",
+        "if",
+        "then",
+        "else",
+        "for",
+        "of",
+        "in",
+        "on",
+        "at",
+        "to",
+        "from",
+        "by",
+        "with",
+        "this",
+        "that",
+        "these",
+        "those",
+        "it",
+        "its",
+        "my",
+        "your",
+        "his",
+        "her",
+        "our",
+        "their",
+        "what",
+        "which",
+        "who",
+        "whom",
+        "how",
+        "when",
+        "where",
+        "why",
+        "all",
+        "each",
+        "every",
+        "any",
+        "some",
+        "such",
+        "than",
+        "too",
+        "very",
+        "just",
+        "also",
+        "only",
+        "so",
+        "up",
+        "out",
+        "about",
+        "into",
+        "over",
+        "after",
+        "before",
+    }
+)
 
 
 # ---------------------------------------------------------------------------
@@ -345,7 +421,9 @@ class AnalysisCache:
         stored_ts = meta.get("timestamp", 0)
         age_hours = (time.time() - stored_ts) / 3600.0
         if age_hours > ttl_hours:
-            logger.debug("Expired entry for key %s (%.1fh > %dh)", key[:16], age_hours, ttl_hours)
+            logger.debug(
+                "Expired entry for key %s (%.1fh > %dh)", key[:16], age_hours, ttl_hours
+            )
             pkl_path.unlink(missing_ok=True)
             meta_path.unlink(missing_ok=True)
             return None
@@ -547,12 +625,15 @@ class QuickAnalyser:
                     user_prompts.append(content)
                 else:
                     from ter_calculator.embedding_cache import estimate_tokens
-                    spans.append({
-                        "text": content,
-                        "phase": "generation",
-                        "position": position,
-                        "token_count": estimate_tokens(content),
-                    })
+
+                    spans.append(
+                        {
+                            "text": content,
+                            "phase": "generation",
+                            "position": position,
+                            "token_count": estimate_tokens(content),
+                        }
+                    )
                     position += 1
                 continue
 
@@ -598,12 +679,15 @@ class QuickAnalyser:
 
                     if text.strip():
                         from ter_calculator.embedding_cache import estimate_tokens
-                        spans.append({
-                            "text": text,
-                            "phase": phase,
-                            "position": position,
-                            "token_count": estimate_tokens(text),
-                        })
+
+                        spans.append(
+                            {
+                                "text": text,
+                                "phase": phase,
+                                "position": position,
+                                "token_count": estimate_tokens(text),
+                            }
+                        )
                         position += 1
 
         if not session_id:
@@ -916,9 +1000,7 @@ class SessionWatcher:
             try:
                 self._analyser_fn(event.file_path)
             except Exception:
-                logger.exception(
-                    "Analyser failed for %s", event.file_path
-                )
+                logger.exception("Analyser failed for %s", event.file_path)
 
 
 # ---------------------------------------------------------------------------

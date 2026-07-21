@@ -13,7 +13,7 @@ Claude Code fires PostToolUse hook
         v
 ter hook monitor:
   1. Loads session state from temp file
-  2. Runs deterministic pattern checks and updates a rolling live-efficiency window
+  2. Runs 5 fast pattern checks against the tool call
   3. Saves updated state
   4. Returns JSON to Claude Code
         |
@@ -34,8 +34,6 @@ The monitor is stateful across tool calls within a session — it tracks read co
 | Edit fragmentation | `Edit`/`Write` | 3 consecutive | 3+ consecutive edits to the same file instead of batching |
 | Duplicate tool call | Any tool | 2 identical | Exact same tool + parameters called twice |
 | Repeated command | `Bash` tool | 3 runs | Same bash command run 3+ times (normalized to ignore `| tail -N` variants) |
-| Repeated failure | Tool result | 2 failures | Identical failed action is retried without a changed plan |
-| Efficiency degradation | Rolling window | Policy thresholds | Falling live score or accelerating waste triggers a refresh/replan |
 
 ## Setup
 
@@ -166,13 +164,6 @@ Add flags to the command string in your hook configuration:
 | `--min-duplicate-calls` | 2 | Identical tool call count before alerting |
 | `--no-bash-antipatterns` | off | Disable bash anti-pattern checking entirely |
 | `--state-dir` | system temp | Override state file directory |
-| `--rolling-window` | 10 | Recent events used for the live score |
-| `--efficiency-threshold` | 0.72 | Rolling score below which degradation is considered |
-| `--drift-threshold` | 0.12 | Early-to-late score decline threshold |
-| `--acceleration-threshold` | 0.10 | Early-to-late waste increase threshold |
-| `--intervention-cooldown` | 8 | Events between mandatory refresh messages |
-| `--min-repeated-failures` | 2 | Identical failures before replan guidance |
-| `--no-live-efficiency` | off | Disable rolling degradation intervention |
 
 ## What You See vs What Claude Sees
 
@@ -198,3 +189,36 @@ The `systemMessage` severity icons: `[~]` info, `[!]` warning, `[!!]` error.
 **Hook is slow:**
 - The monitor uses only stdlib (no numpy/ML). Typical execution is <100ms
 - If slow, check disk I/O on the state dir. Use `--state-dir` to point to a faster location
+
+## Phase 3 intervention configuration
+
+TER v2.0.3 can use one monitor command across multiple Claude Code hook events:
+
+```json
+{
+  "hooks": {
+    "SessionStart": [{"hooks": [{"type": "command", "command": "ter hook monitor", "timeout": 5}]}],
+    "PreToolUse": [{
+      "matcher": "Bash|Read|Edit|Write|Glob|Grep",
+      "hooks": [{"type": "command", "command": "ter hook monitor", "timeout": 5}]
+    }],
+    "PostToolUse": [{
+      "matcher": "Bash|Read|Edit|Write|Glob|Grep",
+      "hooks": [{"type": "command", "command": "ter hook monitor", "timeout": 5}]
+    }],
+    "PostToolUseFailure": [{
+      "matcher": "Bash|Read|Edit|Write|Glob|Grep",
+      "hooks": [{"type": "command", "command": "ter hook monitor", "timeout": 5}]
+    }],
+    "PermissionRequest": [{
+      "matcher": "Bash|Edit|Write",
+      "hooks": [{"type": "command", "command": "ter hook monitor", "timeout": 5}]
+    }],
+    "Stop": [{"hooks": [{"type": "command", "command": "ter hook monitor", "timeout": 5}]}]
+  }
+}
+```
+
+`PreToolUse` blocks only exact repeated calls. `SessionStart` injects an advisory
+thinking-budget recommendation. Permission and reasoning-loop interventions
+inject course-correction guidance after their configured thresholds.

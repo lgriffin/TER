@@ -1,12 +1,46 @@
-#
-### Dashboard restoration
-- Restored the original rich, self-contained Plotly portfolio dashboard.
-- Preserved all Phase 1 charts and tables.
-- Added Phase 2 findings below the original visuals rather than replacing them.
-- Added configurable 5%/10% TER distribution buckets through `--ter-buckets`.
- Changelog
+# 2.0.4.2
+
+- Restore missing Phase 2 batch and dashboard modules in the release archive.
+- Resolve strict mypy errors in dashboard rendering, signal analysis, and batch validation.
+
+# 2.0.4.1
+
+- Fix mypy typing for project waste-source selection.
+- Add targeted Plotly missing-stub override for dashboard modules.
+- Preserve strict typing for the rest of the codebase.
+
+# Changelog
+
+## 2.0.4 — Phase 4 Cross-Session Intelligence
+
+- Added an opt-in SQLite TER history store at `~/.claude/ter/history.db`.
+- Added `ter history record`, `list`, `profile`, and `predict`.
+- Added `ter dashboard` for TER, token, waste, and cost trends.
+- Added privacy-preserving prompt fingerprints; raw prompts are not persisted.
+- Added `data/` immediately below `Backup/` in `.gitignore`.
+- Updated README with Phase 4 workflows and privacy guidance.
 
 All notable public changes to TER are documented in this file. The project follows Semantic Versioning.
+
+## [2.0.3] - 2026-07-21
+
+### Added
+
+- Phase 3 Claude Code intervention engine spanning `SessionStart`, `PreToolUse`, `PostToolUse`, `PermissionRequest`, `PostToolUseFailure`, and assistant-stop events.
+- Adaptive task-complexity budget hints at session start.
+- Pre-execution blocking for exact duplicate tool calls with previous-result summaries.
+- Reasoning-loop breaker for highly repetitive consecutive assistant messages.
+- Permission-denial circuit breaker after repeated denied requests for the same tool.
+- Persistent intervention counters and per-session hook metadata.
+
+### Changed
+
+- `ter hook monitor` is now a unified Phase 3 hook handler while remaining backward compatible with existing PostToolUse configurations.
+- Hook thresholds can now configure denial counts, reasoning-loop counts, and similarity sensitivity.
+
+### Validation
+
+- Added focused Phase 3 intervention tests covering state persistence, blocking output, budget hints, reasoning loops, and permission loops.
 
 ## [2.0.0] - 2026-07-21
 
@@ -31,25 +65,3 @@ All notable public changes to TER are documented in this file. The project follo
 - TER classifications are heuristic estimates and should not be treated as human-validated ground truth.
 - Embedding-based analysis requires the optional `embeddings` dependency.
 - Low-confidence classifications should be reviewed alongside the report diagnostics.
-
-## 2.0.1
-
-- Added `ter batch` for recursive, parallel folder analysis.
-- Added resumable per-session outputs with atomic writes.
-- Added result-schema and token-invariant validation.
-- Added consolidated `all-results.jsonl`, `summary.json`, and `manifest.json` artifacts.
-- Added a dependency-free, self-contained HTML portfolio dashboard with configurable TER buckets.
-
-## 2.0.2
-
-- Added Phase 2 explainable static pattern detection.
-- Integrated Phase 2 findings into batch result JSON, summary aggregation, and HTML dashboards.
-- Added findings-by-signal and findings-by-severity charts and a searchable evidence table.
-- Included the standalone dashboard generation script under `scripts/`.
-- Updated README and release documentation.
-
-## 2.0.2.1
-
-- Complete Phase 2 hook intervention with rolling live-efficiency degradation,
-  waste acceleration, repeated-failure detection, cooldowns, and mandatory
-  replan guidance.

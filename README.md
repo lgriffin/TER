@@ -345,6 +345,43 @@ The live monitor can display:
 
 ---
 
+
+## Phase 4: Cross-Session Intelligence
+
+TER v2.0.4 can build an **opt-in local history** of aggregate efficiency data.
+The default database is `~/.claude/ter/history.db`. TER does not store raw
+session content in this database; predictive matching uses a deterministic
+hashed prompt fingerprint.
+
+Record a completed session:
+
+```bash
+ter history record tests/fixtures/sample_session.jsonl --project TER
+```
+
+Review recent records and a project-level profile:
+
+```bash
+ter history list --project TER
+ter history profile --project TER
+```
+
+Estimate likely efficiency before starting similar work:
+
+```bash
+ter history predict "add JSON export with tests" --project TER
+```
+
+Predictions remain marked experimental until a project has at least 50
+recorded sessions. Use the cost dashboard for aggregate trends:
+
+```bash
+ter dashboard --project TER
+```
+
+Use `--db PATH` on any history or dashboard command to keep the database in a
+project-specific or encrypted location. Recording is never automatic.
+
 ## Budget Recommendations
 
 Estimate an appropriate token and model budget before starting a task:
@@ -985,95 +1022,3 @@ The report includes:
 - an embedded JSON download for downstream analysis.
 
 HTML reports score only assistant-origin spans. User prompts remain available for intent construction and input analysis but are excluded from TER output scoring.
-
-## Batch portfolio analysis (v2.0.1)
-
-Phase 1 adds reproducible folder ingestion, parallel analysis, schema validation,
-consolidated JSONL, aggregate metrics, a run manifest, and a self-contained HTML dashboard.
-
-```bash
-ter batch data -o ter-results -j 10 --ter-buckets 20
-```
-
-Generated artifacts:
-
-- `ter-results/**/*.ter.json` — one validated result per session
-- `ter-results/all-results.jsonl` — consolidated machine-readable dataset
-- `ter-results/summary.json` — portfolio-level metrics
-- `ter-results/manifest.json` — inputs, statuses, failures, and validation findings
-- `ter-results/ter-dashboard.html` — local standalone visual report
-
-The command is resumable: valid existing result files are skipped unless `--force` is used.
-All processing is local; treat the output directory as confidential.
-
-Rebuild portfolio artifacts from existing per-session results without re-running analysis:
-
-```bash
-ter dashboard ter-results --ter-buckets 20
-```
-
-## v2.0.2 — Phase 2 explainable pattern detection
-
-Version 2.0.2 extends the Phase 1 batch pipeline with deterministic, explainable
-session findings. Each batch result now contains a `phase2_analysis` object with:
-
-- repeated identical tool-call detection;
-- repeated file-read detection;
-- repeated failure-pattern detection;
-- repeated long-form generated-content detection;
-- high-activity/low-tool-novelty detection;
-- severity, confidence, occurrence count, source-line evidence, and a recommended action.
-
-Run the complete offline workflow as before:
-
-```bash
-ter batch data --output-dir ter-results --workers 10 --ter-buckets 20
-```
-
-The generated `ter-dashboard.html` now includes a Phase 2 section below the TER
-charts. It contains findings-by-signal and findings-by-severity charts plus a
-searchable evidence table. The report remains self-contained and local.
-
-Rebuild reports from existing `*.ter.json` files:
-
-```bash
-ter dashboard ter-results --ter-buckets 20
-```
-
-To populate Phase 2 findings for outputs produced by v2.0.1, rerun `ter batch`
-with `--force`; rebuilding the dashboard alone cannot reconstruct event-level
-signals from aggregate result files.
-
-The standalone dashboard utility supplied with this release is also retained at
-`scripts/build_ter_dashboard.py` for direct JSONL-to-HTML workflows.
-
-### Dashboard quality in v2.0.2
-
-The portfolio report uses the original self-contained Plotly dashboard design. It preserves the TER distribution, phase-score chart, waste-category chart, waste-by-phase chart, token-versus-waste scatter plot, headline metrics, and sortable session table. Phase 2 is added below those visuals as a separate findings section, with signal and severity charts plus searchable evidence.
-
-## Phase 2 output example
-
-```json
-{
-  "phase2_analysis": {
-    "version": "2.0.2",
-    "finding_count": 1,
-    "severity_counts": {"medium": 1},
-    "signal_counts": {"repeated_tool_call": 1},
-    "findings": [
-      {
-        "signal_type": "repeated_tool_call",
-        "severity": "medium",
-        "confidence": 0.84,
-        "occurrences": 3,
-        "summary": "The same Read call was issued 3 times.",
-        "recommendation": "Review the first result before repeating the call.",
-        "evidence": [{"message_index": 2, "source_lines": [7]}]
-      }
-    ]
-  }
-}
-```
-
-Phase 2 is deliberately rule-based. It prioritizes precision, inspectable
-evidence, and stable behavior before semantic or LLM-based detectors are added.

@@ -6,7 +6,7 @@ import json
 import statistics
 from collections import Counter
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import plotly.graph_objects as go
 from plotly.offline import get_plotlyjs
@@ -24,9 +24,7 @@ def load_jsonl(path: Path) -> list[dict[str, Any]]:
             try:
                 value = json.loads(line)
             except json.JSONDecodeError as exc:
-                raise ValueError(
-                    f"Invalid JSON on line {line_number}: {exc}"
-                ) from exc
+                raise ValueError(f"Invalid JSON on line {line_number}: {exc}") from exc
 
             if isinstance(value, dict):
                 results.append(value)
@@ -64,15 +62,21 @@ def build_figure_html(
     figure: go.Figure,
     div_id: str,
 ) -> str:
-    return figure.to_html(
-        full_html=False,
-        include_plotlyjs=False,
-        div_id=div_id,
-        config={
-            "displaylogo": False,
-            "responsive": True,
-        },
+    rendered = cast(
+        str,
+        figure.to_html(
+            full_html=False,
+            include_plotlyjs=False,
+            div_id=div_id,
+            config={
+                "displaylogo": False,
+                "responsive": True,
+            },
+        ),
     )
+    # Plotly escapes non-ASCII characters in its JSON payload. Preserve the
+    # human-readable en dash so dashboard labels remain searchable and stable.
+    return rendered.replace("\\u2013", "–")
 
 
 def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) -> str:
@@ -93,16 +97,9 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
     average_ter = statistics.mean(ter_values) if ter_values else 0
     median_ter = statistics.median(ter_values) if ter_values else 0
 
-    weighted_ter = (
-        aligned_tokens / total_tokens
-        if total_tokens
-        else 0
-    )
+    weighted_ter = aligned_tokens / total_tokens if total_tokens else 0
 
-    waste_sessions = sum(
-        1 for item in results
-        if number(item.get("waste_tokens")) > 0
-    )
+    waste_sessions = sum(1 for item in results if number(item.get("waste_tokens")) > 0)
 
     # TER distribution
     minimum_score = 0.0
@@ -146,7 +143,7 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
     )
 
     # Waste category aggregation
-    category_tokens: Counter[str] = Counter()
+    category_tokens: dict[str, float] = {}
     category_sessions: Counter[str] = Counter()
 
     for item in results:
@@ -158,12 +155,16 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
 
         for category, value in categories.items():
             numeric_value = number(value)
-            category_tokens[str(category)] += numeric_value
+            category_tokens[str(category)] = (
+                category_tokens.get(str(category), 0.0) + numeric_value
+            )
 
             if numeric_value > 0:
                 category_sessions[str(category)] += 1
 
-    category_items = category_tokens.most_common(15)
+    category_items = sorted(
+        category_tokens.items(), key=lambda item: item[1], reverse=True
+    )[:15]
 
     if category_items:
         category_figure = go.Figure(
@@ -173,8 +174,7 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
                     y=[name for name, _ in reversed(category_items)],
                     orientation="h",
                     customdata=[
-                        category_sessions[name]
-                        for name, _ in reversed(category_items)
+                        category_sessions[name] for name, _ in reversed(category_items)
                     ],
                     hovertemplate=(
                         "%{y}<br>"
@@ -204,7 +204,7 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
         """
 
     # Waste by phase
-    phase_waste: Counter[str] = Counter()
+    phase_waste: dict[str, float] = {}
 
     for item in results:
         waste_summary = item.get("waste_summary") or {}
@@ -212,7 +212,9 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
 
         if isinstance(phases, dict):
             for phase, value in phases.items():
-                phase_waste[str(phase)] += number(value)
+                phase_waste[str(phase)] = phase_waste.get(str(phase), 0.0) + number(
+                    value
+                )
 
     if phase_waste:
         phase_waste_figure = go.Figure(
@@ -222,9 +224,7 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
                     values=list(phase_waste.values()),
                     hole=0.45,
                     hovertemplate=(
-                        "%{label}<br>"
-                        "%{value:,.0f} tokens<br>"
-                        "%{percent}<extra></extra>"
+                        "%{label}<br>%{value:,.0f} tokens<br>%{percent}<extra></extra>"
                     ),
                 )
             ]
@@ -259,11 +259,7 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
             if isinstance(value, (int, float)):
                 values.append(float(value))
 
-        phase_averages[phase_name] = (
-            statistics.mean(values)
-            if values
-            else 0
-        )
+        phase_averages[phase_name] = statistics.mean(values) if values else 0
 
     phase_score_figure = go.Figure(
         data=[
@@ -311,9 +307,7 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
         scatter_x.append(tokens)
         scatter_y.append(waste)
         scatter_ter.append(ter)
-        scatter_text.append(
-            f"Session: {html.escape(session_id)}"
-        )
+        scatter_text.append(f"Session: {html.escape(session_id)}")
 
     scatter_figure = go.Figure(
         data=[
@@ -363,7 +357,13 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
             occurrences = int(number(finding.get("occurrences")))
             summary = html.escape(str(finding.get("summary", "")))
             recommendation = html.escape(str(finding.get("recommendation", "")))
-            lines = sorted({line for evidence in (finding.get("evidence") or []) for line in (evidence.get("source_lines") or [])})
+            lines = sorted(
+                {
+                    line
+                    for evidence in (finding.get("evidence") or [])
+                    for line in (evidence.get("source_lines") or [])
+                }
+            )
             source_lines = ", ".join(str(line) for line in lines[:12])
             finding_rows.append(f"""
             <tr>
@@ -382,31 +382,47 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
     total_findings = len(finding_rows)
     signal_items = signal_counts.most_common(15)
     if signal_items:
-        signal_figure = go.Figure(data=[go.Bar(
-            x=[value for _, value in reversed(signal_items)],
-            y=[name for name, _ in reversed(signal_items)],
-            orientation="h",
-            hovertemplate="%{y}: %{x} findings<extra></extra>",
-        )])
+        signal_figure = go.Figure(
+            data=[
+                go.Bar(
+                    x=[value for _, value in reversed(signal_items)],
+                    y=[name for name, _ in reversed(signal_items)],
+                    orientation="h",
+                    hovertemplate="%{y}: %{x} findings<extra></extra>",
+                )
+            ]
+        )
         signal_figure.update_layout(
-            title="Phase 2 findings by signal", xaxis_title="Findings", yaxis_title="",
-            margin=dict(l=210, r=30, t=60, b=60), height=max(420, 38 * len(signal_items)),
+            title="Phase 2 findings by signal",
+            xaxis_title="Findings",
+            yaxis_title="",
+            margin=dict(l=210, r=30, t=60, b=60),
+            height=max(420, 38 * len(signal_items)),
         )
         signal_html = build_figure_html(signal_figure, "phase2-signal-chart")
     else:
-        signal_html = '<div class="empty-state">No Phase 2 findings were detected.</div>'
+        signal_html = (
+            '<div class="empty-state">No Phase 2 findings were detected.</div>'
+        )
 
     severity_order = ["high", "medium", "low"]
-    severity_figure = go.Figure(data=[go.Bar(
-        x=[name.title() for name in severity_order],
-        y=[severity_counts.get(name, 0) for name in severity_order],
-        text=[severity_counts.get(name, 0) for name in severity_order],
-        textposition="auto",
-        hovertemplate="%{x}: %{y} findings<extra></extra>",
-    )])
+    severity_figure = go.Figure(
+        data=[
+            go.Bar(
+                x=[name.title() for name in severity_order],
+                y=[severity_counts.get(name, 0) for name in severity_order],
+                text=[severity_counts.get(name, 0) for name in severity_order],
+                textposition="auto",
+                hovertemplate="%{x}: %{y} findings<extra></extra>",
+            )
+        ]
+    )
     severity_figure.update_layout(
-        title="Phase 2 findings by severity", xaxis_title="Severity", yaxis_title="Findings",
-        margin=dict(l=60, r=30, t=60, b=60), height=420,
+        title="Phase 2 findings by severity",
+        xaxis_title="Severity",
+        yaxis_title="Findings",
+        margin=dict(l=60, r=30, t=60, b=60),
+        height=420,
     )
 
     # Worst sessions table
@@ -423,9 +439,7 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
 
     rows = []
     for item in worst_sessions:
-        session_id = html.escape(
-            str(item.get("session_id", "unknown"))
-        )
+        session_id = html.escape(str(item.get("session_id", "unknown")))
         ter = number(item.get("aggregate_ter"))
         total = int(number(item.get("total_tokens")))
         waste = int(number(item.get("waste_tokens")))
@@ -459,8 +473,7 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
     perfect_sessions = sum(value == 1.0 for value in ter_values)
 
     summary_text = (
-        f"{perfect_sessions:,} of {sessions:,} sessions "
-        f"received a perfect TER score."
+        f"{perfect_sessions:,} of {sessions:,} sessions received a perfect TER score."
     )
 
     plotly_js = get_plotlyjs()
@@ -473,7 +486,7 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
         name="viewport"
         content="width=device-width, initial-scale=1"
     >
-    <title>TER analysis dashboard</title>
+    <title>TER portfolio dashboard</title>
 
     <script>{plotly_js}</script>
 
@@ -678,7 +691,7 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
 <body>
 <main>
     <header>
-        <h1>TER analysis dashboard</h1>
+        <h1>TER portfolio dashboard</h1>
         <div class="subtitle">
             {html.escape(summary_text)}
         </div>
@@ -781,7 +794,7 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
         <div class="table-wrapper">
             <table id="findings-table">
                 <thead><tr><th>Session</th><th>Signal</th><th>Title</th><th>Severity</th><th>Confidence</th><th>Occurrences</th><th>Summary</th><th>Recommendation</th><th>Source lines</th></tr></thead>
-                <tbody>{''.join(finding_rows)}</tbody>
+                <tbody>{"".join(finding_rows)}</tbody>
             </table>
         </div>
     </section>
@@ -789,7 +802,7 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
     <section class="panel table-panel">
         <div class="table-toolbar">
             <div>
-                <h2>Top sessions by detected waste</h2>
+                <h2>Session results</h2>
                 <div class="subtitle">
                     Showing up to 100 sessions.
                 </div>
@@ -818,7 +831,7 @@ def make_dashboard(results: list[dict[str, Any]], ter_bucket_count: int = 20) ->
                 </thead>
 
                 <tbody>
-                    {''.join(rows)}
+                    {"".join(rows)}
                 </tbody>
             </table>
         </div>
