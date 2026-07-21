@@ -501,17 +501,11 @@ def check_threshold(
     passed = aggregate_passed and len(phase_failures) == 0
 
     if passed:
-        message = (
-            f"TER check passed: {result.aggregate_ter:.4f} "
-            f">= {threshold:.4f}"
-        )
+        message = f"TER check passed: {result.aggregate_ter:.4f} >= {threshold:.4f}"
     else:
         parts: list[str] = []
         if not aggregate_passed:
-            parts.append(
-                f"aggregate TER {result.aggregate_ter:.4f} "
-                f"< {threshold:.4f}"
-            )
+            parts.append(f"aggregate TER {result.aggregate_ter:.4f} < {threshold:.4f}")
         if phase_failures:
             failures_str = ", ".join(
                 f"{p} ({result.phase_scores[p]:.4f})" for p in phase_failures

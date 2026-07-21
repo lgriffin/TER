@@ -40,7 +40,7 @@ Feature: Quick Analyser
     When quick analysis is run
     Then a FileNotFoundError is raised
 
-  Scenario: Deduplication keeps entry with highest output_tokens
-    Given a session file with duplicate requestIds having different output_tokens
-    When quick analysis parses the session
-    Then only the entry with the highest output_tokens is kept per requestId
+  Scenario: Sibling entries sharing a requestId preserve all content blocks
+    Given a session file with sibling entries sharing a requestId
+    When the session is parsed with the quick analyser
+    Then all distinct content blocks for that requestId are preserved

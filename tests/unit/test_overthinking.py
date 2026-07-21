@@ -296,8 +296,14 @@ class TestAnalyzeOverthinking:
         result = analyze_overthinking(texts)
 
         # Cumulative novelty should increase or stay same
-        assert result.segments[0].cumulative_novelty <= result.segments[1].cumulative_novelty
-        assert result.segments[1].cumulative_novelty <= result.segments[2].cumulative_novelty
+        assert (
+            result.segments[0].cumulative_novelty
+            <= result.segments[1].cumulative_novelty
+        )
+        assert (
+            result.segments[1].cumulative_novelty
+            <= result.segments[2].cumulative_novelty
+        )
 
     def test_filler_ratio_detected(self):
         texts = [

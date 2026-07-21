@@ -39,21 +39,20 @@ def compute_ter(
     for phase in SpanPhase:
         total = phase_total[phase]
         if total > 0:
-            phase_scores[phase.value] = round(
-                phase_aligned[phase] / total, 4
-            )
+            phase_scores[phase.value] = round(phase_aligned[phase] / total, 4)
         else:
             phase_scores[phase.value] = 1.0  # No tokens → no waste.
 
     # Weighted aggregate TER.
     aggregate_ter = sum(
-        weights[phase] * phase_scores[phase.value]
-        for phase in SpanPhase
+        weights[phase] * phase_scores[phase.value] for phase in SpanPhase
     )
 
     total_aligned = sum(phase_aligned.values())
     total_all = sum(phase_total.values())
     raw_ratio = total_aligned / total_all if total_all > 0 else 1.0
+
+    from .uncertainty import estimate_uncertainty
 
     return TERResult(
         session_id=session_id,
@@ -65,4 +64,6 @@ def compute_ter(
         waste_tokens=total_all - total_aligned,
         intent=intent,
         classified_spans=list(classified_spans),
+        uncertainty=estimate_uncertainty(classified_spans),
+        classifier_version="v11",
     )

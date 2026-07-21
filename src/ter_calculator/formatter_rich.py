@@ -15,13 +15,17 @@ def format_rich(result: TERResult) -> str:
     from rich.table import Table
     from rich.text import Text
 
-    from .formatter import _build_waste_breakdown, _compute_waste_cost
+    from .formatter import _compute_waste_cost
 
     buf = io.StringIO()
     console = Console(file=buf, force_terminal=True, width=72)
 
-    ter_text = Text(f"{result.aggregate_ter:.2f}", style=_ter_color(result.aggregate_ter))
-    waste_pct = (result.waste_tokens / result.total_tokens * 100) if result.total_tokens else 0
+    ter_text = Text(
+        f"{result.aggregate_ter:.2f}", style=_ter_color(result.aggregate_ter)
+    )
+    waste_pct = (
+        (result.waste_tokens / result.total_tokens * 100) if result.total_tokens else 0
+    )
     sid = result.session_id
     if len(sid) > 20:
         sid = sid[:8] + "..."
@@ -45,15 +49,21 @@ def format_rich(result: TERResult) -> str:
         bd = ia.token_breakdown
 
         drift_colors = {
-            "convergent": "red", "divergent": "green",
-            "stable": "green", "mixed": "yellow",
+            "convergent": "red",
+            "divergent": "green",
+            "stable": "green",
+            "mixed": "yellow",
         }
         d_color = drift_colors.get(drift.overall_trajectory, "")
-        a_color = "red" if pra.average_alignment < 0.3 else (
-            "yellow" if pra.average_alignment < 0.5 else "green"
+        a_color = (
+            "red"
+            if pra.average_alignment < 0.3
+            else ("yellow" if pra.average_alignment < 0.5 else "green")
         )
-        r_color = "red" if ps.prompt_redundancy_score > 0.5 else (
-            "yellow" if ps.prompt_redundancy_score > 0 else "green"
+        r_color = (
+            "red"
+            if ps.prompt_redundancy_score > 0.5
+            else ("yellow" if ps.prompt_redundancy_score > 0 else "green")
         )
 
         line2_parts: list = [
@@ -72,7 +82,9 @@ def format_rich(result: TERResult) -> str:
         line2_parts.append((f"User: {bd.user_ratio:.0%}", "dim"))
 
         header = Text.assemble(
-            *line1_parts, ("\n", ""), *line2_parts,
+            *line1_parts,
+            ("\n", ""),
+            *line2_parts,
         )
     else:
         header = Text.assemble(*line1_parts)
@@ -113,7 +125,9 @@ def format_rich(result: TERResult) -> str:
     if result.economics is not None:
         econ = result.economics
         cache_pct = econ.cache_hit_rate * 100
-        cache_color = "green" if cache_pct >= 50 else "yellow" if cache_pct >= 20 else "red"
+        cache_color = (
+            "green" if cache_pct >= 50 else "yellow" if cache_pct >= 20 else "red"
+        )
 
         econ_table = Table(show_header=True, show_edge=True)
         econ_table.add_column("Economics", style="bold", width=18)
@@ -124,8 +138,10 @@ def format_rich(result: TERResult) -> str:
 
         pos = econ.positional
         g = econ.input_growth
-        bloat_str = "[red]YES[/red]" if g.context_bloat_detected else (
-            "[yellow]WATCH[/yellow]" if g.is_superlinear else "[green]NO[/green]"
+        bloat_str = (
+            "[red]YES[/red]"
+            if g.context_bloat_detected
+            else ("[yellow]WATCH[/yellow]" if g.is_superlinear else "[green]NO[/green]")
         )
 
         left_rows = [
@@ -136,7 +152,10 @@ def format_rich(result: TERResult) -> str:
         right_rows_e = [
             ("Growth", f"{g.growth_rate:.1f}x ({len(g.turn_input_tokens)} turns)"),
             ("Bloat", bloat_str),
-            ("Positional", f"{pos.early_ter:.2f} / {pos.mid_ter:.2f} / {pos.late_ter:.2f}"),
+            (
+                "Positional",
+                f"{pos.early_ter:.2f} / {pos.mid_ter:.2f} / {pos.late_ter:.2f}",
+            ),
         ]
 
         for i in range(3):
@@ -253,7 +272,9 @@ def format_comparison_rich(results: list[TERResult]) -> str:
         total_cost = sum(r.economics.estimated_cost_usd for r in results if r.economics)
         total_waste_cost = sum(_compute_waste_cost(r) for r in results)
         color = _ter_color(avg_ter)
-        console.print(f"\nAverage TER: [{color}]{avg_ter:.2f}[/{color}]  |  Total Cost: ${total_cost:.2f}  |  Total Waste: [red]${total_waste_cost:.2f}[/red]")
+        console.print(
+            f"\nAverage TER: [{color}]{avg_ter:.2f}[/{color}]  |  Total Cost: ${total_cost:.2f}  |  Total Waste: [red]${total_waste_cost:.2f}[/red]"
+        )
 
     return buf.getvalue().rstrip()
 
@@ -280,7 +301,8 @@ def format_grouped_rich(
     ter_text = Text(f"{agg['weighted_ter']:.2f}", style=_ter_color(agg["weighted_ter"]))
 
     header = Text.assemble(
-        ("TER: ", "bold"), ter_text,
+        ("TER: ", "bold"),
+        ter_text,
         ("  |  ", ""),
         (f"Waste: {agg['waste_pct']:.1f}%", "red" if agg["waste_pct"] > 10 else ""),
         ("  |  ", ""),
@@ -315,11 +337,14 @@ def format_grouped_rich(
         if len(rsid) > 14:
             rsid = rsid[:8] + "..."
         table.add_row(
-            role, rsid,
+            role,
+            rsid,
             f"[{color}]{r.aggregate_ter:.2f}[/{color}]",
             f"{waste_pct:.1f}%",
             f"{r.total_tokens:,}",
-            cost_str, waste_str, str(pattern_count),
+            cost_str,
+            waste_str,
+            str(pattern_count),
         )
 
     _add_session_row(parent_result, "parent")
@@ -329,7 +354,8 @@ def format_grouped_rich(
     table.add_section()
     color = _ter_color(agg["weighted_ter"])
     table.add_row(
-        "[bold]Total[/bold]", "",
+        "[bold]Total[/bold]",
+        "",
         f"[bold][{color}]{agg['weighted_ter']:.2f}[/{color}][/bold]",
         f"[bold]{agg['waste_pct']:.1f}%[/bold]",
         f"[bold]{agg['total_tokens']:,}[/bold]",
@@ -361,32 +387,46 @@ def _format_input_analysis_rich(console, ia: InputAnalysis) -> None:
     tb.add_row("Model", "Generation", f"{bd.model_generation_tokens:,}")
     tb.add_section()
     tb.add_row("[bold]User Total[/bold]", "", f"[bold]{bd.total_user_tokens:,}[/bold]")
-    tb.add_row("[bold]Model Total[/bold]", "", f"[bold]{bd.total_model_tokens:,}[/bold]")
+    tb.add_row(
+        "[bold]Model Total[/bold]", "", f"[bold]{bd.total_model_tokens:,}[/bold]"
+    )
     tb.add_row("User Ratio", "", f"{bd.user_ratio:.1%}")
     console.print(tb)
 
     if ps.prompt_count >= 2:
-        r_color = "red" if ps.prompt_redundancy_score > 0.5 else (
-            "yellow" if ps.prompt_redundancy_score > 0 else "green"
+        r_color = (
+            "red"
+            if ps.prompt_redundancy_score > 0.5
+            else ("yellow" if ps.prompt_redundancy_score > 0 else "green")
         )
         console.print(
             f"\nPrompt Redundancy: [{r_color}]{ps.prompt_redundancy_score:.0%}[/{r_color}]"
             f"  ({ps.prompt_count} prompts, {len(ps.similar_pairs)} similar pair(s))"
         )
         for pair in ps.similar_pairs[:5]:
-            a_text = pair.prompt_a_text[:40] + "..." if len(pair.prompt_a_text) > 40 else pair.prompt_a_text
-            b_text = pair.prompt_b_text[:40] + "..." if len(pair.prompt_b_text) > 40 else pair.prompt_b_text
+            a_text = (
+                pair.prompt_a_text[:40] + "..."
+                if len(pair.prompt_a_text) > 40
+                else pair.prompt_a_text
+            )
+            b_text = (
+                pair.prompt_b_text[:40] + "..."
+                if len(pair.prompt_b_text) > 40
+                else pair.prompt_b_text
+            )
             console.print(
-                f'  [dim]#{pair.prompt_a_index+1}[/dim] "{a_text}" '
-                f'[dim]~[/dim] [dim]#{pair.prompt_b_index+1}[/dim] "{b_text}" '
-                f'[yellow]({pair.similarity:.2f})[/yellow]'
+                f'  [dim]#{pair.prompt_a_index + 1}[/dim] "{a_text}" '
+                f'[dim]~[/dim] [dim]#{pair.prompt_b_index + 1}[/dim] "{b_text}" '
+                f"[yellow]({pair.similarity:.2f})[/yellow]"
             )
 
     drift = ia.intent_drift
     if drift.steps:
         _drift_colors = {
-            "convergent": "red", "divergent": "green",
-            "stable": "green", "mixed": "yellow",
+            "convergent": "red",
+            "divergent": "green",
+            "stable": "green",
+            "mixed": "yellow",
         }
         t_color = _drift_colors.get(drift.overall_trajectory, "")
         console.print(
@@ -394,31 +434,41 @@ def _format_input_analysis_rich(console, ia: InputAnalysis) -> None:
             f"  (avg similarity: {drift.average_drift:.2f})"
         )
         for step in drift.steps:
-            s_color = "red" if step.drift_type == "convergent" else (
-                "green" if step.drift_type == "divergent" else "yellow"
+            s_color = (
+                "red"
+                if step.drift_type == "convergent"
+                else ("green" if step.drift_type == "divergent" else "yellow")
             )
             console.print(
-                f"  #{step.from_index+1} -> #{step.to_index+1}: "
+                f"  #{step.from_index + 1} -> #{step.to_index + 1}: "
                 f"[{s_color}]{step.drift_type}[/{s_color}] ({step.similarity:.2f})"
             )
 
     pra = ia.prompt_response_alignment
     if pra.pairs:
-        a_color = "red" if pra.average_alignment < 0.3 else (
-            "yellow" if pra.average_alignment < 0.5 else "green"
+        a_color = (
+            "red"
+            if pra.average_alignment < 0.3
+            else ("yellow" if pra.average_alignment < 0.5 else "green")
         )
         console.print(
             f"\nPrompt-Response Alignment: [{a_color}]{pra.average_alignment:.2f}[/{a_color}]"
             f"  ({len(pra.pairs)} pair(s), {pra.low_alignment_count} low)"
         )
-        for pair in pra.pairs:
-            p_color = "red" if pair.alignment < 0.3 else (
-                "yellow" if pair.alignment < 0.5 else "green"
+        for alignment_pair in pra.pairs:
+            p_color = (
+                "red"
+                if alignment_pair.alignment < 0.3
+                else ("yellow" if alignment_pair.alignment < 0.5 else "green")
             )
-            prompt_short = pair.prompt_text[:50] + "..." if len(pair.prompt_text) > 50 else pair.prompt_text
+            prompt_short = (
+                alignment_pair.prompt_text[:50] + "..."
+                if len(alignment_pair.prompt_text) > 50
+                else alignment_pair.prompt_text
+            )
             console.print(
-                f'  [dim]#{pair.prompt_index+1}[/dim] "{prompt_short}" '
-                f'-> [{p_color}]{pair.alignment:.2f}[/{p_color}]'
+                f'  [dim]#{alignment_pair.prompt_index + 1}[/dim] "{prompt_short}" '
+                f"-> [{p_color}]{alignment_pair.alignment:.2f}[/{p_color}]"
             )
 
 
@@ -436,10 +486,18 @@ def _format_cost_report_rich(console, cost_report) -> None:
     cost_table.add_row("Raw TER", f"{cwter.raw_ter:.4f}")
     cost_table.add_row("Total Cost", f"${cwter.total_cost_usd:.4f}")
     cost_table.add_row("Waste Cost", f"${cwter.waste_cost_usd:.4f}")
-    waste_pct = (cwter.waste_cost_usd / cwter.total_cost_usd * 100) if cwter.total_cost_usd > 0 else 0
+    waste_pct = (
+        (cwter.waste_cost_usd / cwter.total_cost_usd * 100)
+        if cwter.total_cost_usd > 0
+        else 0
+    )
     cost_table.add_row("Waste %", f"{waste_pct:.1f}%")
-    cost_table.add_row("Semantic Density", f"{cost_report.session_density.density_score:.2%}")
-    cost_table.add_row("Redundancy", f"{cost_report.session_density.redundancy_ratio:.2%}")
+    cost_table.add_row(
+        "Semantic Density", f"{cost_report.session_density.density_score:.2%}"
+    )
+    cost_table.add_row(
+        "Redundancy", f"{cost_report.session_density.redundancy_ratio:.2%}"
+    )
 
     console.print(cost_table)
 
@@ -455,7 +513,9 @@ def _format_overthinking_rich(console, ot) -> None:
     console.print("\n[bold]Overthinking Analysis[/bold]")
 
     status_color = "red" if ot.is_overthinking else "green"
-    status_text = "OVERTHINKING DETECTED" if ot.is_overthinking else "Efficient Reasoning"
+    status_text = (
+        "OVERTHINKING DETECTED" if ot.is_overthinking else "Efficient Reasoning"
+    )
     console.print(f"Status: [{status_color}]{status_text}[/{status_color}]")
 
     ot_table = Table(show_header=True, show_edge=True)
@@ -468,7 +528,9 @@ def _format_overthinking_rich(console, ot) -> None:
     ot_table.add_row("Wasted", f"{ot.wasted_reasoning_tokens:,} tokens")
 
     if ot.optimal_cutoff_index is not None:
-        ot_table.add_row("Optimal Cutoff", f"Span {ot.optimal_cutoff_index} (of {len(ot.segments)})")
+        ot_table.add_row(
+            "Optimal Cutoff", f"Span {ot.optimal_cutoff_index} (of {len(ot.segments)})"
+        )
 
     ot_table.add_row("Recommended Budget", f"{ot.recommended_budget:,} tokens")
 

@@ -22,10 +22,12 @@ class TestComputeConfidence:
         assert 0.5 <= conf <= 0.8
 
     def test_detailed_prompt(self):
-        conf = _compute_confidence([
-            "Add a login page with email and password validation "
-            "that redirects to the dashboard after successful login"
-        ])
+        conf = _compute_confidence(
+            [
+                "Add a login page with email and password validation "
+                "that redirects to the dashboard after successful login"
+            ]
+        )
         assert conf >= 0.8
 
     def test_multiple_prompts_boost(self):

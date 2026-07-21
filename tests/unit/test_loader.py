@@ -38,9 +38,12 @@ def minimal_session(tmp_path):
                 "role": "assistant",
                 "content": [{"type": "text", "text": "Hi there!"}],
                 "stop_reason": "end_turn",
-                "usage": {"input_tokens": 10, "output_tokens": 5,
-                          "cache_creation_input_tokens": 0,
-                          "cache_read_input_tokens": 0},
+                "usage": {
+                    "input_tokens": 10,
+                    "output_tokens": 5,
+                    "cache_creation_input_tokens": 0,
+                    "cache_read_input_tokens": 0,
+                },
             },
         },
     ]
@@ -110,7 +113,9 @@ class TestLoadSession:
                 "requestId": "r1",
                 "message": {
                     "role": "assistant",
-                    "content": [{"type": "tool_use", "name": "Bash", "input": {"command": "ls"}}],
+                    "content": [
+                        {"type": "tool_use", "name": "Bash", "input": {"command": "ls"}}
+                    ],
                     "usage": {"input_tokens": 10, "output_tokens": 20},
                 },
             },
@@ -150,6 +155,52 @@ class TestSegmentSpans:
         spans = segment_spans(session)
         positions = [s.position for s in spans]
         assert positions == list(range(len(spans)))
+
+    def test_user_and_queue_content_are_not_scored(self, tmp_path):
+        """Only assistant content contributes TER scoring spans."""
+        data = [
+            {
+                "type": "queue-operation",
+                "operation": "enqueue",
+                "sessionId": "s1",
+                "content": "This is duplicated queue metadata.",
+            },
+            {
+                "type": "user",
+                "uuid": "u1",
+                "sessionId": "s1",
+                "message": {
+                    "role": "user",
+                    "content": "This is the actual user prompt.",
+                },
+            },
+            {
+                "type": "assistant",
+                "uuid": "a1",
+                "sessionId": "s1",
+                "message": {
+                    "role": "assistant",
+                    "content": [
+                        {"type": "text", "text": "This is the assistant response."}
+                    ],
+                    "usage": {"input_tokens": 10, "output_tokens": 7},
+                },
+            },
+        ]
+        path = tmp_path / "session.jsonl"
+        path.write_text(
+            "\n".join(json.dumps(entry) for entry in data),
+            encoding="utf-8",
+        )
+
+        session = load_session(path)
+        spans = segment_spans(session)
+
+        assert len(spans) == 1
+        assert spans[0].source_role == "assistant"
+        assert spans[0].text == "This is the assistant response."
+        assert all("user prompt" not in span.text for span in spans)
+        assert all("queue metadata" not in span.text for span in spans)
 
 
 class TestDiscoverSubagents:

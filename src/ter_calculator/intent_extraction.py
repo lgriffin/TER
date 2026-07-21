@@ -26,13 +26,19 @@ import json
 import logging
 import os
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, cast, runtime_checkable
 
 import numpy as np
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
 
+from .embedding_cache import get_embedding_model
+from .intent_construction import (
+    compute_prompt_weights,
+    intent_display_text,
+    weighted_centroid,
+)
 from .models import IntentVector
 
 __all__ = [
@@ -50,19 +56,21 @@ logger = logging.getLogger(__name__)
 # Embedding helpers — delegate to shared model cache
 # ---------------------------------------------------------------------------
 
-from .embedding_cache import get_embedding_model
-
 
 def _embed(text: str) -> NDArray[np.float32]:
     """Embed a single text string into a 384-dim vector."""
-    return get_embedding_model().encode(text, convert_to_numpy=True)
+    return np.asarray(
+        get_embedding_model().encode(text, convert_to_numpy=True), dtype=np.float32
+    )
 
 
 def _embed_batch(texts: list[str]) -> NDArray[np.float32]:
     """Embed multiple texts in a single batched call."""
     if not texts:
         return np.zeros((0, 384), dtype=np.float32)
-    return get_embedding_model().encode(texts, convert_to_numpy=True)
+    return np.asarray(
+        get_embedding_model().encode(texts, convert_to_numpy=True), dtype=np.float32
+    )
 
 
 def _cosine_similarity(a: NDArray[np.float32], b: NDArray[np.float32]) -> float:
@@ -195,11 +203,11 @@ class SlidingIntentExtractor:
     @staticmethod
     def _segment_to_intent(segment: list[str]) -> IntentVector:
         """Build an IntentVector from a group of related prompts."""
-        combined = " ".join(segment)
-        emb = _embed(combined)
+        embeddings = _embed_batch(segment)
+        emb = weighted_centroid(embeddings, compute_prompt_weights(segment))
         confidence = _segment_confidence(segment)
         return IntentVector(
-            text=combined,
+            text=intent_display_text(segment),
             embedding=emb,
             confidence=confidence,
             source_prompts=list(segment),
@@ -503,7 +511,7 @@ def create_intent_extractor(strategy: str = "sliding", **kwargs) -> IntentStrate
             f"Unknown intent extraction strategy {strategy!r}. "
             f"Valid strategies: {valid}"
         )
-    return cls(**kwargs)
+    return cast(IntentStrategy, cls(**kwargs))
 
 
 # ---------------------------------------------------------------------------

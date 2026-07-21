@@ -7,7 +7,13 @@ import math
 import pytest
 from pytest_bdd import given, when, then, parsers, scenarios
 
-from ter_calculator.models import ClassifiedSpan, SpanLabel, SpanPhase, TokenSpan, WastePattern
+from ter_calculator.models import (
+    ClassifiedSpan,
+    SpanLabel,
+    SpanPhase,
+    TokenSpan,
+    WastePattern,
+)
 from ter_calculator.waste_detectors import (
     detect_abandoned_approaches,
     detect_all_extended,
@@ -83,9 +89,7 @@ def context():
 
 
 @given(
-    parsers.parse(
-        "the permission loop detector with default min_retries of {n:d}"
-    ),
+    parsers.parse("the permission loop detector with default min_retries of {n:d}"),
     target_fixture="context",
 )
 def permission_loop_background(n):
@@ -203,9 +207,7 @@ def run_detect_all_extended(context):
 
 @then(parsers.parse("{count:d} permission loop pattern should be detected"))
 def check_permission_loop_count_singular(context, count):
-    matching = [
-        p for p in context["patterns"] if p.pattern_type == "permission_loop"
-    ]
+    matching = [p for p in context["patterns"] if p.pattern_type == "permission_loop"]
     assert len(matching) == count, (
         f"Expected {count} permission_loop pattern(s), got {len(matching)}"
     )
@@ -213,9 +215,7 @@ def check_permission_loop_count_singular(context, count):
 
 @then(parsers.parse("{count:d} permission loop patterns should be detected"))
 def check_permission_loop_count_plural(context, count):
-    matching = [
-        p for p in context["patterns"] if p.pattern_type == "permission_loop"
-    ]
+    matching = [p for p in context["patterns"] if p.pattern_type == "permission_loop"]
     assert len(matching) == count, (
         f"Expected {count} permission_loop pattern(s), got {len(matching)}"
     )
@@ -243,9 +243,7 @@ def check_error_retry_count_plural(context, count):
 
 @then(parsers.parse("{count:d} over-reading pattern should be detected"))
 def check_over_reading_count_singular(context, count):
-    matching = [
-        p for p in context["patterns"] if p.pattern_type == "over_reading"
-    ]
+    matching = [p for p in context["patterns"] if p.pattern_type == "over_reading"]
     assert len(matching) == count, (
         f"Expected {count} over_reading pattern(s), got {len(matching)}"
     )
@@ -253,9 +251,7 @@ def check_over_reading_count_singular(context, count):
 
 @then(parsers.parse("{count:d} over-reading patterns should be detected"))
 def check_over_reading_count_plural(context, count):
-    matching = [
-        p for p in context["patterns"] if p.pattern_type == "over_reading"
-    ]
+    matching = [p for p in context["patterns"] if p.pattern_type == "over_reading"]
     assert len(matching) == count, (
         f"Expected {count} over_reading pattern(s), got {len(matching)}"
     )
@@ -264,8 +260,7 @@ def check_over_reading_count_plural(context, count):
 @then(parsers.parse("{count:d} abandoned approach pattern should be detected"))
 def check_abandoned_count_singular(context, count):
     matching = [
-        p for p in context["patterns"]
-        if p.pattern_type == "abandoned_approach"
+        p for p in context["patterns"] if p.pattern_type == "abandoned_approach"
     ]
     assert len(matching) == count, (
         f"Expected {count} abandoned_approach pattern(s), got {len(matching)}"
@@ -275,8 +270,7 @@ def check_abandoned_count_singular(context, count):
 @then(parsers.parse("{count:d} abandoned approach patterns should be detected"))
 def check_abandoned_count_plural(context, count):
     matching = [
-        p for p in context["patterns"]
-        if p.pattern_type == "abandoned_approach"
+        p for p in context["patterns"] if p.pattern_type == "abandoned_approach"
     ]
     assert len(matching) == count, (
         f"Expected {count} abandoned_approach pattern(s), got {len(matching)}"
@@ -285,10 +279,7 @@ def check_abandoned_count_plural(context, count):
 
 @then(parsers.parse("{count:d} verbose thinking pattern should be detected"))
 def check_verbose_count_singular(context, count):
-    matching = [
-        p for p in context["patterns"]
-        if p.pattern_type == "verbose_thinking"
-    ]
+    matching = [p for p in context["patterns"] if p.pattern_type == "verbose_thinking"]
     assert len(matching) == count, (
         f"Expected {count} verbose_thinking pattern(s), got {len(matching)}"
     )
@@ -296,10 +287,7 @@ def check_verbose_count_singular(context, count):
 
 @then(parsers.parse("{count:d} verbose thinking patterns should be detected"))
 def check_verbose_count_plural(context, count):
-    matching = [
-        p for p in context["patterns"]
-        if p.pattern_type == "verbose_thinking"
-    ]
+    matching = [p for p in context["patterns"] if p.pattern_type == "verbose_thinking"]
     assert len(matching) == count, (
         f"Expected {count} verbose_thinking pattern(s), got {len(matching)}"
     )
@@ -329,9 +317,7 @@ def check_retries(context, n):
 @then(parsers.parse("the tokens_wasted should be {n:d}"))
 def check_tokens_wasted(context, n):
     p = context["patterns"][0]
-    assert p.tokens_wasted == n, (
-        f"Expected tokens_wasted={n}, got {p.tokens_wasted}"
-    )
+    assert p.tokens_wasted == n, f"Expected tokens_wasted={n}, got {p.tokens_wasted}"
 
 
 # ---------------------------------------------------------------------------
@@ -391,15 +377,11 @@ def check_excludes_initial_error(context, n):
     # Assertion-only: the detector excludes the first attempt from wasted
     # tokens.  We verify the initial tool_use tokens are not in the waste.
     p = context["patterns"][0]
-    initial_span = next(
-        s for s in context["spans"] if s.span.block_type == "tool_use"
-    )
+    initial_span = next(s for s in context["spans"] if s.span.block_type == "tool_use")
     assert initial_span.span.token_count == n
     # tokens_wasted should not include the initial attempt
     tool_use_total = sum(
-        s.span.token_count
-        for s in context["spans"]
-        if s.span.block_type == "tool_use"
+        s.span.token_count for s in context["spans"] if s.span.block_type == "tool_use"
     )
     assert p.tokens_wasted == tool_use_total - n
 
@@ -421,15 +403,13 @@ def check_read_counts(context, total, redundant):
         f"Expected {total} total reads, got {p.details.get('read_count')}"
     )
     assert p.details["redundant_reads"] == redundant, (
-        f"Expected {redundant} redundant reads, got"
-        f" {p.details.get('redundant_reads')}"
+        f"Expected {redundant} redundant reads, got {p.details.get('redundant_reads')}"
     )
 
 
 @then(
     parsers.parse(
-        "the tokens_wasted should exclude the first legitimate read"
-        " of {n:d} tokens"
+        "the tokens_wasted should exclude the first legitimate read of {n:d} tokens"
     )
 )
 def check_excludes_first_read(context, n):
@@ -440,9 +420,7 @@ def check_excludes_first_read(context, n):
     )
     assert first_read_span.span.token_count == n
     total_read_tokens = sum(
-        s.span.token_count
-        for s in context["spans"]
-        if s.span.block_type == "tool_use"
+        s.span.token_count for s in context["spans"] if s.span.block_type == "tool_use"
     )
     assert p.tokens_wasted == total_read_tokens - n
 
@@ -468,16 +446,14 @@ def check_post_edit_reads(context, n, redundant, min_r):
 )
 def check_pattern_for_file(context, file_path, reads, redundant):
     matching = [
-        p for p in context["patterns"]
-        if p.details.get("file_path") == file_path
+        p for p in context["patterns"] if p.details.get("file_path") == file_path
     ]
     assert len(matching) == 1, (
         f"Expected exactly 1 pattern for '{file_path}', got {len(matching)}"
     )
     p = matching[0]
     assert p.details["read_count"] == reads, (
-        f"Expected {reads} reads for '{file_path}', got"
-        f" {p.details.get('read_count')}"
+        f"Expected {reads} reads for '{file_path}', got {p.details.get('read_count')}"
     )
     assert p.details["redundant_reads"] == redundant, (
         f"Expected {redundant} redundant reads for '{file_path}', got"
@@ -498,30 +474,19 @@ def check_file_path(context, path):
     )
 
 
-@then(
-    parsers.parse(
-        'the tokens_wasted should cover all spans that touched "{path}"'
-    )
-)
+@then(parsers.parse('the tokens_wasted should cover all spans that touched "{path}"'))
 def check_tokens_cover_file(context, path):
     # Assertion-only: verify the wasted token count equals the sum of all
     # spans that reference the given file path.
     p = context["patterns"][0]
-    expected = sum(
-        s.span.token_count
-        for s in context["spans"]
-        if path in s.span.text
-    )
+    expected = sum(s.span.token_count for s in context["spans"] if path in s.span.text)
     assert p.tokens_wasted == expected, (
         f"Expected tokens_wasted={expected} covering all spans for '{path}',"
         f" got {p.tokens_wasted}"
     )
 
 
-@then(
-    "the pattern description should indicate the file was edited but never"
-    " revisited"
-)
+@then("the pattern description should indicate the file was edited but never revisited")
 def check_abandoned_description(context):
     p = context["patterns"][0]
     desc_lower = p.description.lower()
@@ -554,9 +519,7 @@ def check_file_not_abandoned(context, path):
 def check_ratio(context, ratio):
     p = context["patterns"][0]
     actual = p.details["ratio"]
-    assert abs(actual - ratio) < 0.01, (
-        f"Expected ratio {ratio}, got {actual}"
-    )
+    assert abs(actual - ratio) < 0.01, f"Expected ratio {ratio}, got {actual}"
 
 
 @then("the pattern should report 0 action tokens and infinite ratio")
@@ -598,6 +561,4 @@ def check_sorted_by_position(context):
 def check_combined_types(context):
     types = {p.pattern_type for p in context["patterns"]}
     for expected in ("verbose_thinking", "over_reading", "permission_loop"):
-        assert expected in types, (
-            f"Expected '{expected}' in pattern types, got {types}"
-        )
+        assert expected in types, f"Expected '{expected}' in pattern types, got {types}"

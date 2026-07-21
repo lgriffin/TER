@@ -26,6 +26,7 @@ from ter_calculator.hook_monitor import (
 # check_bash_antipattern
 # -----------------------------------------------------------------------
 
+
 class TestCheckBashAntipattern:
     def test_detects_cat(self):
         alert = check_bash_antipattern("Bash", {"command": "cat foo.py"})
@@ -92,6 +93,7 @@ class TestCheckBashAntipattern:
 # check_repetitive_read
 # -----------------------------------------------------------------------
 
+
 class TestCheckRepetitiveRead:
     def test_no_alert_below_threshold(self):
         state = HookSessionState(session_id="s1")
@@ -148,6 +150,7 @@ class TestCheckRepetitiveRead:
 # check_edit_fragmentation
 # -----------------------------------------------------------------------
 
+
 class TestCheckEditFragmentation:
     def test_no_alert_for_single_edit(self):
         state = HookSessionState(session_id="s1")
@@ -196,6 +199,7 @@ class TestCheckEditFragmentation:
 # check_duplicate_tool_call
 # -----------------------------------------------------------------------
 
+
 class TestCheckDuplicateToolCall:
     def test_no_alert_on_first_call(self):
         state = HookSessionState(session_id="s1")
@@ -225,9 +229,13 @@ class TestCheckDuplicateToolCall:
     def test_higher_threshold(self):
         state = HookSessionState(session_id="s1")
         check_duplicate_tool_call("Read", {"file_path": "a.py"}, state, threshold=3)
-        alert = check_duplicate_tool_call("Read", {"file_path": "a.py"}, state, threshold=3)
+        alert = check_duplicate_tool_call(
+            "Read", {"file_path": "a.py"}, state, threshold=3
+        )
         assert alert is None
-        alert = check_duplicate_tool_call("Read", {"file_path": "a.py"}, state, threshold=3)
+        alert = check_duplicate_tool_call(
+            "Read", {"file_path": "a.py"}, state, threshold=3
+        )
         assert alert is not None
 
     def test_tool_call_counts_capped(self):
@@ -240,6 +248,7 @@ class TestCheckDuplicateToolCall:
 # -----------------------------------------------------------------------
 # check_repeated_command
 # -----------------------------------------------------------------------
+
 
 class TestCheckRepeatedCommand:
     def test_alerts_at_threshold(self):
@@ -294,6 +303,7 @@ class TestCheckRepeatedCommand:
 # -----------------------------------------------------------------------
 # process_tool_event
 # -----------------------------------------------------------------------
+
 
 class TestProcessToolEvent:
     def test_bash_antipattern_detected(self):
@@ -367,6 +377,7 @@ class TestProcessToolEvent:
 # State persistence
 # -----------------------------------------------------------------------
 
+
 class TestStatePersistence:
     def test_save_and_load_roundtrip(self, tmp_path):
         config = HookConfig(state_dir=str(tmp_path))
@@ -410,6 +421,7 @@ class TestStatePersistence:
 # format_guidance
 # -----------------------------------------------------------------------
 
+
 class TestFormatGuidance:
     def test_single_alert(self):
         alerts = [WasteAlert("bash_antipattern", "info", "Use Read instead")]
@@ -435,6 +447,7 @@ class TestFormatGuidance:
 # -----------------------------------------------------------------------
 # format_notification
 # -----------------------------------------------------------------------
+
 
 class TestFormatNotification:
     def test_single_info_alert(self):
@@ -466,16 +479,19 @@ class TestFormatNotification:
 # CLI integration (ter hook monitor)
 # -----------------------------------------------------------------------
 
+
 class TestHookMonitorCLI:
     def test_monitor_bash_antipattern(self, monkeypatch, capsys, tmp_path):
         import io
         from ter_calculator.cli import main
 
-        event = json.dumps({
-            "session_id": "test-cli",
-            "tool_name": "Bash",
-            "tool_input": {"command": "cat foo.py"},
-        })
+        event = json.dumps(
+            {
+                "session_id": "test-cli",
+                "tool_name": "Bash",
+                "tool_input": {"command": "cat foo.py"},
+            }
+        )
         monkeypatch.setattr("sys.stdin", io.StringIO(event))
         result = main(["hook", "monitor", "--state-dir", str(tmp_path)])
         assert result == 0
@@ -489,11 +505,13 @@ class TestHookMonitorCLI:
         import io
         from ter_calculator.cli import main
 
-        event = json.dumps({
-            "session_id": "test-cli",
-            "tool_name": "Bash",
-            "tool_input": {"command": "git status"},
-        })
+        event = json.dumps(
+            {
+                "session_id": "test-cli",
+                "tool_name": "Bash",
+                "tool_input": {"command": "git status"},
+            }
+        )
         monkeypatch.setattr("sys.stdin", io.StringIO(event))
         result = main(["hook", "monitor", "--state-dir", str(tmp_path)])
         assert result == 0

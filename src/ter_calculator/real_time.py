@@ -18,11 +18,8 @@ Key components:
 
 from __future__ import annotations
 
-import hashlib
 import json
 import logging
-import math
-import os
 import re
 import time
 from dataclasses import dataclass, field
@@ -34,7 +31,6 @@ import numpy as np
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
-    from ter_calculator.models import TERResult
 
 __all__ = [
     "DriftDirection",
@@ -76,7 +72,7 @@ INTENT_DECAY = 0.3
 meaning a prompt from 5 turns ago contributes only ~17% weight to the current intent."""
 CONF_THRESHOLD = 0.75
 REPETITION_THRESHOLD = 0.88  # Matches classifier.py _check_repetition
-REPETITION_WINDOW = 10       # How many recent same-phase spans to compare against
+REPETITION_WINDOW = 10  # How many recent same-phase spans to compare against
 
 _SIM_REASONING = 0.55
 """Similarity floor for reasoning spans — trigram hashing yields ~0.3–0.5
@@ -142,6 +138,7 @@ def load_embedding_model(model_name: str = "all-MiniLM-L12-v2") -> Any:
         ImportError: If sentence-transformers is not installed.
     """
     from .embedding_cache import get_embedding_model
+
     return get_embedding_model(model_name)
 
 
@@ -260,9 +257,7 @@ class RollingTERState:
             phase_scores[phase] = (
                 self.phase_aligned[phase] / total if total > 0 else 1.0
             )
-        return sum(
-            PHASE_WEIGHTS[p] * phase_scores[p] for p in PHASE_WEIGHTS
-        )
+        return sum(PHASE_WEIGHTS[p] * phase_scores[p] for p in PHASE_WEIGHTS)
 
     @property
     def raw_ratio(self) -> float:
@@ -275,9 +270,7 @@ class RollingTERState:
         scores = {}
         for phase in ("reasoning", "tool_use", "generation"):
             total = self.phase_total[phase]
-            scores[phase] = (
-                self.phase_aligned[phase] / total if total > 0 else 1.0
-            )
+            scores[phase] = self.phase_aligned[phase] / total if total > 0 else 1.0
         return scores
 
     def get_cache_hit_rate(self) -> float:
@@ -397,7 +390,10 @@ class TERSignal:
 
     @property
     def is_healthy(self) -> bool:
-        return self.warning_level == WarningLevel.INFO and self.drift != DriftDirection.DEGRADING
+        return (
+            self.warning_level == WarningLevel.INFO
+            and self.drift != DriftDirection.DEGRADING
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -408,6 +404,7 @@ class TERSignal:
 def _estimate_tokens(text: str) -> int:
     """Estimate token count — delegates to the shared tiktoken helper."""
     from .embedding_cache import estimate_tokens
+
     return estimate_tokens(text)
 
 
@@ -514,14 +511,17 @@ def _is_error_result_text(text: str) -> bool:
         return True
     if text.startswith("Wasted call"):
         return True
-    return any(marker in text for marker in (
-        "file unchanged since your last Read",
-        "File does not exist",
-        "command not found",
-        "No such file or directory",
-        "Permission denied",
-        "File has not been read yet",
-    ))
+    return any(
+        marker in text
+        for marker in (
+            "file unchanged since your last Read",
+            "File does not exist",
+            "command not found",
+            "No such file or directory",
+            "Permission denied",
+            "File has not been read yet",
+        )
+    )
 
 
 def _is_repetition(
@@ -572,7 +572,8 @@ def _get_line_id(line_data: dict[str, Any]) -> str | None:
 def _get_usage(line_data: dict[str, Any]) -> dict[str, int]:
     """Extract token usage dict."""
     msg = line_data.get("message", {})
-    return msg.get("usage", {})
+    usage = msg.get("usage", {})
+    return usage if isinstance(usage, dict) else {}
 
 
 def _get_message_timestamp(line_data: dict[str, Any]) -> float:
@@ -581,7 +582,8 @@ def _get_message_timestamp(line_data: dict[str, Any]) -> float:
     if isinstance(ts, (int, float)):
         return float(ts)
     if isinstance(ts, str):
-        from datetime import datetime, timezone
+        from datetime import datetime
+
         try:
             dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
             return dt.timestamp()
@@ -635,9 +637,9 @@ def compute_rolling_ter(
                         state.intent_text += " " + user_text
                     else:
                         state.intent_text = user_text
-                    prompt_emb = embed_fn(
-                        user_text, normalize_embeddings=True
-                    ).astype(np.float32)
+                    prompt_emb = embed_fn(user_text, normalize_embeddings=True).astype(
+                        np.float32
+                    )
                     if state.intent_embedding is None:
                         state.intent_embedding = prompt_emb
                     else:
@@ -663,9 +665,9 @@ def compute_rolling_ter(
                         state.span_count += 1
 
                         # Embed and check repetition against recent tool_use spans
-                        span_emb = embed_fn(
-                            text, normalize_embeddings=True
-                        ).astype(np.float32)
+                        span_emb = embed_fn(text, normalize_embeddings=True).astype(
+                            np.float32
+                        )
                         recent_tu = state.recent_phase_embeddings["tool_use"]
                         is_repeated = _is_repetition(span_emb, recent_tu)
 
@@ -678,7 +680,9 @@ def compute_rolling_ter(
                         if tool_use_id in state.pending_tool_calls:
                             t_name, file_path = state.pending_tool_calls[tool_use_id]
                             if t_name == "Read" and file_path:
-                                state.file_read_history.setdefault(file_path, []).append(tokens)
+                                state.file_read_history.setdefault(
+                                    file_path, []
+                                ).append(tokens)
 
                         if is_repeated or is_error:
                             state.user_waste_tokens += tokens  # priced at input rate
@@ -701,14 +705,20 @@ def compute_rolling_ter(
         # multiple JSONL lines share the same requestId (Claude Code writes
         # one line per block: thinking, tool_use, text all have identical usage).
         api_request_id = line_data.get("requestId") or line_data.get("request_id")
-        if usage and (not api_request_id or api_request_id not in state.seen_usage_request_ids):
+        if usage and (
+            not api_request_id or api_request_id not in state.seen_usage_request_ids
+        ):
             state.total_input_tokens += usage.get("input_tokens", 0)
             state.total_output_tokens += usage.get("output_tokens", 0)
-            state.total_cache_creation_tokens += usage.get("cache_creation_input_tokens", 0)
+            state.total_cache_creation_tokens += usage.get(
+                "cache_creation_input_tokens", 0
+            )
             state.total_cache_read_tokens += usage.get("cache_read_input_tokens", 0)
 
             # Track context size (input + cache_read)
-            context_size = usage.get("input_tokens", 0) + usage.get("cache_read_input_tokens", 0)
+            context_size = usage.get("input_tokens", 0) + usage.get(
+                "cache_read_input_tokens", 0
+            )
             if context_size > 0:
                 state.turn_context_sizes.append(context_size)
 
@@ -774,9 +784,8 @@ def compute_rolling_ter(
             # and file-read tracking instead, since tool results are structurally similar
             # even when semantically different (e.g., different file contents).
             recent_embs = state.recent_phase_embeddings.get(phase, [])
-            is_repeated = (
-                phase in ("reasoning", "generation")
-                and _is_repetition(span_emb, recent_embs)
+            is_repeated = phase in ("reasoning", "generation") and _is_repetition(
+                span_emb, recent_embs
             )
 
             if is_duplicate_tool or is_bash_antipattern or is_repeated:
@@ -1081,23 +1090,28 @@ class LiveDashboard:
 
     def get_summary(self) -> dict[str, Any]:
         """Snapshot summary of all monitored sessions."""
-        sessions = []
+        sessions: list[dict[str, Any]] = []
+        total_tokens = 0
+        total_waste = 0
+        ter_sum = 0.0
         for path, mon in self._monitors.items():
+            ter = mon.current_ter
+            tokens = mon.state.total_tokens
+            waste = mon.state.waste_tokens
             sessions.append(
                 {
                     "path": path,
-                    "ter": mon.current_ter,
+                    "ter": ter,
                     "messages": mon.state.message_count,
-                    "total_tokens": mon.state.total_tokens,
-                    "waste_tokens": mon.state.waste_tokens,
+                    "total_tokens": tokens,
+                    "waste_tokens": waste,
                     "drift": detect_drift(mon.state.recent_ter_values)[0].value,
                 }
             )
-        total_tokens = sum(s["total_tokens"] for s in sessions)
-        total_waste = sum(s["waste_tokens"] for s in sessions)
-        avg_ter = (
-            sum(s["ter"] for s in sessions) / len(sessions) if sessions else 0.0
-        )
+            total_tokens += tokens
+            total_waste += waste
+            ter_sum += ter
+        avg_ter = ter_sum / len(sessions) if sessions else 0.0
         return {
             "session_count": len(sessions),
             "average_ter": round(avg_ter, 4),

@@ -16,9 +16,9 @@ def format_json(result: TERResult) -> str:
 def format_comparison_json(results: list[TERResult]) -> str:
     data = {
         "sessions": [ter_result_to_dict(r) for r in results],
-        "average_ter": round(
-            sum(r.aggregate_ter for r in results) / len(results), 4
-        ) if results else 0.0,
+        "average_ter": round(sum(r.aggregate_ter for r in results) / len(results), 4)
+        if results
+        else 0.0,
     }
     return json.dumps(data, indent=2)
 
@@ -57,8 +57,23 @@ def ter_result_to_dict(result: TERResult) -> dict:
         "aligned_tokens": result.aligned_tokens,
         "waste_tokens": result.waste_tokens,
     }
+    data["classifier_version"] = result.classifier_version
     if result.intent:
         data["intent_confidence"] = result.intent.confidence
+    if result.uncertainty is not None:
+        uncertainty = result.uncertainty
+        data["uncertainty"] = {
+            "mean_confidence": uncertainty.mean_confidence,
+            "token_weighted_confidence": uncertainty.token_weighted_confidence,
+            "low_confidence_tokens": uncertainty.low_confidence_tokens,
+            "low_confidence_share": uncertainty.low_confidence_share,
+            "ter_interval": [uncertainty.interval_lower, uncertainty.interval_upper],
+            "confidence_level": uncertainty.confidence_level,
+            "bootstrap_samples": uncertainty.bootstrap_samples,
+            "span_count": uncertainty.span_count,
+            "method": uncertainty.method,
+            "reliability": uncertainty.reliability,
+        }
     if result.waste_patterns:
         data["waste_patterns"] = [
             {
@@ -72,6 +87,32 @@ def ter_result_to_dict(result: TERResult) -> dict:
             for wp in result.waste_patterns
         ]
     if result.classified_spans:
+        data["classified_spans"] = [
+            {
+                "position": item.span.position,
+                "phase": item.span.phase.value,
+                "label": item.label.value,
+                "confidence": item.confidence,
+                "intent_similarity": item.cosine_similarity,
+                "tokens": item.span.token_count,
+                "text": item.span.text,
+                "source_message_uuid": item.span.source_message_uuid,
+                "source_lines": item.span.source_lines,
+                "explanation": (
+                    {
+                        "reason_code": item.explanation.reason_code,
+                        "summary": item.explanation.summary,
+                        "signals": item.explanation.signals,
+                        "threshold": item.explanation.threshold,
+                        "matched_prior_position": item.explanation.matched_prior_position,
+                        "matched_prior_text": item.explanation.matched_prior_text,
+                    }
+                    if item.explanation is not None
+                    else None
+                ),
+            }
+            for item in result.classified_spans
+        ]
         summary = summarize_waste(result.classified_spans, result.waste_patterns or [])
         data["waste_summary"] = {
             "total_waste_tokens": summary["total_waste_tokens"],
@@ -88,14 +129,18 @@ def ter_result_to_dict(result: TERResult) -> dict:
         for label, tokens, count, kind in rows:
             rate = cm.output_rate if kind == "output" else cm.input_rate
             row_cost = float(tokens) * rate / 1_000_000
-            sources.append({
-                "source": label,
-                "tokens": tokens,
-                "percentage": round(tokens / total_waste * 100, 1) if total_waste > 0 else 0,
-                "cost_usd": round(row_cost, 6),
-                "count": count,
-                "pricing": kind,
-            })
+            sources.append(
+                {
+                    "source": label,
+                    "tokens": tokens,
+                    "percentage": round(tokens / total_waste * 100, 1)
+                    if total_waste > 0
+                    else 0,
+                    "cost_usd": round(row_cost, 6),
+                    "count": count,
+                    "pricing": kind,
+                }
+            )
         data["waste_breakdown"] = {
             "sources": sources,
             "total_tokens": total_waste,

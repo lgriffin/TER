@@ -48,8 +48,7 @@ class FragmentStore:
     def _init_schema(self) -> None:
         cur = self._conn.cursor()
         cur.execute(
-            "CREATE TABLE IF NOT EXISTS schema_version "
-            "(version INTEGER PRIMARY KEY)"
+            "CREATE TABLE IF NOT EXISTS schema_version (version INTEGER PRIMARY KEY)"
         )
         row = cur.execute(
             "SELECT version FROM schema_version ORDER BY version DESC LIMIT 1"
@@ -72,8 +71,7 @@ class FragmentStore:
                 "ON fragments(origin_session)"
             )
             cur.execute(
-                "CREATE INDEX IF NOT EXISTS idx_fragments_phase "
-                "ON fragments(phase)"
+                "CREATE INDEX IF NOT EXISTS idx_fragments_phase ON fragments(phase)"
             )
             cur.execute(
                 "INSERT INTO schema_version (version) VALUES (?)",
@@ -112,10 +110,18 @@ class FragmentStore:
                 if f.embedding is not None
                 else None
             )
-            rows.append((
-                f.id, f.text, emb_blob, f.token_count,
-                f.phase.value, f.origin_session, f.created_at, f.ttl_seconds,
-            ))
+            rows.append(
+                (
+                    f.id,
+                    f.text,
+                    emb_blob,
+                    f.token_count,
+                    f.phase.value,
+                    f.origin_session,
+                    f.created_at,
+                    f.ttl_seconds,
+                )
+            )
         self._conn.executemany(
             "INSERT OR REPLACE INTO fragments "
             "(id, text, embedding, token_count, phase, origin_session, "
@@ -245,12 +251,11 @@ class FragmentShardingEngine:
             new_fragments.append(frag)
 
         if embed and new_fragments:
-            texts_to_embed = [
-                f.text for f in new_fragments if f.embedding is None
-            ]
+            texts_to_embed = [f.text for f in new_fragments if f.embedding is None]
             if texts_to_embed:
                 try:
                     from .intent import embed_texts
+
                     embeddings = embed_texts(texts_to_embed)
                     idx = 0
                     for frag in new_fragments:

@@ -24,6 +24,4 @@ def compute_average_ter(results: list[TERResult]) -> float:
     """Compute the average aggregate TER across results."""
     if not results:
         return 0.0
-    return round(
-        sum(r.aggregate_ter for r in results) / len(results), 4
-    )
+    return round(sum(r.aggregate_ter for r in results) / len(results), 4)

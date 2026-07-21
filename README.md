@@ -1,46 +1,185 @@
 # TER Calculator
 
+> **TER 2.0.0** is the first cleaned public release. Internal development iterations through v16 are documented in `UPDATES.md`.
+
+
 [![CI](https://github.com/lgriffin/TER/actions/workflows/ci.yml/badge.svg)](https://github.com/lgriffin/TER/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
-Token Efficiency Ratio (TER) calculator for Claude Code sessions. Measures how efficiently an AI coding agent uses its token budget by classifying output token spans as **aligned** (contributing to intent) or **waste** (redundant reasoning, unnecessary tool calls, over-explanation), and surfaces session economics, context optimization, and cross-session consistency.
+Token Efficiency Ratio (TER) calculator for Claude Code sessions.
 
-## Features
+TER measures how efficiently an AI coding agent uses its token budget by classifying token spans as **aligned** with the user’s intent or as potential **waste**, such as redundant reasoning, repeated tool calls, unnecessary restatement, or over-explanation.
 
-### Core Analysis
-- **TER scoring** -- phase-weighted efficiency ratio (reasoning 0.3, tool use 0.4, generation 0.3)
-- **8 waste pattern detectors** -- reasoning loops, duplicate tool calls, context restatement, repetitive reads, edit fragmentation, bash anti-patterns, failed retries, repeated commands
-- **Session economics** -- real API token usage, cache hit rate, cost modeling, positional analysis, context growth detection
-- **Input analysis** -- token breakdown by origin, prompt redundancy, intent drift, prompt-response alignment
-- **Grouped analysis** -- parent + subagent sessions with token-weighted aggregates
+The project also provides session economics, real-time monitoring, context optimization, intent construction, repetition analysis, evaluation tooling, and regression checks.
 
-### Real-Time & Adaptive
-- **Live monitoring** (`ter watch`) -- rolling TER with drift detection and live warnings
-- **Budget recommendations** (`ter budget`) -- complexity classification, model routing, thinking token budgets
-- **Cost-weighted TER** (`--cost-weighted`) -- dollar-aware efficiency with semantic density scoring
-- **Overthinking detection** (`--check-overthinking`) -- reasoning efficiency analysis with optimal cutoff detection
+> TER is a heuristic analysis system. Its scores should be interpreted as decision-support signals, not as ground-truth judgments.
 
-### Context Orchestrator
-- **Fragment Store** (`ter context store`) -- content-addressable fragment storage with SHA-256 hashing, SQLite persistence, and automatic deduplication
-- **Context Graph** (`ter context graph`) -- DAG of fragment relationships (dependency, derivation, co-occurrence) with topological sort and cycle detection
-- **Budget Optimizer** (`ter context optimize`) -- knapsack optimization selecting maximum-relevance fragments within a token budget
-- **Delta Composer** (`ter context delta`) -- reference-based prompt composition transmitting only uncached fragments
-- **Consistency Coordinator** (`ter context check`) -- cross-session version skew detection with strict/relaxed enforcement modes
+---
+
+## Highlights
+
+- **TER scoring** with phase-aware analysis for reasoning, tool use, and generation
+- **Waste detection** for repeated reasoning, duplicate tools, repeated reads, retries, fragmented edits, and command repetition
+- **Session economics** using API token usage, cache statistics, pricing models, and waste-cost estimates
+- **Intent construction** using weighted prompt embeddings rather than simple text repetition
+- **Structured repetition scoring** using semantic, lexical, entity, action, and tool-call evidence
+- **Tool fingerprints** based on normalized tool names and arguments
+- **JSONL identity and merging** with source provenance and content fingerprints
+- **Span segmentation** for finer-grained reasoning and generation analysis
+- **Real-time monitoring** with rolling TER, drift detection, and live warnings
+- **Context orchestration** with fragment storage, dependency graphs, budget optimization, and delta composition
+- **Evaluation and regression tooling** for threshold calibration and release comparison
+- **High automated test coverage** with branch coverage enforced in CI
+
+Current verified test status:
+
+```text
+1,065 tests passed
+91.96% branch coverage
+Configured minimum: 90%
+```
+
+---
+
+
+## Scoring scope and JSONL compatibility
+
+TER scores **model output only**: assistant reasoning, tool use, and generated
+responses. User prompts remain available for intent construction, prompt-response
+alignment, and input analysis, but are excluded from `total_tokens`,
+`aligned_tokens`, `waste_tokens`, and phase TER scores.
+
+Claude Code and SDK JSONL exports may contain metadata records such as
+`queue-operation`, `last-prompt`, and `ai-title`. The loader ignores these
+non-conversation records. Only supported conversation records are converted into
+messages, and only messages whose role is `assistant` become scored spans. This
+prevents duplicated queued prompts from being misclassified as generated output.
+
+To verify a session after analysis:
+
+```bash
+ter analyze path/to/session.jsonl --format json | jq '{
+  total_tokens,
+  aligned_tokens,
+  waste_tokens,
+  roles: [.classified_spans[].source_role] | unique
+}'
+```
+
+The `roles` output should contain only `"assistant"`. User-token totals are
+reported separately under `input_analysis.token_breakdown`.
 
 ## Installation
 
-```bash
-pip install -e .
-```
-
-For development:
+### Base installation
 
 ```bash
-pip install -e ".[dev]"
+python -m pip install -e .
 ```
 
-Requires Python 3.11+.
-## Usage
+### Development installation
+
+```bash
+python -m pip install -e ".[dev]"
+```
+
+### Embedding-enabled installation
+
+Some TER features use sentence-transformer embeddings. If embeddings are optional in your installation configuration, install the corresponding extra:
+
+```bash
+python -m pip install -e ".[embeddings]"
+```
+
+For development with embedding features:
+
+```bash
+python -m pip install -e ".[dev,embeddings]"
+```
+
+TER requires Python 3.11 or a newer version explicitly supported by the project’s CI configuration.
+
+---
+
+## Quick Start
+
+A deterministic synthetic session is included at:
+
+```text
+sample_sessions/example_session.jsonl
+```
+
+It contains no real user data, credentials, or proprietary source code.
+
+### Analyze the sample session
+
+```bash
+ter analyze sample_sessions/example_session.jsonl
+```
+
+### Generate JSON output
+
+```bash
+ter analyze sample_sessions/example_session.jsonl --format json
+```
+
+### Generate a Markdown report
+
+```bash
+ter report sample_sessions/example_session.jsonl
+```
+
+Write the report to a file:
+
+```bash
+ter report sample_sessions/example_session.jsonl -o example-report.md
+```
+
+### Run cost-weighted and overthinking analysis
+
+```bash
+ter analyze sample_sessions/example_session.jsonl \
+  --cost-weighted \
+  --check-overthinking
+```
+
+### Store and optimize context fragments
+
+```bash
+ter context store sample_sessions/example_session.jsonl
+
+ter context optimize \
+  sample_sessions/example_session.jsonl \
+  --budget 10000
+```
+
+---
+
+## Sample Session Contents
+
+The included synthetic session demonstrates:
+
+- A user request with explicit requirements
+- Assistant reasoning
+- Assistant text output
+- Tool calls and tool results
+- A repeated file read
+- A file write
+- A verification command
+- Input/output/cache token usage
+- Stable session, request, message, and tool identifiers
+
+The sample is intended for:
+
+- README examples
+- Manual experimentation
+- CLI smoke tests
+- Regression tests
+- Demonstrations and screenshots
+
+---
+
+## Core Commands
 
 ### Analyze a session
 
@@ -48,345 +187,801 @@ Requires Python 3.11+.
 ter analyze path/to/session.jsonl
 ```
 
-### Live monitoring (NEW)
+Useful options:
 
-Monitor active sessions in real-time with an **interactive dashboard** that updates as the session progresses:
+```text
+--format text|json
+--similarity-threshold FLOAT
+--confidence-threshold FLOAT
+--restatement-threshold FLOAT
+--phase-weights REASONING,TOOL_USE,GENERATION
+--no-waste-patterns
+--cost-model MODEL
+--group
+--no-input-analysis
+--prompt-similarity-threshold FLOAT
+--cost-weighted
+--check-overthinking
+```
+
+Example:
 
 ```bash
-# Dashboard mode (default) - rich interactive display
+ter analyze sample_sessions/example_session.jsonl \
+  --format json \
+  --cost-weighted
+```
+
+---
+
+### Generate a Markdown report
+
+```bash
+ter report path/to/session.jsonl
+```
+
+Write to a file:
+
+```bash
+ter report path/to/session.jsonl -o report.md
+```
+
+The report can include:
+
+- Aggregate TER
+- Per-phase scores
+- Waste percentage
+- Token totals
+- Cost estimates
+- Cache efficiency
+- Context growth
+- Positional TER
+- Waste patterns
+- Suggested next steps
+- Calibration and uncertainty metadata when available
+
+---
+
+### List sessions
+
+```bash
+ter list
+```
+
+Specify a location:
+
+```bash
+ter list ~/.claude/projects/
+```
+
+JSON output:
+
+```bash
+ter list ~/.claude/projects/ --format json
+```
+
+Limit results:
+
+```bash
+ter list ~/.claude/projects/ --limit 20
+```
+
+---
+
+### Compare sessions
+
+```bash
+ter compare session-a.jsonl session-b.jsonl
+```
+
+Directories may also be supplied:
+
+```bash
+ter compare ~/.claude/projects/project-a ~/.claude/projects/project-b
+```
+
+Sort results:
+
+```bash
+ter compare sessions/ --sort ter
+ter compare sessions/ --sort tokens
+ter compare sessions/ --sort waste
+```
+
+Generate a before/after baseline comparison:
+
+```bash
+ter compare before.jsonl after.jsonl --baseline
+```
+
+---
+
+## Live Monitoring
+
+Monitor active Claude Code sessions in real time:
+
+```bash
 ter watch ~/.claude/projects/your-project
+```
 
-# Watch a specific session file
+Watch a specific session file:
+
+```bash
 ter watch path/to/session.jsonl
+```
 
-# Stream mode - line-by-line output
+Watch the most recently modified session:
+
+```bash
+ter watch ~/.claude/projects/your-project --latest
+```
+
+Use stream mode for logs or pipelines:
+
+```bash
 ter watch --stream ~/.claude/projects/your-project
 ```
 
-**Dashboard mode** displays (default):
-```
-╭───────────── TER Live Monitor — Session: 711bb9b1 — 🟢 LIVE ─────────────╮
-│ TER: 0.97  │  Waste: 7.5%  │  Cost: $2.45  │  Waste $: $0.06           │
-│ Drift: stable →  │  Messages: 49  │  Active: 15m 32s  │  Rate: 3,380 tok/min │
-╰──────────────────────────────────────────────────────────────────────────╯
-  Phases           Reasoning        Tool Use       Generation   
-  Score               1.00            0.92            1.00      
-                    ████████        ██████          ████████    
-  Tokens     Output: 52,497  │  Aligned: 48,553  │  Waste: 3,944
-             Input: 7,700  │  Cache: 3.2M  │  Hit: 99.8%
-  Context    Growth: 5.7x over 49 turns  ⚠️  BLOAT DETECTED
-Recent TER:  ▇▇▇▇▇▇▆▇▇▇  (0.97)
+Save monitoring signals:
+
+```bash
+ter watch ~/.claude/projects/your-project \
+  --stream \
+  --log ter-signals.jsonl
 ```
 
-Features:
-- **Real-time TER and cost tracking** with live updates
-- **Phase breakdown** (reasoning/tool use/generation)
-- **Cache hit rate** and input/output token metrics
-- **Context growth monitoring** with bloat detection
-- **Session duration** and tokens-per-minute rate
-- **TER trend sparkline** showing recent history
-- **Live warnings** when efficiency degrades
-- **Updates in-place** (no scrolling) for clean monitoring
+The live monitor can display:
 
-**Stream mode** provides traditional line-by-line output:
-- Useful for logging or piping to other tools
-- Each new message prints a status line
-- Add `--log FILE` to save signals as JSONL for later analysis
+- Rolling TER
+- Reasoning, tool-use, and generation scores
+- Output, aligned, and waste token totals
+- Input and cache token statistics
+- Cost and estimated waste cost
+- Session duration
+- Token throughput
+- Context growth and bloat signals
+- Recent TER trend
+- Drift warnings
 
-### Budget recommendations 
+---
 
-Get token budget and model recommendations for a task before starting:
+## Budget Recommendations
+
+Estimate an appropriate token and model budget before starting a task:
 
 ```bash
 ter budget "Fix the authentication bug in login.py"
-ter budget "Implement full e-commerce checkout with Stripe" --use-history
 ```
 
-Returns:
-- Complexity classification (simple/standard/complex)
-- Recommended model tier (haiku/sonnet/opus)
-- Suggested thinking token budget
-- Estimated total tokens and cost
-
-### Cost-weighted analysis
-
-Include cost analysis with dollar-weighted TER:
+Use prior history:
 
 ```bash
-ter analyze path/to/session.jsonl --cost-weighted
+ter budget \
+  "Implement an e-commerce checkout with Stripe" \
+  --use-history
 ```
 
-Adds:
-- Cost-weighted TER (weights waste by dollar cost, not just token count)
-- Semantic density scoring (information per token)
-- Per-phase cost breakdown
-- Alternative model savings recommendations
+The recommendation can include:
 
-### Overthinking detection
+- Complexity classification
+- Model tier
+- Thinking-token budget
+- Estimated total tokens
+- Estimated cost
+- Historical adjustment
 
-Analyze reasoning efficiency and detect when thinking plateaus:
+---
+
+## Context Orchestrator
+
+### Store fragments
 
 ```bash
-ter analyze path/to/session.jsonl --check-overthinking
+ter context store path/to/session.jsonl
 ```
 
-Shows:
-- Reasoning efficiency percentage
-- Optimal cutoff point where value drops
-- Wasted reasoning tokens
-- Recommended thinking budget
+### Build a context graph
 
-### Grouped analysis (parent + subagents)
+```bash
+ter context graph path/to/session.jsonl
+```
 
-When a session spawns subagents, use `--group` to analyze the entire run together:
+### Optimize context for a token budget
+
+```bash
+ter context optimize path/to/session.jsonl --budget 10000
+```
+
+Optional relevance threshold:
+
+```bash
+ter context optimize path/to/session.jsonl \
+  --budget 10000 \
+  --relevance-threshold 0.2
+```
+
+### Compose a delta prompt
+
+```bash
+ter context delta path/to/session.jsonl
+```
+
+### Check cross-session consistency
+
+```bash
+ter context check path/to/session.jsonl
+```
+
+Include subagents:
+
+```bash
+ter context check path/to/session.jsonl --group
+```
+
+Select consistency mode:
+
+```bash
+ter context check path/to/session.jsonl --mode strict
+ter context check path/to/session.jsonl --mode relaxed
+```
+
+---
+
+## Grouped Analysis
+
+Analyze a parent session together with subagent sessions:
 
 ```bash
 ter analyze path/to/session.jsonl --group
 ```
 
-This discovers subagent sessions automatically from the filesystem layout (`SESSION_ID/subagents/*.jsonl`), analyzes each one, and reports token-weighted aggregate TER, total cost, and per-session breakdown.
+TER discovers subagent sessions from the supported filesystem layout and reports:
 
-### JSON output
+- Parent-session results
+- Per-subagent results
+- Token-weighted aggregate TER
+- Aggregate costs
+- Aggregate waste
+- Cross-session comparisons
 
-```bash
-ter analyze path/to/session.jsonl --format json
-```
-
-## Quick Start
-
-```bash
-# Analyze a session
-ter list
-ter list ~/.claude/projects/
-```
-
-Sessions with subagents show the count (e.g. `SESSION_ID (128.5 KB, 6 subagents)`). Subagent files are hidden from the listing.
-
-### Markdown report (human summary)
-
-```bash
-ter report path/to/session.jsonl
-ter report path/to/session.jsonl -o report.md
-```
-
-Prints a **Markdown** one-pager to **stdout**, or writes it to a file with **`-o` / `--output`**. Content includes TER, waste %, cost, **output calibration ratio**, cache, positional TER, top structural patterns, and suggested next steps. Same analysis pipeline and flags as `analyze` (except `--format` / `--group`).
-
-### Options
-
-```
-ter analyze <path>
-  --format text|json           Output format (default: text)
-  --similarity-threshold       Cosine similarity threshold (default: 0.40)
-  --confidence-threshold       Classifier confidence threshold (default: 0.75)
-  --restatement-threshold      Context restatement threshold (default: 0.85)
-  --phase-weights r,t,g        Phase weights (default: 0.3,0.4,0.3)
-  --no-waste-patterns          Skip waste pattern detection
-  --cost-model MODEL           Pricing: 'sonnet' (default) or 'input,output,cache_read,cache_write'
-  --group                      Include subagent sessions in grouped analysis
-  --no-input-analysis          Disable input analysis (token breakdown, drift, alignment)
-  --prompt-similarity-threshold  Cosine similarity for flagging redundant prompts (default: 0.75)
-  --cost-weighted              Include cost-weighted TER analysis (NEW)
-  --check-overthinking         Analyze reasoning efficiency and detect overthinking (NEW)
-
-ter watch <project-path>
-  --poll-interval SECONDS      Seconds between polls (default: 2.0)
-  --format text|json           Output format (default: text)
-  --stream                     Use streaming line-by-line output instead of dashboard
-  --latest                     Watch the most recent session by modification time
-  --log FILE                   Append signals as JSONL to FILE for later analysis
-  --model PATH                 Path to custom sentence-transformers model (optional)
-
-ter budget <intent-text>
-  --use-history                Enable historical learning from past sessions
-  --history-path PATH          Custom path to budget_history.json
-  --format text|json           Output format (default: text)
-
-ter compare <paths_or_dirs...>
-  --format text|json
-  --sort ter|tokens|waste
-  --baseline                 Exactly two .jsonl files: before/after Markdown delta
-  Accepts directories (expands to all *.jsonl files inside)
-
-ter list [path]
-  --format text|json
-  --limit N
-
-ter report <path>
-  -o, --output FILE          Write Markdown to FILE instead of stdout
-  (same threshold/cost/analysis flags as analyze)
-```
-
-## Try It
-
-Sample sessions are included in `sample_sessions/`. Run TER against them to see what the output looks like:
-
-```bash
-# Analyze a single session
-ter analyze sample_sessions/b1a1450c-b006-40fe-8f9c-f15622a94324.jsonl
-
-# Get budget recommendation before starting a task
-ter budget "Fix the authentication bug in login.py"
-
-# Monitor a live session
-ter watch ~/.claude/projects/your-project --latest
-# Monitor active sessions in real-time with live dashboard (NEW)
-ter watch ~/.claude/projects/your-project
-ter watch --stream ~/.claude/projects/your-project  # Stream mode
-
-# Store session fragments for context optimization
-ter context store sample_sessions/b1a1450c-b006-40fe-8f9c-f15622a94324.jsonl
-
-# Optimize context within a token budget
-ter context optimize sample_sessions/b1a1450c-b006-40fe-8f9c-f15622a94324.jsonl --budget 10000
-```
-
-## CLI Reference
-
-### Analysis Commands
-
-```
-ter analyze <path>           Full TER analysis
-  --latest                   Use most recent session
-  --format text|json         Output format
-  --cost-weighted            Include cost-weighted analysis
-  --check-overthinking       Detect reasoning inefficiency
-  --group                    Include subagent sessions
-  --similarity-threshold     Alignment threshold (default: 0.40)
-  --phase-weights r,t,g      Phase weights (default: 0.3,0.4,0.3)
-
-ter report <path>            Markdown summary
-  -o, --output FILE          Write to file instead of stdout
-
-ter compare <paths...>       Multi-session comparison
-  --sort ter|tokens|waste    Sort order
-  --baseline                 Two-session before/after delta
-
-ter list [path]              Discover sessions
-  --limit N                  Max sessions to show
-```
-
-### Monitoring & Planning
-
-```
-ter watch <path>             Live session monitoring
-  --latest                   Watch most recent session
-  --poll-interval SECONDS    Poll frequency (default: 2.0)
-  --log FILE                 Save signals as JSONL
-
-ter budget <task-text>       Token budget recommendation
-  --use-history              Learn from past sessions
-```
-
-### Context Orchestrator
-
-```
-ter context store <path>     Shard session into fragments
-ter context graph <path>     Build and display context graph
-ter context optimize <path>  Knapsack budget optimization
-  --budget TOKENS            Token budget ceiling (required)
-  --relevance-threshold      Min relevance score (default: 0.1)
-ter context delta <path>     Show delta prompt composition
-ter context check <path>     Cross-session consistency check
-  --group                    Include subagent sessions
-  --mode strict|relaxed      Consistency mode (default: relaxed)
-```
+---
 
 ## Architecture
 
-```
+```text
 src/ter_calculator/
-  Core Pipeline:
-    models.py               Data models and enums
-    loader.py               JSONL parsing, span segmentation
-    intent.py               Intent extraction and embedding
-    classifier.py           Span classification (aligned vs waste)
-    compute.py              TER score computation
-    waste.py                Waste pattern detection (8 detectors)
-    economics.py            Session economics and cost
-    input_analysis.py       Input-side analysis
-    formatter.py            Output formatting (Rich/JSON)
-    compare.py              Multi-session comparison
-    analyze_pipeline.py     Full analysis pipeline
-    cli.py                  CLI entry point
-
-  Real-Time & Adaptive:
-    real_time.py            Live monitoring, rolling TER, drift detection
-    adaptive_budget.py      Complexity estimation, budget recommendations
-    cost_model.py           Cost-weighted TER, semantic density
-    overthinking.py         Reasoning efficiency, optimal cutoff
-
-  Context Orchestrator:
-    fragment_store.py       Content-addressable fragment storage (SQLite)
-    context_graph.py        Fragment relationship DAG
-    budget_optimizer.py     Knapsack token budget optimization
-    delta_composer.py       Reference-based prompt composition
-    consistency.py          Cross-session version skew detection
-
-  Infrastructure:
-    embedding_cache.py      Span merging, disk cache, GPU detection
-    token_counting.py       Calibrated token counting
-    intent_extraction.py    Sliding window, hierarchical intent
-    waste_detectors.py      Extended waste patterns
-    feedback.py             Historical trending, CI thresholds
-    plugins.py              Plugin system (protocols, registry)
-    validation.py           JSONL validation, health reports
-    acceleration.py         Incremental cache, quick mode
+├── __main__.py
+├── cli.py
+├── commands/
+│   ├── analyze.py
+│   ├── context.py
+│   ├── hook.py
+│   ├── listing.py
+│   ├── report.py
+│   └── watch.py
+│
+├── acceleration/
+│   ├── __init__.py
+│   ├── cache.py
+│   ├── parallel.py
+│   ├── quick_analyser.py
+│   └── session_watcher.py
+│
+├── models.py
+├── loader.py
+├── jsonl_identity.py
+├── span_segmentation.py
+├── intent.py
+├── intent_construction.py
+├── intent_extraction.py
+├── classifier.py
+├── repetition_scoring.py
+├── tool_fingerprints.py
+├── compute.py
+├── waste.py
+├── waste_detectors.py
+├── economics.py
+├── cost_model.py
+├── input_analysis.py
+├── overthinking.py
+├── real_time.py
+├── adaptive_budget.py
+├── formatter.py
+├── formatter_json.py
+├── formatter_rich.py
+├── rich_components.py
+├── dashboard.py
+├── fragment_store.py
+├── context_graph.py
+├── budget_optimizer.py
+├── delta_composer.py
+├── consistency.py
+├── embedding_cache.py
+├── token_counting.py
+├── validation.py
+├── evaluation.py
+├── regression.py
+├── feedback.py
+├── plugins.py
+├── hook_monitor.py
+├── session_report.py
+└── analyze_pipeline.py
 ```
 
-See [docs/architecture.md](docs/architecture.md) for detailed diagrams and data flow.
+### Main responsibilities
 
-## How It Works
+#### Parsing and identity
 
-1. **Load** -- parse JSONL, deduplicate by requestId
-2. **Segment** -- split content blocks into token spans by phase
-3. **Intent** -- embed user prompts (all-MiniLM-L6-v2, 384-dim) to create intent vector
-4. **Classify** -- embed spans, check self-repetition, apply phase-specific heuristics (aligned by default)
-5. **Compute** -- per-phase aligned/total ratio, weighted aggregate
-6. **Detect** -- structural waste patterns across the session
-7. **Economics** -- real API token usage, cost, cache efficiency, context growth
-8. **Context** (optional) -- fragment storage, graph construction, budget optimization
+- `loader.py` parses session JSONL.
+- `jsonl_identity.py` creates stable block identities and fingerprints.
+- Sibling entries sharing a request ID can be merged while preserving distinct content.
+- Source provenance is retained so merged spans can be traced to source records.
+- Partial, duplicated, or malformed records are handled through validation and recovery logic.
 
-## Documentation
+#### Segmentation
 
-- [Architecture](docs/architecture.md) -- system design, module dependencies, data flow
-- [Context Orchestrator](docs/context-orchestrator.md) -- patent implementation reference
-- [User Guide](docs/user-guide.md) -- installation, workflows, troubleshooting
+- `span_segmentation.py` divides large reasoning or generation blocks into finer segments.
+- Segmentation can use paragraph, sentence-group, Markdown, or discourse boundaries.
+- Small adjacent segments may be merged to avoid unstable micro-spans.
 
-## Contributing
+#### Intent construction
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on setting up your development environment, running tests, and submitting pull requests.
+- Prompts are embedded independently.
+- Explicit weights can represent recency and information content.
+- Weighted prompt embeddings are combined into a normalized intent centroid.
+- Operational prompts such as “continue” can be down-weighted.
+- Topic-shift handling can preserve more than one active intent representation.
 
-This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md).
+#### Repetition analysis
+
+Reasoning repetition can combine:
+
+- Semantic similarity
+- Lexical similarity
+- Entity overlap
+- Action overlap
+- Parameter novelty
+- Temporal distance
+
+Tool repetition uses structured evidence such as:
+
+- Tool name
+- Normalized arguments
+- File path
+- Line range
+- Query
+- Command
+- Exit state
+- Result fingerprint
+
+#### Evaluation and regression
+
+- `evaluation.py` supports metric evaluation and threshold analysis.
+- `regression.py` supports release-to-release comparisons.
+- Thresholds should be calibrated against labeled data.
+- Precision-weighted metrics such as F0.5 are appropriate when false-positive waste labels are especially costly.
+
+---
+
+## How TER Works
+
+A typical analysis pipeline is:
+
+1. **Load**  
+   Parse JSONL records and recover valid session messages.
+
+2. **Identify and merge**  
+   Assign stable identities, merge sibling records, remove exact duplicate blocks, and preserve provenance.
+
+3. **Segment**  
+   Split reasoning, generation, and tool content into analysis spans.
+
+4. **Construct intent**  
+   Build one or more weighted intent vectors from user prompts.
+
+5. **Classify**  
+   Estimate whether each span is aligned, repetitive, or potentially wasteful.
+
+6. **Score repetition**  
+   Combine semantic, lexical, entity, action, and structured tool evidence.
+
+7. **Compute TER**  
+   Calculate per-phase efficiency and a weighted aggregate.
+
+8. **Detect structural waste**  
+   Detect repeated reads, fragmented edits, failed retries, repeated commands, and related patterns.
+
+9. **Calculate economics**  
+   Use API usage, model pricing, cache statistics, and output calibration.
+
+10. **Evaluate confidence**  
+    Track classifier confidence and low-confidence token share.
+
+11. **Report**  
+    Produce Rich terminal output, JSON, Markdown, monitoring signals, or comparison results.
+
+12. **Optimize context**  
+    Optionally store fragments, build dependency graphs, and select context within a token budget.
+
+---
+
+## JSONL Merge Semantics
+
+A `requestId` can represent one logical API response that was serialized across several sibling JSONL lines.
+
+TER therefore preserves distinct content blocks instead of keeping only the sibling with the highest `output_tokens`.
+
+The parser should protect against:
+
+- Exact duplicate content blocks
+- Out-of-order sibling entries
+- Reused request IDs
+- Missing request IDs
+- Partial writes
+- Interrupted sessions
+- Corrupt final lines
+- Tool results arriving separately
+- Multiple assistant messages sharing a request identifier
+
+Stable content fingerprints and source-line provenance help make merging deterministic and auditable.
+
+---
+
+## Interpretation and Uncertainty
+
+TER is a heuristic metric.
+
+A score such as:
+
+```text
+TER: 0.83
+```
+
+does not imply perfect certainty. Classification depends on:
+
+- Prompt interpretation
+- Embedding behavior
+- Similarity thresholds
+- Segmentation choices
+- Tool normalization
+- Session completeness
+- Model and tokenizer differences
+
+Where supported, reports should include uncertainty information such as:
+
+```text
+TER estimate: 0.83
+Bootstrap 95% interval: 0.77–0.88
+Low-confidence tokens: 14.2%
+```
+
+TER is most useful for:
+
+- Comparing similar sessions
+- Detecting regressions
+- Identifying repeated work
+- Finding high-cost waste patterns
+- Guiding investigation
+
+It should not be used as the sole basis for judging a developer, model, or individual session.
+
+---
+
+## Empirical Validation
+
+Functional correctness does not by itself prove that TER matches expert judgment.
+
+A strong validation program should include:
+
+- A labeled evaluation dataset
+- Multiple human annotators
+- Annotation guidelines
+- Inter-rater agreement
+- Precision and recall by waste category
+- F1 and F0.5
+- Precision-recall curves
+- Confusion matrices
+- Bootstrap confidence intervals
+- Leave-one-session-out validation
+- False-positive analysis
+- Model and embedding sensitivity analysis
+- Release-to-release regression benchmarks
+
+Threshold changes should be justified by benchmark results rather than hand tuning alone.
+
+---
 
 ## Development
 
+Install development dependencies:
+
 ```bash
-# Run tests
-pytest
-
-# Lint
-ruff check src/
-
-# Type check
-mypy src/
-
-# Run specific test modules
-pytest tests/unit/test_fragment_store.py -v
-pytest tests/unit/test_budget_optimizer.py -v
+python -m pip install -e ".[dev]"
 ```
+
+Run the full test suite:
+
+```bash
+python -m pytest
+```
+
+Run tests with branch coverage:
+
+```bash
+python -m pytest \
+  --cov=ter_calculator \
+  --cov-branch \
+  --cov-report=term-missing
+```
+
+Current verified result:
+
+```text
+1,065 passed
+91.96% branch coverage
+```
+
+Lint:
+
+```bash
+ruff check src/
+```
+
+Apply safe automatic fixes:
+
+```bash
+ruff check src/ --fix
+```
+
+Type check:
+
+```bash
+mypy src/
+```
+
+Recommended full local quality check:
+
+```bash
+python -m pytest && ruff check src/ && mypy src/
+```
+
+Run an individual test module:
+
+```bash
+python -m pytest tests/unit/test_loader.py -v
+```
+
+Run a single BDD scenario:
+
+```bash
+python -m pytest \
+  tests/features/steps/performance_steps.py::test_sibling_entries_sharing_a_requestid_preserve_all_content_blocks \
+  -vv
+```
+
+---
+
+## Coverage Policy
+
+Branch coverage is enabled.
+
+The configured project floor is:
+
+```text
+90%
+```
+
+The current verified result is:
+
+```text
+91.96%
+```
+
+Coverage is most important in:
+
+- Parsing and JSONL merging
+- Identity and fingerprinting
+- Classification
+- TER computation
+- Cost calculations
+- Validation
+- Real-time state management
+- Context persistence
+- Regression detection
+
+Some presentation, platform-specific, and defensive fallback paths may reasonably remain below the repository average.
+
+---
+
+## Testing the README Example
+
+A smoke test should verify that the included sample remains usable:
+
+```python
+def test_readme_sample_session_runs(cli_runner):
+    result = cli_runner.invoke(
+        ["analyze", "sample_sessions/example_session.jsonl"]
+    )
+
+    assert result.exit_code == 0
+```
+
+At minimum, CI should verify:
+
+```bash
+ter analyze sample_sessions/example_session.jsonl
+ter analyze sample_sessions/example_session.jsonl --format json
+ter report sample_sessions/example_session.jsonl -o /tmp/ter-example-report.md
+```
+
+This prevents documentation examples from becoming stale.
+
+---
+
+## Troubleshooting
+
+### `ModuleNotFoundError: No module named 'pytest_bdd'`
+
+Install the development dependencies:
+
+```bash
+python -m pip install -e ".[dev]"
+```
+
+Run pytest through the active interpreter:
+
+```bash
+python -m pytest
+```
+
+This avoids invoking a `pytest` executable from a different Python environment.
+
+### `Session file not found`
+
+Confirm that the path exists:
+
+```bash
+ls -l sample_sessions/example_session.jsonl
+```
+
+Run the included example from the repository root:
+
+```bash
+ter analyze sample_sessions/example_session.jsonl
+```
+
+### Embedding model unavailable
+
+Install embedding dependencies:
+
+```bash
+python -m pip install -e ".[embeddings]"
+```
+
+If the model must be downloaded, ensure network access is available during first use or configure a local model path.
+
+### Coverage unexpectedly drops
+
+Check for stale or duplicate modules left behind after a package refactor. A file and package with the same import name can cause coverage to count unreachable source files.
+
+Verify the imported module path:
+
+```bash
+python -c "import ter_calculator.acceleration as a; print(a.__file__)"
+```
+
+---
+
+## Documentation
+
+- [Architecture](docs/architecture.md)
+- [Context Orchestrator](docs/context-orchestrator.md)
+- [User Guide](docs/user-guide.md)
+- [Contributing](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [License](LICENSE)
+
+---
+
+## Contributing
+
+Contributions are welcome.
+
+Before submitting a pull request:
+
+```bash
+python -m pytest
+ruff check src/
+mypy src/
+```
+
+New behavior should include:
+
+- Unit or integration tests
+- Regression coverage for bug fixes
+- Documentation updates where relevant
+- No reduction below the configured coverage floor
+
+---
 
 ## Limits of Interpretation
 
-TER is a heuristic tool:
-- Token counts use `len(text) // 4` approximation, not exact tokenization
-- Waste classification uses embeddings and thresholds, not ground-truth labels
-- Cost estimates use configurable per-MTok rates (Sonnet defaults)
-- Context orchestrator fragment deduplication is content-based (identical text = same fragment)
+TER should be interpreted carefully:
+
+- Token estimates may differ from provider billing totals.
+- Embeddings are approximations of semantic intent.
+- Similarity thresholds are model- and dataset-sensitive.
+- Repetition is not always waste.
+- Corrections and verification can be necessary even when text appears similar.
+- Tool calls require structured comparison, not semantic similarity alone.
+- Incomplete or corrupt logs reduce confidence.
+- A high TER does not prove task success.
+- A low TER does not prove poor engineering judgment.
+- Waste detection (duplicate tool calls, retries, restated reasoning) assumes
+  long-lived, multi-turn sessions. On bursty workloads made of many short,
+  single-shot sessions, spans per session can be as low as one `thinking` +
+  one `text` block, leaving nothing for these detectors to act on. TER on
+  such sessions is not wrong, just largely uninformative — see
+  `scripts/labeling_priority.py` for a way to find which sessions in a
+  bursty corpus have enough structure to be worth hand-labeling.
+- Semantic embeddings (`sentence-transformers`) and token estimation
+  (`tiktoken`) both attempt a one-time network download on first use.
+  Tiktoken now falls back to a character-based estimate if that download
+  fails (see UPDATES.md); the embedding model download has no offline
+  fallback yet, so first run on a firewalled or air-gapped machine will fail
+  until the model is vendored or cached ahead of time.
+
+Use TER alongside task outcomes, expert review, and session context.
+
+---
 
 ## Requirements
 
-- Python 3.11+
-- sentence-transformers (embeddings)
-- numpy (similarity computation)
-- rich (terminal formatting)
-- sqlite3 (stdlib, fragment storage)
+Core requirements typically include:
+
+- Python
+- NumPy
+- Rich
+- Standard-library SQLite support
+
+Embedding-enabled features may additionally require:
+
+- sentence-transformers
+- A compatible ML backend
+- Access to a local or downloadable embedding model
+
+See `pyproject.toml` for the authoritative dependency and Python-version declarations.
+
+## Standalone HTML reports
+
+TER can generate a portable, interactive HTML report for a session. The report embeds its CSS, JavaScript, charts, and analysis data, so it opens directly in a browser and does not require a web server or network access.
+
+```bash
+ter analyze sample_sessions/example_session.jsonl --format html
+```
+
+The default output is written beside the input file as:
+
+```text
+sample_sessions/example_session.ter-report.html
+```
+
+Choose an explicit destination with `--output`:
+
+```bash
+ter analyze session.jsonl \
+  --format html \
+  --output reports/session-report.html
+```
+
+The report includes:
+
+- an executive scorecard for TER, aligned and waste tokens, cost, and reliability;
+- token composition and phase distribution charts;
+- a token-weighted span timeline;
+- an alignment-versus-confidence scatter plot;
+- an interactive span inspector with text and classification evidence;
+- consistency diagnostics for low confidence, low alignment, and invalid source roles;
+- an embedded JSON download for downstream analysis.
+
+HTML reports score only assistant-origin spans. User prompts remain available for intent construction and input analysis but are excluded from TER output scoring.

@@ -27,8 +27,15 @@ import re
 import numpy as np
 
 from .intent import embed_texts
+from .tool_fingerprints import (
+    ToolCallFingerprint,
+    build_tool_fingerprint,
+    compare_tool_calls,
+)
+from .repetition_scoring import score_text_repetition, score_tool_repetition
 from .models import (
     ClassifiedSpan,
+    ClassificationExplanation,
     IntentVector,
     SpanLabel,
     SpanPhase,
@@ -108,6 +115,7 @@ def classify_spans(
     # Classify each span with full context.
     classified: list[ClassifiedSpan] = []
     prior_by_phase: dict[SpanPhase, list[int]] = {p: [] for p in SpanPhase}
+    prior_tool_fingerprints: list[tuple[ToolCallFingerprint, int]] = []
 
     for i, span in enumerate(spans):
         sim = intent_sims[i]
@@ -115,10 +123,36 @@ def classify_spans(
         # Check for self-repetition against recent same-phase spans.
         # Phase-specific threshold: tool calls need a higher bar (0.93) because
         # they are structurally similar across topics by design.
-        is_repetition, rep_sim = _check_repetition(
-            i, span.phase, embeddings, prior_by_phase,
-            repetition_threshold=_REPETITION_THRESHOLDS.get(span.phase, 0.88),
-        )
+        matched_prior_idx: int | None = None
+        repetition_evidence = None
+        if span.phase == SpanPhase.TOOL_USE and span.tool_name:
+            fingerprint = build_tool_fingerprint(span.tool_name, span.tool_input)
+            rep_sim = 0.0
+            for prior, prior_idx in prior_tool_fingerprints[-10:]:
+                semantic = cosine_similarity(embeddings[i], embeddings[prior_idx])
+                evidence = score_tool_repetition(
+                    spans[prior_idx].text,
+                    span.text,
+                    semantic,
+                    compare_tool_calls(prior, fingerprint),
+                )
+                if evidence.score > rep_sim:
+                    rep_sim = evidence.score
+                    repetition_evidence = evidence
+                    matched_prior_idx = prior_idx
+            is_repetition = rep_sim >= _REPETITION_THRESHOLDS[SpanPhase.TOOL_USE]
+        else:
+            fingerprint = None
+            is_repetition, rep_sim, matched_prior_idx, repetition_evidence = (
+                _find_blended_repetition(
+                    i,
+                    span.phase,
+                    spans,
+                    embeddings,
+                    prior_by_phase,
+                    repetition_threshold=_REPETITION_THRESHOLDS.get(span.phase, 0.88),
+                )
+            )
 
         # Classify based on phase + signals.
         label, conf = _classify_span(
@@ -131,16 +165,149 @@ def classify_spans(
             span_text=span.text,
         )
 
-        classified.append(ClassifiedSpan(
+        explanation = _build_explanation(
             span=span,
             label=label,
             confidence=conf,
-            cosine_similarity=sim,
-        ))
+            intent_similarity=sim,
+            repetition_similarity=rep_sim,
+            repetition_evidence=repetition_evidence,
+            matched_prior=spans[matched_prior_idx]
+            if matched_prior_idx is not None
+            else None,
+        )
+        classified.append(
+            ClassifiedSpan(
+                span=span,
+                label=label,
+                confidence=conf,
+                cosine_similarity=sim,
+                explanation=explanation,
+            )
+        )
 
         prior_by_phase[span.phase].append(i)
+        if fingerprint is not None:
+            prior_tool_fingerprints.append((fingerprint, i))
 
     return classified
+
+
+def _find_blended_repetition(
+    current_idx: int,
+    phase: SpanPhase,
+    spans: list[TokenSpan],
+    embeddings: np.ndarray,
+    prior_by_phase: dict[SpanPhase, list[int]],
+    window: int = 10,
+    repetition_threshold: float = 0.88,
+):
+    """Return repetition decision, best score, prior index, and evidence."""
+    prior_indices = prior_by_phase[phase][-window:]
+    if not prior_indices:
+        return False, 0.0, None, None
+
+    max_score = 0.0
+    matched_idx = None
+    best_evidence = None
+    for idx in prior_indices:
+        semantic = cosine_similarity(embeddings[current_idx], embeddings[idx])
+        evidence = score_text_repetition(
+            spans[idx].text, spans[current_idx].text, semantic
+        )
+        if evidence.score > max_score:
+            max_score = evidence.score
+            matched_idx = idx
+            best_evidence = evidence
+
+    return max_score >= repetition_threshold, max_score, matched_idx, best_evidence
+
+
+def _check_blended_repetition(
+    current_idx: int,
+    phase: SpanPhase,
+    spans: list[TokenSpan],
+    embeddings: np.ndarray,
+    prior_by_phase: dict[SpanPhase, list[int]],
+    window: int = 10,
+    repetition_threshold: float = 0.88,
+) -> tuple[bool, float]:
+    """Compatibility wrapper returning only decision and score."""
+    repeated, score, _, _ = _find_blended_repetition(
+        current_idx,
+        phase,
+        spans,
+        embeddings,
+        prior_by_phase,
+        window,
+        repetition_threshold,
+    )
+    return repeated, score
+
+
+def _build_explanation(
+    *,
+    span: TokenSpan,
+    label: SpanLabel,
+    confidence: float,
+    intent_similarity: float,
+    repetition_similarity: float,
+    repetition_evidence,
+    matched_prior: TokenSpan | None,
+) -> ClassificationExplanation:
+    """Construct stable, inspectable evidence for a classification."""
+    signals = {
+        "intent_similarity": round(intent_similarity, 4),
+        "repetition_score": round(repetition_similarity, 4),
+        "confidence": round(confidence, 4),
+    }
+    if repetition_evidence is not None:
+        signals.update(
+            {
+                "semantic_similarity": round(repetition_evidence.semantic, 4),
+                "lexical_similarity": round(repetition_evidence.lexical, 4),
+                "entity_similarity": round(repetition_evidence.entity, 4),
+                "action_similarity": round(repetition_evidence.action, 4),
+                "parameter_novelty": round(repetition_evidence.parameter_novelty, 4),
+            }
+        )
+
+    waste_labels = {
+        SpanLabel.REDUNDANT_REASONING,
+        SpanLabel.UNNECESSARY_TOOL_CALL,
+        SpanLabel.OVER_EXPLANATION,
+    }
+    threshold = _REPETITION_THRESHOLDS.get(span.phase)
+    if label in waste_labels and repetition_similarity >= (threshold or 1.0):
+        reason = "repetition"
+        summary = (
+            "Strong repetition evidence matched an earlier span in the same phase."
+        )
+    elif label == SpanLabel.REDUNDANT_REASONING:
+        reason = "low_information_reasoning"
+        summary = (
+            "The reasoning span is short and weakly aligned with the active intent."
+        )
+    elif label == SpanLabel.OVER_EXPLANATION:
+        reason = "low_relevance_generation"
+        summary = (
+            "The generated response is substantial but has very low intent similarity."
+        )
+    elif repetition_similarity > 0.0 and threshold is not None:
+        reason = "novel_or_below_threshold"
+        summary = "Similar prior content exists, but novelty or insufficient evidence kept the span aligned."
+    else:
+        reason = "aligned_default"
+        summary = "No specific waste signal exceeded the applicable threshold."
+
+    return ClassificationExplanation(
+        reason_code=reason,
+        summary=summary,
+        signals=signals,
+        threshold=threshold,
+        matched_prior_position=matched_prior.position if matched_prior else None,
+        matched_prior_text=matched_prior.text[:240] if matched_prior else None,
+    )
 
 
 def _check_repetition(

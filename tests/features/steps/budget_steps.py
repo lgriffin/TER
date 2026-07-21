@@ -39,11 +39,7 @@ def intent_text(context, text):
     context["intent_text"] = text
 
 
-@given(
-    parsers.parse(
-        'an intent text mentioning "{cue1}" or "{cue2}"'
-    )
-)
+@given(parsers.parse('an intent text mentioning "{cue1}" or "{cue2}"'))
 def intent_with_cues(context, cue1, cue2):
     context["intent_text"] = f"I want to {cue1} and also {cue2} for the system"
 
@@ -68,8 +64,7 @@ def check_confidence_above(context, threshold):
 
 @then(
     parsers.parse(
-        "the complexity score includes a multi-file cue contribution"
-        " with weight {w:f}"
+        "the complexity score includes a multi-file cue contribution with weight {w:f}"
     )
 )
 def check_multi_file_weight(context, w):
@@ -156,9 +151,7 @@ def history_analyzer(tmp_path, context):
 
 
 @given(
-    parsers.parse(
-        "past STANDARD tasks used an average of {tokens:d} thinking tokens"
-    )
+    parsers.parse("past STANDARD tasks used an average of {tokens:d} thinking tokens")
 )
 def record_standard_history(context, tokens):
     for i in range(10):

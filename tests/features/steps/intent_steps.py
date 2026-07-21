@@ -86,8 +86,7 @@ def user_prompts_about_auth(context, n):
 @given(parsers.parse("{n:d} prompts all on the same topic"))
 def n_prompts_same_topic(context, n):
     context["prompts"] = [
-        f"Add authentication feature number {i + 1} for login"
-        for i in range(n)
+        f"Add authentication feature number {i + 1} for login" for i in range(n)
     ]
 
 

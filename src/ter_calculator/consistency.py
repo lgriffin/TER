@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import time
 from collections import defaultdict
-from typing import Sequence
 
 from .context_graph import ContextGraph
 from .fragment_store import FragmentStore
@@ -23,9 +22,7 @@ from .models import (
 )
 
 
-def _classify_severity(
-    num_sessions: int, max_version_gap: int
-) -> str:
+def _classify_severity(num_sessions: int, max_version_gap: int) -> str:
     if max_version_gap > 2 or num_sessions > 4:
         return "HIGH"
     if num_sessions >= 3:
@@ -57,7 +54,7 @@ class ConsistencyCoordinator:
         my_frags = self._session_fragments.get(session_id, set())
 
         for frag_id in my_frags:
-            my_version = self._session_versions.get(session_id, {}).get(frag_id, 1)
+            self._session_versions.get(session_id, {}).get(frag_id, 1)
             sessions_with_frag: dict[str, int] = {}
 
             for sid, frags in self._session_fragments.items():
@@ -75,12 +72,14 @@ class ConsistencyCoordinator:
             max_gap = max(versions) - min(versions)
             severity = _classify_severity(len(sessions_with_frag), max_gap)
 
-            skews.append(VersionSkew(
-                fragment_id=frag_id,
-                sessions_involved=list(sessions_with_frag.keys()),
-                versions_seen=dict(sessions_with_frag),
-                severity=severity,
-            ))
+            skews.append(
+                VersionSkew(
+                    fragment_id=frag_id,
+                    sessions_involved=list(sessions_with_frag.keys()),
+                    versions_seen=dict(sessions_with_frag),
+                    severity=severity,
+                )
+            )
 
         return skews
 
@@ -108,8 +107,7 @@ class ConsistencyCoordinator:
     ) -> ConsistencyAction:
         latest_version = max(skew.versions_seen.values())
         stale_sessions = [
-            sid for sid, ver in skew.versions_seen.items()
-            if ver < latest_version
+            sid for sid, ver in skew.versions_seen.items() if ver < latest_version
         ]
 
         if mode == ConsistencyMode.STRICT:
@@ -154,12 +152,14 @@ class ConsistencyCoordinator:
             if fragment_id in frags:
                 sess_ver = self._session_versions.get(sid, {}).get(fragment_id, 0)
                 if sess_ver < new_version:
-                    events.append(InvalidationEvent(
-                        fragment_id=fragment_id,
-                        timestamp=timestamp,
-                        reason=f"Fragment updated to version {new_version} "
-                               f"(session {sid} has version {sess_ver})",
-                    ))
+                    events.append(
+                        InvalidationEvent(
+                            fragment_id=fragment_id,
+                            timestamp=timestamp,
+                            reason=f"Fragment updated to version {new_version} "
+                            f"(session {sid} has version {sess_ver})",
+                        )
+                    )
 
         return events
 

@@ -29,7 +29,7 @@ import tomllib
 from argparse import Namespace
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, cast, runtime_checkable
 
 if TYPE_CHECKING:
     from ter_calculator.models import ClassifiedSpan, Session, TERResult, WastePattern
@@ -354,6 +354,9 @@ class PluginRegistry:
     """
 
     _instance: PluginRegistry | None = None
+    _waste_detectors: list[WasteDetector]
+    _formatters: dict[str, OutputFormatter]
+    _middleware: list[PipelineMiddleware]
 
     def __new__(cls) -> PluginRegistry:
         if cls._instance is None:
@@ -381,8 +384,7 @@ class PluginRegistry:
         """
         if not isinstance(detector, WasteDetector):
             raise TypeError(
-                f"{type(detector).__name__} does not satisfy the "
-                "WasteDetector protocol"
+                f"{type(detector).__name__} does not satisfy the WasteDetector protocol"
             )
         # Avoid duplicate registration by name.
         if any(d.name == detector.name for d in self._waste_detectors):
@@ -413,9 +415,7 @@ class PluginRegistry:
             )
         name = formatter.format_name
         if name in self._formatters:
-            logger.debug(
-                "Formatter '%s' already registered; replacing", name
-            )
+            logger.debug("Formatter '%s' already registered; replacing", name)
         self._formatters[name] = formatter
         logger.debug("Registered output formatter '%s'", name)
 
@@ -464,7 +464,7 @@ class PluginRegistry:
         OutputFormatter | None
             The registered formatter, or ``None`` if not found.
         """
-        return self._formatters.get(name)
+        return cast(OutputFormatter | None, self._formatters.get(name))
 
     def get_middleware(self) -> list[PipelineMiddleware]:
         """Return all registered middleware in registration order."""
@@ -503,12 +503,13 @@ class PluginRegistry:
         }
 
         for group, kind in _GROUPS.items():
+            eps: Any
             try:
                 eps = entry_points(group=group)
             except TypeError:
                 # Python 3.9/3.10 return a dict-like; fall back.
                 all_eps = entry_points()
-                eps = all_eps.get(group, [])  # type: ignore[union-attr]
+                eps = list(all_eps.get(group, ()))  # type: ignore[union-attr,arg-type]
 
             for ep in eps:
                 try:
@@ -560,9 +561,7 @@ class PluginRegistry:
             with open(config_path, "rb") as fh:
                 raw = tomllib.load(fh)
         except (OSError, tomllib.TOMLDecodeError) as exc:
-            logger.warning(
-                "Failed to read plugin config from %s: %s", config_path, exc
-            )
+            logger.warning("Failed to read plugin config from %s: %s", config_path, exc)
             return
 
         plugins_raw = raw.get("plugins", {})
@@ -581,7 +580,8 @@ class PluginRegistry:
                     self._register_by_kind(instance, kind, dotted_path)
                 except Exception:
                     logger.warning(
-                        "Failed to load plugin '%s' from config", dotted_path,
+                        "Failed to load plugin '%s' from config",
+                        dotted_path,
                         exc_info=True,
                     )
 
@@ -715,7 +715,9 @@ def _first_not_none(*values: Any) -> Any:
     raise ValueError("All values are None")
 
 
-def _parse_phase_weights(raw: str | list[float] | tuple[float, ...]) -> tuple[float, float, float]:
+def _parse_phase_weights(
+    raw: str | list[float] | tuple[float, ...],
+) -> tuple[float, float, float]:
     """Parse phase weights from CLI input.
 
     Accepts a comma-separated string (``"0.3,0.4,0.3"``) or a sequence

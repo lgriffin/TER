@@ -227,7 +227,9 @@ def cwter_lower_than_raw(context):
 # --- Cached tokens are costed at reduced rate ---
 
 
-@given(parsers.parse('a session with {count:d} cached read tokens on the "{tier}" tier'))
+@given(
+    parsers.parse('a session with {count:d} cached read tokens on the "{tier}" tier')
+)
 def session_cached_read_tokens(context, count, tier):
     context["default_tier"] = tier
     context["cached_read_count"] = count
@@ -373,11 +375,13 @@ def check_redundancy_above(context, threshold):
 def check_density_formula(context):
     d = context["density"]
     import math
+
     # Recompute normalised entropy from the text to verify the formula
     text = context["text"]
     words = text.lower().split()
     total_words = len(words)
     from collections import Counter
+
     word_counts = Counter(words)
     entropy = 0.0
     for count in word_counts.values():

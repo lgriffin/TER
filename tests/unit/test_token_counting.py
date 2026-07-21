@@ -69,9 +69,7 @@ class TestEstimateTokensHeuristic:
     def test_with_custom_multipliers(self):
         custom = PhaseMultipliers(reasoning=2.0, generation=2.0, tool_use=2.0)
         text = "a" * 20  # 20 / 2.0 = 10
-        result = estimate_tokens_heuristic(
-            text, phase="reasoning", multipliers=custom
-        )
+        result = estimate_tokens_heuristic(text, phase="reasoning", multipliers=custom)
         assert result == 10
 
     def test_unknown_phase_falls_back_to_default(self):
@@ -237,9 +235,7 @@ class TestCountTokens:
 
     def test_calibrated_takes_precedence_over_heuristic(self):
         text = "a" * 40
-        result = count_tokens(
-            text, phase="reasoning", calibrated_multiplier=4.0
-        )
+        result = count_tokens(text, phase="reasoning", calibrated_multiplier=4.0)
         # Calibrated path should be chosen over heuristic
         assert result.method_used is CountMethod.CALIBRATED
 

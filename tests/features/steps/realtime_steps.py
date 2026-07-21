@@ -27,9 +27,11 @@ from ter_calculator.real_time import (
 
 class _MockModel:
     """Deterministic mock embedding model for BDD tests."""
+
     def encode(self, text: str, normalize_embeddings: bool = True) -> np.ndarray:
         import hashlib
-        seed = int(hashlib.md5(text.encode()).hexdigest(), 16) % (2 ** 32)
+
+        seed = int(hashlib.md5(text.encode()).hexdigest(), 16) % (2**32)
         rng = np.random.RandomState(seed)
         vec = rng.randn(384).astype(np.float32)
         if normalize_embeddings:
@@ -37,6 +39,7 @@ class _MockModel:
             if norm > 0:
                 vec /= norm
         return vec
+
 
 scenarios(
     "../realtime/rolling_ter.feature",
@@ -109,6 +112,7 @@ def ctx():
 
 # -- Background -------------------------------------------------------------
 
+
 @given("a fresh RollingTERState")
 def fresh_state(ctx):
     ctx["state"] = RollingTERState()
@@ -122,6 +126,7 @@ def user_message_processed_background(ctx, text):
 
 
 # -- Scenario: One TERSignal emitted per assistant message -------------------
+
 
 @when("the following assistant messages are processed:")
 def process_assistant_messages_table(ctx, datatable):
@@ -145,6 +150,7 @@ def check_incremented_message_index(ctx):
 
 # -- Scenario: User messages update intent via per-prompt embedding averaging
 
+
 @when(parsers.parse('a user message "{text}" is processed'))
 def process_user_message(ctx, text):
     state = ctx["state"]
@@ -161,13 +167,16 @@ def check_ema_shift(ctx):
     # Re-encode both prompts independently using the mock model.
     mock_model = ctx["mock_model"]
     emb1 = mock_model.encode("Fix the login bug", normalize_embeddings=True)
-    emb2 = mock_model.encode("Also update the password reset flow", normalize_embeddings=True)
+    emb2 = mock_model.encode(
+        "Also update the password reset flow", normalize_embeddings=True
+    )
     # EMA result should differ from the first embedding alone.
     assert not np.allclose(state.intent_embedding, emb1, atol=1e-5), (
         "Intent embedding should have moved away from first prompt after EMA update"
     )
     # EMA blends old intent (emb1) with new prompt (emb2) at alpha=0.3.
     from ter_calculator.real_time import INTENT_DECAY
+
     expected = (INTENT_DECAY * emb2 + (1 - INTENT_DECAY) * emb1).astype(np.float32)
     norm = np.linalg.norm(expected)
     if norm > 0:
@@ -187,9 +196,12 @@ def check_not_concatenated(ctx):
 
 # -- Scenario: Rolling state accumulates token totals correctly ---------------
 
-@when(parsers.parse(
-    "an assistant message with {aligned:d} aligned tokens and {waste:d} waste tokens is processed"
-))
+
+@when(
+    parsers.parse(
+        "an assistant message with {aligned:d} aligned tokens and {waste:d} waste tokens is processed"
+    )
+)
 def assistant_message_with_tokens(ctx, aligned, waste):
     state = ctx["state"]
     # Create an assistant message; actual token classification comes from the
@@ -214,9 +226,11 @@ def assistant_message_with_tokens(ctx, aligned, waste):
     ctx["signals"].extend(signals)
 
 
-@when(parsers.parse(
-    "another assistant message with {aligned:d} aligned tokens and {waste:d} waste tokens is processed"
-))
+@when(
+    parsers.parse(
+        "another assistant message with {aligned:d} aligned tokens and {waste:d} waste tokens is processed"
+    )
+)
 def another_assistant_message_with_tokens(ctx, aligned, waste):
     assistant_message_with_tokens(ctx, aligned, waste)
 
@@ -244,10 +258,13 @@ def check_token_invariant(ctx):
 
 # -- Scenario: Duplicate request IDs are deduplicated with first-entry-wins --
 
+
 @when(parsers.parse('an assistant message with requestId "{req_id}" is processed'))
 def assistant_with_request_id(ctx, req_id):
     state = ctx["state"]
-    line = _make_assistant_line("Doing work on the authentication module.", request_id=req_id)
+    line = _make_assistant_line(
+        "Doing work on the authentication module.", request_id=req_id
+    )
     signals = compute_rolling_ter(state, [line], model=ctx["mock_model"])
     ctx.setdefault("signals", [])
     ctx["signals"].extend(signals)
@@ -270,6 +287,7 @@ def check_state_message_count(ctx, count):
 
 # -- Scenario: Phase weights applied in aggregate TER calculation -----------
 
+
 @given("the phase weights are reasoning=0.3, tool_use=0.4, generation=0.3")
 def set_phase_weights(ctx):
     # These are already the defaults in the module; this step is a no-op.
@@ -289,17 +307,20 @@ def assistant_phase_scores(ctx, datatable):
         state.phase_aligned[phase] = aligned
         state.total_tokens += total
         state.aligned_tokens += aligned
-        state.waste_tokens += (total - aligned)
+        state.waste_tokens += total - aligned
     state.message_count = 1
     ctx["aggregate_ter"] = state.aggregate_ter
 
 
-@then(parsers.parse("the aggregate TER equals 0.3*0.8 + 0.4*0.6 + 0.3*0.9 = {expected:g}"))
+@then(
+    parsers.parse("the aggregate TER equals 0.3*0.8 + 0.4*0.6 + 0.3*0.9 = {expected:g}")
+)
 def check_aggregate_ter_formula(ctx, expected):
     assert ctx["aggregate_ter"] == pytest.approx(expected, abs=0.001)
 
 
 # -- Scenario: Phases with zero tokens default to score 1.0 -----------------
+
 
 @when("an assistant message contributes tokens only to the generation phase")
 def assistant_generation_only(ctx):
@@ -349,13 +370,22 @@ def check_aggregate_with_defaults(ctx):
     state = ctx["state"]
     ter = state.aggregate_ter
     # reasoning=1.0*0.3 + tool_use=1.0*0.4 + generation=0.9*0.3 = 0.3+0.4+0.27 = 0.97
-    expected = 0.3 * 1.0 + 0.4 * 1.0 + 0.3 * (state.phase_aligned["generation"] / state.phase_total["generation"])
+    expected = (
+        0.3 * 1.0
+        + 0.4 * 1.0
+        + 0.3 * (state.phase_aligned["generation"] / state.phase_total["generation"])
+    )
     assert ter == pytest.approx(expected, abs=0.001)
 
 
 # -- Scenario: User tool_result blocks are counted as tool_use phase spans ---
 
-@when(parsers.parse('a user message contains a tool_result block with content "{content}"'))
+
+@when(
+    parsers.parse(
+        'a user message contains a tool_result block with content "{content}"'
+    )
+)
 def user_tool_result(ctx, content):
     state = ctx["state"]
     initial_span_count = state.span_count
@@ -363,7 +393,9 @@ def user_tool_result(ctx, content):
     line = {
         "message": {
             "role": "user",
-            "content": [{"type": "tool_result", "tool_use_id": "tu-1", "content": content}],
+            "content": [
+                {"type": "tool_result", "tool_use_id": "tu-1", "content": content}
+            ],
         },
         "sessionId": "test",
     }
@@ -399,6 +431,7 @@ def check_tool_result_excluded_from_totals(ctx):
 
 # -- Background -------------------------------------------------------------
 
+
 @given(parsers.parse("the drift window size is {size:d}"))
 def set_drift_window(ctx, size):
     ctx["drift_window"] = size
@@ -410,6 +443,7 @@ def set_drift_threshold(ctx, threshold):
 
 
 # -- When: recent TER values -----------------------------------------------
+
 
 @when(parsers.re(r"the recent TER values are \[(?P<values>[^\]]+)\]"))
 def recent_ter_values(ctx, values):
@@ -423,6 +457,7 @@ def recent_ter_values(ctx, values):
 
 
 # -- Then: drift assertions -------------------------------------------------
+
 
 @then(parsers.parse("the drift direction is {direction}"))
 def check_drift_direction(ctx, direction):
@@ -458,6 +493,7 @@ def check_magnitude_exact(ctx, value):
 
 # -- Scenario: CAUTION warning emitted when degrading drift exceeds threshold
 
+
 @given(parsers.re(r"a RollingTERState with recent TER values \[(?P<values>[^\]]+)\]"))
 def rolling_state_with_recent_values(ctx, values):
     state = RollingTERState()
@@ -468,7 +504,9 @@ def rolling_state_with_recent_values(ctx, values):
     state.aligned_tokens = 300
     state.waste_tokens = 200
     state.message_count = len(parsed)
-    state.intent_embedding = ctx["mock_model"].encode("fix the authentication bug in login flow")
+    state.intent_embedding = ctx["mock_model"].encode(
+        "fix the authentication bug in login flow"
+    )
     state.intent_text = "fix the authentication bug in login flow"
     state.intent_confidence = 1.0
     ctx["state"] = state
@@ -518,6 +556,7 @@ def check_warnings_match(ctx, pattern):
 
 # -- Scenario: ALERT warning when current TER falls below 0.4 ----------------
 
+
 @given(parsers.parse("a RollingTERState where aggregate TER is {ter:g}"))
 def rolling_state_with_ter(ctx, ter):
     state = RollingTERState()
@@ -556,9 +595,7 @@ def emit_ter_signal(ctx):
     level = WarningLevel.INFO
 
     if drift_dir == DriftDirection.DEGRADING and drift_mag > 0.10:
-        warnings.append(
-            f"TER dropped {drift_mag:.2f} over last 5 messages"
-        )
+        warnings.append(f"TER dropped {drift_mag:.2f} over last 5 messages")
         level = WarningLevel.CAUTION
 
     if ter < 0.4:
@@ -597,7 +634,12 @@ def emit_ter_signal(ctx):
 
 # -- Scenario: is_healthy property reflects INFO level and non-DEGRADING drift
 
-@given(parsers.parse("a TERSignal with warning_level {level} and drift direction {direction}"))
+
+@given(
+    parsers.parse(
+        "a TERSignal with warning_level {level} and drift direction {direction}"
+    )
+)
 def create_signal_with_level_and_drift(ctx, level, direction):
     signal = TERSignal(
         session_id="test",
@@ -628,7 +670,12 @@ def check_signal_healthy_false(ctx):
 
 # -- Scenario: Waste warning when total tokens exceed 5000 with low alignment ratio
 
-@given(parsers.parse("a RollingTERState with total_tokens {total:d} and aligned_tokens {aligned:d}"))
+
+@given(
+    parsers.parse(
+        "a RollingTERState with total_tokens {total:d} and aligned_tokens {aligned:d}"
+    )
+)
 def rolling_state_tokens(ctx, total, aligned):
     state = RollingTERState()
     state.total_tokens = total
@@ -666,6 +713,7 @@ def check_warning_level_at_least(ctx, level):
 
 # -- Background -------------------------------------------------------------
 
+
 @given("a temporary directory with a JSONL session file")
 def temp_dir_with_session_file(ctx, tmp_path):
     session_path = tmp_path / "session.jsonl"
@@ -676,17 +724,29 @@ def temp_dir_with_session_file(ctx, tmp_path):
     ctx["tmp_path"] = tmp_path
 
 
-@given(parsers.parse("a SessionMonitor configured with a poll interval of {interval:g} seconds"))
+@given(
+    parsers.parse(
+        "a SessionMonitor configured with a poll interval of {interval:g} seconds"
+    )
+)
 def session_monitor_configured(ctx, interval):
     ctx["poll_interval"] = interval
 
 
 # -- Scenario: Poll detects new lines appended to the session file -----------
 
-@given(parsers.parse("the session file contains {count:d} JSONL lines with assistant messages"))
+
+@given(
+    parsers.parse(
+        "the session file contains {count:d} JSONL lines with assistant messages"
+    )
+)
 def session_file_with_assistant_messages(ctx, count):
     path = ctx["session_path"]
-    lines = [_make_assistant_line(f"Response number {i+1} about auth refactoring.") for i in range(count)]
+    lines = [
+        _make_assistant_line(f"Response number {i + 1} about auth refactoring.")
+        for i in range(count)
+    ]
     _append_jsonl(path, lines)
 
 
@@ -702,7 +762,11 @@ def poll_once(ctx):
         interval = ctx.get("poll_interval", 2.0)
         on_signal = ctx.get("on_signal_callback")
         ctx["monitor"] = SessionMonitor(
-            path, poll_interval=interval, model=ctx["mock_model"], on_signal=on_signal, skip_history=False
+            path,
+            poll_interval=interval,
+            model=ctx["mock_model"],
+            on_signal=on_signal,
+            skip_history=False,
         )
     signals = ctx["monitor"].poll_once()
     ctx["signals"] = signals
@@ -715,10 +779,17 @@ def check_signals_returned(ctx):
         assert isinstance(sig, TERSignal)
 
 
-@when(parsers.parse("{count:d} more JSONL lines with assistant messages are appended to the file"))
+@when(
+    parsers.parse(
+        "{count:d} more JSONL lines with assistant messages are appended to the file"
+    )
+)
 def append_more_lines(ctx, count):
     path = ctx["session_path"]
-    lines = [_make_assistant_line(f"Additional response {i+1} about auth work.") for i in range(count)]
+    lines = [
+        _make_assistant_line(f"Additional response {i + 1} about auth work.")
+        for i in range(count)
+    ]
     _append_jsonl(path, lines)
 
 
@@ -744,6 +815,7 @@ def previously_not_reprocessed(ctx):
 
 # -- Scenario: current_ter returns the aggregate TER as a valid float --------
 
+
 @given("the session file contains assistant messages with known token counts")
 def session_file_known_tokens(ctx):
     path = ctx["session_path"]
@@ -762,6 +834,7 @@ def check_current_ter_float(ctx):
 
 
 # -- Scenario: Non-existent file is handled gracefully without errors --------
+
 
 @given("a SessionMonitor pointing to a file that does not exist")
 def monitor_nonexistent_file(ctx, tmp_path):
@@ -783,6 +856,7 @@ def no_exception_raised(ctx):
 
 # -- Scenario: Callback is invoked once per emitted signal -------------------
 
+
 @given("an on_signal callback is registered with the SessionMonitor")
 def register_callback(ctx):
     callback = MagicMock()
@@ -793,7 +867,9 @@ def register_callback(ctx):
 @given(parsers.parse("the session file contains {count:d} assistant messages"))
 def session_file_assistant_messages(ctx, count):
     path = ctx["session_path"]
-    lines = [_make_assistant_line(f"Auth refactoring step {i+1}.") for i in range(count)]
+    lines = [
+        _make_assistant_line(f"Auth refactoring step {i + 1}.") for i in range(count)
+    ]
     _append_jsonl(path, lines)
 
 
@@ -811,11 +887,14 @@ def check_callback_receives_signal(ctx):
 
 # -- Scenario: stop() terminates the blocking poll loop ----------------------
 
+
 @given("the SessionMonitor is running its blocking poll loop in a thread")
 def monitor_running_in_thread(ctx):
     path = ctx["session_path"]
     interval = ctx.get("poll_interval", 2.0)
-    monitor = SessionMonitor(path, poll_interval=0.05, model=ctx["mock_model"])  # Fast poll for test
+    monitor = SessionMonitor(
+        path, poll_interval=0.05, model=ctx["mock_model"]
+    )  # Fast poll for test
     ctx["monitor"] = monitor
     thread = threading.Thread(target=monitor.run, daemon=True)
     thread.start()
@@ -846,12 +925,14 @@ def check_stop_flag(ctx):
 
 # -- Background -------------------------------------------------------------
 
+
 @given("a temporary project directory")
 def temp_project_dir(ctx, tmp_path):
     ctx["project_dir"] = tmp_path
 
 
 # -- Scenario: Dashboard discovers JSONL session files via recursive glob ----
+
 
 @given("the project directory contains the following JSONL files:")
 def project_dir_with_files(ctx, datatable):
@@ -887,6 +968,7 @@ def check_monitors_match_files(ctx):
 
 
 # -- Scenario: New session files are detected on subsequent polls ------------
+
 
 @given(parsers.parse("the project directory contains {count:d} JSONL session file"))
 def project_dir_with_n_files(ctx, count):
@@ -929,6 +1011,7 @@ def new_session_tracked(ctx):
 
 # -- Scenario: get_summary returns correct aggregate metrics -----------------
 
+
 @given(parsers.parse("the project directory contains {count:d} JSONL session files"))
 def project_dir_with_session_files(ctx, count):
     project_dir = ctx["project_dir"]
@@ -943,18 +1026,22 @@ def project_dir_with_session_files(ctx, count):
         _write_jsonl(path, [user_line])
 
 
-@given(parsers.parse(
-    "session A has aggregate TER {ter:g} with {total:d} total tokens and {waste:d} waste tokens"
-))
+@given(
+    parsers.parse(
+        "session A has aggregate TER {ter:g} with {total:d} total tokens and {waste:d} waste tokens"
+    )
+)
 def session_a_metrics(ctx, ter, total, waste):
     ctx["_session_a_ter"] = ter
     ctx["_session_a_total"] = total
     ctx["_session_a_waste"] = waste
 
 
-@given(parsers.parse(
-    "session B has aggregate TER {ter:g} with {total:d} total tokens and {waste:d} waste tokens"
-))
+@given(
+    parsers.parse(
+        "session B has aggregate TER {ter:g} with {total:d} total tokens and {waste:d} waste tokens"
+    )
+)
 def session_b_metrics(ctx, ter, total, waste):
     ctx["_session_b_ter"] = ter
     ctx["_session_b_total"] = total
@@ -973,17 +1060,21 @@ def call_get_summary(ctx):
     monitors = list(dashboard._monitors.values())
     session_configs = []
     if "_session_a_ter" in ctx:
-        session_configs.append({
-            "ter": ctx["_session_a_ter"],
-            "total": ctx["_session_a_total"],
-            "waste": ctx["_session_a_waste"],
-        })
+        session_configs.append(
+            {
+                "ter": ctx["_session_a_ter"],
+                "total": ctx["_session_a_total"],
+                "waste": ctx["_session_a_waste"],
+            }
+        )
     if "_session_b_ter" in ctx:
-        session_configs.append({
-            "ter": ctx["_session_b_ter"],
-            "total": ctx["_session_b_total"],
-            "waste": ctx["_session_b_waste"],
-        })
+        session_configs.append(
+            {
+                "ter": ctx["_session_b_ter"],
+                "total": ctx["_session_b_total"],
+                "waste": ctx["_session_b_waste"],
+            }
+        )
 
     for i, config in enumerate(session_configs):
         if i < len(monitors):
@@ -1029,13 +1120,16 @@ def check_summary_total_waste(ctx, value):
 
 # -- Scenario: Empty project directory produces no monitors ------------------
 
+
 @given("the project directory contains no JSONL files")
 def project_dir_empty(ctx):
     # The tmp_path directory is already empty; nothing to do.
     pass
 
 
-@then(parsers.parse("get_summary returns session_count {count:d} and average_ter {ter:g}"))
+@then(
+    parsers.parse("get_summary returns session_count {count:d} and average_ter {ter:g}")
+)
 def check_empty_summary(ctx, count, ter):
     summary = ctx["dashboard"].get_summary()
     assert summary["session_count"] == count

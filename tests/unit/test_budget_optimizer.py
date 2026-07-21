@@ -83,14 +83,22 @@ class TestScoreFragments:
         intent = _make_intent()
         emb = intent.embedding.copy()
         r_frag = Fragment(
-            id="r", text="r", token_count=10,
-            phase=SpanPhase.REASONING, origin_session="t",
-            created_at=0.0, embedding=emb.copy(),
+            id="r",
+            text="r",
+            token_count=10,
+            phase=SpanPhase.REASONING,
+            origin_session="t",
+            created_at=0.0,
+            embedding=emb.copy(),
         )
         t_frag = Fragment(
-            id="t", text="t", token_count=10,
-            phase=SpanPhase.TOOL_USE, origin_session="t",
-            created_at=0.0, embedding=emb.copy(),
+            id="t",
+            text="t",
+            token_count=10,
+            phase=SpanPhase.TOOL_USE,
+            origin_session="t",
+            created_at=0.0,
+            embedding=emb.copy(),
         )
         scored = score_fragments([r_frag, t_frag], intent)
         r_score = next(s for s in scored if s.fragment_id == "r")
@@ -129,8 +137,8 @@ class TestDPKnapsack:
 class TestGreedyKnapsack:
     def test_selects_best_ratio(self):
         items = [
-            _make_scored("a", 0.9, 900),   # ratio 0.001
-            _make_scored("b", 0.8, 100),   # ratio 0.008 (best)
+            _make_scored("a", 0.9, 900),  # ratio 0.001
+            _make_scored("b", 0.8, 100),  # ratio 0.008 (best)
         ]
         selected = _greedy_knapsack(items, 200)
         ids = {s.fragment_id for s in selected}

@@ -95,9 +95,7 @@ def _format_text_report(result: dict, waste_patterns: list) -> str:
         lines.append("")
         lines.append("Waste Patterns:")
         for wp in waste_patterns:
-            lines.append(
-                f"  - {wp['type']}: {wp['tokens_wasted']} tokens wasted"
-            )
+            lines.append(f"  - {wp['type']}: {wp['tokens_wasted']} tokens wasted")
     return "\n".join(lines)
 
 
@@ -170,14 +168,13 @@ def session_with_spans(datatable, context):
 @given("no reasoning or generation tokens are present")
 def no_reasoning_generation(context):
     context["spans"] = [
-        s for s in context.get("spans", [])
+        s
+        for s in context.get("spans", [])
         if s["phase"] not in ("reasoning", "generation")
     ]
 
 
-@given(
-    "a completed session where all token spans are aligned to the intent"
-)
+@given("a completed session where all token spans are aligned to the intent")
 def perfect_session(context):
     context["spans"] = [
         {"phase": "reasoning", "tokens": 200, "aligned": 200},
@@ -186,9 +183,7 @@ def perfect_session(context):
     ]
 
 
-@given(
-    "a completed session where no token spans are aligned to the intent"
-)
+@given("a completed session where no token spans are aligned to the intent")
 def wasteful_session(context):
     context["spans"] = [
         {"phase": "reasoning", "tokens": 200, "aligned": 0},
@@ -203,9 +198,7 @@ def empty_session(context):
     context["empty_session"] = True
 
 
-@given(
-    "a session containing exactly one user prompt and one assistant response"
-)
+@given("a session containing exactly one user prompt and one assistant response")
 def single_message_session(context):
     context["spans"] = [
         {"phase": "reasoning", "tokens": 50, "aligned": 40},
@@ -225,8 +218,7 @@ def recorded_session(context):
 
 @given(
     parsers.parse(
-        "custom phase weights of reasoning={r:f},"
-        " tool_use={t:f}, generation={g:f}"
+        "custom phase weights of reasoning={r:f}, tool_use={t:f}, generation={g:f}"
     )
 )
 def custom_weights(context, r, t, g):
@@ -245,11 +237,7 @@ def phase_data(context, phase, aligned, total):
     context["phase_total"] = total
 
 
-@given(
-    parsers.parse(
-        "a completed session containing {n:d} tokens across all phases"
-    )
-)
+@given(parsers.parse("a completed session containing {n:d} tokens across all phases"))
 def large_session(context, n):
     per_phase = n // 3
     context["spans"] = [
@@ -299,9 +287,7 @@ def check_ter_range(context, lo, hi):
 
 @then(parsers.parse("the aggregate TER should be {expected:f}"))
 def check_ter_exact(context, expected):
-    assert context["ter_result"]["aggregate_ter"] == pytest.approx(
-        expected, abs=0.01
-    )
+    assert context["ter_result"]["aggregate_ter"] == pytest.approx(expected, abs=0.01)
 
 
 @then("the phase scores should be:")
@@ -331,30 +317,27 @@ def check_waste_tokens(context, n):
 
 @then("total_tokens should equal aligned_tokens plus waste_tokens")
 def check_token_invariant(context):
-    r = context.get("ter_result") or context.get("report_result") or context.get("json_report")
+    r = (
+        context.get("ter_result")
+        or context.get("report_result")
+        or context.get("json_report")
+    )
     assert r["total_tokens"] == r["aligned_tokens"] + r["waste_tokens"]
 
 
-@then(
-    "the system should return an error indicating no session data is available"
-)
+@then("the system should return an error indicating no session data is available")
 def check_no_data_error(context):
     assert "ter_error" in context
     assert "no session data" in context["ter_error"].lower()
 
 
-@then(
-    "the result should include phase scores for reasoning, tool_use,"
-    " and generation"
-)
+@then("the result should include phase scores for reasoning, tool_use, and generation")
 def check_phase_keys(context):
     for phase in ("reasoning", "tool_use", "generation"):
         assert phase in context["ter_result"]["phase_scores"]
 
 
-@then(
-    "the result should include total_tokens, aligned_tokens, and waste_tokens"
-)
+@then("the result should include total_tokens, aligned_tokens, and waste_tokens")
 def check_token_keys(context):
     for key in ("total_tokens", "aligned_tokens", "waste_tokens"):
         assert key in context["ter_result"]
@@ -362,12 +345,18 @@ def check_token_keys(context):
 
 @then("both results should have identical aggregate TER scores")
 def check_identical_ter(context):
-    assert context["ter_result_1"]["aggregate_ter"] == context["ter_result_2"]["aggregate_ter"]
+    assert (
+        context["ter_result_1"]["aggregate_ter"]
+        == context["ter_result_2"]["aggregate_ter"]
+    )
 
 
 @then("both results should have identical phase scores")
 def check_identical_phases(context):
-    assert context["ter_result_1"]["phase_scores"] == context["ter_result_2"]["phase_scores"]
+    assert (
+        context["ter_result_1"]["phase_scores"]
+        == context["ter_result_2"]["phase_scores"]
+    )
 
 
 @then("both results should have identical token counts")
@@ -376,11 +365,7 @@ def check_identical_tokens(context):
         assert context["ter_result_1"][key] == context["ter_result_2"][key]
 
 
-@then(
-    parsers.parse(
-        'the phase score for "{phase}" should be {expected:f}'
-    )
-)
+@then(parsers.parse('the phase score for "{phase}" should be {expected:f}'))
 def check_phase_score_value(context, phase, expected):
     assert context["phase_score"] == pytest.approx(expected, abs=0.001)
 
@@ -393,10 +378,7 @@ def check_time_limit(context, seconds):
     assert elapsed < seconds
 
 
-@then(
-    "the system should return an error indicating phase weights must sum"
-    " to 1.0"
-)
+@then("the system should return an error indicating phase weights must sum to 1.0")
 def check_weight_error(context):
     assert "ter_error" in context
     assert "sum to 1.0" in context["ter_error"].lower()
@@ -408,9 +390,7 @@ def check_weight_error(context):
 
 
 @given(
-    parsers.parse(
-        "the reasoning loop threshold is {n:d} consecutive redundant spans"
-    )
+    parsers.parse("the reasoning loop threshold is {n:d} consecutive redundant spans")
 )
 def reasoning_threshold(context, n):
     context["reasoning_threshold"] = n
@@ -421,11 +401,7 @@ def tool_window(context, n):
     context["tool_window"] = n
 
 
-@given(
-    parsers.parse(
-        "the context restatement similarity threshold is {threshold:f}"
-    )
-)
+@given(parsers.parse("the context restatement similarity threshold is {threshold:f}"))
 def restatement_threshold(context, threshold):
     context["restatement_threshold"] = threshold
 
@@ -471,8 +447,7 @@ def response_spans(datatable, context):
 
 @given(
     parsers.parse(
-        "spans at positions {positions} are redundant with span at"
-        " position {orig:d}"
+        "spans at positions {positions} are redundant with span at position {orig:d}"
     )
 )
 def mark_redundant(context, positions, orig):
@@ -491,28 +466,19 @@ def mark_two_redundant(context):
 
 @given(
     parsers.parse(
-        "the calls at positions {a:d} and {b:d} have identical name"
-        " and parameters"
+        "the calls at positions {a:d} and {b:d} have identical name and parameters"
     )
 )
 def mark_duplicate_tools(context, a, b):
     context["duplicate_positions"] = (a, b)
 
 
-@given(
-    parsers.parse(
-        "positions {a:d} and {b:d} are within the {n:d}-step window"
-    )
-)
+@given(parsers.parse("positions {a:d} and {b:d} are within the {n:d}-step window"))
 def within_window(context, a, b, n):
     context["within_window"] = True
 
 
-@given(
-    parsers.parse(
-        "positions {a:d} and {b:d} are outside the {n:d}-step window"
-    )
-)
+@given(parsers.parse("positions {a:d} and {b:d} are outside the {n:d}-step window"))
 def outside_window(context, a, b, n):
     context["within_window"] = False
 
@@ -530,7 +496,11 @@ def mark_similar(context, a, b, threshold):
 @given("a session where all reasoning spans introduce new information")
 def clean_reasoning(context):
     context["reasoning_spans"] = [
-        {"position": 1, "text": "Analyze authentication requirements", "token_count": 30},
+        {
+            "position": 1,
+            "text": "Analyze authentication requirements",
+            "token_count": 30,
+        },
         {"position": 2, "text": "Design database schema for users", "token_count": 30},
         {"position": 3, "text": "Plan API endpoint structure", "token_count": 30},
     ]
@@ -555,9 +525,7 @@ def clean_responses(context):
     context["similar_positions"] = None
 
 
-@given(
-    "a session containing a reasoning loop with the following spans:"
-)
+@given("a session containing a reasoning loop with the following spans:")
 def reasoning_loop_spans(datatable, context):
     rows = _table_to_dicts(datatable)
     context["reasoning_spans"] = [
@@ -568,17 +536,11 @@ def reasoning_loop_spans(datatable, context):
         }
         for row in rows
     ]
-    context["redundant_positions"] = [
-        int(row["position"]) for row in rows
-    ]
+    context["redundant_positions"] = [int(row["position"]) for row in rows]
     context["original_position"] = int(rows[0]["position"])
 
 
-@given(
-    parsers.parse(
-        "spans at positions {positions} form a reasoning loop"
-    )
-)
+@given(parsers.parse("spans at positions {positions} form a reasoning loop"))
 def mark_loop(context, positions):
     cleaned = positions.replace(" and ", ", ")
     context["loop_positions"] = [
@@ -586,11 +548,7 @@ def mark_loop(context, positions):
     ]
 
 
-@given(
-    parsers.parse(
-        "the first span at position {pos:d} is the original reasoning"
-    )
-)
+@given(parsers.parse("the first span at position {pos:d} is the original reasoning"))
 def mark_original(context, pos):
     context["loop_original"] = pos
     if pos in context.get("redundant_positions", []):
@@ -606,11 +564,7 @@ def analyze_waste(context):
     redundant = context.get("redundant_positions", [])
     if len(redundant) >= threshold - 1:
         spans = context.get("reasoning_spans", [])
-        tokens = sum(
-            s["token_count"]
-            for s in spans
-            if s["position"] in redundant
-        )
+        tokens = sum(s["token_count"] for s in spans if s["position"] in redundant)
         patterns.append(
             SimpleNamespace(
                 type="reasoning_loop",
@@ -672,10 +626,7 @@ def check_span_count(context, n):
     pytest.fail("No reasoning_loop pattern")
 
 
-@then(
-    "the pattern should report the tokens_wasted consumed by"
-    " the redundant spans"
-)
+@then("the pattern should report the tokens_wasted consumed by the redundant spans")
 def check_tokens_wasted(context):
     for p in context["waste_patterns"]:
         if p.type == "reasoning_loop":
@@ -685,10 +636,7 @@ def check_tokens_wasted(context):
 
 
 @then(
-    parsers.parse(
-        "the pattern details should identify the duplicated tool"
-        ' as "{tool}"'
-    )
+    parsers.parse('the pattern details should identify the duplicated tool as "{tool}"')
 )
 def check_dup_tool(context, tool):
     for p in context["waste_patterns"]:
@@ -698,9 +646,7 @@ def check_dup_tool(context, tool):
     pytest.fail("No duplicate_tool_call pattern")
 
 
-@then(
-    "the pattern should report the tokens_wasted for the duplicate call"
-)
+@then("the pattern should report the tokens_wasted for the duplicate call")
 def check_dup_tokens(context):
     for p in context["waste_patterns"]:
         if p.type == "duplicate_tool_call":
@@ -709,9 +655,7 @@ def check_dup_tokens(context):
     pytest.fail("No duplicate_tool_call pattern")
 
 
-@then(
-    "the pattern should report the tokens_wasted for the restated content"
-)
+@then("the pattern should report the tokens_wasted for the restated content")
 def check_restatement_tokens(context):
     for p in context["waste_patterns"]:
         if p.type == "context_restatement":
@@ -730,7 +674,11 @@ def check_empty_patterns(context):
     assert len(context["waste_patterns"]) == 0
 
 
-@then(parsers.parse("the tokens_wasted should equal the sum of tokens in the redundant spans"))
+@then(
+    parsers.parse(
+        "the tokens_wasted should equal the sum of tokens in the redundant spans"
+    )
+)
 def check_tokens_sum(context):
     for p in context["waste_patterns"]:
         if p.type == "reasoning_loop":
@@ -819,29 +767,17 @@ def check_intent_contains(context, text):
     assert text.lower() in context["intent"].text.lower()
 
 
-@then(
-    parsers.parse(
-        "the intent confidence should be greater than {threshold:f}"
-    )
-)
+@then(parsers.parse("the intent confidence should be greater than {threshold:f}"))
 def check_intent_confidence_gt(context, threshold):
     assert context["intent"].confidence > threshold
 
 
-@then(
-    parsers.parse(
-        "the source_prompts should contain exactly {n:d} prompt"
-    )
-)
+@then(parsers.parse("the source_prompts should contain exactly {n:d} prompt"))
 def check_source_prompts_singular(context, n):
     assert len(context.get("user_prompts", [])) == n
 
 
-@then(
-    parsers.parse(
-        "the source_prompts should contain exactly {n:d} prompts"
-    )
-)
+@then(parsers.parse("the source_prompts should contain exactly {n:d} prompts"))
 def check_source_prompts(context, n):
     assert len(context.get("user_prompts", [])) == n
 
@@ -856,27 +792,19 @@ def check_reflects_prompts(context):
     assert len(context["intent"].text) > 0
 
 
-@then(
-    parsers.parse(
-        "the intent confidence should be less than {threshold:f}"
-    )
-)
+@then(parsers.parse("the intent confidence should be less than {threshold:f}"))
 def check_intent_confidence_lt(context, threshold):
     assert context["intent"].confidence < threshold
 
 
-@then(
-    "the related span should have higher cosine similarity"
-    " than the unrelated span"
-)
+@then("the related span should have higher cosine similarity than the unrelated span")
 def check_related_higher(context):
     assert context["span_similarities"][0] > context["span_similarities"][1]
 
 
 @then(
     parsers.parse(
-        "the related span similarity should be above the"
-        " threshold of {threshold:f}"
+        "the related span similarity should be above the threshold of {threshold:f}"
     )
 )
 def check_related_above(context, threshold):
@@ -885,8 +813,7 @@ def check_related_above(context, threshold):
 
 @then(
     parsers.parse(
-        "the unrelated span similarity should be below the"
-        " threshold of {threshold:f}"
+        "the unrelated span similarity should be below the threshold of {threshold:f}"
     )
 )
 def check_unrelated_below(context, threshold):
@@ -908,11 +835,7 @@ def check_empty_prompts(context):
     assert len(context.get("user_prompts", [])) == 0
 
 
-@then(
-    parsers.parse(
-        "the intent embedding should have exactly {n:d} dimensions"
-    )
-)
+@then(parsers.parse("the intent embedding should have exactly {n:d} dimensions"))
 def check_embedding_dims(context, n):
     assert context["intent"].embedding.shape == (n,)
 
@@ -932,8 +855,7 @@ def check_numeric_dims(context):
 
 @given(
     parsers.parse(
-        'a session "{sid}" with aggregate TER {ter:f}'
-        " and the following details:"
+        'a session "{sid}" with aggregate TER {ter:f} and the following details:'
     )
 )
 def session_with_details(datatable, context, sid, ter):
@@ -957,11 +879,7 @@ def session_with_details(datatable, context, sid, ter):
     )
 
 
-@given(
-    parsers.parse(
-        'a short session "{sid}" with {n:d} total tokens and TER {ter:f}'
-    )
-)
+@given(parsers.parse('a short session "{sid}" with {n:d} total tokens and TER {ter:f}'))
 def short_session(context, sid, n, ter):
     if "sessions" not in context:
         context["sessions"] = []
@@ -981,11 +899,7 @@ def short_session(context, sid, n, ter):
     )
 
 
-@given(
-    parsers.parse(
-        'a long session "{sid}" with {n:d} total tokens and TER {ter:f}'
-    )
-)
+@given(parsers.parse('a long session "{sid}" with {n:d} total tokens and TER {ter:f}'))
 def long_session_step(context, sid, n, ter):
     if "sessions" not in context:
         context["sessions"] = []
@@ -1047,11 +961,7 @@ def ranked_sessions(datatable, context):
         )
 
 
-@given(
-    parsers.parse(
-        'only one session "{sid}" with aggregate TER {ter:f}'
-    )
-)
+@given(parsers.parse('only one session "{sid}" with aggregate TER {ter:f}'))
 def single_session(context, sid, ter):
     context["sessions"] = [
         {
@@ -1078,11 +988,7 @@ def compare_sessions(context):
     )
 
 
-@when(
-    parsers.parse(
-        "all {n:d} sessions are compared in a single invocation"
-    )
-)
+@when(parsers.parse("all {n:d} sessions are compared in a single invocation"))
 def compare_many(context, n):
     context["comparison"] = sorted(
         context["sessions"],
@@ -1103,9 +1009,7 @@ def compare_ranked(context):
 @when("a comparison is requested with a single session")
 def compare_single(context):
     context["comparison"] = context["sessions"]
-    context["comparison_warning"] = (
-        "Comparison requires multiple sessions"
-    )
+    context["comparison_warning"] = "Comparison requires multiple sessions"
 
 
 @then("the comparison should include both sessions")
@@ -1125,28 +1029,20 @@ def check_session_fields(context):
         assert "waste_tokens" in s
 
 
-@then(
-    parsers.parse(
-        '"{sid_a}" should have a higher TER than "{sid_b}"'
-    )
-)
+@then(parsers.parse('"{sid_a}" should have a higher TER than "{sid_b}"'))
 def check_higher_ter(context, sid_a, sid_b):
     a = next(s for s in context["comparison"] if s["session_id"] == sid_a)
     b = next(s for s in context["comparison"] if s["session_id"] == sid_b)
     assert a["aggregate_ter"] > b["aggregate_ter"]
 
 
-@then(
-    "both sessions should have comparable TER scores despite different sizes"
-)
+@then("both sessions should have comparable TER scores despite different sizes")
 def check_comparable(context):
     ters = [s["aggregate_ter"] for s in context["comparison"]]
     assert abs(ters[0] - ters[1]) < 0.01
 
 
-@then(
-    "the comparison should not bias toward shorter or longer sessions"
-)
+@then("the comparison should not bias toward shorter or longer sessions")
 def check_no_bias(context):
     pass
 
@@ -1161,54 +1057,31 @@ def check_no_error(context):
     assert context["comparison"] is not None
 
 
-@then(
-    "the sessions should be ranked in descending order of aggregate TER"
-)
+@then("the sessions should be ranked in descending order of aggregate TER")
 def check_descending(context):
     ters = [s["aggregate_ter"] for s in context["comparison"]]
     assert ters == sorted(ters, reverse=True)
 
 
-@then(
-    parsers.parse(
-        'the first ranked session should be "{sid}" with TER {ter:f}'
-    )
-)
+@then(parsers.parse('the first ranked session should be "{sid}" with TER {ter:f}'))
 def check_first_ranked(context, sid, ter):
     assert context["comparison"][0]["session_id"] == sid
-    assert context["comparison"][0]["aggregate_ter"] == pytest.approx(
-        ter, abs=0.01
-    )
+    assert context["comparison"][0]["aggregate_ter"] == pytest.approx(ter, abs=0.01)
 
 
-@then(
-    parsers.parse(
-        'the second ranked session should be "{sid}" with TER {ter:f}'
-    )
-)
+@then(parsers.parse('the second ranked session should be "{sid}" with TER {ter:f}'))
 def check_second_ranked(context, sid, ter):
     assert context["comparison"][1]["session_id"] == sid
-    assert context["comparison"][1]["aggregate_ter"] == pytest.approx(
-        ter, abs=0.01
-    )
+    assert context["comparison"][1]["aggregate_ter"] == pytest.approx(ter, abs=0.01)
 
 
-@then(
-    parsers.parse(
-        'the third ranked session should be "{sid}" with TER {ter:f}'
-    )
-)
+@then(parsers.parse('the third ranked session should be "{sid}" with TER {ter:f}'))
 def check_third_ranked(context, sid, ter):
     assert context["comparison"][2]["session_id"] == sid
-    assert context["comparison"][2]["aggregate_ter"] == pytest.approx(
-        ter, abs=0.01
-    )
+    assert context["comparison"][2]["aggregate_ter"] == pytest.approx(ter, abs=0.01)
 
 
-@then(
-    "the system should produce a warning that comparison requires"
-    " multiple sessions"
-)
+@then("the system should produce a warning that comparison requires multiple sessions")
 def check_warning(context):
     assert "comparison_warning" in context
 
@@ -1241,10 +1114,7 @@ def ter_results(datatable, context):
 
 
 @given(
-    parsers.parse(
-        "phase scores of reasoning={r:f}, tool_use={t:f},"
-        " generation={g:f}"
-    )
+    parsers.parse("phase scores of reasoning={r:f}, tool_use={t:f}, generation={g:f}")
 )
 def report_phase_scores(context, r, t, g):
     context["report_result"]["phase_scores"] = {
@@ -1259,15 +1129,9 @@ def no_waste_patterns(context):
     context["waste_patterns_data"] = []
 
 
-@given(
-    parsers.parse(
-        'a waste pattern of type "{wp_type}" wasting {tokens:d} tokens'
-    )
-)
+@given(parsers.parse('a waste pattern of type "{wp_type}" wasting {tokens:d} tokens'))
 def single_waste_pattern(context, wp_type, tokens):
-    context["waste_patterns_data"] = [
-        {"type": wp_type, "tokens_wasted": tokens}
-    ]
+    context["waste_patterns_data"] = [{"type": wp_type, "tokens_wasted": tokens}]
 
 
 @given(
@@ -1294,9 +1158,7 @@ def simple_ter_result(context, ter, tokens):
     context["waste_patterns_data"] = []
 
 
-@given(
-    "a completed TER calculation with the following waste patterns:"
-)
+@given("a completed TER calculation with the following waste patterns:")
 def waste_pattern_list(datatable, context):
     rows = _table_to_dicts(datatable)
     context["report_result"] = {
@@ -1343,20 +1205,12 @@ def parse_json(context):
     context["parsed_json"] = json.loads(context["json_str"])
 
 
-@then(
-    parsers.parse(
-        'the text output should contain the session identifier "{sid}"'
-    )
-)
+@then(parsers.parse('the text output should contain the session identifier "{sid}"'))
 def check_text_session(context, sid):
     assert sid in context["text_report"]
 
 
-@then(
-    parsers.parse(
-        'the text output should contain the aggregate TER score "{score}"'
-    )
-)
+@then(parsers.parse('the text output should contain the aggregate TER score "{score}"'))
 def check_text_ter(context, score):
     assert score in context["text_report"]
 
@@ -1384,10 +1238,7 @@ def check_text_tokens(context):
 
 
 @then(
-    parsers.parse(
-        'the JSON output should contain the key "{key}" with value'
-        ' "{value}"'
-    )
+    parsers.parse('the JSON output should contain the key "{key}" with value "{value}"')
 )
 def check_json_key_value(context, key, value):
     assert context["json_report"][key] == value
@@ -1418,31 +1269,19 @@ def check_json_nested_keys(context, key, k1, k2, k3):
     assert k3 in nested
 
 
-@then(
-    parsers.parse(
-        'the JSON output should contain the key "{key}" as an integer'
-    )
-)
+@then(parsers.parse('the JSON output should contain the key "{key}" as an integer'))
 def check_json_int(context, key):
     assert isinstance(context["json_report"][key], int)
 
 
-@then(
-    parsers.parse(
-        'the JSON output should contain the key "{key}" as a list'
-    )
-)
+@then(parsers.parse('the JSON output should contain the key "{key}" as a list'))
 def check_json_list(context, key):
     assert isinstance(context["json_report"][key], list)
 
 
-@then(
-    parsers.parse("the parsed aggregate_ter should be a float equal to {ter:f}")
-)
+@then(parsers.parse("the parsed aggregate_ter should be a float equal to {ter:f}"))
 def check_parsed_ter(context, ter):
-    assert context["parsed_json"]["aggregate_ter"] == pytest.approx(
-        ter, abs=0.0001
-    )
+    assert context["parsed_json"]["aggregate_ter"] == pytest.approx(ter, abs=0.0001)
 
 
 @then(
@@ -1480,8 +1319,7 @@ def check_text_pattern_count(context, n):
 
 @then(
     parsers.parse(
-        'the text output should include "{ptype}" with'
-        " {tokens:d} tokens wasted"
+        'the text output should include "{ptype}" with {tokens:d} tokens wasted'
     )
 )
 def check_text_pattern_detail(context, ptype, tokens):
