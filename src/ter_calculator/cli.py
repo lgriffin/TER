@@ -161,6 +161,69 @@ def main(argv: list[str] | None = None) -> int:
         help="Write Markdown to FILE instead of stdout (e.g. report.md)",
     )
 
+    # batch subcommand — Phase 1 portfolio analytics
+    batch_parser = subparsers.add_parser(
+        "batch",
+        help="Analyze a folder of JSONL sessions and build aggregate artifacts",
+    )
+    batch_parser.add_argument("input_dir", help="Folder containing .jsonl sessions")
+    batch_parser.add_argument(
+        "-o",
+        "--output-dir",
+        default="ter-results",
+        help="Artifact directory (default: ter-results)",
+    )
+    batch_parser.add_argument(
+        "-j",
+        "--workers",
+        type=int,
+        default=None,
+        help="Parallel worker processes (default: min(8, CPU count))",
+    )
+    batch_parser.add_argument(
+        "--no-recursive",
+        action="store_true",
+        help="Only analyze .jsonl files directly inside input_dir",
+    )
+    batch_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Re-analyze files even when a valid output already exists",
+    )
+    batch_parser.add_argument(
+        "--ter-buckets",
+        type=int,
+        default=20,
+        help="Number of TER distribution buckets (default: 20 = 5%% each)",
+    )
+    batch_parser.add_argument(
+        "--format",
+        dest="output_format",
+        choices=["text", "json"],
+        default="text",
+        help="Command summary format (default: text)",
+    )
+
+    dashboard_parser = subparsers.add_parser(
+        "dashboard",
+        help="Rebuild aggregate artifacts from existing *.ter.json results",
+    )
+    dashboard_parser.add_argument(
+        "result_dir", help="Directory containing *.ter.json files"
+    )
+    dashboard_parser.add_argument(
+        "--ter-buckets",
+        type=int,
+        default=20,
+        help="Number of TER distribution buckets (default: 20 = 5%% each)",
+    )
+    dashboard_parser.add_argument(
+        "--format",
+        dest="output_format",
+        choices=["text", "json"],
+        default="text",
+    )
+
     # compare subcommand
     compare_parser = subparsers.add_parser(
         "compare", help="Compare TER across multiple sessions"
@@ -449,6 +512,47 @@ def main(argv: list[str] | None = None) -> int:
         help="Disable bash anti-pattern checking",
     )
     hook_monitor.add_argument(
+        "--no-live-efficiency",
+        action="store_true",
+        help="Disable rolling live-efficiency degradation detection",
+    )
+    hook_monitor.add_argument(
+        "--rolling-window",
+        type=int,
+        default=10,
+        help="Number of recent events used by live efficiency (default: 10)",
+    )
+    hook_monitor.add_argument(
+        "--efficiency-threshold",
+        type=float,
+        default=0.72,
+        help="Rolling efficiency threshold for intervention (default: 0.72)",
+    )
+    hook_monitor.add_argument(
+        "--drift-threshold",
+        type=float,
+        default=0.12,
+        help="Degrading-window drift threshold (default: 0.12)",
+    )
+    hook_monitor.add_argument(
+        "--acceleration-threshold",
+        type=float,
+        default=0.10,
+        help="Waste acceleration threshold (default: 0.10)",
+    )
+    hook_monitor.add_argument(
+        "--intervention-cooldown",
+        type=int,
+        default=8,
+        help="Minimum events between refresh interventions (default: 8)",
+    )
+    hook_monitor.add_argument(
+        "--min-repeated-failures",
+        type=int,
+        default=2,
+        help="Identical failed actions before mandatory replan (default: 2)",
+    )
+    hook_monitor.add_argument(
         "--state-dir",
         type=str,
         default=None,
@@ -466,6 +570,10 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "analyze":
             return _cmd_analyze(args)
+        if args.command == "batch":
+            return _cmd_batch(args)
+        if args.command == "dashboard":
+            return _cmd_dashboard(args)
         if args.command == "compare":
             return _cmd_compare(args)
         if args.command == "list":
@@ -659,6 +767,18 @@ def _cmd_hook(args) -> int:
 
 def _cmd_hook_monitor(args) -> int:
     from .commands.hook import _cmd_hook_monitor as implementation
+
+    return implementation(args)
+
+
+def _cmd_batch(args) -> int:
+    from .commands.batch import _cmd_batch as implementation
+
+    return implementation(args)
+
+
+def _cmd_dashboard(args) -> int:
+    from .commands.batch import _cmd_dashboard as implementation
 
     return implementation(args)
 

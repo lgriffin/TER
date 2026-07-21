@@ -45,6 +45,13 @@ def _cmd_hook_monitor(args) -> int:
         min_repeated_commands=args.min_repeated_commands,
         min_duplicate_calls=args.min_duplicate_calls,
         enable_bash_antipatterns=not args.no_bash_antipatterns,
+        enable_live_efficiency=not args.no_live_efficiency,
+        rolling_window=max(4, args.rolling_window),
+        efficiency_threshold=args.efficiency_threshold,
+        drift_threshold=args.drift_threshold,
+        acceleration_threshold=args.acceleration_threshold,
+        intervention_cooldown=max(1, args.intervention_cooldown),
+        min_repeated_failures=max(1, args.min_repeated_failures),
         state_dir=args.state_dir,
     )
 
