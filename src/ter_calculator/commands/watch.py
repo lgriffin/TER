@@ -267,9 +267,10 @@ def _cmd_watch(args) -> int:
                         monitor.run()
                     except KeyboardInterrupt:
                         monitor.stop()
+                        raise
+                    finally:
                         stop_event.set()
                         display_thread.join(timeout=1.0)
-                        raise
 
         if not use_dashboard:
             # Stream line-by-line mode (--stream flag or JSON format)

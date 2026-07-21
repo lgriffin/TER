@@ -48,15 +48,17 @@ def _cmd_context_store(args) -> int:
     session = load_session(session_path)
     spans = segment_spans(session)
     store = FragmentStore()
-    engine = FragmentShardingEngine(store)
-    fragments = engine.shard(spans, session.session_id)
+    try:
+        engine = FragmentShardingEngine(store)
+        fragments = engine.shard(spans, session.session_id)
 
-    new_count = len([f for f in fragments if f.origin_session == session.session_id])
-    print(f"Session: {session.session_id}")
-    print(f"Spans processed: {len(spans)}")
-    print(f"Fragments created: {new_count} new, {len(fragments) - new_count} existing")
-    print(f"Total in store: {store.count()}")
-    store.close()
+        new_count = len([f for f in fragments if f.origin_session == session.session_id])
+        print(f"Session: {session.session_id}")
+        print(f"Spans processed: {len(spans)}")
+        print(f"Fragments created: {new_count} new, {len(fragments) - new_count} existing")
+        print(f"Total in store: {store.count()}")
+    finally:
+        store.close()
     return 0
 
 
@@ -76,53 +78,54 @@ def _cmd_context_graph(args) -> int:
     session = load_session(session_path)
     spans = segment_spans(session)
     store = FragmentStore()
-    engine = FragmentShardingEngine(store)
-    fragments = engine.shard(spans, session.session_id)
-
     graph = ContextGraph()
-    graph.build_from_session(fragments)
+    try:
+        engine = FragmentShardingEngine(store)
+        fragments = engine.shard(spans, session.session_id)
 
-    fmt = getattr(args, "output_format", "text")
-    if fmt == "json":
-        edges = [
-            {
-                "source": e.source_id[:12],
-                "target": e.target_id[:12],
-                "type": e.edge_type.value,
-                "weight": round(e.weight, 4),
-            }
-            for e in graph.all_edges()
-        ]
-        print(
-            json_mod.dumps(
+        graph.build_from_session(fragments)
+
+        fmt = getattr(args, "output_format", "text")
+        if fmt == "json":
+            edges = [
                 {
-                    "nodes": graph.node_count,
-                    "edges": graph.edge_count,
-                    "edge_list": edges,
-                },
-                indent=2,
+                    "source": e.source_id[:12],
+                    "target": e.target_id[:12],
+                    "type": e.edge_type.value,
+                    "weight": round(e.weight, 4),
+                }
+                for e in graph.all_edges()
+            ]
+            print(
+                json_mod.dumps(
+                    {
+                        "nodes": graph.node_count,
+                        "edges": graph.edge_count,
+                        "edge_list": edges,
+                    },
+                    indent=2,
+                )
             )
-        )
-    else:
-        print(f"Context Graph for {session.session_id}")
-        print(f"  Nodes: {graph.node_count}")
-        print(f"  Edges: {graph.edge_count}")
-        cycles = graph.detect_cycles()
-        if cycles:
-            print(f"  Cycles detected: {len(cycles)}")
         else:
-            print("  DAG: valid (no cycles)")
-        topo = graph.topological_sort()
-        print(f"  Topological order: {len(topo)} nodes")
-        print("\nEdge breakdown:")
-        from collections import Counter
+            print(f"Context Graph for {session.session_id}")
+            print(f"  Nodes: {graph.node_count}")
+            print(f"  Edges: {graph.edge_count}")
+            cycles = graph.detect_cycles()
+            if cycles:
+                print(f"  Cycles detected: {len(cycles)}")
+            else:
+                print("  DAG: valid (no cycles)")
+            topo = graph.topological_sort()
+            print(f"  Topological order: {len(topo)} nodes")
+            print("\nEdge breakdown:")
+            from collections import Counter
 
-        type_counts = Counter(e.edge_type.value for e in graph.all_edges())
-        for etype, count in type_counts.most_common():
-            print(f"  {etype}: {count}")
-
-    store.close()
-    graph.close()
+            type_counts = Counter(e.edge_type.value for e in graph.all_edges())
+            for etype, count in type_counts.most_common():
+                print(f"  {etype}: {count}")
+    finally:
+        store.close()
+        graph.close()
     return 0
 
 
@@ -143,33 +146,34 @@ def _cmd_context_optimize(args) -> int:
     spans = segment_spans(session)
     intent = extract_intent(session)
     store = FragmentStore()
-    engine = FragmentShardingEngine(store)
-    engine.shard(spans, session.session_id)
-
     graph = ContextGraph()
-    fragments = store.find_by_session(session.session_id)
-    graph.build_from_session(fragments)
+    try:
+        engine = FragmentShardingEngine(store)
+        engine.shard(spans, session.session_id)
 
-    result = recommend_context(
-        session,
-        intent,
-        args.budget,
-        store,
-        graph,
-        relevance_threshold=getattr(args, "relevance_threshold", 0.1),
-    )
+        fragments = store.find_by_session(session.session_id)
+        graph.build_from_session(fragments)
 
-    print(f"Budget Optimization for {session.session_id}")
-    print("=" * 50)
-    print(f"Budget: {result.budget_ceiling:,} tokens")
-    print(f"Selected: {len(result.selected_fragment_ids)} fragments")
-    print(f"Tokens used: {result.budget_used:,} / {result.budget_ceiling:,}")
-    print(f"Total relevance: {result.total_relevance:.4f}")
-    print(f"Pruned (redundant): {result.pruned_count}")
-    print(f"\n{result.reasoning}")
+        result = recommend_context(
+            session,
+            intent,
+            args.budget,
+            store,
+            graph,
+            relevance_threshold=getattr(args, "relevance_threshold", 0.1),
+        )
 
-    store.close()
-    graph.close()
+        print(f"Budget Optimization for {session.session_id}")
+        print("=" * 50)
+        print(f"Budget: {result.budget_ceiling:,} tokens")
+        print(f"Selected: {len(result.selected_fragment_ids)} fragments")
+        print(f"Tokens used: {result.budget_used:,} / {result.budget_ceiling:,}")
+        print(f"Total relevance: {result.total_relevance:.4f}")
+        print(f"Pruned (redundant): {result.pruned_count}")
+        print(f"\n{result.reasoning}")
+    finally:
+        store.close()
+        graph.close()
     return 0
 
 
@@ -191,23 +195,24 @@ def _cmd_context_delta(args) -> int:
     session = load_session(session_path)
     spans = segment_spans(session)
     store = FragmentStore()
-    engine = FragmentShardingEngine(store)
-    fragments = engine.shard(spans, session.session_id)
+    try:
+        engine = FragmentShardingEngine(store)
+        fragments = engine.shard(spans, session.session_id)
 
-    template = create_template_from_session(session, fragments)
-    cache = LocalCache()
-    delta = compose_delta(template, store, cache)
+        template = create_template_from_session(session, fragments)
+        cache = LocalCache()
+        delta = compose_delta(template, store, cache)
 
-    print(f"Delta Composition for {session.session_id}")
-    print("=" * 50)
-    print(f"Template placeholders: {len(template.required_fragment_ids)}")
-    print(f"Cache hits: {delta.manifest.cache_hits}")
-    print(f"Cache misses: {delta.manifest.cache_misses}")
-    print(f"Delta fragments: {len(delta.delta_fragments)}")
-    print(f"Tokens saved: {delta.total_tokens_saved:,}")
-    print(f"Compression ratio: {delta.compression_ratio:.1%}")
-
-    store.close()
+        print(f"Delta Composition for {session.session_id}")
+        print("=" * 50)
+        print(f"Template placeholders: {len(template.required_fragment_ids)}")
+        print(f"Cache hits: {delta.manifest.cache_hits}")
+        print(f"Cache misses: {delta.manifest.cache_misses}")
+        print(f"Delta fragments: {len(delta.delta_fragments)}")
+        print(f"Tokens saved: {delta.total_tokens_saved:,}")
+        print(f"Compression ratio: {delta.compression_ratio:.1%}")
+    finally:
+        store.close()
     return 0
 
 
@@ -229,35 +234,34 @@ def _cmd_context_check(args) -> int:
 
     store = FragmentStore()
     graph = ContextGraph()
-    mode = ConsistencyMode(getattr(args, "mode", "relaxed"))
+    try:
+        mode = ConsistencyMode(getattr(args, "mode", "relaxed"))
 
-    paths = [session_path]
-    if getattr(args, "group", False):
-        subagent_paths = discover_subagents(session_path)
-        paths.extend(str(p) for p in subagent_paths)
+        paths = [session_path]
+        if getattr(args, "group", False):
+            subagent_paths = discover_subagents(session_path)
+            paths.extend(str(p) for p in subagent_paths)
 
-    if len(paths) < 2:
-        print("No version skew possible with a single session.")
+        if len(paths) < 2:
+            print("No version skew possible with a single session.")
+            return 0
+
+        skews = monitor_group_consistency(paths, store, graph)
+
+        if not skews:
+            print("No version skew detected across sessions.")
+        else:
+            coordinator = ConsistencyCoordinator()
+            print(f"Found {len(skews)} version skew(s):\n")
+            for skew in skews:
+                action = coordinator.resolve_skew(skew, mode)
+                print(f"  Fragment: {skew.fragment_id[:16]}...")
+                print(f"  Severity: {skew.severity}")
+                print(f"  Sessions: {len(skew.sessions_involved)}")
+                print(f"  Action: {'BLOCK' if action.block else 'WARN'}")
+                print(f"  Message: {action.message}")
+                print()
+    finally:
         store.close()
         graph.close()
-        return 0
-
-    skews = monitor_group_consistency(paths, store, graph)
-
-    if not skews:
-        print("No version skew detected across sessions.")
-    else:
-        coordinator = ConsistencyCoordinator()
-        print(f"Found {len(skews)} version skew(s):\n")
-        for skew in skews:
-            action = coordinator.resolve_skew(skew, mode)
-            print(f"  Fragment: {skew.fragment_id[:16]}...")
-            print(f"  Severity: {skew.severity}")
-            print(f"  Sessions: {len(skew.sessions_involved)}")
-            print(f"  Action: {'BLOCK' if action.block else 'WARN'}")
-            print(f"  Message: {action.message}")
-            print()
-
-    store.close()
-    graph.close()
     return 0

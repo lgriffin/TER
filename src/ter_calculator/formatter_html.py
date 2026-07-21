@@ -113,12 +113,13 @@ def _report_payload(result: TERResult) -> dict:
 def format_html(result: TERResult) -> str:
     """Render a portable, dependency-free HTML analysis report."""
     payload = _report_payload(result)
-    encoded = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
+    encoded = json.dumps(payload, ensure_ascii=True).replace("</", "<\\/")
     title = html.escape(f"TER Report — {result.session_id}")
     return f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title}</title>
 <style>

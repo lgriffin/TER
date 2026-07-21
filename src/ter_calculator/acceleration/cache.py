@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 import json
 import logging
 import pickle
@@ -15,7 +17,7 @@ from .hashing import hash_file
 logger = logging.getLogger(__name__)
 
 DEFAULT_CACHE_DIR = Path.home() / ".cache" / "ter" / "analysis"
-CACHE_VERSION = 1
+CACHE_VERSION = 2
 DEFAULT_TTL_HOURS = 168
 DEFAULT_WATCH_INTERVAL = 30
 DEFAULT_WATCH_DIR = Path.home() / ".claude" / "projects"
@@ -284,6 +286,11 @@ class AnalysisCache:
 
     # -- internal helpers ----------------------------------------------------
 
+    def _cache_hmac_key(self) -> bytes:
+        """Derive a machine-local HMAC key from the cache directory path."""
+        raw = f"ter-cache-hmac:{self.cache_dir}".encode()
+        return hashlib.sha256(raw).digest()
+
     def _key_paths(self, key: str) -> tuple[Path, Path]:
         """Return (pkl_path, meta_path) for a given cache key."""
         prefix = key[:2]
@@ -318,10 +325,31 @@ class AnalysisCache:
             meta_path.unlink(missing_ok=True)
             return None
 
-        # Deserialise the artifact.
+        # Verify integrity before deserialising.
         try:
-            with open(pkl_path, "rb") as f:
-                return pickle.load(f)  # noqa: S301
+            pkl_bytes = pkl_path.read_bytes()
+        except OSError:
+            logger.warning("Failed to read cache file for key %s", key[:16])
+            return None
+
+        expected_hmac = meta.get("hmac")
+        if not expected_hmac:
+            logger.debug("No HMAC in metadata for key %s -- treating as miss", key[:16])
+            pkl_path.unlink(missing_ok=True)
+            meta_path.unlink(missing_ok=True)
+            return None
+
+        actual_hmac = hmac.new(
+            self._cache_hmac_key(), pkl_bytes, hashlib.sha256
+        ).hexdigest()
+        if not hmac.compare_digest(actual_hmac, expected_hmac):
+            logger.warning("HMAC mismatch for key %s -- rejecting", key[:16])
+            pkl_path.unlink(missing_ok=True)
+            meta_path.unlink(missing_ok=True)
+            return None
+
+        try:
+            return pickle.loads(pkl_bytes)  # noqa: S301
         except (
             pickle.UnpicklingError,
             EOFError,
@@ -336,22 +364,44 @@ class AnalysisCache:
             return None
 
     def _write(self, key: str, value: Any, ttl_hours: int) -> None:
-        """Persist a value and its metadata sidecar to disk."""
+        """Persist a value and its metadata sidecar to disk atomically."""
+        import tempfile
+
         pkl_path, meta_path = self._key_paths(key)
         pkl_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # Write the pickled artifact.
-        with open(pkl_path, "wb") as f:
-            pickle.dump(value, f, protocol=pickle.HIGHEST_PROTOCOL)
+        pkl_bytes = pickle.dumps(value, protocol=pickle.HIGHEST_PROTOCOL)
+        digest = hmac.new(
+            self._cache_hmac_key(), pkl_bytes, hashlib.sha256
+        ).hexdigest()
 
-        # Write the metadata sidecar.
         meta = {
             "key": key,
             "timestamp": time.time(),
             "ttl_hours": ttl_hours,
             "version": CACHE_VERSION,
+            "hmac": digest,
         }
-        meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
+        meta_bytes = json.dumps(meta, indent=2).encode("utf-8")
+
+        # Write both files atomically via temp-then-rename.
+        fd, tmp = tempfile.mkstemp(dir=pkl_path.parent)
+        try:
+            with open(fd, "wb") as f:
+                f.write(pkl_bytes)
+            Path(tmp).replace(pkl_path)
+        except BaseException:
+            Path(tmp).unlink(missing_ok=True)
+            raise
+
+        fd2, tmp2 = tempfile.mkstemp(dir=meta_path.parent)
+        try:
+            with open(fd2, "wb") as f:
+                f.write(meta_bytes)
+            Path(tmp2).replace(meta_path)
+        except BaseException:
+            Path(tmp2).unlink(missing_ok=True)
+            raise
 
     def _remove_by_prefix(self, prefix: str) -> int:
         """Remove all cache entries whose key starts with *prefix*."""
