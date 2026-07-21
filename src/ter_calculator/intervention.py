@@ -22,6 +22,22 @@ from collections import Counter
 from typing import Any
 
 from .adaptive_budget import recommend_budget
+from .closed_loop import build_memory_guidance, resolve_project_root
+from .intervention_policy import (
+    ComplianceResult,
+    InterventionAction,
+    InterventionRecord,
+    MetricSnapshot,
+    PolicyConfig,
+    PolicyState,
+    append_intervention_outcome,
+    build_recovery_instruction,
+    evaluate_policy,
+    new_intervention_record,
+    pending_intervention_path,
+    consume_pending_intervention,
+    write_pending_intervention,
+)
 from .hook_monitor import (
     HookConfig,
     HookSessionState,
@@ -197,6 +213,86 @@ def build_budget_hint(prompt: str) -> tuple[str, dict[str, Any]]:
     return message, metadata
 
 
+def _policy_from_state(state: HookSessionState) -> PolicyState:
+    return PolicyState(
+        recent_snapshots=[
+            MetricSnapshot.from_mapping(item) for item in state.policy_snapshots
+        ],
+        last_action_at=dict(state.policy_last_action_at),
+        consecutive_degraded_windows=state.policy_degraded_windows,
+    )
+
+
+def _save_policy_state(policy: PolicyState, state: HookSessionState) -> None:
+    from dataclasses import asdict
+
+    state.policy_snapshots = [asdict(item) for item in policy.recent_snapshots]
+    state.policy_last_action_at = dict(policy.last_action_at)
+    state.policy_degraded_windows = policy.consecutive_degraded_windows
+
+
+def _metric_payload(event_data: dict[str, Any]) -> dict[str, Any] | None:
+    for key in ("ter_metrics", "metrics", "ter_signal"):
+        value = event_data.get(key)
+        if isinstance(value, dict) and ("ter" in value or "aggregate_ter" in value):
+            return value
+    return None
+
+
+def _evaluate_active_interventions(
+    event_data: dict[str, Any], state: HookSessionState, config: HookConfig
+) -> None:
+    metrics = _metric_payload(event_data)
+    if not metrics or not state.active_interventions:
+        return
+    post = MetricSnapshot.from_mapping(metrics)
+    root = resolve_project_root(event_data)
+    outcome_path = config.outcome_store or str(
+        root / ".ter" / "intervention-outcomes.jsonl"
+    )
+    remaining: list[dict[str, Any]] = []
+    for item in state.active_interventions:
+        item["events_since_issue"] = int(item.get("events_since_issue", 0)) + 1
+        record = InterventionRecord(
+            intervention_id=str(item["intervention_id"]),
+            session_id=str(item["session_id"]),
+            action=str(item["action"]),
+            issued_at=float(item["issued_at"]),
+            baseline=MetricSnapshot.from_mapping(item["baseline"]),
+            reason=str(item["reason"]),
+            related_memory_ids=[str(v) for v in item.get("related_memory_ids", [])],
+            evaluation_due_after_events=int(item.get("evaluation_due_after_events", 5)),
+        )
+        if item["events_since_issue"] < record.evaluation_due_after_events:
+            remaining.append(item)
+            continue
+        text = _extract_text(event_data).lower()
+        acknowledged = any(
+            token in text
+            for token in (
+                "objective",
+                "known facts",
+                "next action",
+                "blocker",
+                "replan",
+            )
+        )
+        followed = (
+            acknowledged
+            or post.repeated_tool_calls < record.baseline.repeated_tool_calls
+        )
+        compliance = ComplianceResult(
+            acknowledged=acknowledged,
+            followed=followed,
+            evidence=["structured recovery response"] if acknowledged else [],
+            confidence=0.75 if acknowledged else 0.55,
+        )
+        append_intervention_outcome(
+            outcome_path, record=record, post=post, compliance=compliance
+        )
+    state.active_interventions = remaining
+
+
 def process_intervention_event(
     event_data: dict[str, Any],
     state: HookSessionState,
@@ -208,29 +304,117 @@ def process_intervention_event(
     )
     alerts: list[WasteAlert] = []
     output: dict[str, Any] = {}
+    _evaluate_active_interventions(event_data, state, config)
 
-    if event_name == "SessionStart":
-        hint, metadata = build_budget_hint(_extract_text(event_data))
-        state.budget_hints_issued += 1
-        output = {
-            "additionalContext": hint,
-            "systemMessage": "TER: adaptive budget hint active",
-        }
-        state.last_budget_hint = metadata
+    root = resolve_project_root(event_data)
+    pending = consume_pending_intervention(
+        pending_intervention_path(root, state.session_id)
+    )
+    if pending and event_name in {"UserPromptSubmit", "PreToolUse", "Stop"}:
+        record, decision = pending
+        memory, _ = (
+            build_memory_guidance(
+                event_data,
+                index_path=config.memory_index,
+                limit=config.memory_limit,
+                minimum_score=config.memory_minimum_score,
+            )
+            if config.enable_project_memory
+            else ("", [])
+        )
+        instruction = build_recovery_instruction(decision, memory)
+        if config.policy_mode in {"suggest", "warn", "block"}:
+            output["additionalContext"] = instruction
+            output["systemMessage"] = f"TER: {decision.action.value.replace('_', ' ')}"
+        state.active_interventions.append(
+            {
+                **record.__dict__,
+                "baseline": record.baseline.__dict__,
+                "events_since_issue": 0,
+            }
+        )
+        if (
+            config.policy_mode == "block"
+            and decision.action == InterventionAction.REPLAN
+            and event_name == "PreToolUse"
+        ):
+            output["hookSpecificOutput"] = {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "deny",
+                "permissionDecisionReason": instruction,
+            }
+
+    metrics = _metric_payload(event_data)
+    if metrics:
+        snapshot = MetricSnapshot.from_mapping(metrics)
+        policy = _policy_from_state(state)
+        decision = evaluate_policy(
+            snapshot,
+            policy,
+            PolicyConfig(
+                ter_drop_warning=config.ter_drop_warning,
+                ter_drop_replan=config.ter_drop_replan,
+                waste_ratio_warning=config.waste_ratio_warning,
+                waste_ratio_replan=config.waste_ratio_replan,
+                degraded_windows_required=config.degraded_windows_required,
+                refresh_cooldown_seconds=config.refresh_cooldown_seconds,
+                replan_cooldown_seconds=config.replan_cooldown_seconds,
+            ),
+        )
+        _save_policy_state(policy, state)
+        if decision.action != InterventionAction.NONE:
+            record = new_intervention_record(
+                state.session_id, decision, snapshot, state.retrieved_memory_ids
+            )
+            write_pending_intervention(
+                pending_intervention_path(root, state.session_id), record, decision
+            )
+            if config.policy_mode in {"suggest", "warn", "block"}:
+                instruction = build_recovery_instruction(decision)
+                output["additionalContext"] = "\n\n".join(
+                    filter(None, [output.get("additionalContext", ""), instruction])
+                )
+                output["systemMessage"] = (
+                    f"TER: {decision.action.value.replace('_', ' ')} triggered"
+                )
+
+    if event_name in {"SessionStart", "UserPromptSubmit"}:
+        contexts: list[str] = []
+        if event_name == "SessionStart":
+            hint, metadata = build_budget_hint(_extract_text(event_data))
+            state.budget_hints_issued += 1
+            contexts.append(hint)
+            state.last_budget_hint = metadata
+        if config.enable_project_memory:
+            guidance, matches = build_memory_guidance(
+                event_data,
+                index_path=config.memory_index,
+                limit=config.memory_limit,
+                minimum_score=config.memory_minimum_score,
+            )
+            if guidance:
+                contexts.append(guidance)
+                state.memory_guidance_count += 1
+                state.retrieved_memory_ids = [
+                    f"{m['path']}:{m.get('start_line', 0)}" for m in matches
+                ][-20:]
+        if contexts:
+            output["additionalContext"] = "\n\n".join(
+                filter(None, [output.get("additionalContext", ""), *contexts])
+            )
+            output.setdefault("systemMessage", "TER: adaptive guidance active")
     elif event_name == "PreToolUse":
         alert = check_pre_tool_duplicate(
             event_data, state, threshold=config.min_duplicate_calls
         )
         if alert:
             alerts.append(alert)
-            output = {
-                "hookSpecificOutput": {
-                    "hookEventName": "PreToolUse",
-                    "permissionDecision": "deny",
-                    "permissionDecisionReason": alert.message,
-                },
-                "systemMessage": "TER: duplicate tool call prevented",
+            output["hookSpecificOutput"] = {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "deny",
+                "permissionDecisionReason": alert.message,
             }
+            output["systemMessage"] = "TER: duplicate tool call prevented"
     elif event_name in {"PermissionRequest", "PostToolUseFailure"}:
         alert = check_permission_loop(
             event_data, state, threshold=config.min_denied_calls

@@ -1,6 +1,6 @@
 # TER Calculator
 
-> **TER 2.0.0** is the first cleaned public release. Internal development iterations through v16 are documented in `UPDATES.md`.
+> **TER 2.0.14** adds closed-loop project intelligence: repository-aware guidance, sustained efficiency-degradation policies, automatic context refresh/replanning, and measured intervention outcomes. Earlier release milestones are documented in the phase notes and `UPDATES.md`.
 
 
 [![CI](https://github.com/lgriffin/TER/actions/workflows/ci.yml/badge.svg)](https://github.com/lgriffin/TER/actions/workflows/ci.yml)
@@ -26,17 +26,23 @@ The project also provides session economics, real-time monitoring, context optim
 - **Tool fingerprints** based on normalized tool names and arguments
 - **JSONL identity and merging** with source provenance and content fingerprints
 - **Span segmentation** for finer-grained reasoning and generation analysis
-- **Real-time monitoring** with rolling TER, drift detection, and live warnings
+- **Real-time monitoring** with rolling TER, drift detection, live warnings, and sustained-degradation policies
 - **Context orchestration** with fragment storage, dependency graphs, budget optimization, and delta composition
 - **Evaluation and regression tooling** for threshold calibration and release comparison
+- **Adaptive optimization** that learns bounded project thresholds, phase weights, token budgets, and intervention settings from aggregate history
+- **Repository memory** for local retrieval of similar code, prior fixes, duplicate patterns, and project lessons
+- **Closed-loop interventions** with configurable observe/suggest/warn/block modes, context refresh, replanning, and outcome measurement
+- **Feed-forward trend analysis** across lessons and intervention effectiveness
 - **High automated test coverage** with branch coverage enforced in CI
 
-Current verified test status:
+Current verified release status:
 
 ```text
-1,065 tests passed
-91.96% branch coverage
-Configured minimum: 90%
+ruff format --check src tests: passed
+ruff check src tests: passed
+mypy src/: passed (83 source files)
+python -m pytest: 1,122 passed
+Configured branch-coverage minimum: 90%
 ```
 
 ---
@@ -152,6 +158,37 @@ ter context optimize \
   sample_sessions/example_session.jsonl \
   --budget 10000
 ```
+
+---
+
+## Phase 6 adaptive optimization
+
+After recording at least a few sessions for a project, TER can learn a bounded operating policy from aggregate history:
+
+```bash
+ter optimize --project my-project
+```
+
+Export the policy for review, CI, or hook configuration:
+
+```bash
+ter optimize \
+  --project my-project \
+  --minimum-samples 5 \
+  --output .ter/adaptive-policy.json \
+  --format json
+```
+
+Optionally personalize token limits using the same privacy-preserving prompt fingerprints used by history prediction:
+
+```bash
+ter optimize \
+  --project my-project \
+  --prompt "refactor parser tests" \
+  --neighbors 8
+```
+
+The generated policy includes similarity, confidence, and restatement thresholds; phase weights; soft/recommended/hard token budgets; and intervention thresholds. Recommendations are conservatively bounded and carry an `insufficient`, `experimental`, `stable`, or `mature` confidence label. Raw prompts and session content are never written to the policy. See [`PHASE6_CHANGES.md`](PHASE6_CHANGES.md).
 
 ---
 
@@ -342,6 +379,68 @@ The live monitor can display:
 - Context growth and bloat signals
 - Recent TER trend
 - Drift warnings
+
+### Closed-loop Claude Code interventions
+
+Index the repository before enabling project-aware guidance:
+
+```bash
+ter memory index .
+```
+
+Configure Claude Code hooks to invoke the unified handler for events such as
+`SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`,
+`PostToolUseFailure`, `PermissionRequest`, and assistant-stop events:
+
+```json
+{
+  "hooks": {
+    "UserPromptSubmit": [{
+      "hooks": [{"type": "command", "command": "ter hook monitor", "timeout": 15}]
+    }],
+    "PreToolUse": [{
+      "hooks": [{"type": "command", "command": "ter hook monitor", "timeout": 15}]
+    }]
+  }
+}
+```
+
+Native Claude Code hook payloads do not contain TER metrics. When a payload
+includes `transcript_path` (or `transcript`), `ter hook monitor` reads only the
+newly appended JSONL bytes, updates rolling session counters persisted in
+`HookSessionState`, and injects the resulting `ter_metrics` mapping before policy
+evaluation. Transcript access and parsing failures are ignored so hooks remain
+fast and non-blocking. Explicit `ter_metrics`, `metrics`, or `ter_signal` payloads
+still take precedence for external integrations.
+
+TER evaluates sustained degradation rather than reacting to a single noisy
+measurement. Default policy thresholds are:
+
+- refresh warning: TER drop of `0.12` with waste ratio at least `0.25`;
+- replan: TER drop of `0.20` with waste ratio at least `0.40`;
+- persistence: three degraded windows;
+- refresh/replan cooldowns: 120/180 seconds.
+
+Override them explicitly when needed:
+
+```bash
+ter hook monitor \
+  --policy-mode warn \
+  --ter-drop-warning 0.12 \
+  --ter-drop-replan 0.20 \
+  --waste-ratio-warning 0.25 \
+  --waste-ratio-replan 0.40 \
+  --degraded-windows-required 3
+```
+
+Policy modes are `observe`, `suggest`, `warn`, and `block`. In `observe` mode,
+interventions are consumed, recorded, and evaluated silently: no guidance or
+system message is injected. The other three modes surface guidance, while
+blocking is intended for high-confidence conditions such as exact duplicate tool
+calls. Metric dips normally produce context-refresh or replanning guidance.
+Pending interventions are consumed once, and issued interventions retain baseline
+snapshots for later compliance and effect evaluation. Effects are classified as
+`improved`, `neutral`, `regressed`, `acknowledged_not_followed`, or `ignored`.
 
 ---
 
@@ -541,6 +640,9 @@ src/ter_calculator/
 ├── feedback.py
 ├── plugins.py
 ├── hook_monitor.py
+├── intervention.py
+├── intervention_policy.py
+├── repository_memory.py
 ├── session_report.py
 └── analyze_pipeline.py
 ```
@@ -914,6 +1016,10 @@ python -c "import ter_calculator.acceleration as a; print(a.__file__)"
 - [Architecture](docs/architecture.md)
 - [Context Orchestrator](docs/context-orchestrator.md)
 - [User Guide](docs/user-guide.md)
+- [Phase 9: Repository Memory](PHASE9_CHANGES.md)
+- [Phase 10: Closed-loop Project Intelligence](PHASE10_CHANGES.md)
+- [Phase 11: Metric-driven Interventions](PHASE11_CHANGES.md)
+- [Changelog](CHANGELOG.md)
 - [Contributing](CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [License](LICENSE)
@@ -1114,3 +1220,92 @@ The portfolio report uses the original self-contained Plotly dashboard design. I
 
 Phase 2 is deliberately rule-based. It prioritizes precision, inspectable
 evidence, and stable behavior before semantic or LLM-based detectors are added.
+## Phase 5 production hardening
+
+TER v2.0.5 adds production-readiness diagnostics and durable history operations:
+
+```bash
+ter doctor --format json
+ter history backup ~/.claude/ter/backups/history.db
+ter history restore ~/.claude/ter/backups/history.db --force
+```
+
+Runtime settings can be controlled with `TER_DB_PATH`, `TER_LOG_LEVEL`,
+`TER_BUSY_TIMEOUT_MS`, and `TER_BACKUP_RETENTION`. The history database uses
+WAL journaling, a bounded busy timeout, schema-version tracking, integrity
+checks, and restrictive POSIX permissions.
+
+## Phase 7: CI/CD and ecosystem integrations
+
+TER v2.0.7 can enforce portfolio quality gates and export artifacts for automation platforms:
+
+```bash
+ter integrate ter-results \
+  --minimum-ter 0.80 \
+  --maximum-waste-ratio 0.20 \
+  --format sarif \
+  --output ter-results.sarif
+```
+
+Use `--format github` for GitHub Actions annotations, `--format summary` for a step summary, or `--format json` for external dashboards and telemetry pipelines. A failed gate exits with status `2`, making the command suitable for CI enforcement. See `PHASE7_CHANGES.md` for details.
+
+## Phase 8: reproducible release validation
+
+Build a deterministic release manifest and enforce final quality gates:
+
+```bash
+ter release-check ter-results \
+  --minimum-sessions 100 \
+  --minimum-ter 0.90 \
+  --maximum-waste-ratio 0.10
+```
+
+Compare a candidate against a prior manifest:
+
+```bash
+ter release-check ter-results \
+  --baseline previous-release-manifest.json \
+  --maximum-ter-drop 0.01 \
+  --maximum-waste-increase 0.01
+```
+
+The manifest includes canonical aggregate metrics, distribution percentiles, a stable results fingerprint, and SHA-256 checksums for every input result file. See `PHASE8_CHANGES.md`.
+
+## Repository memory and feed-forward intelligence (v2.0.9–v2.0.14)
+
+Build a private project index and retrieve similar code, prior failures, fixes,
+and duplicate patterns before coding:
+
+```bash
+ter memory index .
+ter memory search "authentication retry loop"
+ter memory inspect
+```
+
+The deterministic local index is stored at `.ter/memory-index.json` by default.
+Results retain source paths, line ranges, excerpts, confidence scores, duplicate
+flags, and defect/fix indicators. Claude Code hooks can automatically retrieve
+this context on session start and prompt submission.
+
+Session alerts and intervention results are persisted separately, by default, as:
+
+```text
+.ter/session-lessons.jsonl
+.ter/intervention-outcomes.jsonl
+```
+
+Inspect recurring scenarios and measured intervention performance:
+
+```bash
+ter memory trends --minimum-occurrences 2
+ter memory trends --format json
+```
+
+Trend output can include issuance counts, acknowledgement and compliance rates,
+improvement rates, median TER change, and median waste-ratio change by
+intervention type. Raw before/after measurements remain available so policy
+thresholds can be recalibrated without losing evidence.
+
+See [`PHASE9_CHANGES.md`](PHASE9_CHANGES.md),
+[`PHASE10_CHANGES.md`](PHASE10_CHANGES.md), and
+[`PHASE11_CHANGES.md`](PHASE11_CHANGES.md).

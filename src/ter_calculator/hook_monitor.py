@@ -70,6 +70,20 @@ class HookConfig:
     min_reasoning_loops: int = 2
     reasoning_similarity_threshold: float = 0.88
     enable_bash_antipatterns: bool = True
+    enable_project_memory: bool = True
+    memory_index: str | None = None
+    memory_limit: int = 4
+    memory_minimum_score: float = 0.18
+    lesson_store: str | None = None
+    outcome_store: str | None = None
+    policy_mode: str = "suggest"
+    ter_drop_warning: float = 0.12
+    ter_drop_replan: float = 0.20
+    waste_ratio_warning: float = 0.25
+    waste_ratio_replan: float = 0.40
+    degraded_windows_required: int = 3
+    refresh_cooldown_seconds: int = 120
+    replan_cooldown_seconds: int = 180
     state_dir: str | None = None
 
 
@@ -94,7 +108,21 @@ class HookSessionState:
     budget_hints_issued: int = 0
     last_budget_hint: dict[str, Any] = field(default_factory=dict)
     intervention_count: int = 0
+    memory_guidance_count: int = 0
+    retrieved_memory_ids: list[str] = field(default_factory=list)
+    policy_snapshots: list[dict[str, Any]] = field(default_factory=list)
+    policy_last_action_at: dict[str, float] = field(default_factory=dict)
+    policy_degraded_windows: int = 0
+    active_interventions: list[dict[str, Any]] = field(default_factory=list)
     total_events: int = 0
+    transcript_offset: int = 0
+    transcript_total_tokens: int = 0
+    transcript_aligned_tokens: int = 0
+    transcript_waste_tokens: int = 0
+    transcript_repeated_tool_calls: int = 0
+    transcript_tool_signatures: dict[str, int] = field(default_factory=dict)
+    transcript_recent_text: list[str] = field(default_factory=list)
+    transcript_last_ter: float = 1.0
 
 
 # ---------------------------------------------------------------------------

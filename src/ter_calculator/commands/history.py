@@ -28,7 +28,13 @@ def _cmd_history(args) -> int:
         return _profile(args)
     if args.history_command == "predict":
         return _predict(args)
-    raise ValueError("Choose a history subcommand: record, list, profile, or predict")
+    if args.history_command == "backup":
+        return _backup(args)
+    if args.history_command == "restore":
+        return _restore(args)
+    raise ValueError(
+        "Choose a history subcommand: record, list, profile, predict, backup, or restore"
+    )
 
 
 def _record(args) -> int:
@@ -154,3 +160,24 @@ def _print_profile(
         f"Cost: ${profile['total_cost_usd']:.2f} total / ${profile['waste_cost_usd']:.2f} avoidable"
     )
     print(f"Main waste source: {profile['main_waste_source'] or 'none detected'}")
+
+
+def _backup(args) -> int:
+    store = _store(args)
+    try:
+        if store.integrity_check() != "ok":
+            raise ValueError("History database failed integrity check")
+        target = store.backup(args.output)
+    finally:
+        store.close()
+    print(f"Backup written to {target}")
+    return 0
+
+
+def _restore(args) -> int:
+    from ..production import RuntimeConfig
+
+    config = RuntimeConfig.from_env(args.db)
+    target = TERHistoryStore.restore(args.backup, config.db_path, force=args.force)
+    print(f"History restored to {target}")
+    return 0

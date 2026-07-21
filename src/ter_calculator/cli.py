@@ -522,6 +522,19 @@ def main(argv: list[str] | None = None) -> int:
         "--format", dest="output_format", choices=["text", "json"], default="text"
     )
 
+    history_backup = history_sub.add_parser(
+        "backup", help="Create an integrity-checked SQLite backup"
+    )
+    history_backup.add_argument("output")
+    history_backup.add_argument("--db", default=None)
+
+    history_restore = history_sub.add_parser(
+        "restore", help="Restore an integrity-checked SQLite backup"
+    )
+    history_restore.add_argument("backup")
+    history_restore.add_argument("--db", default=None)
+    history_restore.add_argument("--force", action="store_true")
+
     dashboard_parser = subparsers.add_parser(
         "dashboard",
         help=(
@@ -548,6 +561,129 @@ def main(argv: list[str] | None = None) -> int:
     dashboard_parser.add_argument("--project", default=None)
     dashboard_parser.add_argument("--limit", type=int, default=30)
     dashboard_parser.add_argument("--db", default=None)
+
+    doctor_parser = subparsers.add_parser(
+        "doctor", help="Validate production configuration and history storage"
+    )
+    doctor_parser.add_argument("--db", default=None)
+    doctor_parser.add_argument(
+        "--format", dest="output_format", choices=["text", "json"], default="text"
+    )
+
+    optimize_parser = subparsers.add_parser(
+        "optimize",
+        help="Learn project-specific thresholds, budgets, and intervention policy",
+    )
+    optimize_parser.add_argument("--project", required=True)
+    optimize_parser.add_argument("--db", default=None)
+    optimize_parser.add_argument(
+        "--minimum-samples",
+        type=int,
+        default=5,
+        help="Samples required before recommendations are considered usable",
+    )
+    optimize_parser.add_argument(
+        "--prompt",
+        default=None,
+        help="Optionally personalize token budgets using a private prompt fingerprint",
+    )
+    optimize_parser.add_argument("--neighbors", type=int, default=5)
+    optimize_parser.add_argument(
+        "--output",
+        default=None,
+        help="Atomically write the learned policy as JSON",
+    )
+    optimize_parser.add_argument(
+        "--format", dest="output_format", choices=["text", "json"], default="text"
+    )
+
+    integrate_parser = subparsers.add_parser(
+        "integrate",
+        help="Export CI/CD integration artifacts and enforce TER quality gates",
+    )
+    integrate_parser.add_argument(
+        "result_dir", help="Directory containing existing *.ter.json results"
+    )
+    integrate_parser.add_argument(
+        "--format",
+        choices=["json", "sarif", "github", "summary"],
+        default="json",
+        help="Integration artifact format (default: json)",
+    )
+    integrate_parser.add_argument(
+        "--minimum-ter",
+        type=float,
+        default=0.0,
+        help="Fail when weighted TER is below this value",
+    )
+    integrate_parser.add_argument(
+        "--maximum-waste-ratio",
+        type=float,
+        default=1.0,
+        help="Fail when waste ratio exceeds this value",
+    )
+    integrate_parser.add_argument("--output", default=None, help="Artifact output path")
+
+    release_parser = subparsers.add_parser(
+        "release-check",
+        help="Build a reproducible release manifest and enforce regression gates",
+    )
+    release_parser.add_argument(
+        "result_dir", help="Directory containing existing *.ter.json results"
+    )
+    release_parser.add_argument(
+        "--baseline", default=None, help="Prior release manifest"
+    )
+    release_parser.add_argument("--minimum-sessions", type=int, default=1)
+    release_parser.add_argument("--minimum-ter", type=float, default=0.0)
+    release_parser.add_argument("--maximum-waste-ratio", type=float, default=1.0)
+    release_parser.add_argument("--maximum-ter-drop", type=float, default=1.0)
+    release_parser.add_argument("--maximum-waste-increase", type=float, default=1.0)
+    release_parser.add_argument("--format", choices=["json", "summary"], default="json")
+    release_parser.add_argument("--output", default=None)
+
+    memory_parser = subparsers.add_parser(
+        "memory",
+        help="Index and query project-scoped repository memory",
+    )
+    memory_sub = memory_parser.add_subparsers(dest="memory_command")
+    memory_index = memory_sub.add_parser(
+        "index", help="Index repository files and Git history"
+    )
+    memory_index.add_argument("root", nargs="?", default=".")
+    memory_index.add_argument("--output", default=None)
+    memory_index.add_argument(
+        "--format", dest="output_format", choices=["text", "json"], default="text"
+    )
+    memory_search = memory_sub.add_parser(
+        "search", help="Retrieve similar code, fixes, and defects"
+    )
+    memory_search.add_argument("query")
+    memory_search.add_argument("--root", default=".")
+    memory_search.add_argument("--index", dest="index_path", default=None)
+    memory_search.add_argument("--limit", type=int, default=8)
+    memory_search.add_argument("--minimum-score", type=float, default=0.10)
+    memory_search.add_argument(
+        "--format", dest="output_format", choices=["text", "json"], default="text"
+    )
+    memory_inspect = memory_sub.add_parser(
+        "inspect", help="Inspect repository memory coverage"
+    )
+    memory_inspect.add_argument("--root", default=".")
+    memory_inspect.add_argument("--index", dest="index_path", default=None)
+    memory_inspect.add_argument(
+        "--format", dest="output_format", choices=["text", "json"], default="text"
+    )
+    memory_trends = memory_sub.add_parser(
+        "trends", help="Aggregate recurring patterns from session lessons"
+    )
+    memory_trends.add_argument("--root", default=".")
+    memory_trends.add_argument("--lessons", default=None)
+    memory_trends.add_argument("--outcomes", default=None)
+    memory_trends.add_argument("--minimum-occurrences", type=int, default=2)
+    memory_trends.add_argument(
+        "--format", dest="output_format", choices=["text", "json"], default="text"
+    )
 
     # hook subcommand — Claude Code hook utilities
     hook_parser = subparsers.add_parser(
@@ -649,6 +785,34 @@ def main(argv: list[str] | None = None) -> int:
         help="Identical failed actions before mandatory replan (default: 2)",
     )
     hook_monitor.add_argument(
+        "--no-project-memory",
+        action="store_true",
+        help="Disable repository-memory retrieval for prompts",
+    )
+    hook_monitor.add_argument(
+        "--memory-index", default=None, help="Explicit repository memory index"
+    )
+    hook_monitor.add_argument("--memory-limit", type=int, default=4)
+    hook_monitor.add_argument("--memory-minimum-score", type=float, default=0.18)
+    hook_monitor.add_argument(
+        "--lesson-store", default=None, help="Session lesson JSONL path"
+    )
+    hook_monitor.add_argument(
+        "--outcome-store", default=None, help="Intervention outcome JSONL path"
+    )
+    hook_monitor.add_argument(
+        "--policy-mode",
+        choices=["observe", "suggest", "warn", "block"],
+        default="suggest",
+    )
+    hook_monitor.add_argument("--ter-drop-warning", type=float, default=0.12)
+    hook_monitor.add_argument("--ter-drop-replan", type=float, default=0.20)
+    hook_monitor.add_argument("--waste-ratio-warning", type=float, default=0.25)
+    hook_monitor.add_argument("--waste-ratio-replan", type=float, default=0.40)
+    hook_monitor.add_argument("--degraded-windows-required", type=int, default=3)
+    hook_monitor.add_argument("--refresh-cooldown-seconds", type=int, default=120)
+    hook_monitor.add_argument("--replan-cooldown-seconds", type=int, default=180)
+    hook_monitor.add_argument(
         "--state-dir",
         type=str,
         default=None,
@@ -688,6 +852,16 @@ def main(argv: list[str] | None = None) -> int:
             return _cmd_history(args)
         if args.command == "dashboard":
             return _cmd_dashboard(args)
+        if args.command == "doctor":
+            return _cmd_doctor(args)
+        if args.command == "optimize":
+            return _cmd_optimize(args)
+        if args.command == "integrate":
+            return _cmd_integrate(args)
+        if args.command == "release-check":
+            return _cmd_release(args)
+        if args.command == "memory":
+            return _cmd_memory(args)
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
@@ -867,6 +1041,30 @@ def _cmd_hook_monitor(args) -> int:
     return implementation(args)
 
 
+def _cmd_optimize(args) -> int:
+    from .commands.optimize import _cmd_optimize as implementation
+
+    return implementation(args)
+
+
+def _cmd_integrate(args) -> int:
+    from .commands.integrate import _cmd_integrate as implementation
+
+    return implementation(args)
+
+
+def _cmd_release(args) -> int:
+    from .commands.release import _cmd_release as implementation
+
+    return implementation(args)
+
+
+def _cmd_memory(args) -> int:
+    from .commands.memory import _cmd_memory as implementation
+
+    return implementation(args)
+
+
 if __name__ == "__main__":
     sys.exit(main())
 
@@ -930,5 +1128,11 @@ def _cmd_dashboard(args) -> int:
         return 0
 
     from .commands.history import _cmd_dashboard as implementation
+
+    return implementation(args)
+
+
+def _cmd_doctor(args) -> int:
+    from .commands.production import _cmd_doctor as implementation
 
     return implementation(args)

@@ -11,8 +11,12 @@ import json
 import math
 import re
 import sqlite3
+import shutil
+from datetime import datetime, timezone
 from dataclasses import dataclass
 from pathlib import Path
+
+from .production import RuntimeConfig, secure_state_path
 
 _DEFAULT_PATH = Path.home() / ".claude" / "ter" / "history.db"
 _TOKEN_RE = re.compile(r"[a-z0-9_]+")
@@ -53,15 +57,26 @@ class TERHistoryStore:
     """SQLite store for aggregate TER session history."""
 
     def __init__(self, db_path: str | Path | None = None) -> None:
-        self.path = Path(db_path) if db_path else _DEFAULT_PATH
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.connection = sqlite3.connect(self.path)
+        self.config = RuntimeConfig.from_env(db_path or _DEFAULT_PATH)
+        self.path = self.config.db_path
+        secure_state_path(self.path)
+        self.connection = sqlite3.connect(
+            self.path, timeout=self.config.busy_timeout_ms / 1000
+        )
         self.connection.row_factory = sqlite3.Row
+        self.connection.execute("PRAGMA foreign_keys = ON")
+        self.connection.execute("PRAGMA journal_mode = WAL")
+        self.connection.execute(f"PRAGMA busy_timeout = {self.config.busy_timeout_ms}")
         self._init_schema()
+        secure_state_path(self.path)
 
     def _init_schema(self) -> None:
         self.connection.executescript(
             """
+            CREATE TABLE IF NOT EXISTS schema_version (
+                version INTEGER PRIMARY KEY,
+                applied_at TEXT NOT NULL
+            );
             CREATE TABLE IF NOT EXISTS ter_sessions (
                 session_id TEXT PRIMARY KEY,
                 project TEXT NOT NULL,
@@ -81,7 +96,58 @@ class TERHistoryStore:
                 ON ter_sessions(aggregate_ter);
             """
         )
+        self.connection.execute(
+            "INSERT OR IGNORE INTO schema_version(version, applied_at) VALUES (?, ?)",
+            (1, datetime.now(timezone.utc).isoformat()),
+        )
         self.connection.commit()
+
+    @property
+    def schema_version(self) -> int:
+        row = self.connection.execute(
+            "SELECT version FROM schema_version ORDER BY version DESC LIMIT 1"
+        ).fetchone()
+        return int(row[0]) if row else 0
+
+    def integrity_check(self) -> str:
+        return str(self.connection.execute("PRAGMA integrity_check").fetchone()[0])
+
+    def backup(self, destination: str | Path) -> Path:
+        target = Path(destination).expanduser()
+        target.parent.mkdir(parents=True, exist_ok=True)
+        temporary = target.with_suffix(target.suffix + ".tmp")
+        backup_connection = sqlite3.connect(temporary)
+        try:
+            self.connection.backup(backup_connection)
+        finally:
+            backup_connection.close()
+        temporary.replace(target)
+        secure_state_path(target)
+        return target
+
+    @staticmethod
+    def restore(
+        source: str | Path, destination: str | Path, *, force: bool = False
+    ) -> Path:
+        source_path = Path(source).expanduser()
+        target = Path(destination).expanduser()
+        if not source_path.is_file():
+            raise FileNotFoundError(source_path)
+        check = sqlite3.connect(f"file:{source_path}?mode=ro", uri=True)
+        try:
+            result = str(check.execute("PRAGMA integrity_check").fetchone()[0])
+        finally:
+            check.close()
+        if result != "ok":
+            raise ValueError(f"Backup integrity check failed: {result}")
+        if target.exists() and not force:
+            raise FileExistsError(f"Refusing to overwrite existing database: {target}")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        temporary = target.with_suffix(target.suffix + ".restore.tmp")
+        shutil.copy2(source_path, temporary)
+        temporary.replace(target)
+        secure_state_path(target)
+        return target
 
     def put(self, record: HistoryRecord) -> None:
         self.connection.execute(
