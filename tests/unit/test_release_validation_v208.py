@@ -51,7 +51,7 @@ def test_release_cli_writes_manifest(tmp_path: Path):
     )
     assert main(["--quiet", "release-check", str(tmp_path)]) == 0
     manifest = json.loads((tmp_path / "ter-release-manifest.json").read_text())
-    assert manifest["snapshot"]["ter_version"] == "2.0.16"
+    assert manifest["snapshot"]["ter_version"] == "3.0.0"
     assert manifest["assessment"]["passed"] is True
     assert manifest["files"][0]["sha256"]
 

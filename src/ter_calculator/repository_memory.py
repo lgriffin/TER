@@ -14,7 +14,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
-INDEX_VERSION = "2.0.14"
+INDEX_VERSION = "3.0.0"
 DEFAULT_INDEX = Path(".ter/memory-index.json")
 _TEXT_EXTENSIONS = {
     ".py",

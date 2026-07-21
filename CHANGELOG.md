@@ -1,18 +1,50 @@
-## 2.0.16
-
-- Added inline SVG improvement-rate and weekly estimated-cost charts to the effectiveness dashboard.
-- Added applied and pending threshold-tuning visibility using shared change descriptions.
-- Fixed hook threshold precedence with explicit `None` sentinels for omitted CLI flags.
-- Added full-extras and minimal-install CI coverage and updated package smoke validation.
-
-## 2.0.15
-
-- Added estimated cost deltas and cost-framed intervention trend reporting.
-- Added transparent, dry-run-by-default per-repository threshold tuning.
-- Added a static intervention effectiveness dashboard.
-- Updated closed-loop documentation and CLI guidance.
-
 # Changelog
+
+All notable public changes to TER are documented in this file. The project follows Semantic Versioning.
+
+## [3.0.0] - 2026-07-22
+
+### Added
+
+- Productionized repository-aware static intelligence, live degradation policies, and feed-forward session learning as the stable TER 3.0 product surface.
+- Inline SVG effectiveness charts for intervention improvement rates and weekly estimated cost saved versus wasted.
+- Auditable dashboard visibility for applied and pending repository threshold tuning.
+- Transparent CLI precedence: explicit threshold flags override tuned values, which override built-in defaults.
+- Separate minimal-install and full-extras CI validation paths.
+- TER 3.0 migration and release documentation.
+
+### Changed
+
+- Promoted the package and CLI version to `3.0.0`.
+- Updated repository-memory index schema marker to `3.0.0`; indexes should be rebuilt after upgrade.
+- Consolidated v2 phase functionality into the documented closed-loop workflow: observe → detect → retrieve → intervene → measure → tune.
+
+### Validation
+
+- Ruff formatting and linting passed.
+- Mypy passed across 84 source files.
+- Full extras-enabled suite: 1,162 tests passed.
+- Branch coverage remains enforced at 90% or higher.
+
+## [2.0.16] - 2026-07-22
+
+### Added
+
+- Inline SVG improvement-rate and weekly estimated-cost charts in the effectiveness dashboard.
+- Applied and pending threshold-tuning visibility backed by shared change descriptions.
+- Full-extras and minimal-install CI coverage.
+
+### Fixed
+
+- Hook threshold precedence now uses explicit `None` sentinels so user-supplied values always override tuned configuration.
+
+## [2.0.15] - 2026-07-22
+
+### Added
+
+- Estimated intervention cost deltas and cost-framed trend reporting.
+- Transparent, dry-run-by-default per-repository threshold tuning.
+- Static intervention effectiveness dashboard and supporting documentation.
 
 ## [2.0.14] - 2026-07-21
 
@@ -30,8 +62,6 @@
 ### Validation
 
 - Full project validation is documented with the release artifact.
-
-All notable public changes to TER are documented in this file. The project follows Semantic Versioning.
 
 ## [2.0.11] - 2026-07-21
 

@@ -1,4 +1,4 @@
-"""Repository memory CLI commands for TER v2.0.14."""
+"""Repository memory CLI commands for TER 3.0."""
 
 from __future__ import annotations
 

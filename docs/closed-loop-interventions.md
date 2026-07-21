@@ -1,6 +1,6 @@
-# Closed-loop interventions (v2.0.12)
+# TER 3.0 closed-loop interventions
 
-TER v2.0.12 adds metric-driven context refreshes and replanning, plus outcome measurement.
+TER 3.0 combines metric-driven recovery, repository memory, outcome measurement, estimated economics, transparent threshold tuning, and dashboard reporting into one production workflow.
 
 ## Data flow
 
@@ -52,7 +52,7 @@ Raw before/after metrics and deltas are retained in `.ter/intervention-outcomes.
 ```
 
 
-## Cost-framed effectiveness (v2.0.15)
+## Cost-framed effectiveness
 Outcome rows estimate waste cost from context tokens, waste ratio, and the configured cost per 1,000 tokens. Trend reports aggregate estimated savings and continued waste by intervention type. All monetary values are explicitly approximate.
 
 ## Self-tuning thresholds

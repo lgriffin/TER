@@ -1,6 +1,6 @@
 # TER Calculator
 
-> **TER 2.0.14** adds closed-loop project intelligence: repository-aware guidance, sustained efficiency-degradation policies, automatic context refresh/replanning, and measured intervention outcomes. Earlier release milestones are documented in the phase notes and `UPDATES.md`.
+> **TER 3.0** is the production release of TER's closed-loop quality and efficiency system for Claude Code: repository-aware static intelligence, real-time recovery policies, feed-forward session memory, measured intervention outcomes, cost-framed trends, self-tuning thresholds, and an auditable effectiveness dashboard.
 
 
 [![CI](https://github.com/lgriffin/TER/actions/workflows/ci.yml/badge.svg)](https://github.com/lgriffin/TER/actions/workflows/ci.yml)
@@ -15,6 +15,28 @@ The project also provides session economics, real-time monitoring, context optim
 > TER is a heuristic analysis system. Its scores should be interpreted as decision-support signals, not as ground-truth judgments.
 
 ---
+
+## TER 3.0 release overview
+
+TER 3.0 consolidates the Phase 2 research and implementation work into a stable product surface built around one operational loop:
+
+```text
+observe → detect → retrieve prior lessons → intervene → measure → tune
+```
+
+The major release centers on three capabilities:
+
+1. **Repository intelligence:** static analysis, semantic duplicate detection, prior-fix retrieval, and project-scoped memory.
+2. **Real-time control:** sustained TER/waste degradation policies that can observe, suggest, warn, refresh context, require replanning, or block high-confidence duplicate actions.
+3. **Feed-forward learning:** durable session lessons, intervention outcomes, recurring-scenario trends, estimated cost impact, transparent per-repository tuning, and a static stakeholder dashboard.
+
+The CLI remains `ter`; existing v2 project state under `.ter/` is reused where formats remain compatible. Repository-memory indexes use the v3 schema marker and should be rebuilt after upgrading:
+
+```bash
+ter memory index --root .
+```
+
+See [`docs/migrating-to-v3.md`](docs/migrating-to-v3.md) for the release checklist and compatibility notes.
 
 ## Highlights
 
@@ -40,8 +62,8 @@ Current verified release status:
 ```text
 ruff format --check src tests: passed
 ruff check src tests: passed
-mypy src/: passed (83 source files)
-python -m pytest: 1,122 passed
+mypy src/: passed (84 source files)
+python -m pytest: 1,162 passed
 Configured branch-coverage minimum: 90%
 ```
 
@@ -1180,7 +1202,7 @@ ter release-check ter-results \
 
 The manifest includes canonical aggregate metrics, distribution percentiles, a stable results fingerprint, and SHA-256 checksums for every input result file. See `PHASE8_CHANGES.md`.
 
-## Repository memory and feed-forward intelligence (v2.0.9–v2.0.14)
+## Repository memory and feed-forward intelligence
 
 Build a private project index and retrieve similar code, prior failures, fixes,
 and duplicate patterns before coding:
@@ -1220,7 +1242,7 @@ See [`PHASE9_CHANGES.md`](PHASE9_CHANGES.md),
 [`PHASE11_CHANGES.md`](PHASE11_CHANGES.md).
 
 
-## v2.0.15 effectiveness economics and tuning
+## Effectiveness economics and tuning
 
 TER trend reports now include clearly labeled **estimated** cost savings and continued waste based on token volume and a configurable cost-per-1,000-token assumption. Use `ter memory trends --outcomes .ter/intervention-outcomes.jsonl` to review results.
 
