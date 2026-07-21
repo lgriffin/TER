@@ -48,6 +48,8 @@ __all__ = [
     "LLMIntentExtractor",
     "StructuredGoal",
     "create_intent_extractor",
+    "embed_text",
+    "embed_texts",
 ]
 
 logger = logging.getLogger(__name__)
@@ -57,20 +59,30 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 
-def _embed(text: str) -> NDArray[np.float32]:
-    """Embed a single text string into a 384-dim vector."""
+def embed_text(text: str) -> NDArray[np.float32]:
+    """Embed one text string. Public patch point retained for test integrations."""
     return np.asarray(
         get_embedding_model().encode(text, convert_to_numpy=True), dtype=np.float32
     )
 
 
-def _embed_batch(texts: list[str]) -> NDArray[np.float32]:
-    """Embed multiple texts in a single batched call."""
+def embed_texts(texts: list[str]) -> NDArray[np.float32]:
+    """Embed multiple texts. Public batch patch point retained for integrations."""
     if not texts:
         return np.zeros((0, 384), dtype=np.float32)
     return np.asarray(
         get_embedding_model().encode(texts, convert_to_numpy=True), dtype=np.float32
     )
+
+
+def _embed(text: str) -> NDArray[np.float32]:
+    """Embed a single text string into a 384-dim vector."""
+    return embed_text(text)
+
+
+def _embed_batch(texts: list[str]) -> NDArray[np.float32]:
+    """Embed multiple texts in a single batched call."""
+    return embed_texts(texts)
 
 
 def _cosine_similarity(a: NDArray[np.float32], b: NDArray[np.float32]) -> float:

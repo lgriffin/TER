@@ -1,52 +1,149 @@
-# 2.0.4.2
-
-- Restore missing Phase 2 batch and dashboard modules in the release archive.
-- Resolve strict mypy errors in dashboard rendering, signal analysis, and batch validation.
-
-# 2.0.4.1
-
-- Fix mypy typing for project waste-source selection.
-- Add targeted Plotly missing-stub override for dashboard modules.
-- Preserve strict typing for the rest of the codebase.
-
 # Changelog
 
-## 2.0.4 — Phase 4 Cross-Session Intelligence
+## [2.0.14] - 2026-07-21
 
-- Added an opt-in SQLite TER history store at `~/.claude/ter/history.db`.
-- Added `ter history record`, `list`, `profile`, and `predict`.
-- Added `ter dashboard` for TER, token, waste, and cost trends.
-- Added privacy-preserving prompt fingerprints; raw prompts are not persisted.
-- Added `data/` immediately below `Backup/` in `.gitignore`.
-- Updated README with Phase 4 workflows and privacy guidance.
+### Fixed
+
+- Native Claude Code hooks now derive rolling TER metrics incrementally from `transcript_path` or `transcript` instead of requiring external metric injection.
+- Transcript byte offsets and lightweight rolling counters are persisted in `HookSessionState`; malformed or unavailable transcripts fail silently.
+- `observe` policy mode now consumes and records pending interventions without injecting guidance or system messages.
+- Outcome classification now uses `neutral` for followed interventions without a meaningful metric change.
+
+### Added
+
+- Regression tests for incremental transcript processing, transcript failures, cross-mode pending-intervention delivery, and all effect-classification branches and boundaries.
+
+### Validation
+
+- Full project validation is documented with the release artifact.
 
 All notable public changes to TER are documented in this file. The project follows Semantic Versioning.
+
+## [2.0.11] - 2026-07-21
+
+### Added
+
+- Sustained TER/waste policy evaluation with configurable context-refresh and replanning thresholds.
+- Policy persistence windows and refresh/replan cooldowns to avoid reacting to transient metric noise.
+- One-time pending-intervention delivery through Claude Code hooks.
+- Intervention identifiers, baseline snapshots, acknowledgement/compliance detection, and effect classification.
+- Before/after TER and waste-ratio measurements for intervention evaluation.
+- Cross-session effectiveness metrics, including compliance rate, improvement rate, and median metric deltas.
+- Direct policy evaluation from the live `SessionMonitor` signal path.
+- Regression coverage for transient dips, sustained degradation, cooldowns, pending intervention consumption, policy modes, and outcome classification.
+
+### Changed
+
+- `ter hook monitor` now exposes policy-mode, TER-drop, waste-ratio, persistence-window, and cooldown options.
+- Repository-memory trend reports now aggregate intervention outcomes as well as recurring lesson patterns.
+- Documentation now describes the full detection → decision → delivery → evaluation loop.
+
+### Validation
+
+- Ruff formatting and linting passed.
+- Mypy passed across 83 source files.
+- Full test suite: 1,115 tests passed.
+
+## [2.0.10] - 2026-07-21
+
+### Added
+
+- Project-scoped repository-memory retrieval in `SessionStart` and `UserPromptSubmit` hooks.
+- Pre-action guidance for similar implementations, prior fixes, and duplicate patterns.
+- Lightweight semantic duplicate grouping alongside exact fingerprints.
+- Durable session-lesson and intervention-outcome JSONL stores.
+- Cross-session `ter memory trends` scenario aggregation.
+- Hook controls for memory paths, retrieval thresholds, policy mode, and persistence paths.
+
+## [2.0.9] - 2026-07-21
+
+### Added
+
+- Local repository-memory indexing for source, documentation, and Git history.
+- Semantic retrieval with source paths, line provenance, and confidence scores.
+- Duplicate-pattern and prior defect/fix risk flags.
+- `ter memory index`, `ter memory search`, and `ter memory inspect`.
+- Phase 9 documentation and regression tests.
+
+## [2.0.8] - 2026-07-21
+
+### Added
+
+- `ter release-check` for deterministic release manifests and regression gates.
+- Canonical result fingerprints and per-file SHA-256 checksums.
+- Absolute quality thresholds plus baseline TER-drop and waste-increase limits.
+- JSON and Markdown release artifacts, documentation, and regression tests.
+
+## [2.0.7] - 2026-07-21
+
+### Added
+
+- `ter integrate` for CI/CD quality gates.
+- JSON, SARIF 2.1.0, GitHub annotation, and Markdown step-summary outputs.
+- Weighted TER and waste-ratio release gates with deterministic exit codes.
+- Atomic integration artifact writes and Phase 7 regression tests.
+
+## [2.0.6] - 2026-07-21
+
+### Added
+
+- Project-specific learning for TER thresholds, phase weights, token budgets, and intervention policy.
+- Optional prompt-neighbor personalization without storing raw prompts.
+- Atomic JSON policy export through `ter optimize`.
+- Bounded recommendations, confidence tiers, documentation, and regression tests.
+
+## [2.0.5] - 2026-07-21
+
+### Added
+
+- Validated environment-driven runtime configuration.
+- SQLite schema versioning, WAL mode, busy timeouts, and integrity checks.
+- Restrictive POSIX permissions for local TER state directories and database files.
+- Atomic history backup and integrity-checked restore operations.
+- `ter doctor` production-readiness diagnostics.
+
+## [2.0.4.2] - 2026-07-21
+
+### Fixed
+
+- Restored missing Phase 2 batch and dashboard modules in the release archive.
+- Resolved strict mypy errors in dashboard rendering, signal analysis, and batch validation.
+
+## [2.0.4.1] - 2026-07-21
+
+### Fixed
+
+- Corrected mypy typing for project waste-source selection.
+- Added a targeted Plotly missing-stub override for dashboard modules while preserving strict typing elsewhere.
+
+## [2.0.4] - 2026-07-21
+
+### Added
+
+- Opt-in SQLite TER history at `~/.claude/ter/history.db`.
+- `ter history record`, `list`, `profile`, and `predict`.
+- `ter dashboard` for TER, token, waste, and cost trends.
+- Privacy-preserving prompt fingerprints; raw prompts are not persisted.
 
 ## [2.0.3] - 2026-07-21
 
 ### Added
 
-- Phase 3 Claude Code intervention engine spanning `SessionStart`, `PreToolUse`, `PostToolUse`, `PermissionRequest`, `PostToolUseFailure`, and assistant-stop events.
+- Claude Code intervention handling for `SessionStart`, `PreToolUse`, `PostToolUse`, `PermissionRequest`, `PostToolUseFailure`, and assistant-stop events.
 - Adaptive task-complexity budget hints at session start.
 - Pre-execution blocking for exact duplicate tool calls with previous-result summaries.
-- Reasoning-loop breaker for highly repetitive consecutive assistant messages.
-- Permission-denial circuit breaker after repeated denied requests for the same tool.
+- Reasoning-loop and permission-denial circuit breakers.
 - Persistent intervention counters and per-session hook metadata.
 
 ### Changed
 
-- `ter hook monitor` is now a unified Phase 3 hook handler while remaining backward compatible with existing PostToolUse configurations.
-- Hook thresholds can now configure denial counts, reasoning-loop counts, and similarity sensitivity.
-
-### Validation
-
-- Added focused Phase 3 intervention tests covering state persistence, blocking output, budget hints, reasoning loops, and permission loops.
+- `ter hook monitor` became the unified hook handler while remaining backward compatible with existing PostToolUse configurations.
 
 ## [2.0.0] - 2026-07-21
 
 ### Added
 
-- Standalone interactive HTML reports with scorecards, token composition, phase distribution, span timeline, alignment-confidence visualization, diagnostics, span inspection, and embedded JSON export.
+- Standalone interactive HTML reports with scorecards, token composition, phase distribution, span timeline, diagnostics, span inspection, and embedded JSON export.
 - Public release hygiene documentation and reproducible package validation.
 
 ### Fixed
@@ -64,4 +161,4 @@ All notable public changes to TER are documented in this file. The project follo
 
 - TER classifications are heuristic estimates and should not be treated as human-validated ground truth.
 - Embedding-based analysis requires the optional `embeddings` dependency.
-- Low-confidence classifications should be reviewed alongside the report diagnostics.
+- Low-confidence classifications should be reviewed alongside report diagnostics.

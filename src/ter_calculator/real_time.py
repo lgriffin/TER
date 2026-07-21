@@ -949,6 +949,9 @@ class SessionMonitor:
         model: Any | None = None,
         on_signal: Callable[[TERSignal], None] | None = None,
         skip_history: bool = True,
+        intervention_root: Path | str | None = None,
+        session_id: str | None = None,
+        policy_config: Any | None = None,
     ) -> None:
         self.path = Path(path)
         self.poll_interval = poll_interval
@@ -958,6 +961,10 @@ class SessionMonitor:
         self._stop = False
         self._file_pos = 0
         self._caught_up = not skip_history
+        self.intervention_root = Path(intervention_root) if intervention_root else None
+        self.session_id = session_id or self.path.stem
+        self.policy_config = policy_config
+        self._policy_state: Any | None = None
 
     def _read_new_lines(self) -> list[dict[str, Any]]:
         """Read lines appended since last poll using byte-offset seek."""
@@ -980,12 +987,53 @@ class SessionMonitor:
             logger.warning("Could not read %s: %s", self.path, exc)
         return new_lines
 
+    def _apply_intervention_policy(self, signal: TERSignal) -> None:
+        if self.intervention_root is None:
+            return
+        from .intervention_policy import (
+            InterventionAction,
+            MetricSnapshot,
+            PolicyConfig,
+            PolicyState,
+            evaluate_policy,
+            new_intervention_record,
+            pending_intervention_path,
+            write_pending_intervention,
+        )
+
+        if self._policy_state is None:
+            self._policy_state = PolicyState()
+        waste_ratio = (
+            signal.waste_tokens / signal.total_tokens if signal.total_tokens else 0.0
+        )
+        snapshot = MetricSnapshot(
+            timestamp=signal.timestamp,
+            ter=signal.aggregate_ter,
+            waste_ratio=waste_ratio,
+            context_tokens=signal.total_input_tokens + signal.cache_read_tokens,
+            context_growth_rate=signal.context_growth_rate,
+            drift_score=signal.drift_magnitude,
+        )
+        decision = evaluate_policy(
+            snapshot, self._policy_state, self.policy_config or PolicyConfig()
+        )
+        if decision.action is InterventionAction.NONE:
+            return
+        record = new_intervention_record(self.session_id, decision, snapshot)
+        write_pending_intervention(
+            pending_intervention_path(self.intervention_root, self.session_id),
+            record,
+            decision,
+        )
+
     def poll_once(self) -> list[TERSignal]:
         """Check for new lines and return any signals produced."""
         new_lines = self._read_new_lines()
         if not new_lines:
             return []
         signals = compute_rolling_ter(self.state, new_lines, model=self.model)
+        for signal in signals:
+            self._apply_intervention_policy(signal)
         if not self._caught_up:
             self._caught_up = True
             if signals:
@@ -1036,6 +1084,9 @@ class LiveDashboard:
         model: Any | None = None,
         on_signal: Callable[[TERSignal], None] | None = None,
         skip_history: bool = True,
+        intervention_root: Path | str | None = None,
+        session_id: str | None = None,
+        policy_config: Any | None = None,
     ) -> None:
         self.project_dir = Path(project_dir)
         self.poll_interval = poll_interval

@@ -30,6 +30,7 @@ def _cmd_hook_monitor(args) -> int:
         save_state,
     )
     from ..intervention import process_intervention_event, record_tool_result
+    from ..closed_loop import append_lessons, record_outcome, resolve_project_root
 
     try:
         event_data = json_mod.loads(sys.stdin.read())
@@ -47,12 +48,38 @@ def _cmd_hook_monitor(args) -> int:
         min_reasoning_loops=args.min_reasoning_loops,
         reasoning_similarity_threshold=args.reasoning_similarity_threshold,
         enable_bash_antipatterns=not args.no_bash_antipatterns,
+        enable_project_memory=not args.no_project_memory,
+        memory_index=args.memory_index,
+        memory_limit=args.memory_limit,
+        memory_minimum_score=args.memory_minimum_score,
+        lesson_store=args.lesson_store,
+        outcome_store=args.outcome_store,
+        policy_mode=args.policy_mode,
+        ter_drop_warning=args.ter_drop_warning,
+        ter_drop_replan=args.ter_drop_replan,
+        waste_ratio_warning=args.waste_ratio_warning,
+        waste_ratio_replan=args.waste_ratio_replan,
+        degraded_windows_required=args.degraded_windows_required,
+        refresh_cooldown_seconds=args.refresh_cooldown_seconds,
+        replan_cooldown_seconds=args.replan_cooldown_seconds,
         state_dir=args.state_dir,
     )
     state = load_state(session_id, config)
     event_name = str(
         event_data.get("hook_event_name", event_data.get("event", "PostToolUse"))
     )
+
+    if not any(key in event_data for key in ("ter_metrics", "metrics", "ter_signal")):
+        try:
+            from ..transcript_metrics import derive_transcript_metrics
+
+            derived_metrics = derive_transcript_metrics(event_data, state)
+            if derived_metrics is not None:
+                event_data["ter_metrics"] = derived_metrics
+        except Exception:
+            # Hook execution must never fail because transcript-derived metrics
+            # are unavailable or a transcript is temporarily incomplete.
+            pass
 
     alerts, state, output = process_intervention_event(event_data, state, config)
     if event_name == "PostToolUse":
@@ -62,8 +89,30 @@ def _cmd_hook_monitor(args) -> int:
 
     if alerts:
         state.intervention_count += 1
-        output.setdefault("additionalContext", format_guidance(alerts))
+        guidance = format_guidance(alerts)
+        if output.get("additionalContext"):
+            output["additionalContext"] += "\n\n" + guidance
+        else:
+            output["additionalContext"] = guidance
         output.setdefault("systemMessage", format_notification(alerts))
+        root = resolve_project_root(event_data)
+        lesson_store = config.lesson_store or str(
+            root / ".ter" / "session-lessons.jsonl"
+        )
+        append_lessons(
+            lesson_store, session_id=session_id, repository=str(root), alerts=alerts
+        )
+        outcome_store = config.outcome_store or str(
+            root / ".ter" / "intervention-outcomes.jsonl"
+        )
+        for alert in alerts:
+            record_outcome(
+                outcome_store,
+                session_id=session_id,
+                intervention_type=alert.pattern_type,
+                outcome="issued",
+                details=alert.details,
+            )
     save_state(state, config)
     print(json_mod.dumps(output))
     return 0

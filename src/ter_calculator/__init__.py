@@ -1,3 +1,3 @@
-"""TER Calculator — Token Efficiency Ratio for Claude Code sessions."""
+"""TER Calculator package."""
 
-__version__ = "2.0.4.2"
+__version__ = "2.0.14"
