@@ -1,0 +1,225 @@
+{
+  "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 4333,
+  "aligned_tokens": 4333,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6432,
+    "token_weighted_confidence": 0.6747,
+    "low_confidence_tokens": 409,
+    "low_confidence_share": 0.0944,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 4,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.12507888674736023,
+      "tokens": 8,
+      "text": "\n\nI'll create both files now.",
+      "source_message_uuid": "31986983-a707-4311-876e-42bbacc184af",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.1251,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5728705525398254,
+      "tokens": 401,
+      "text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/features/core/contracts.feature\",\"content\":\"Feature: Contract Management\\n\\n  Scenario: Get contracts for a valid character\\n    Given a character with contracts\\n    When I request character contracts\\n    Then I should receive a list of contracts\\n\\n  Scenario: Handle empty contracts list\\n    Given a character with no contracts\\n    When I request character contracts for the empty list\\n    Then I should receive an empty array\\n\\n  Scenario: Handle non-existent character for contracts\\n    Given an invalid character ID for contracts\\n    When I request character contracts for the invalid character\\n    Then I should receive a 404 not found error\\n\\n  Scenario: Get public contracts in a region\\n    Given a valid region ID\\n    When I request public contracts\\n    Then I should receive contracts available in that region\\n\\n  Scenario: Get bids for an auction contract\\n    Given an auction contract with bids\\n    When I request contract bids\\n    Then I should receive a list of bids\\n\\n  Scenario: Get bids for a public auction\\n    Given a public auction contract\\n    When I request public contract bids\\n    Then I should receive the bid history\\n\\n  Scenario: Get items in a character contract\\n    Given an item exchange contract\\n    When I request contract items\\n    Then I should receive the list of items\\n\\n  Scenario: Filter character contracts to find only courier contracts\\n    Given a character with mixed contract types\\n    When I retrieve and filter by courier type\\n    Then I should find only courier contracts\\n\\n  Scenario: Complete contract inspection workflow\\n    Given an active auction contract\\n    When I retrieve the contract then fetch its bids and items\\n    Then I should have full contract details\\n\\n  Scenario: Compare character and corporation contracts\\n    Given a character in a corporation\\n    When I fetch both sets of contracts concurrently\\n    Then I should receive independent results\\n\"}",
+      "source_message_uuid": "31986983-a707-4311-876e-42bbacc184af",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.5729,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6785492897033691,
+      "intent_similarity": 0.6785492897033691,
+      "tokens": 3783,
+      "text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/step-definitions/core/contracts.steps.ts\",\"content\":\"import { defineFeature, loadFeature } from 'jest-cucumber';\\nimport { EsiClient } from '../../../../src/EsiClient';\\nimport { EsiError } from '../../../../src/core/util/error';\\nimport { TestDataFactory } from '../../../../src/testing/TestDataFactory';\\n\\nconst feature = loadFeature('tests/bdd/features/core/contracts.feature');\\n\\ndefineFeature(feature, (test) => {\\n  let client: EsiClient;\\n\\n  beforeEach(() => {\\n    client = new EsiClient({\\n      clientId: 'test-client',\\n      baseUrl: 'https://esi.evetech.net',\\n      timeout: 5000,\\n    });\\n  });\\n\\n  test('Get contracts for a valid character', ({ given, when, then }) => {\\n    const characterId = 1689391488;\\n    let result: any;\\n\\n    given('a character with contracts', () => {\\n      const expectedContracts = [\\n        TestDataFactory.createContract({\\n          contract_id: 100000001,\\n          issuer_id: characterId,\\n          type: 'courier',\\n          status: 'outstanding',\\n          price: 1000000,\\n        }),\\n        TestDataFactory.createContract({\\n          contract_id: 100000002,\\n          issuer_id: characterId,\\n          type: 'item_exchange',\\n          status: 'finished',\\n          price: 5000000,\\n        }),\\n      ];\\n\\n      jest\\n        .spyOn(client.contracts, 'getCharacterContracts')\\n        .mockResolvedValue(expectedContracts);\\n    });\\n\\n    when('I request character contracts', async () => {\\n      result = await client.contracts.getCharacterContracts(characterId);\\n    });\\n\\n    then('I should receive a list of contracts', () => {\\n      expect(result).toBeInstanceOf(Array);\\n      expect(result).toHaveLength(2);\\n      expect(result[0]).toHaveProperty('contract_id', 100000001);\\n      expect(result[0]).toHaveProperty('type', 'courier');\\n      expect(result[0]).toHaveProperty('status', 'outstanding');\\n      expect(result[0]).toHaveProperty('price', 1000000);\\n      expect(result[0]).toHaveProperty('issuer_id', characterId);\\n    });\\n  });\\n\\n  test('Handle empty contracts list', ({ given, when, then }) => {\\n    const characterId = 1689391488;\\n    let result: any;\\n\\n    given('a character with no contracts', () => {\\n      const emptyContracts: any[] = [];\\n\\n      jest\\n        .spyOn(client.contracts, 'getCharacterContracts')\\n        .mockResolvedValue(emptyContracts);\\n    });\\n\\n    when('I request character contracts for the empty list', async () => {\\n      result = await client.contracts.getCharacterContracts(characterId);\\n    });\\n\\n    then('I should receive an empty array', () => {\\n      expect(result).toBeInstanceOf(Array);\\n      expect(result).toHaveLength(0);\\n    });\\n  });\\n\\n  test('Handle non-existent character for contracts', ({ given, when, then }) => {\\n    const invalidCharacterId = 999999999;\\n    let error: any;\\n\\n    given('an invalid character ID for contracts', () => {\\n      const notFoundError = TestDataFactory.createError(404);\\n\\n      jest\\n        .spyOn(client.contracts, 'getCharacterContracts')\\n        .mockRejectedValue(notFoundError);\\n    });\\n\\n    when('I request character contracts for the invalid character', async () => {\\n      try {\\n        await client.contracts.getCharacterContracts(invalidCharacterId);\\n      } catch (e) {\\n        error = e;\\n      }\\n    });\\n\\n    then('I should receive a 404 not found error', () => {\\n      expect(error).toBeInstanceOf(EsiError);\\n    });\\n  });\\n\\n  test('Get public contracts in a region', ({ given, when, then }) => {\\n    const regionId = 10000002;\\n    let result: any;\\n\\n    given('a valid region ID', () => {\\n      const expectedContracts = [\\n        TestDataFactory.createContract({\\n          contract_id: 200000001,\\n          type: 'item_exchange',\\n          status: 'outstanding',\\n          availability: 'public',\\n          price: 50000000,\\n        }),\\n        TestDataFactory.createContract({\\n          contract_id: 200000002,\\n          type: 'auction',\\n          status: 'outstanding',\\n          availability: 'public',\\n          price: 10000000,\\n        }),\\n      ];\\n\\n      jest\\n        .spyOn(client.contracts, 'getPublicContracts')\\n        .mockResolvedValue(expectedContracts);\\n    });\\n\\n    when('I request public contracts', async () => {\\n      result = await client.contracts.getPublicContracts(regionId);\\n    });\\n\\n    then('I should receive contracts available in that region', () => {\\n      expect(result).toBeInstanceOf(Array);\\n      expect(result).toHaveLength(2);\\n      expect(result[0]).toHaveProperty('availability', 'public');\\n      expect(result[0]).toHaveProperty('status', 'outstanding');\\n    });\\n  });\\n\\n  test('Get bids for an auction contract', ({ given, when, then }) => {\\n    const characterId = 1689391488;\\n    const contractId = 200000002;\\n    let result: any;\\n\\n    given('an auction contract with bids', () => {\\n      const expectedBids = [\\n        {\\n          bid_id: 1,\\n          bidder_id: 123456789,\\n          amount: 15000000,\\n          date_bid: '2024-01-16T12:00:00Z',\\n        },\\n        {\\n          bid_id: 2,\\n          bidder_id: 987654321,\\n          amount: 20000000,\\n          date_bid: '2024-01-17T14:00:00Z',\\n        },\\n      ];\\n\\n      jest\\n        .spyOn(client.contracts, 'getCharacterContractBids')\\n        .mockResolvedValue(expectedBids);\\n    });\\n\\n    when('I request contract bids', async () => {\\n      result = await client.contracts.getCharacterContractBids(\\n        characterId,\\n        contractId,\\n      );\\n    });\\n\\n    then('I should receive a list of bids', () => {\\n      expect(result).toBeInstanceOf(Array);\\n      expect(result).toHaveLength(2);\\n      expect(result[0]).toHaveProperty('bid_id');\\n      expect(result[0]).toHaveProperty('bidder_id');\\n      expect(result[0]).toHaveProperty('amount', 15000000);\\n      expect(result[1].amount).toBeGreaterThan(result[0].amount);\\n    });\\n  });\\n\\n  test('Get bids for a public auction', ({ given, when, then }) => {\\n    const contractId = 200000002;\\n    let result: any;\\n\\n    given('a public auction contract', () => {\\n      const expectedBids = [\\n        {\\n          bid_id: 1,\\n          bidder_id: 111111111,\\n          amount: 12000000,\\n          date_bid: '2024-01-15T10:00:00Z',\\n        },\\n      ];\\n\\n      jest\\n        .spyOn(client.contracts, 'getPublicContractBids')\\n        .mockResolvedValue(expectedBids);\\n    });\\n\\n    when('I request public contract bids', async () => {\\n      result = await client.contracts.getPublicContractBids(contractId);\\n    });\\n\\n    then('I should receive the bid history', () => {\\n      expect(result).toBeInstanceOf(Array);\\n      expect(result).toHaveLength(1);\\n      expect(result[0]).toHaveProperty('bid_id', 1);\\n      expect(result[0]).toHaveProperty('amount', 12000000);\\n    });\\n  });\\n\\n  test('Get items in a character contract', ({ given, when, then }) => {\\n    const characterId = 1689391488;\\n    const contractId = 100000002;\\n    let result: any;\\n\\n    given('an item exchange contract', () => {\\n      const expectedItems = [\\n        {\\n          record_id: 1,\\n          type_id: 34,\\n          quantity: 1000000,\\n          is_included: true,\\n          is_singleton: false,\\n        },\\n        {\\n          record_id: 2,\\n          type_id: 35,\\n          quantity: 500000,\\n          is_included: true,\\n          is_singleton: false,\\n        },\\n      ];\\n\\n      jest\\n        .spyOn(client.contracts, 'getCharacterContractItems')\\n        .mockResolvedValue(expectedItems);\\n    });\\n\\n    when('I request contract items', async () => {\\n      result = await client.contracts.getCharacterContractItems(\\n        characterId,\\n        contractId,\\n      );\\n    });\\n\\n    then('I should receive the list of items', () => {\\n      expect(result).toBeInstanceOf(Array);\\n      expect(result).toHaveLength(2);\\n      expect(result[0]).toHaveProperty('type_id', 34);\\n      expect(result[0]).toHaveProperty('quantity', 1000000);\\n      expect(result[0]).toHaveProperty('is_included', true);\\n    });\\n  });\\n\\n  test('Filter character contracts to find only courier contracts', ({ given, when, then }) => {\\n    const characterId = 1689391488;\\n    let courierContracts: any;\\n\\n    given('a character with mixed contract types', () => {\\n      const allContracts = [\\n        TestDataFactory.createContract({\\n          contract_id: 300000001,\\n          type: 'courier',\\n          status: 'outstanding',\\n        }),\\n        TestDataFactory.createContract({\\n          contract_id: 300000002,\\n          type: 'item_exchange',\\n          status: 'outstanding',\\n        }),\\n        TestDataFactory.createContract({\\n          contract_id: 300000003,\\n          type: 'auction',\\n          status: 'outstanding',\\n        }),\\n        TestDataFactory.createContract({\\n          contract_id: 300000004,\\n          type: 'courier',\\n          status: 'finished',\\n        }),\\n      ];\\n\\n      jest\\n        .spyOn(client.contracts, 'getCharacterContracts')\\n        .mockResolvedValue(allContracts);\\n    });\\n\\n    when('I retrieve and filter by courier type', async () => {\\n      const result = await client.contracts.getCharacterContracts(characterId);\\n      courierContracts = result.filter((c: any) => c.type === 'courier');\\n    });\\n\\n    then('I should find only courier contracts', () => {\\n      expect(courierContracts).toHaveLength(2);\\n      expect(courierContracts.every((c: any) => c.type === 'courier')).toBe(\\n        true,\\n      );\\n    });\\n  });\\n\\n  test('Complete contract inspection workflow', ({ given, when, then }) => {\\n    const characterId = 1689391488;\\n    const contractId = 400000001;\\n    let auctionContract: any;\\n    let contractBids: any;\\n    let contractItems: any;\\n\\n    given('an active auction contract', () => {\\n      const contracts = [\\n        TestDataFactory.createContract({\\n          contract_id: contractId,\\n          type: 'auction',\\n          status: 'outstanding',\\n          price: 10000000,\\n        }),\\n      ];\\n\\n      const bids = [\\n        {\\n          bid_id: 1,\\n          bidder_id: 123456789,\\n          amount: 15000000,\\n          date_bid: '2024-01-16T12:00:00Z',\\n        },\\n        {\\n          bid_id: 2,\\n          bidder_id: 987654321,\\n          amount: 25000000,\\n          date_bid: '2024-01-17T14:00:00Z',\\n        },\\n      ];\\n\\n      const items = [\\n        {\\n          record_id: 1,\\n          type_id: 17918,\\n          quantity: 1,\\n          is_included: true,\\n          is_singleton: true,\\n        },\\n      ];\\n\\n      jest\\n        .spyOn(client.contracts, 'getCharacterContracts')\\n        .mockResolvedValue(contracts);\\n      jest\\n        .spyOn(client.contracts, 'getCharacterContractBids')\\n        .mockResolvedValue(bids);\\n      jest\\n        .spyOn(client.contracts, 'getCharacterContractItems')\\n        .mockResolvedValue(items);\\n    });\\n\\n    when('I retrieve the contract then fetch its bids and items', async () => {\\n      const contractList =\\n        await client.contracts.getCharacterContracts(characterId);\\n      auctionContract = contractList.find(\\n        (c: any) => c.contract_id === contractId,\\n      );\\n\\n      expect(auctionContract).toBeDefined();\\n\\n      [contractBids, contractItems] = await Promise.all([\\n        client.contracts.getCharacterContractBids(characterId, contractId),\\n        client.contracts.getCharacterContractItems(characterId, contractId),\\n      ]);\\n    });\\n\\n    then('I should have full contract details', () => {\\n      expect(auctionContract!.type).toBe('auction');\\n      expect(auctionContract!.price).toBe(10000000);\\n\\n      expect(contractBids).toHaveLength(2);\\n      const highestBid = contractBids.reduce(\\n        (max: any, bid: any) => (bid.amount > max.amount ? bid : max),\\n        contractBids[0],\\n      );\\n      expect(highestBid.amount).toBe(25000000);\\n\\n      expect(contractItems).toHaveLength(1);\\n      expect(contractItems[0].type_id).toBe(17918);\\n      expect(contractItems[0].is_singleton).toBe(true);\\n    });\\n  });\\n\\n  test('Compare character and corporation contracts', ({ given, when, then }) => {\\n    const characterId = 1689391488;\\n    const corporationId = 1344654522;\\n    let charContracts: any;\\n    let corpContracts: any;\\n\\n    given('a character in a corporation', () => {\\n      const characterContracts = [\\n        TestDataFactory.createContract({\\n          contract_id: 500000001,\\n          issuer_id: characterId,\\n          type: 'item_exchange',\\n          for_corporation: false,\\n        }),\\n      ];\\n\\n      const corporationContracts = [\\n        TestDataFactory.createContract({\\n          contract_id: 500000002,\\n          issuer_id: characterId,\\n          issuer_corporation_id: corporationId,\\n          type: 'courier',\\n          for_corporation: true,\\n        }),\\n        TestDataFactory.createContract({\\n          contract_id: 500000003,\\n          issuer_id: 987654321,\\n          issuer_corporation_id: corporationId,\\n          type: 'item_exchange',\\n          for_corporation: true,\\n        }),\\n      ];\\n\\n      jest\\n        .spyOn(client.contracts, 'getCharacterContracts')\\n        .mockResolvedValue(characterContracts);\\n      jest\\n        .spyOn(client.contracts, 'getCorporationContracts')\\n        .mockResolvedValue(corporationContracts);\\n    });\\n\\n    when('I fetch both sets of contracts concurrently', async () => {\\n      [charContracts, corpContracts] = await Promise.all([\\n        client.contracts.getCharacterContracts(characterId),\\n        client.contracts.getCorporationContracts(corporationId),\\n      ]);\\n    });\\n\\n    then('I should receive independent results', () => {\\n      expect(charContracts).toHaveLength(1);\\n      expect(charContracts[0].for_corporation).toBe(false);\\n\\n      expect(corpContracts).toHaveLength(2);\\n      expect(\\n        corpContracts.every((c: any) => c.for_corporation === true),\\n      ).toBe(true);\\n    });\\n  });\\n});\\n\"}",
+      "source_message_uuid": "31986983-a707-4311-876e-42bbacc184af",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6785,
+          "repetition_score": 0.486,
+          "confidence": 0.6785,
+          "semantic_similarity": 0.5415,
+          "lexical_similarity": 0.2776,
+          "entity_similarity": 0.3186,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/features/core/contracts.feature\",\"content\":\"Feature: Contract Management\\n\\n  Scenario: Get contracts for a valid character\\n    Given a character with contracts\\n    When I request character con"
+      }
+    },
+    {
+      "position": 3,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.7942640781402588,
+      "intent_similarity": 0.7942640781402588,
+      "tokens": 141,
+      "text": "Both files have been created successfully:\n\n1. **`D:/code/ESI.ts/tests/bdd/features/core/contracts.feature`** -- Gherkin feature file with 10 scenarios covering contract management (character contracts, empty lists, 404 errors, public contracts, bids, items, filtering, workflow inspection, and character vs corporation comparison).\n\n2. **`D:/code/ESI.ts/tests/bdd/step-definitions/core/contracts.steps.ts`** -- jest-cucumber step definitions file with all 10 test implementations using `defineFeature`/`loadFeature`, mock spies on the `EsiClient.contracts` methods, and `TestDataFactory` for test data creation.",
+      "source_message_uuid": "1e829376-0e1a-475f-a93a-8f297f2d2333",
+      "source_lines": [
+        8
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.7943,
+          "repetition_score": 0.2221,
+          "confidence": 0.7943,
+          "semantic_similarity": 0.3748,
+          "lexical_similarity": 0.0345,
+          "entity_similarity": 0.0377,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9623
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "\n\nI'll create both files now."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 4,
+    "total_output_tokens": 169,
+    "total_cache_creation_tokens": 11845,
+    "total_cache_read_tokens": 31940,
+    "input_output_ratio": 0.02,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.0565,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 2
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        12725,
+        19219
+      ],
+      "growth_rate": 1.51,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 3620,
+      "user_result_tokens": 76,
+      "model_reasoning_tokens": 0,
+      "model_tool_tokens": 4184,
+      "model_generation_tokens": 149,
+      "total_user_tokens": 3696,
+      "total_model_tokens": 4333,
+      "user_ratio": 0.4603
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.7455,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "Create two files for the ESI.ts project BDD tests. You are converting from Jest describe/it format to jest-cucumber Gherkin format.\n\nFILE 1: D:/code/ESI.ts/tests/bdd/features/core/contracts.feature\n\n```gherkin\nFeature: Contract Management\n\n  Scenario: Get contracts for a valid character\n    Given a character with contracts\n    When I request character contracts\n    Then I should receive a list of contracts\n\n  Scenario: Handle empty contracts list\n    Given a character with no contracts\n    When I request character contracts for the empty list\n    Then I should receive an empty array\n\n  Scenario: Handle non-existent character for contracts\n    Given an invalid character ID for contracts\n    When I request character contracts for the invalid character\n    Then I should receive a 404 not found error\n\n  Scenario: Get public contracts in a region\n    Given a valid region ID\n    When I request public contracts\n    Then I should receive contracts available in that region\n\n  Scenario: Get bids for an auction contract\n    Given an auction contract with bids\n    When I request contract bids\n    Then I should receive a list of bids\n\n  Scenario: Get bids for a public auction\n    Given a public auction contract\n    When I request public contract bids\n    Then I should receive the bid history\n\n  Scenario: Get items in a character contract\n    Given an item exchange contract\n    When I request contract items\n    Then I should receive the list of items\n\n  Scenario: Filter character contracts to find only courier contracts\n    Given a character with mixed contract types\n    When I retrieve and filter by courier type\n    Then I should find only courier contracts\n\n  Scenario: Complete contract inspection workflow\n    Given an active auction contract\n    When I retrieve the contract then fetch its bids and items\n    Then I should have full contract details\n\n  Scenario: Compare character and corporation contracts\n    Given a character in a corporation\n    When I fetch both sets of contracts concurrently\n    Then I should receive independent results\n```\n\nFILE 2: D:/code/ESI.ts/tests/bdd/step-definitions/core/contracts.steps.ts\n\n```typescript\nimport { defineFeature, loadFeature } from 'jest-cucumber';\nimport { EsiClient } from '../../../../src/EsiClient';\nimport { EsiError } from '../../../../src/core/util/error';\nimport { TestDataFactory } from '../../../../src/testing/TestDataFactory';\n\nconst feature = loadFeature('tests/bdd/features/core/contracts.feature');\n\ndefineFeature(feature, (test) => {\n  let client: EsiClient;\n\n  beforeEach(() => {\n    client = new EsiClient({\n      clientId: 'test-client',\n      baseUrl: 'https://esi.evetech.net',\n      timeout: 5000,\n    });\n  });\n\n  test('Get contracts for a valid character', ({ given, when, then }) => {\n    const characterId = 1689391488;\n    let result: any;\n\n    given('a character with contracts', () => {\n      const expectedContracts = [\n        TestDataFactory.createContract({\n          contract_id: 100000001,\n          issuer_id: characterId,\n          type: 'courier',\n          status: 'outstanding',\n          price: 1000000,\n        }),\n        TestDataFactory.createContract({\n          contract_id: 100000002,\n          issuer_id: characterId,\n          type: 'item_exchange',\n          status: 'finished',\n          price: 5000000,\n        }),\n      ];\n\n      jest\n        .spyOn(client.contracts, 'getCharacterContracts')\n        .mockResolvedValue(expectedContracts);\n    });\n\n    when('I request character contracts', async () => {\n      result = await client.contracts.getCharacterContracts(characterId);\n    });\n\n    then('I should receive a list of contracts', () => {\n      expect(result).toBeInstanceOf(Array);\n      expect(result).toHaveLength(2);\n      expect(result[0]).toHaveProperty('contract_id', 100000001);\n      expect(result[0]).toHaveProperty('type', 'courier');\n      expect(result[0]).toHaveProperty('status', 'outstanding');\n      expect(result[0]).toHaveProperty('price', 1000000);\n      expect(result[0]).toHaveProperty('issuer_id', characterId);\n    });\n  });\n\n  test('Handle empty contracts list', ({ given, when, then }) => {\n    const characterId = 1689391488;\n    let result: any;\n\n    given('a character with no contracts', () => {\n      const emptyContracts: any[] = [];\n\n      jest\n        .spyOn(client.contracts, 'getCharacterContracts')\n        .mockResolvedValue(emptyContracts);\n    });\n\n    when('I request character contracts for the empty list', async () => {\n      result = await client.contracts.getCharacterContracts(characterId);\n    });\n\n    then('I should receive an empty array', () => {\n      expect(result).toBeInstanceOf(Array);\n      expect(result).toHaveLength(0);\n    });\n  });\n\n  test('Handle non-existent character for contracts', ({ given, when, then }) => {\n    const invalidCharacterId = 999999999;\n    let error: any;\n\n    given('an invalid character ID for contracts', () => {\n      const notFoundError = TestDataFactory.createError(404);\n\n      jest\n        .spyOn(client.contracts, 'getCharacterContracts')\n        .mockRejectedValue(notFoundError);\n    });\n\n    when('I request character contracts for the invalid character', async () => {\n      try {\n        await client.contracts.getCharacterContracts(invalidCharacterId);\n      } catch (e) {\n        error = e;\n      }\n    });\n\n    then('I should receive a 404 not found error', () => {\n      expect(error).toBeInstanceOf(EsiError);\n    });\n  });\n\n  test('Get public contracts in a region', ({ given, when, then }) => {\n    const regionId = 10000002;\n    let result: any;\n\n    given('a valid region ID', () => {\n      const expectedContracts = [\n        TestDataFactory.createContract({\n          contract_id: 200000001,\n          type: 'item_exchange',\n          status: 'outstanding',\n          availability: 'public',\n          price: 50000000,\n        }),\n        TestDataFactory.createContract({\n          contract_id: 200000002,\n          type: 'auction',\n          status: 'outstanding',\n          availability: 'public',\n          price: 10000000,\n        }),\n      ];\n\n      jest\n        .spyOn(client.contracts, 'getPublicContracts')\n        .mockResolvedValue(expectedContracts);\n    });\n\n    when('I request public contracts', async () => {\n      result = await client.contracts.getPublicContracts(regionId);\n    });\n\n    then('I should receive contracts available in that region', () => {\n      expect(result).toBeInstanceOf(Array);\n      expect(result).toHaveLength(2);\n      expect(result[0]).toHaveProperty('availability', 'public');\n      expect(result[0]).toHaveProperty('status', 'outstanding');\n    });\n  });\n\n  test('Get bids for an auction contract', ({ given, when, then }) => {\n    const characterId = 1689391488;\n    const contractId = 200000002;\n    let result: any;\n\n    given('an auction contract with bids', () => {\n      const expectedBids = [\n        {\n          bid_id: 1,\n          bidder_id: 123456789,\n          amount: 15000000,\n          date_bid: '2024-01-16T12:00:00Z',\n        },\n        {\n          bid_id: 2,\n          bidder_id: 987654321,\n          amount: 20000000,\n          date_bid: '2024-01-17T14:00:00Z',\n        },\n      ];\n\n      jest\n        .spyOn(client.contracts, 'getCharacterContractBids')\n        .mockResolvedValue(expectedBids);\n    });\n\n    when('I request contract bids', async () => {\n      result = await client.contracts.getCharacterContractBids(\n        characterId,\n        contractId,\n      );\n    });\n\n    then('I should receive a list of bids', () => {\n      expect(result).toBeInstanceOf(Array);\n      expect(result).toHaveLength(2);\n      expect(result[0]).toHaveProperty('bid_id');\n      expect(result[0]).toHaveProperty('bidder_id');\n      expect(result[0]).toHaveProperty('amount', 15000000);\n      expect(result[1].amount).toBeGreaterThan(result[0].amount);\n    });\n  });\n\n  test('Get bids for a public auction', ({ given, when, then }) => {\n    const contractId = 200000002;\n    let result: any;\n\n    given('a public auction contract', () => {\n      const expectedBids = [\n        {\n          bid_id: 1,\n          bidder_id: 111111111,\n          amount: 12000000,\n          date_bid: '2024-01-15T10:00:00Z',\n        },\n      ];\n\n      jest\n        .spyOn(client.contracts, 'getPublicContractBids')\n        .mockResolvedValue(expectedBids);\n    });\n\n    when('I request public contract bids', async () => {\n      result = await client.contracts.getPublicContractBids(contractId);\n    });\n\n    then('I should receive the bid history', () => {\n      expect(result).toBeInstanceOf(Array);\n      expect(result).toHaveLength(1);\n      expect(result[0]).toHaveProperty('bid_id', 1);\n      expect(result[0]).toHaveProperty('amount', 12000000);\n    });\n  });\n\n  test('Get items in a character contract', ({ given, when, then }) => {\n    const characterId = 1689391488;\n    const contractId = 100000002;\n    let result: any;\n\n    given('an item exchange contract', () => {\n      const expectedItems = [\n        {\n          record_id: 1,\n          type_id: 34,\n          quantity: 1000000,\n          is_included: true,\n          is_singleton: false,\n        },\n        {\n          record_id: 2,\n          type_id: 35,\n          quantity: 500000,\n          is_included: true,\n          is_singleton: false,\n        },\n      ];\n\n      jest\n        .spyOn(client.contracts, 'getCharacterContractItems')\n        .mockResolvedValue(expectedItems);\n    });\n\n    when('I request contract items', async () => {\n      result = await client.contracts.getCharacterContractItems(\n        characterId,\n        contractId,\n      );\n    });\n\n    then('I should receive the list of items', () => {\n      expect(result).toBeInstanceOf(Array);\n      expect(result).toHaveLength(2);\n      expect(result[0]).toHaveProperty('type_id', 34);\n      expect(result[0]).toHaveProperty('quantity', 1000000);\n      expect(result[0]).toHaveProperty('is_included', true);\n    });\n  });\n\n  test('Filter character contracts to find only courier contracts', ({ given, when, then }) => {\n    const characterId = 1689391488;\n    let courierContracts: any;\n\n    given('a character with mixed contract types', () => {\n      const allContracts = [\n        TestDataFactory.createContract({\n          contract_id: 300000001,\n          type: 'courier',\n          status: 'outstanding',\n        }),\n        TestDataFactory.createContract({\n          contract_id: 300000002,\n          type: 'item_exchange',\n          status: 'outstanding',\n        }),\n        TestDataFactory.createContract({\n          contract_id: 300000003,\n          type: 'auction',\n          status: 'outstanding',\n        }),\n        TestDataFactory.createContract({\n          contract_id: 300000004,\n          type: 'courier',\n          status: 'finished',\n        }),\n      ];\n\n      jest\n        .spyOn(client.contracts, 'getCharacterContracts')\n        .mockResolvedValue(allContracts);\n    });\n\n    when('I retrieve and filter by courier type', async () => {\n      const result = await client.contracts.getCharacterContracts(characterId);\n      courierContracts = result.filter((c: any) => c.type === 'courier');\n    });\n\n    then('I should find only courier contracts', () => {\n      expect(courierContracts).toHaveLength(2);\n      expect(courierContracts.every((c: any) => c.type === 'courier')).toBe(\n        true,\n      );\n    });\n  });\n\n  test('Complete contract inspection workflow', ({ given, when, then }) => {\n    const characterId = 1689391488;\n    const contractId = 400000001;\n    let auctionContract: any;\n    let contractBids: any;\n    let contractItems: any;\n\n    given('an active auction contract', () => {\n      const contracts = [\n        TestDataFactory.createContract({\n          contract_id: contractId,\n          type: 'auction',\n          status: 'outstanding',\n          price: 10000000,\n        }),\n      ];\n\n      const bids = [\n        {\n          bid_id: 1,\n          bidder_id: 123456789,\n          amount: 15000000,\n          date_bid: '2024-01-16T12:00:00Z',\n        },\n        {\n          bid_id: 2,\n          bidder_id: 987654321,\n          amount: 25000000,\n          date_bid: '2024-01-17T14:00:00Z',\n        },\n      ];\n\n      const items = [\n        {\n          record_id: 1,\n          type_id: 17918,\n          quantity: 1,\n          is_included: true,\n          is_singleton: true,\n        },\n      ];\n\n      jest\n        .spyOn(client.contracts, 'getCharacterContracts')\n        .mockResolvedValue(contracts);\n      jest\n        .spyOn(client.contracts, 'getCharacterContractBids')\n        .mockResolvedValue(bids);\n      jest\n        .spyOn(client.contracts, 'getCharacterContractItems')\n        .mockResolvedValue(items);\n    });\n\n    when('I retrieve the contract then fetch its bids and items', async () => {\n      const contractList =\n        await client.contracts.getCharacterContracts(characterId);\n      auctionContract = contractList.find(\n        (c: any) => c.contract_id === contractId,\n      );\n\n      expect(auctionContract).toBeDefined();\n\n      [contractBids, contractItems] = await Promise.all([\n        client.contracts.getCharacterContractBids(characterId, contractId),\n        client.contracts.getCharacterContractItems(characterId, contractId),\n      ]);\n    });\n\n    then('I should have full contract details', () => {\n      expect(auctionContract!.type).toBe('auction');\n      expect(auctionContract!.price).toBe(10000000);\n\n      expect(contractBids).toHaveLength(2);\n      const highestBid = contractBids.reduce(\n        (max: any, bid: any) => (bid.amount > max.amount ? bid : max),\n        contractBids[0],\n      );\n      expect(highestBid.amount).toBe(25000000);\n\n      expect(contractItems).toHaveLength(1);\n      expect(contractItems[0].type_id).toBe(17918);\n      expect(contractItems[0].is_singleton).toBe(true);\n    });\n  });\n\n  test('Compare character and corporation contracts', ({ given, when, then }) => {\n    const characterId = 1689391488;\n    const corporationId = 1344654522;\n    let charContracts: any;\n    let corpContracts: any;\n\n    given('a character in a corporation', () => {\n      const characterContracts = [\n        TestDataFactory.createContract({\n          contract_id: 500000001,\n          issuer_id: characterId,\n          type: 'item_exchange',\n          for_corporation: false,\n        }),\n      ];\n\n      const corporationContracts = [\n        TestDataFactory.createContract({\n          contract_id: 500000002,\n          issuer_id: characterId,\n          issuer_corporation_id: corporationId,\n          type: 'courier',\n          for_corporation: true,\n        }),\n        TestDataFactory.createContract({\n          contract_id: 500000003,\n          issuer_id: 987654321,\n          issuer_corporation_id: corporationId,\n          type: 'item_exchange',\n          for_corporation: true,\n        }),\n      ];\n\n      jest\n        .spyOn(client.contracts, 'getCharacterContracts')\n        .mockResolvedValue(characterContracts);\n      jest\n        .spyOn(client.contracts, 'getCorporationContracts')\n        .mockResolvedValue(corporationContracts);\n    });\n\n    when('I fetch both sets of contracts concurrently', async () => {\n      [charContracts, corpContracts] = await Promise.all([\n        client.contracts.getCharacterContracts(characterId),\n        client.contracts.getCorporationContracts(corporationId),\n      ]);\n    });\n\n    then('I should receive independent results', () => {\n      expect(charContracts).toHaveLength(1);\n      expect(charContracts[0].for_corporation).toBe(false);\n\n      expect(corpContracts).toHaveLength(2);\n      expect(\n        corpContracts.every((c: any) => c.for_corporation === true),\n      ).toBe(true);\n    });\n  });\n});\n```\n\nPlease write both files exactly as specified above using the Write tool.",
+          "response_text": "\n\nI'll create both files now. Both files have been created successfully:\n\n1. **`D:/code/ESI.ts/tests/bdd/features/core/contracts.feature`** -- Gherkin feature file with 10 scenarios covering contract management (character contracts, empty lists, 404 errors, public contracts, bids, items, filtering, workflow inspection, and character vs corporation comparison).\n\n2. **`D:/code/ESI.ts/tests/bdd/step-definitions/core/contracts.steps.ts`** -- jest-cucumber step definitions file with all 10 test implementations using `defineFeature`/`loadFeature`, mock spies on the `EsiClient.contracts` methods, and `TestDataFactory` for test data creation.",
+          "alignment": 0.7455
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+    "source_file": "data/D--code-ESI-ts__agent-a8b267def720d7262.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

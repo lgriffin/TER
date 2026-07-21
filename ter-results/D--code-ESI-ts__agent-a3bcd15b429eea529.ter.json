@@ -1,0 +1,195 @@
+{
+  "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 1790,
+  "aligned_tokens": 1790,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.7112,
+    "token_weighted_confidence": 0.6905,
+    "low_confidence_tokens": 216,
+    "low_confidence_share": 0.1207,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 3,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5310258865356445,
+      "tokens": 216,
+      "text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/features/core/clones.feature\",\"content\":\"Feature: Clone Management\\n\\n  Scenario: Get clone information for a valid character\\n    Given a valid character ID for clones\\n    When I request clone information\\n    Then I should receive clone details\\n\\n  Scenario: Handle unauthorized clone request\\n    Given an invalid access token for clones\\n    When I request clone information without authorization\\n    Then I should receive an authentication error for clones\\n\\n  Scenario: Get active implants for a character\\n    Given a valid character ID for implants\\n    When I request implant information\\n    Then I should receive a list of implant type IDs\\n\\n  Scenario: Character with no implants\\n    Given a character with no active implants\\n    When I request implant information for the character\\n    Then I should receive an empty array for implants\\n\\n  Scenario: Retrieve clones and their implants\\n    Given a character with clones\\n    When I retrieve clone info and implants\\n    Then I should have complete clone data\\n\"}",
+      "source_message_uuid": "0fdacb5a-bcb5-4b0c-8d7d-b99eb0ad2e0e",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.531,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6922626495361328,
+      "intent_similarity": 0.6922626495361328,
+      "tokens": 1461,
+      "text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/step-definitions/core/clones.steps.ts\",\"content\":\"import { defineFeature, loadFeature } from 'jest-cucumber';\\nimport { EsiClient } from '../../../../src/EsiClient';\\nimport { EsiError } from '../../../../src/core/util/error';\\n\\nconst feature = loadFeature('tests/bdd/features/core/clones.feature');\\n\\ndefineFeature(feature, (test) => {\\n  let client: EsiClient;\\n\\n  beforeEach(() => {\\n    client = new EsiClient({\\n      clientId: 'test-client',\\n      baseUrl: 'https://esi.evetech.net',\\n      accessToken: 'mock-access-token',\\n      timeout: 5000,\\n    });\\n  });\\n\\n  test('Get clone information for a valid character', ({ given, when, then }) => {\\n    const characterId = 90000001;\\n    let result: any;\\n\\n    given('a valid character ID for clones', () => {\\n      const expectedResponse = {\\n        home_location: {\\n          location_id: 60003760,\\n          location_type: 'station',\\n        },\\n        jump_clones: [\\n          {\\n            jump_clone_id: 12345,\\n            location_id: 60003760,\\n            implants: [1, 2, 3],\\n          },\\n          { jump_clone_id: 12346, location_id: 60008494, implants: [] },\\n        ],\\n        last_clone_jump_date: '2024-01-15T12:00:00Z',\\n        last_station_change_date: '2024-01-10T08:00:00Z',\\n      };\\n\\n      jest\\n        .spyOn(client.clones, 'getClones')\\n        .mockResolvedValue(expectedResponse as any);\\n    });\\n\\n    when('I request clone information', async () => {\\n      result = await client.clones.getClones(characterId);\\n    });\\n\\n    then('I should receive clone details', () => {\\n      expect(result).toBeDefined();\\n      expect(result.home_location).toBeDefined();\\n      expect(result.home_location!.location_id).toBe(60003760);\\n      expect(result.jump_clones).toHaveLength(2);\\n    });\\n  });\\n\\n  test('Handle unauthorized clone request', ({ given, when, then }) => {\\n    const characterId = 90000001;\\n    let error: any;\\n\\n    given('an invalid access token for clones', () => {\\n      const authError = new EsiError(401, 'Token is expired');\\n\\n      jest.spyOn(client.clones, 'getClones').mockRejectedValue(authError);\\n    });\\n\\n    when('I request clone information without authorization', async () => {\\n      try {\\n        await client.clones.getClones(characterId);\\n      } catch (e) {\\n        error = e;\\n      }\\n    });\\n\\n    then('I should receive an authentication error for clones', () => {\\n      expect(error).toBeDefined();\\n      expect(error.message).toContain('Token is expired');\\n    });\\n  });\\n\\n  test('Get active implants for a character', ({ given, when, then }) => {\\n    const characterId = 90000001;\\n    let result: any;\\n\\n    given('a valid character ID for implants', () => {\\n      const expectedImplants = [9899, 9941, 9942, 9943, 9956];\\n\\n      jest\\n        .spyOn(client.clones, 'getImplants')\\n        .mockResolvedValue(expectedImplants);\\n    });\\n\\n    when('I request implant information', async () => {\\n      result = await client.clones.getImplants(characterId);\\n    });\\n\\n    then('I should receive a list of implant type IDs', () => {\\n      expect(Array.isArray(result)).toBe(true);\\n      expect(result).toHaveLength(5);\\n      result.forEach((implant: number) => {\\n        expect(typeof implant).toBe('number');\\n      });\\n    });\\n  });\\n\\n  test('Character with no implants', ({ given, when, then }) => {\\n    const characterId = 90000001;\\n    let result: any;\\n\\n    given('a character with no active implants', () => {\\n      jest.spyOn(client.clones, 'getImplants').mockResolvedValue([]);\\n    });\\n\\n    when('I request implant information for the character', async () => {\\n      result = await client.clones.getImplants(characterId);\\n    });\\n\\n    then('I should receive an empty array for implants', () => {\\n      expect(Array.isArray(result)).toBe(true);\\n      expect(result).toHaveLength(0);\\n    });\\n  });\\n\\n  test('Retrieve clones and their implants', ({ given, when, then }) => {\\n    const characterId = 90000001;\\n    let clones: any;\\n    let implants: any;\\n\\n    given('a character with clones', () => {\\n      const cloneData = {\\n        home_location: { location_id: 60003760, location_type: 'station' },\\n        jump_clones: [\\n          {\\n            jump_clone_id: 12345,\\n            location_id: 60003760,\\n            implants: [9899, 9941],\\n          },\\n          { jump_clone_id: 12346, location_id: 60008494, implants: [9942] },\\n        ],\\n      };\\n      const activeImplants = [9943, 9956];\\n\\n      jest\\n        .spyOn(client.clones, 'getClones')\\n        .mockResolvedValue(cloneData as any);\\n      jest\\n        .spyOn(client.clones, 'getImplants')\\n        .mockResolvedValue(activeImplants);\\n    });\\n\\n    when('I retrieve clone info and implants', async () => {\\n      clones = await client.clones.getClones(characterId);\\n      implants = await client.clones.getImplants(characterId);\\n    });\\n\\n    then('I should have complete clone data', () => {\\n      expect(clones.jump_clones).toHaveLength(2);\\n      expect(implants).toHaveLength(2);\\n      expect(clones.jump_clones[0].implants).toHaveLength(2);\\n    });\\n  });\\n});\\n\"}",
+      "source_message_uuid": "0fdacb5a-bcb5-4b0c-8d7d-b99eb0ad2e0e",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6923,
+          "repetition_score": 0.4973,
+          "confidence": 0.6923,
+          "semantic_similarity": 0.5568,
+          "lexical_similarity": 0.3125,
+          "entity_similarity": 0.3411,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 0,
+        "matched_prior_text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/features/core/clones.feature\",\"content\":\"Feature: Clone Management\\n\\n  Scenario: Get clone information for a valid character\\n    Given a valid character ID for clones\\n    When I request clone "
+      }
+    },
+    {
+      "position": 2,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.8413528800010681,
+      "intent_similarity": 0.8413528800010681,
+      "tokens": 113,
+      "text": "Both files have been written exactly as specified:\n\n- **D:/code/ESI.ts/tests/bdd/features/core/clones.feature** -- Gherkin feature file with 5 scenarios covering clone retrieval, unauthorized access, implant listing, empty implants, and combined clone+implant retrieval.\n- **D:/code/ESI.ts/tests/bdd/step-definitions/core/clones.steps.ts** -- jest-cucumber step definitions importing `EsiError` directly (no TestDataFactory), using inline mock data and `jest.spyOn` for all test scenarios.",
+      "source_message_uuid": "6400ebf4-508e-497b-9b07-4b70e8fb0329",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.8414,
+          "repetition_score": 0.0,
+          "confidence": 0.8414
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 4,
+    "total_output_tokens": 166,
+    "total_cache_creation_tokens": 6515,
+    "total_cache_read_tokens": 29293,
+    "input_output_ratio": 0.02,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.0357,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 1
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        12725,
+        16572
+      ],
+      "growth_rate": 1.3,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 1525,
+      "user_result_tokens": 76,
+      "model_reasoning_tokens": 0,
+      "model_tool_tokens": 1677,
+      "model_generation_tokens": 113,
+      "total_user_tokens": 1601,
+      "total_model_tokens": 1790,
+      "user_ratio": 0.4721
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.8414,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "Create two files for the ESI.ts project BDD tests. You are converting from Jest describe/it format to jest-cucumber Gherkin format.\n\nNote: The clones source file does NOT import TestDataFactory. It uses EsiError directly and inline data. Preserve this.\n\nFILE 1: D:/code/ESI.ts/tests/bdd/features/core/clones.feature\n\n```gherkin\nFeature: Clone Management\n\n  Scenario: Get clone information for a valid character\n    Given a valid character ID for clones\n    When I request clone information\n    Then I should receive clone details\n\n  Scenario: Handle unauthorized clone request\n    Given an invalid access token for clones\n    When I request clone information without authorization\n    Then I should receive an authentication error for clones\n\n  Scenario: Get active implants for a character\n    Given a valid character ID for implants\n    When I request implant information\n    Then I should receive a list of implant type IDs\n\n  Scenario: Character with no implants\n    Given a character with no active implants\n    When I request implant information for the character\n    Then I should receive an empty array for implants\n\n  Scenario: Retrieve clones and their implants\n    Given a character with clones\n    When I retrieve clone info and implants\n    Then I should have complete clone data\n```\n\nFILE 2: D:/code/ESI.ts/tests/bdd/step-definitions/core/clones.steps.ts\n\n```typescript\nimport { defineFeature, loadFeature } from 'jest-cucumber';\nimport { EsiClient } from '../../../../src/EsiClient';\nimport { EsiError } from '../../../../src/core/util/error';\n\nconst feature = loadFeature('tests/bdd/features/core/clones.feature');\n\ndefineFeature(feature, (test) => {\n  let client: EsiClient;\n\n  beforeEach(() => {\n    client = new EsiClient({\n      clientId: 'test-client',\n      baseUrl: 'https://esi.evetech.net',\n      accessToken: 'mock-access-token',\n      timeout: 5000,\n    });\n  });\n\n  test('Get clone information for a valid character', ({ given, when, then }) => {\n    const characterId = 90000001;\n    let result: any;\n\n    given('a valid character ID for clones', () => {\n      const expectedResponse = {\n        home_location: {\n          location_id: 60003760,\n          location_type: 'station',\n        },\n        jump_clones: [\n          {\n            jump_clone_id: 12345,\n            location_id: 60003760,\n            implants: [1, 2, 3],\n          },\n          { jump_clone_id: 12346, location_id: 60008494, implants: [] },\n        ],\n        last_clone_jump_date: '2024-01-15T12:00:00Z',\n        last_station_change_date: '2024-01-10T08:00:00Z',\n      };\n\n      jest\n        .spyOn(client.clones, 'getClones')\n        .mockResolvedValue(expectedResponse as any);\n    });\n\n    when('I request clone information', async () => {\n      result = await client.clones.getClones(characterId);\n    });\n\n    then('I should receive clone details', () => {\n      expect(result).toBeDefined();\n      expect(result.home_location).toBeDefined();\n      expect(result.home_location!.location_id).toBe(60003760);\n      expect(result.jump_clones).toHaveLength(2);\n    });\n  });\n\n  test('Handle unauthorized clone request', ({ given, when, then }) => {\n    const characterId = 90000001;\n    let error: any;\n\n    given('an invalid access token for clones', () => {\n      const authError = new EsiError(401, 'Token is expired');\n\n      jest.spyOn(client.clones, 'getClones').mockRejectedValue(authError);\n    });\n\n    when('I request clone information without authorization', async () => {\n      try {\n        await client.clones.getClones(characterId);\n      } catch (e) {\n        error = e;\n      }\n    });\n\n    then('I should receive an authentication error for clones', () => {\n      expect(error).toBeDefined();\n      expect(error.message).toContain('Token is expired');\n    });\n  });\n\n  test('Get active implants for a character', ({ given, when, then }) => {\n    const characterId = 90000001;\n    let result: any;\n\n    given('a valid character ID for implants', () => {\n      const expectedImplants = [9899, 9941, 9942, 9943, 9956];\n\n      jest\n        .spyOn(client.clones, 'getImplants')\n        .mockResolvedValue(expectedImplants);\n    });\n\n    when('I request implant information', async () => {\n      result = await client.clones.getImplants(characterId);\n    });\n\n    then('I should receive a list of implant type IDs', () => {\n      expect(Array.isArray(result)).toBe(true);\n      expect(result).toHaveLength(5);\n      result.forEach((implant: number) => {\n        expect(typeof implant).toBe('number');\n      });\n    });\n  });\n\n  test('Character with no implants', ({ given, when, then }) => {\n    const characterId = 90000001;\n    let result: any;\n\n    given('a character with no active implants', () => {\n      jest.spyOn(client.clones, 'getImplants').mockResolvedValue([]);\n    });\n\n    when('I request implant information for the character', async () => {\n      result = await client.clones.getImplants(characterId);\n    });\n\n    then('I should receive an empty array for implants', () => {\n      expect(Array.isArray(result)).toBe(true);\n      expect(result).toHaveLength(0);\n    });\n  });\n\n  test('Retrieve clones and their implants', ({ given, when, then }) => {\n    const characterId = 90000001;\n    let clones: any;\n    let implants: any;\n\n    given('a character with clones', () => {\n      const cloneData = {\n        home_location: { location_id: 60003760, location_type: 'station' },\n        jump_clones: [\n          {\n            jump_clone_id: 12345,\n            location_id: 60003760,\n            implants: [9899, 9941],\n          },\n          { jump_clone_id: 12346, location_id: 60008494, implants: [9942] },\n        ],\n      };\n      const activeImplants = [9943, 9956];\n\n      jest\n        .spyOn(client.clones, 'getClones')\n        .mockResolvedValue(cloneData as any);\n      jest\n        .spyOn(client.clones, 'getImplants')\n        .mockResolvedValue(activeImplants);\n    });\n\n    when('I retrieve clone info and implants', async () => {\n      clones = await client.clones.getClones(characterId);\n      implants = await client.clones.getImplants(characterId);\n    });\n\n    then('I should have complete clone data', () => {\n      expect(clones.jump_clones).toHaveLength(2);\n      expect(implants).toHaveLength(2);\n      expect(clones.jump_clones[0].implants).toHaveLength(2);\n    });\n  });\n});\n```\n\nPlease write both files exactly as specified above using the Write tool.",
+          "response_text": "Both files have been written exactly as specified:\n\n- **D:/code/ESI.ts/tests/bdd/features/core/clones.feature** -- Gherkin feature file with 5 scenarios covering clone retrieval, unauthorized access, implant listing, empty implants, and combined clone+implant retrieval.\n- **D:/code/ESI.ts/tests/bdd/step-definitions/core/clones.steps.ts** -- jest-cucumber step definitions importing `EsiError` directly (no TestDataFactory), using inline mock data and `jest.spyOn` for all test scenarios.",
+          "alignment": 0.8414
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+    "source_file": "data/D--code-ESI-ts__agent-a3bcd15b429eea529.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

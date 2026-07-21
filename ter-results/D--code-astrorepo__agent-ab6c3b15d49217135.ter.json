@@ -1,0 +1,190 @@
+{
+  "session_id": "b2c859b6-4cf5-4eca-b0b9-85f89e808e90",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 1763,
+  "aligned_tokens": 1763,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.7181,
+    "token_weighted_confidence": 0.6639,
+    "low_confidence_tokens": 0,
+    "low_confidence_share": 0.0,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 3,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.7366724014282227,
+      "intent_similarity": 0.7366724014282227,
+      "tokens": 34,
+      "text": "The user wants me to create a comprehensive README.md file for the AstroRepo project. They've provided detailed specifications for what should be included. Let me create this file.",
+      "source_message_uuid": "4de08477-6731-4f8b-bfc5-ca180b63a5e2",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.7367,
+          "repetition_score": 0.0,
+          "confidence": 0.7367
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6526883244514465,
+      "intent_similarity": 0.6526883244514465,
+      "tokens": 1579,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\astrorepo\\\\README.md\",\"content\":\"# AstroRepo\\n\\n**Universal Astrophotography Observatory Management System**\\n\\n![Electron](https://img.shields.io/badge/Electron-33-47848F?logo=electron&logoColor=white)\\n![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)\\n![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)\\n![SQLite](https://img.shields.io/badge/SQLite-WAL-003B57?logo=sqlite&logoColor=white)\\n![License](https://img.shields.io/badge/License-ISC-blue)\\n\\nDesktop application for managing astronomical targets across any catalogue, recording observation sessions, tracking equipment, planning observations with real-time ephemeris computation, and visualizing collection progress.\\n\\n## Features\\n\\n- **Universal Target Model** -- 22 object types covering galaxies, nebulae, clusters, double stars, asterisms, quasars, dark nebulae, supernova remnants, and custom targets.\\n- **Multi-Catalogue Support** -- Messier, Caldwell, and Sharpless catalogues built-in. Add any catalogue via a pluggable JSON seed format.\\n- **Cross-Catalogue Object Identity** -- Automatic deduplication resolves objects across catalogues (M42 = NGC 1976 = Orion Nebula = Sh2-281).\\n- **Full-Text Search** -- FTS5-powered search with alias fallback for fast lookups by designation, name, or alternate identifier.\\n- **Observation Session Recording** -- Log sessions with date, seeing conditions, equipment used, and exposure statistics.\\n- **Configurable Workflow Lifecycle** -- 12 default stages from *planned* through *archived*, customizable per workflow.\\n- **Equipment Inventory & Usage Analytics** -- Track telescopes, cameras, mounts, and filters with per-item usage history.\\n- **Observatory Ephemeris** -- Real-time altitude, transit, rise/set computation via astronomy-engine (VSOP87 theory).\\n- **Tonight's Targets** -- Plan sessions with visibility windows, altitude profiles, transit times, and moon separation filtering.\\n- **Collections & Progress** -- Group targets into collections with completion tracking and poster views.\\n- **Target Relationships** -- Model spatial relationships: *contains*, *nearby*, *parent_region*, and more.\\n- **Project Folder Generation** -- Create imaging project directories from configurable templates (default Siril structure).\\n- **Observatory Dashboard** -- Aggregate statistics across sessions, targets, and equipment.\\n- **Dark Astronomy UI** -- Tailwind CSS custom palette designed for nighttime use.\\n\\n## Tech Stack\\n\\n| Component | Technology | Role |\\n|-----------|-----------|------|\\n| Runtime | Electron 33 | Desktop shell |\\n| UI | React 18 | Component framework |\\n| Language | TypeScript 5.x | Type safety |\\n| Database | better-sqlite3 | Local SQLite with WAL mode |\\n| ORM | Drizzle ORM | Schema definition + query builder |\\n| Ephemeris | astronomy-engine | VSOP87 positional computation |\\n| Validation | Zod | Runtime IPC boundary validation |\\n| Styling | Tailwind CSS | Utility-first with astro-dark theme |\\n| Build | Vite / electron-vite | Dev server + bundling |\\n| Testing | Vitest | BDD test framework |\\n| Routing | React Router (HashRouter) | Client-side navigation |\\n| IDs | ULID | Sortable unique identifiers |\\n\\n## Architecture\\n\\nThe application follows a standard Electron three-process architecture. See `docs/architecture/` for detailed Mermaid diagrams.\\n\\n- **Main Process** -- Database connection, service layer, and IPC handlers. All incoming IPC calls are validated with Zod schemas before reaching business logic.\\n- **Preload** -- Exposes a minimal `api.invoke()` bridge via `contextBridge`.\\n- **Renderer** -- React SPA consuming typed IPC hooks for all data access.\\n\\n## Project Structure\\n\\n```\\nsrc/\\n  main/             # Electron main process\\n    db/              # Database connection, schema, FTS, migrations\\n    ipc/             # IPC handlers with Zod schemas\\n    services/        # Business logic (target, session, collection, etc.)\\n  preload/           # Electron preload scripts\\n  renderer/          # React application\\n    components/      # Reusable UI components\\n    hooks/           # Custom hooks (useIPC)\\n    pages/           # Route pages\\n  shared/            # Shared TypeScript types\\ndata/\\n  catalogues/        # Seed data JSON files (Messier, Caldwell, Sharpless)\\ntests/               # BDD test suites\\ndocs/\\n  architecture/      # Mermaid architecture diagrams\\nspecs/               # Feature specifications\\n```\\n\\n## Getting Started\\n\\n### Prerequisites\\n\\n- Node.js 20 LTS\\n- npm\\n- C++ build tools (for better-sqlite3 native compilation):\\n  - **Windows:** Visual Studio Build Tools\\n  - **macOS:** Xcode Command Line Tools\\n  - **Linux:** `build-essential`\\n\\n### Installation\\n\\n```bash\\ngit clone <repo-url>\\ncd astrorepo\\nnpm install\\n```\\n\\n### Development\\n\\n```bash\\nnpm run dev          # Start Electron in dev mode\\nnpm test             # Run tests\\nnpm run lint         # Lint the codebase\\nnpm run build        # Production build\\n```\\n\\n## Testing\\n\\nTests use Vitest with BDD-style EARS (Easy Approach to Requirements Syntax) patterns:\\n\\n- **Given/When/Then** structure with explicit Event, Action, Response, and State tracking\\n- In-memory SQLite for full test isolation\\n- Service-level integration tests covering core business logic\\n\\n```bash\\nnpm test\\n```\\n\\n## Adding Catalogues\\n\\nAny catalogue can be added by placing a JSON file in `data/catalogues/` following this format:\\n\\n```json\\n{\\n  \\\"catalogue\\\": {\\n    \\\"name\\\": \\\"Messier\\\",\\n    \\\"abbreviation\\\": \\\"M\\\",\\n    \\\"description\\\": \\\"Charles Messier's catalogue of nebulae and star clusters\\\",\\n    \\\"totalObjects\\\": 110\\n  },\\n  \\\"objects\\\": [\\n    {\\n      \\\"designation\\\": \\\"M1\\\",\\n      \\\"name\\\": \\\"Crab Nebula\\\",\\n      \\\"type\\\": \\\"supernova_remnant\\\",\\n      \\\"ra\\\": 5.575,\\n      \\\"dec\\\": 22.017,\\n      \\\"mag\\\": 8.4,\\n      \\\"size\\\": 6.0,\\n      \\\"constellation\\\": \\\"Taurus\\\",\\n      \\\"aliases\\\": [\\\"NGC 1952\\\", \\\"Sh2-244\\\"]\\n    }\\n  ]\\n}\\n```\\n\\nCoordinates use decimal hours (RA) and decimal degrees (Dec). The `aliases` array drives cross-catalogue identity resolution.\\n\\n## IPC Validation\\n\\nAll IPC inputs are validated at the boundary between renderer and main process using Zod schemas. Invalid data is rejected with structured errors before reaching the service layer, preventing malformed or unexpected payloads from corrupting application state.\\n\\n## License\\n\\nISC\\n\"}",
+      "source_message_uuid": "4de08477-6731-4f8b-bfc5-ca180b63a5e2",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6527,
+          "repetition_score": 0.0,
+          "confidence": 0.6527
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.7648616433143616,
+      "intent_similarity": 0.7648616433143616,
+      "tokens": 150,
+      "text": "The README has been created at `D:\\code\\astrorepo\\README.md`. It includes all requested sections:\n\n- Project title with technology badges (Electron, React, TypeScript, SQLite, ISC license)\n- Overview paragraph\n- 14 features, each with a concise description\n- Tech stack in table format (12 technologies)\n- Architecture overview referencing `docs/architecture/` for Mermaid diagrams\n- Project structure tree\n- Getting started with prerequisites (including platform-specific C++ build tools), installation, and development commands\n- Testing section covering BDD/EARS patterns and in-memory SQLite isolation\n- Adding Catalogues section with the pluggable JSON seed format example\n- IPC Validation note about Zod boundary validation\n- ISC license",
+      "source_message_uuid": "4b1127e1-2c22-431d-86f0-1d82d4caa66b",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.7649,
+          "repetition_score": 0.0,
+          "confidence": 0.7649
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 4,
+    "total_output_tokens": 192,
+    "total_cache_creation_tokens": 6076,
+    "total_cache_read_tokens": 29261,
+    "input_output_ratio": 0.02,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.0345,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 1
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        12849,
+        16416
+      ],
+      "growth_rate": 1.28,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 1085,
+      "user_result_tokens": 30,
+      "model_reasoning_tokens": 34,
+      "model_tool_tokens": 1579,
+      "model_generation_tokens": 150,
+      "total_user_tokens": 1115,
+      "total_model_tokens": 1763,
+      "user_ratio": 0.3874
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.7649,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "Create a comprehensive README.md at D:\\code\\astrorepo\\README.md for the AstroRepo project - a Universal Astrophotography Observatory Management System built with Electron, React 18, TypeScript 5.x, better-sqlite3, and Drizzle ORM.\n\nThe README should include these sections:\n\n# AstroRepo - Universal Astrophotography Observatory Management System\n\n## Overview\nDesktop application for managing astronomical targets across any catalogue, recording observation sessions, tracking equipment, planning observations with real-time ephemeris computation, and visualizing collection progress.\n\n## Features\nKey features (describe each briefly):\n- Universal Target Model (22 object types from galaxies to custom targets)\n- Multi-Catalogue Support (Messier, Caldwell, Sharpless built-in, pluggable JSON format)\n- Cross-Catalogue Object Identity (M42 = NGC 1976 = Orion Nebula = Sh2-281)\n- Full-Text Search via FTS5 with alias fallback\n- Observation Session Recording (date, conditions, equipment, exposure stats)\n- Configurable Workflow Lifecycle (12 default stages: planned through archived)\n- Equipment Inventory & Usage Analytics\n- Observatory Management with ephemeris computation using astronomy-engine (VSOP87)\n- Tonight's Targets Planning (visibility, altitude, transit, moon separation)\n- Collections with progress tracking and poster views\n- Target Relationships (contains, nearby, parent_region, etc.)\n- Project Folder Generation from configurable templates (default Siril structure)\n- Observatory Dashboard with aggregate statistics\n- Dark astronomy-themed UI (Tailwind CSS custom palette)\n\n## Tech Stack\nTable format:\n- Electron 33 - Desktop runtime\n- React 18 - UI framework\n- TypeScript 5.x - Type safety\n- better-sqlite3 - Local SQLite with WAL mode\n- Drizzle ORM - Schema + query builder\n- astronomy-engine - Ephemeris computation (VSOP87 theory)\n- Zod - Runtime validation on IPC boundaries\n- Tailwind CSS - Utility-first styling with astro-dark theme\n- Vite / electron-vite - Build tooling\n- Vitest - BDD test framework\n- React Router - Client-side routing (HashRouter)\n- ULID - Sortable unique IDs\n\n## Architecture\nBrief overview referencing docs/architecture/ for detailed Mermaid diagrams:\n- Main Process: Database, services, IPC handlers with Zod validation\n- Preload: contextBridge exposing api.invoke()\n- Renderer: React SPA with typed IPC hooks\n\n## Project Structure\n```\nsrc/\n  main/           # Electron main process\n    db/           # Database connection, schema, FTS, migrations\n    ipc/          # IPC handlers with Zod schemas\n    services/     # Business logic (target, session, collection, etc.)\n  preload/        # Electron preload scripts\n  renderer/       # React application\n    components/   # Reusable UI components\n    hooks/        # Custom hooks (useIPC)\n    pages/        # Route pages\n  shared/         # Shared TypeScript types\ndata/\n  catalogues/     # Seed data JSON files (Messier, Caldwell, Sharpless)\ntests/            # BDD test suites\ndocs/\n  architecture/   # Mermaid architecture diagrams\nspecs/            # Feature specifications\n```\n\n## Getting Started\n### Prerequisites\n- Node.js 20 LTS\n- npm\n- C++ build tools (for better-sqlite3 native compilation)\n  - Windows: Visual Studio Build Tools\n  - macOS: Xcode Command Line Tools\n  - Linux: build-essential\n\n### Installation\n```bash\ngit clone ...\ncd astrorepo\nnpm install\n```\n\n### Development\n```bash\nnpm run dev          # Start Electron dev mode\nnpm test             # Run tests\nnpm run lint         # Lint\nnpm run build        # Production build\n```\n\n## Testing\nBDD tests using Vitest with EARS (Easy Approach to Requirements Syntax) patterns:\n- Given/When/Then structure with explicit Event, Action, Response, State tracking\n- In-memory SQLite for test isolation\n- Service-level integration tests\n\nRun: `npm test`\n\n## Adding Catalogues\nExplain the pluggable JSON seed format:\n```json\n{\n  \"catalogue\": {\n    \"name\": \"Messier\",\n    \"abbreviation\": \"M\",\n    \"description\": \"...\",\n    \"totalObjects\": 110\n  },\n  \"objects\": [\n    {\n      \"designation\": \"M1\",\n      \"name\": \"Crab Nebula\",\n      \"type\": \"supernova_remnant\",\n      \"ra\": 5.575,\n      \"dec\": 22.017,\n      \"mag\": 8.4,\n      \"size\": 6.0,\n      \"constellation\": \"Taurus\",\n      \"aliases\": [\"NGC 1952\", \"Sh2-244\"]\n    }\n  ]\n}\n```\n\n## IPC Validation\nBrief note about Zod schemas validating all IPC inputs at the boundary between renderer and main process. Invalid data is rejected before reaching service layer.\n\n## License\nISC\n\n---\nMake the README professional, concise, and well-formatted. Use badges if appropriate. Don't be verbose - keep descriptions tight. Write it as a file at D:\\code\\astrorepo\\README.md.",
+          "response_text": "The README has been created at `D:\\code\\astrorepo\\README.md`. It includes all requested sections:\n\n- Project title with technology badges (Electron, React, TypeScript, SQLite, ISC license)\n- Overview paragraph\n- 14 features, each with a concise description\n- Tech stack in table format (12 technologies)\n- Architecture overview referencing `docs/architecture/` for Mermaid diagrams\n- Project structure tree\n- Getting started with prerequisites (including platform-specific C++ build tools), installation, and development commands\n- Testing section covering BDD/EARS patterns and in-memory SQLite isolation\n- Adding Catalogues section with the pluggable JSON seed format example\n- IPC Validation note about Zod boundary validation\n- ISC license",
+          "alignment": 0.7649
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "b2c859b6-4cf5-4eca-b0b9-85f89e808e90",
+    "source_file": "data/D--code-astrorepo__agent-ab6c3b15d49217135.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

@@ -57,7 +57,9 @@ class TestComplexityEstimator:
         _, _, features = estimator.estimate("short")
         assert features["word_count"] == 1
 
-        _, _, features2 = estimator.estimate("a much longer prompt with many words here")
+        _, _, features2 = estimator.estimate(
+            "a much longer prompt with many words here"
+        )
         assert features2["word_count"] > features["word_count"]
 
     def test_unique_ratio_feature(self):
@@ -108,7 +110,9 @@ class TestComplexityEstimator:
 
     def test_architecture_cues_detected(self):
         estimator = ComplexityEstimator()
-        _, _, features = estimator.estimate("design a scalable microservice architecture")
+        _, _, features = estimator.estimate(
+            "design a scalable microservice architecture"
+        )
         assert features["architecture_cues"] > 0
 
     def test_bug_cues_detected(self):
@@ -118,7 +122,9 @@ class TestComplexityEstimator:
 
     def test_feature_cues_detected(self):
         estimator = ComplexityEstimator()
-        _, _, features = estimator.estimate("implement a new feature to add user profiles")
+        _, _, features = estimator.estimate(
+            "implement a new feature to add user profiles"
+        )
         assert features["feature_cues"] > 0
 
     def test_question_marks_counted(self):
@@ -130,7 +136,11 @@ class TestComplexityEstimator:
         estimator = ComplexityEstimator()
         tier, confidence, features = estimator.estimate("")
         # Empty text should fall back to some tier
-        assert tier in (ComplexityTier.SIMPLE, ComplexityTier.STANDARD, ComplexityTier.COMPLEX)
+        assert tier in (
+            ComplexityTier.SIMPLE,
+            ComplexityTier.STANDARD,
+            ComplexityTier.COMPLEX,
+        )
         # Confidence varies by implementation
         assert 0 <= confidence <= 1
 

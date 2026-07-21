@@ -1,0 +1,164 @@
+{
+  "session_id": "494c3e53-0522-4335-a1b6-c304e0b01b3b",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 2271,
+  "aligned_tokens": 2271,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.621,
+    "token_weighted_confidence": 0.5064,
+    "low_confidence_tokens": 2211,
+    "low_confidence_share": 0.9736,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 2,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.7420018911361694,
+      "intent_similarity": 0.7420018911361694,
+      "tokens": 60,
+      "text": "The user wants me to generate a Prior Art Analysis for a patent disclosure about a polymorphic unikernel architecture. I need to output only the markdown sections with no introductions. Let me craft this based on my knowledge of unikernel technology, multi-tenancy, and related prior art.",
+      "source_message_uuid": "576dfb03-4f2b-46ac-8d84-9d74cd19541c",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.742,
+          "repetition_score": 0.0,
+          "confidence": 0.742
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.41574329137802124,
+      "tokens": 2211,
+      "text": "## TL;DR\n\n**Prior Art**: The unikernel landscape includes specialized, single-address-space library OS systems such as MirageOS, IncludeOS, Unikraft, and OSv, all of which compile applications into lean, purpose-built images targeting a specific platform and configuration. Academic work has explored library OS composition (Drawbridge, Bascule), modular kernel construction (Unikraft's micro-library approach), and multi-platform deployment through cross-compilation or hypervisor abstraction layers. Commercial solutions from Nanos (NanoVMs) and Kontain offer streamlined unikernel packaging but still produce per-target artifacts. Container-based multi-tenancy and service mesh adaptation (Istio, Envoy) address protocol and API heterogeneity at the orchestration layer but do not operate at the unikernel image level.\n\n**Advantages**: No existing approach combines a single canonical unikernel image with a runtime adaptation layer that dynamically reshapes exposed APIs, communication protocols, configuration models, and operational behaviors based on a client-provided adaptation profile. Prior systems require either recompilation for each target environment, external sidecar/proxy-based adaptation that sits outside the unikernel's security boundary, or static build-time configuration that locks in a single personality. The invention eliminates the variant matrix entirely by internalizing polymorphic adaptation within the unikernel itself, preserving a unified codebase, a single security audit surface, and consistent patch delivery across all tenants and platforms.\n\n## Academic Research\n\n### 1. Unikraft: Fast, Specialized Unikernels the Easy Way\n- **Source**: EuroSys 2021\n- **Year**: 2021\n- **Summary**: Unikraft introduces a micro-library architecture that allows developers to compose unikernels from fine-grained, modular components selected at build time. It dramatically reduces image size and boot time while offering selectable platform and architecture support through compile-time configuration.\n- **Differentiation**: Unikraft's modularity is exercised at build time\u2014each combination of libraries, platform, and architecture produces a distinct binary. The proposed invention operates from a single pre-built image that adapts at initialization time via an adaptation profile, eliminating the need for per-target compilation.\n\n### 2. Bascule: Execution Environment as a Library OS Extension\n- **Source**: Microsoft Research / ASPLOS 2019 (related Drawbridge lineage)\n- **Year**: 2019\n- **Summary**: Bascule extends the Drawbridge library OS model by allowing applications to run atop a portable abstraction layer that mediates between the application and diverse host environments. It demonstrates that OS personality can be decoupled from the underlying platform through an ABI translation layer.\n- **Differentiation**: Bascule focuses on ABI compatibility for legacy applications running on a single host, translating system calls downward. The proposed invention adapts outward-facing behavior (APIs, protocols, configuration models) upward toward diverse clients, and does so dynamically per-tenant rather than per-host.\n\n### 3. My VM is Lighter (and Safer) than Your Container\n- **Source**: ACM SOSP 2017\n- **Year**: 2017\n- **Summary**: This work demonstrates that lightweight VMs (including unikernel-style deployments) can achieve container-like density and startup performance while maintaining stronger isolation. It validates unikernels as a viable multi-tenant deployment primitive but assumes one image per workload type.\n- **Differentiation**: The research validates the performance case for unikernel multi-tenancy but still operates under the one-image-per-variant model. The invention collapses multiple variants into a single image with runtime personality switching, directly addressing the image proliferation that this paper's approach would create at scale.\n\n### 4. CliqueOS: Platform Abstraction for Unikernels\n- **Source**: HotCloud (USENIX) 2018\n- **Year**: 2018\n- **Summary**: CliqueOS proposes a platform abstraction layer that allows unikernels to target multiple hypervisors and hardware platforms through a common intermediate interface, reducing but not eliminating the need for platform-specific builds.\n- **Differentiation**: CliqueOS abstracts the platform below the unikernel (hypervisor/hardware differences) but does not address the adaptation of external-facing behavior (APIs, protocols, configuration schemas) to diverse client environments. The invention operates at the client-facing surface, not just the platform interface.\n\n### 5. HermitCore/RustyHermit: Scalable and Transparent Unikernels\n- **Source**: IEEE TPDS / Various 2019\u20132022\n- **Year**: 2022\n- **Summary**: HermitCore and its Rust-based successor provide a unikernel runtime that supports multiple architectures and can run on bare metal or within hypervisors. The project emphasizes language-level safety and cross-architecture support through separate build targets.\n- **Differentiation**: HermitCore achieves cross-platform support through separate compilation targets per architecture. The invention achieves cross-environment adaptation from a single binary through a runtime adaptation layer, avoiding the build matrix entirely.\n\n## NPL (Non-Patent Literature)\n\n### 1. Unikernels: The Rise of the Virtual Library Operating System\n- **Source**: ACM Queue / Communications of the ACM (Madhavapeddy & Scott)\n- **Summary**: This influential overview article establishes the conceptual foundation for unikernels as single-purpose, library-OS-based appliances. It discusses the tradeoff between specialization and generality, noting that unikernels sacrifice generality for performance and security.\n- **Differentiation**: The article frames unikernels as inherently specialized per deployment. The invention challenges this assumption by introducing a polymorphic model where a single general-purpose unikernel image dynamically specializes its external behavior per client, recovering generality without sacrificing the single-image security model.\n\n### 2. Kubernetes and the Challenge of Multi-Tenancy\n- **Source**: CNCF Blog / Industry White Papers (various, 2020\u20132024)\n- **Summary**: Extensive industry literature addresses multi-tenant adaptation through orchestration layers, service meshes, and sidecar proxies (e.g., Envoy, Istio) that handle protocol translation, API versioning, and tenant-specific routing external to the application.\n- **Differentiation**: These approaches place adaptation outside the workload in a separate proxy or mesh component, introducing additional attack surface, latency, and operational complexity. The invention internalizes adaptation within the unikernel's own execution boundary, maintaining the minimal-surface-area security guarantee that motivates unikernel adoption.\n\n### 3. The Case for Multi-Personality Operating Systems\n- **Source**: IEEE Computer (historical OS research, 1990s\u20132000s)\n- **Summary**: Earlier OS research explored multi-personality kernels (e.g., Windows NT's POSIX/OS2 subsystems, Mach's multi-server approach) that could present different OS interfaces atop a common microkernel, demonstrating the feasibility of personality switching at the OS level.\n- **Differentiation**: Multi-personality OS work targeted ABI-level compatibility for running legacy applications on a general-purpose OS. The invention applies the personality concept to a minimalist unikernel targeting cloud-native deployment, adapting not low-level system call interfaces but high-level APIs, protocols, and operational models based on declarative client profiles.\n\n## Commercial Solutions\n\n### 1. NanoVMs (Ops/Nanos)\n- **Company**: NanoVMs\n- **Summary**: NanoVMs provides the Nanos unikernel and the Ops toolchain for building, packaging, and deploying unikernel images. It simplifies unikernel creation but produces a distinct image per application and target platform, managed through a build-and-deploy pipeline.\n- **Differentiation**: NanoVMs streamlines the build process but does not eliminate the one-image-per-target model. Each customer or platform still requires a separately built and maintained image. The invention replaces this entire pipeline with a single distributable image that self-adapts at runtime.\n\n### 2. Unikraft Cloud (Kraftcloud)\n- **Company**: Unikraft GmbH\n- **Summary**: Kraftcloud offers a managed platform for deploying Unikraft-based unikernels with millisecond cold-start times. It leverages Unikraft's modular build system to produce optimized images but requires build-time selection of platform and configuration options.\n- **Differentiation**: Kraftcloud accelerates unikernel deployment but each deployed instance is still a statically configured image built for a specific target. The invention's adaptation-profile-driven runtime reshaping eliminates the need for per-tenant or per-platform builds entirely.\n\n### 3. Istio / Envoy Service Mesh\n- **Company**: Google / Lyft (CNCF)\n- **Summary**: Istio and Envoy provide protocol translation, traffic management, and multi-tenant routing as a sidecar proxy layer external to application workloads. They can adapt communication protocols and apply tenant-specific policies without modifying the application.\n- **Differentiation**: Service meshes add adaptation as an external layer with its own resource footprint, attack surface, and operational complexity. The invention integrates adaptation directly into the unikernel's initialization and runtime, maintaining the unikernel's single-process, minimal-surface security model without requiring external infrastructure.\n\n### 4. OSv\n- **Company**: Cloudius Systems (open source)\n- **Summary**: OSv is a unikernel designed to run unmodified Linux applications, offering broad application compatibility and support for multiple hypervisors. It provides a general-purpose runtime but produces standard per-platform images without tenant-adaptive behavior.\n- **Differentiation**: OSv focuses on application compatibility (running existing Linux binaries) rather than client-environment adaptation. It does not offer any mechanism to reshape its external APIs, protocols, or configuration models based on a client-provided profile.\n\n## Key Differentiators\n\n1. **Single-Image Polymorphism**: Unlike all existing unikernel systems that require separate builds per target environment, the invention distributes one canonical image that dynamically presents different external personalities\u2014APIs, protocols, configuration schemas, and operational behaviors\u2014based on a declarative adaptation profile provided at initialization time.\n\n2. **Internalized Adaptation Within the Security Boundary**: Where current multi-tenant adaptation relies on external proxies, sidecars, or orchestration layers that expand the attack surface, the invention performs all adaptation within the unikernel's own execution boundary, preserving the minimal-surface-area security guarantee that is the primary motivation for unikernel adoption.\n\n3. **Unified Patch and Audit Surface at Scale**: By eliminating the variant matrix, the invention ensures that a single security audit, a single patch, and a single release artifact covers all tenants, platforms, and deployment environments simultaneously\u2014resolving the divergence risk where some variants receive updates before others, which no current approach addresses without external orchestration overhead.",
+      "source_message_uuid": "576dfb03-4f2b-46ac-8d84-9d74cd19541c",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4157,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 3,
+    "total_output_tokens": 2614,
+    "total_cache_creation_tokens": 1000,
+    "total_cache_read_tokens": 6016,
+    "input_output_ratio": 0.0,
+    "cache_hit_rate": 0.9995,
+    "estimated_cost_usd": 0.0448,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 0
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        6019
+      ],
+      "growth_rate": 1.0,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 714,
+      "user_result_tokens": 0,
+      "model_reasoning_tokens": 60,
+      "model_tool_tokens": 0,
+      "model_generation_tokens": 2211,
+      "total_user_tokens": 714,
+      "total_model_tokens": 2271,
+      "user_ratio": 0.2392
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.4157,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "TASK: Generate Prior Art Analysis for a patent disclosure.\r\n\r\nINSTRUCTION: Output ONLY the markdown sections. No introductions.\r\n\r\n\r\nINVENTION:\r\n---\r\ninvention-id: invention-20260623-163539\r\ncompany: RedHat\r\ncreated: 2026-06-23T16:35:45\r\n---\r\n\r\n# Invention Idea\r\n\r\nWe propose a polymorphic unikernel architecture in which a single canonical unikernel image serves multiple tenants, platforms, or deployment environments. Rather than distributing architecture-specific or customer-specific variants, clients provide an adaptation profile describing their expected interfaces, protocols, resource models, and operational conventions. Upon initialization, an adaptation layer dynamically reshapes exposed APIs, communication mechanisms, configuration models, and runtime behaviors to match the client's environment while preserving a common internal execution core. The unikernel therefore presents different external personalities to different consumers while maintaining a single maintainable codebase and security posture. This enables large-scale deployment of a unified unikernel that automatically conforms to customer-specific requirements without requiring separate builds or bespoke implementations.\r\n\r\n\r\nPROBLEM CONTEXT:\r\n---\r\nsection: problem-statement\r\ncompany: RedHat\r\ninvention-id: invention-20260623-163539\r\ngenerated: 2026-06-23T16:36:00\r\n---\r\n\r\n# Problem Statement\r\n\r\nToday's unikernel deployments require building and maintaining separate images for each target platform, tenant, or deployment environment. When customers operate heterogeneous infrastructures with different API conventions, communication protocols, resource models, and operational tooling, unikernel providers must produce architecture-specific or customer-specific variants to satisfy each environment's expectations. This proliferation of bespoke builds creates significant engineering burden: every variant demands independent compilation, testing, security auditing, and patch management. The problem compounds at scale\u2014serving hundreds of customers across diverse cloud, edge, and on-premise environments can yield an unmanageable matrix of specialized images. Furthermore, each variant introduces divergence risk, where security patches or feature updates may reach some builds before others, creating inconsistent security postures across the deployment fleet. Existing approaches offer no mechanism for a single unikernel image to dynamically conform its external behavior to diverse client environments while preserving a unified internal execution core.\n\r\n\r\n\r\nOUTPUT FORMAT:\r\n\r\n## TL;DR\r\n\r\n**Prior Art**: [One paragraph providing a high-level overview of the existing prior art landscape: what approaches exist today and the general state of the art in this space]\r\n\r\n**Advantages**: [One paragraph summarizing what sets this invention apart from the prior art as a whole, focusing on the most significant differentiators and why no existing approach achieves this combination]\r\n\r\n## Academic Research\r\n\r\n### 1. [Paper Title]\r\n- **Source**: [Journal/Conference]\r\n- **Year**: [Year]\r\n- **Summary**: [2-3 sentences]\r\n- **Differentiation**: [How our invention differs]\r\n\r\n### 2. [Another Paper]\r\n[Same format]\r\n\r\n## NPL (Non-Patent Literature)\r\n\r\n### 1. [Article Title]\r\n- **Source**: [Publication]\r\n- **Summary**: [Brief]\r\n- **Differentiation**: [How we differ]\r\n\r\n## Commercial Solutions\r\n\r\n### 1. [Product Name]\r\n- **Company**: [Company]\r\n- **Summary**: [What it does]\r\n- **Differentiation**: [How we differ]\r\n\r\n## Key Differentiators\r\n\r\n1. **[Differentiator 1]**: [Description]\r\n2. **[Differentiator 2]**: [Description]\r\n3. **[Differentiator 3]**: [Description]",
+          "response_text": "## TL;DR\n\n**Prior Art**: The unikernel landscape includes specialized, single-address-space library OS systems such as MirageOS, IncludeOS, Unikraft, and OSv, all of which compile applications into lean, purpose-built images targeting a specific platform and configuration. Academic work has explored library OS composition (Drawbridge, Bascule), modular kernel construction (Unikraft's micro-library approach), and multi-platform deployment through cross-compilation or hypervisor abstraction layers. Commercial solutions from Nanos (NanoVMs) and Kontain offer streamlined unikernel packaging but still produce per-target artifacts. Container-based multi-tenancy and service mesh adaptation (Istio, Envoy) address protocol and API heterogeneity at the orchestration layer but do not operate at the unikernel image level.\n\n**Advantages**: No existing approach combines a single canonical unikernel image with a runtime adaptation layer that dynamically reshapes exposed APIs, communication protocols, configuration models, and operational behaviors based on a client-provided adaptation profile. Prior systems require either recompilation for each target environment, external sidecar/proxy-based adaptation that sits outside the unikernel's security boundary, or static build-time configuration that locks in a single personality. The invention eliminates the variant matrix entirely by internalizing polymorphic adaptation within the unikernel itself, preserving a unified codebase, a single security audit surface, and consistent patch delivery across all tenants and platforms.\n\n## Academic Research\n\n### 1. Unikraft: Fast, Specialized Unikernels the Easy Way\n- **Source**: EuroSys 2021\n- **Year**: 2021\n- **Summary**: Unikraft introduces a micro-library architecture that allows developers to compose unikernels from fine-grained, modular components selected at build time. It dramatically reduces image size and boot time while offering selectable platform and architecture support through compile-time configuration.\n- **Differentiation**: Unikraft's modularity is exercised at build time\u2014each combination of libraries, platform, and architecture produces a distinct binary. The proposed invention operates from a single pre-built image that adapts at initialization time via an adaptation profile, eliminating the need for per-target compilation.\n\n### 2. Bascule: Execution Environment as a Library OS Extension\n- **Source**: Microsoft Research / ASPLOS 2019 (related Drawbridge lineage)\n- **Year**: 2019\n- **Summary**: Bascule extends the Drawbridge library OS model by allowing applications to run atop a portable abstraction layer that mediates between the application and diverse host environments. It demonstrates that OS personality can be decoupled from the underlying platform through an ABI translation layer.\n- **Differentiation**: Bascule focuses on ABI compatibility for legacy applications running on a single host, translating system calls downward. The proposed invention adapts outward-facing behavior (APIs, protocols, configuration models) upward toward diverse clients, and does so dynamically per-tenant rather than per-host.\n\n### 3. My VM is Lighter (and Safer) than Your Container\n- **Source**: ACM SOSP 2017\n- **Year**: 2017\n- **Summary**: This work demonstrates that lightweight VMs (including unikernel-style deployments) can achieve container-like density and startup performance while maintaining stronger isolation. It validates unikernels as a viable multi-tenant deployment primitive but assumes one image per workload type.\n- **Differentiation**: The research validates the performance case for unikernel multi-tenancy but still operates under the one-image-per-variant model. The invention collapses multiple variants into a single image with runtime personality switching, directly addressing the image proliferation that this paper's approach would create at scale.\n\n### 4. CliqueOS: Platform Abstraction for Unikernels\n- **Source**: HotCloud (USENIX) 2018\n- **Year**: 2018\n- **Summary**: CliqueOS proposes a platform abstraction layer that allows unikernels to target multiple hypervisors and hardware platforms through a common intermediate interface, reducing but not eliminating the need for platform-specific builds.\n- **Differentiation**: CliqueOS abstracts the platform below the unikernel (hypervisor/hardware differences) but does not address the adaptation of external-facing behavior (APIs, protocols, configuration schemas) to diverse client environments. The invention operates at the client-facing surface, not just the platform interface.\n\n### 5. HermitCore/RustyHermit: Scalable and Transparent Unikernels\n- **Source**: IEEE TPDS / Various 2019\u20132022\n- **Year**: 2022\n- **Summary**: HermitCore and its Rust-based successor provide a unikernel runtime that supports multiple architectures and can run on bare metal or within hypervisors. The project emphasizes language-level safety and cross-architecture support through separate build targets.\n- **Differentiation**: HermitCore achieves cross-platform support through separate compilation targets per architecture. The invention achieves cross-environment adaptation from a single binary through a runtime adaptation layer, avoiding the build matrix entirely.\n\n## NPL (Non-Patent Literature)\n\n### 1. Unikernels: The Rise of the Virtual Library Operating System\n- **Source**: ACM Queue / Communications of the ACM (Madhavapeddy & Scott)\n- **Summary**: This influential overview article establishes the conceptual foundation for unikernels as single-purpose, library-OS-based appliances. It discusses the tradeoff between specialization and generality, noting that unikernels sacrifice generality for performance and security.\n- **Differentiation**: The article frames unikernels as inherently specialized per deployment. The invention challenges this assumption by introducing a polymorphic model where a single general-purpose unikernel image dynamically specializes its external behavior per client, recovering generality without sacrificing the single-image security model.\n\n### 2. Kubernetes and the Challenge of Multi-Tenancy\n- **Source**: CNCF Blog / Industry White Papers (various, 2020\u20132024)\n- **Summary**: Extensive industry literature addresses multi-tenant adaptation through orchestration layers, service meshes, and sidecar proxies (e.g., Envoy, Istio) that handle protocol translation, API versioning, and tenant-specific routing external to the application.\n- **Differentiation**: These approaches place adaptation outside the workload in a separate proxy or mesh component, introducing additional attack surface, latency, and operational complexity. The invention internalizes adaptation within the unikernel's own execution boundary, maintaining the minimal-surface-area security guarantee that motivates unikernel adoption.\n\n### 3. The Case for Multi-Personality Operating Systems\n- **Source**: IEEE Computer (historical OS research, 1990s\u20132000s)\n- **Summary**: Earlier OS research explored multi-personality kernels (e.g., Windows NT's POSIX/OS2 subsystems, Mach's multi-server approach) that could present different OS interfaces atop a common microkernel, demonstrating the feasibility of personality switching at the OS level.\n- **Differentiation**: Multi-personality OS work targeted ABI-level compatibility for running legacy applications on a general-purpose OS. The invention applies the personality concept to a minimalist unikernel targeting cloud-native deployment, adapting not low-level system call interfaces but high-level APIs, protocols, and operational models based on declarative client profiles.\n\n## Commercial Solutions\n\n### 1. NanoVMs (Ops/Nanos)\n- **Company**: NanoVMs\n- **Summary**: NanoVMs provides the Nanos unikernel and the Ops toolchain for building, packaging, and deploying unikernel images. It simplifies unikernel creation but produces a distinct image per application and target platform, managed through a build-and-deploy pipeline.\n- **Differentiation**: NanoVMs streamlines the build process but does not eliminate the one-image-per-target model. Each customer or platform still requires a separately built and maintained image. The invention replaces this entire pipeline with a single distributable image that self-adapts at runtime.\n\n### 2. Unikraft Cloud (Kraftcloud)\n- **Company**: Unikraft GmbH\n- **Summary**: Kraftcloud offers a managed platform for deploying Unikraft-based unikernels with millisecond cold-start times. It leverages Unikraft's modular build system to produce optimized images but requires build-time selection of platform and configuration options.\n- **Differentiation**: Kraftcloud accelerates unikernel deployment but each deployed instance is still a statically configured image built for a specific target. The invention's adaptation-profile-driven runtime reshaping eliminates the need for per-tenant or per-platform builds entirely.\n\n### 3. Istio / Envoy Service Mesh\n- **Company**: Google / Lyft (CNCF)\n- **Summary**: Istio and Envoy provide protocol translation, traffic management, and multi-tenant routing as a sidecar proxy layer external to application workloads. They can adapt communication protocols and apply tenant-specific policies without modifying the application.\n- **Differentiation**: Service meshes add adaptation as an external layer with its own resource footprint, attack surface, and operational complexity. The invention integrates adaptation directly into the unikernel's initialization and runtime, maintaining the unikernel's single-process, minimal-surface security model without requiring external infrastructure.\n\n### 4. OSv\n- **Company**: Cloudius Systems (open source)\n- **Summary**: OSv is a unikernel designed to run unmodified Linux applications, offering broad application compatibility and support for multiple hypervisors. It provides a general-purpose runtime but produces standard per-platform images without tenant-adaptive behavior.\n- **Differentiation**: OSv focuses on application compatibility (running existing Linux binaries) rather than client-environment adaptation. It does not offer any mechanism to reshape its external APIs, protocols, or configuration models based on a client-provided profile.\n\n## Key Differentiators\n\n1. **Single-Image Polymorphism**: Unlike all existing unikernel systems that require separate builds per target environment, the invention distributes one canonical image that dynamically presents different external personalities\u2014APIs, protocols, configuration schemas, and operational behaviors\u2014based on a declarative adaptation profile provided at initialization time.\n\n2. **Internalized Adaptation Within the Security Boundary**: Where current multi-tenant adaptation relies on external proxies, sidecars, or orchestration layers that expand the attack surface, the invention performs all adaptation within the unikernel's own execution boundary, preserving the minimal-surface-area security guarantee that is the primary motivation for unikernel adoption.\n\n3. **Unified Patch and Audit Surface at Scale**: By eliminating the variant matrix, the invention ensures that a single security audit, a single patch, and a single release artifact covers all tenants, platforms, and deployment environments simultaneously\u2014resolving the divergence risk where some variants receive updates before others, which no current approach addresses without external orchestration overhead.",
+          "alignment": 0.4157
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "494c3e53-0522-4335-a1b6-c304e0b01b3b",
+    "source_file": "data/D--Patents-Automation__494c3e53-0522-4335-a1b6-c304e0b01b3b.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

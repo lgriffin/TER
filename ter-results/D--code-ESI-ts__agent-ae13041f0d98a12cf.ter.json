@@ -1,0 +1,316 @@
+{
+  "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 4014,
+  "aligned_tokens": 4014,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5935,
+    "token_weighted_confidence": 0.618,
+    "low_confidence_tokens": 3505,
+    "low_confidence_share": 0.8732,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 6,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "waste_patterns": [
+    {
+      "type": "context_restatement",
+      "start_position": 2,
+      "end_position": 2,
+      "spans_involved": 1,
+      "tokens_wasted": 11,
+      "description": "Response restates prior content (similarity: 0.85)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.3200581669807434,
+      "tokens": 16,
+      "text": "\n\nI'll create both files. Let me first verify the parent directories exist.",
+      "source_message_uuid": "b5cade24-bf62-464d-ad6a-c62635017424",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3201,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.43685978651046753,
+      "tokens": 92,
+      "text": "Bash {\"command\":\"ls \\\"D:/code/ESI.ts/tests/bdd/features/core/\\\" 2>/dev/null && echo \\\"features/core exists\\\" || echo \\\"features/core missing\\\"; ls \\\"D:/code/ESI.ts/tests/bdd/step-definitions/core/\\\" 2>/dev/null && echo \\\"step-definitions/core exists\\\" || echo \\\"step-definitions/core missing\\\"\",\"description\":\"Check if parent directories exist\"}",
+      "source_message_uuid": "b5cade24-bf62-464d-ad6a-c62635017424",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4369,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.33008497953414917,
+      "tokens": 11,
+      "text": "Both directories exist. Now I'll write both files.",
+      "source_message_uuid": "9ca6a993-4d4e-470c-b4b5-ff0501b21fd0",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3301,
+          "repetition_score": 0.6004,
+          "confidence": 0.5,
+          "semantic_similarity": 0.8537,
+          "lexical_similarity": 0.4,
+          "entity_similarity": 0.3333,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.6667
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "\n\nI'll create both files. Let me first verify the parent directories exist."
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.7431671619415283,
+      "intent_similarity": 0.7431671619415283,
+      "tokens": 509,
+      "text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/features/core/fleets.feature\",\"content\":\"Feature: Fleet Management\\n\\n  Scenario: Get character fleet info when in a fleet\\n    Given a character that is in a fleet\\n    When I request their fleet info\\n    Then I should receive their fleet assignment details\\n\\n  Scenario: Character is not in any fleet\\n    Given a character that is not in a fleet\\n    When I request fleet info for the character not in a fleet\\n    Then I should receive a 404 error\\n\\n  Scenario: Get fleet information\\n    Given a valid fleet ID\\n    When I request fleet details\\n    Then I should receive the fleet MOTD, boss, and settings\\n\\n  Scenario: Update fleet settings\\n    Given a fleet boss\\n    When I update the fleet MOTD and free-move setting\\n    Then the fleet update should complete without error\\n\\n  Scenario: List all fleet members\\n    Given an active fleet with members\\n    When I request the member list\\n    Then I should receive member details including ships and roles\\n\\n  Scenario: Kick a member from the fleet\\n    Given a fleet commander for kicking\\n    When I kick a member from the fleet\\n    Then the kick operation should complete without error\\n\\n  Scenario: Move a member to a different squad\\n    Given a fleet commander and a member\\n    When I move the member to a new wing and squad\\n    Then the move operation should complete without error\\n\\n  Scenario: Get fleet wings structure\\n    Given an active fleet with wings\\n    When I request the fleet wings\\n    Then I should receive wings with nested squads\\n\\n  Scenario: Create a new fleet wing\\n    Given a fleet commander for wing creation\\n    When I create a new wing\\n    Then I should receive the new wing ID\\n\\n  Scenario: Create a new squad under a wing\\n    Given a fleet with a wing\\n    When I create a squad under that wing\\n    Then I should receive the new squad ID\\n\\n  Scenario: Unauthorized fleet access\\n    Given a non-fleet-boss character\\n    When I attempt to modify fleet settings\\n    Then I should receive a 403 forbidden error for fleet\\n\\n  Scenario: Fetch fleet info, members, and wings concurrently\\n    Given a valid fleet for concurrent fetch\\n    When I fetch fleet details, members, and wings in parallel\\n    Then all three requests should resolve successfully\\n\"}",
+      "source_message_uuid": "9ca6a993-4d4e-470c-b4b5-ff0501b21fd0",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.7432,
+          "repetition_score": 0.029,
+          "confidence": 0.7432,
+          "semantic_similarity": 0.4299,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.0,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"ls \\\"D:/code/ESI.ts/tests/bdd/features/core/\\\" 2>/dev/null && echo \\\"features/core exists\\\" || echo \\\"features/core missing\\\"; ls \\\"D:/code/ESI.ts/tests/bdd/step-definitions/core/\\\" 2>/dev/null && echo \\\"step-definitions/co"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5926679968833923,
+      "tokens": 3274,
+      "text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/step-definitions/core/fleets.steps.ts\",\"content\":\"import { defineFeature, loadFeature } from 'jest-cucumber';\\nimport { EsiClient } from '../../../../src/EsiClient';\\nimport { EsiError } from '../../../../src/core/util/error';\\nimport { TestDataFactory } from '../../../../src/testing/TestDataFactory';\\n\\nconst feature = loadFeature('tests/bdd/features/core/fleets.feature');\\n\\ndefineFeature(feature, (test) => {\\n  let client: EsiClient;\\n\\n  beforeEach(() => {\\n    client = new EsiClient({\\n      clientId: 'test-client',\\n      baseUrl: 'https://esi.evetech.net',\\n      timeout: 5000,\\n    });\\n  });\\n\\n  test('Get character fleet info when in a fleet', ({ given, when, then }) => {\\n    let result: any;\\n    const characterId = 1689391488;\\n\\n    given('a character that is in a fleet', () => {\\n      const mockFleetInfo = {\\n        fleet_id: 1234567890,\\n        role: 'fleet_commander' as const,\\n        squad_id: -1,\\n        wing_id: -1,\\n      };\\n\\n      jest\\n        .spyOn(client.fleets, 'getCharacterFleetInfo')\\n        .mockResolvedValue(mockFleetInfo);\\n    });\\n\\n    when('I request their fleet info', async () => {\\n      result = await client.fleets.getCharacterFleetInfo(characterId);\\n    });\\n\\n    then('I should receive their fleet assignment details', () => {\\n      expect(result).toBeDefined();\\n      expect(result.fleet_id).toBe(1234567890);\\n      expect(result.role).toBe('fleet_commander');\\n    });\\n  });\\n\\n  test('Character is not in any fleet', ({ given, when, then }) => {\\n    const characterId = 1689391488;\\n    let caughtError: any;\\n\\n    given('a character that is not in a fleet', () => {\\n      const notFoundError = TestDataFactory.createError(404);\\n\\n      jest\\n        .spyOn(client.fleets, 'getCharacterFleetInfo')\\n        .mockRejectedValue(notFoundError);\\n    });\\n\\n    when('I request fleet info for the character not in a fleet', async () => {\\n      try {\\n        await client.fleets.getCharacterFleetInfo(characterId);\\n      } catch (error) {\\n        caughtError = error;\\n      }\\n    });\\n\\n    then('I should receive a 404 error', () => {\\n      expect(caughtError).toBeInstanceOf(EsiError);\\n    });\\n  });\\n\\n  test('Get fleet information', ({ given, when, then }) => {\\n    let result: any;\\n    const fleetId = 1234567890;\\n\\n    given('a valid fleet ID', () => {\\n      const mockFleet = TestDataFactory.createFleetInfo({\\n        fleet_id: fleetId,\\n        motd: 'Form up on titan',\\n        is_free_move: false,\\n      });\\n\\n      jest\\n        .spyOn(client.fleets, 'getFleetInformation')\\n        .mockResolvedValue(mockFleet);\\n    });\\n\\n    when('I request fleet details', async () => {\\n      result = await client.fleets.getFleetInformation(fleetId);\\n    });\\n\\n    then('I should receive the fleet MOTD, boss, and settings', () => {\\n      expect(result).toBeDefined();\\n      expect(result.fleet_id).toBe(fleetId);\\n      expect(result.motd).toBe('Form up on titan');\\n      expect(result.is_free_move).toBe(false);\\n      expect(result).toHaveProperty('fleet_boss_id');\\n    });\\n  });\\n\\n  test('Update fleet settings', ({ given, when, then }) => {\\n    let result: any;\\n    const fleetId = 1234567890;\\n\\n    given('a fleet boss', () => {\\n      jest.spyOn(client.fleets, 'updateFleet').mockResolvedValue(undefined);\\n    });\\n\\n    when('I update the fleet MOTD and free-move setting', async () => {\\n      const updateBody = {\\n        motd: 'Updated MOTD: Align to gate',\\n        is_free_move: true,\\n      };\\n      result = await client.fleets.updateFleet(fleetId, updateBody);\\n    });\\n\\n    then('the fleet update should complete without error', () => {\\n      expect(result).toBeUndefined();\\n    });\\n  });\\n\\n  test('List all fleet members', ({ given, when, then }) => {\\n    let result: any;\\n    const fleetId = 1234567890;\\n\\n    given('an active fleet with members', () => {\\n      const mockMembers = [\\n        TestDataFactory.createFleetMember({\\n          character_id: 1689391488,\\n          role: 'fleet_commander',\\n          ship_type_id: 17918,\\n        }),\\n        TestDataFactory.createFleetMember({\\n          character_id: 123456789,\\n          role: 'squad_member',\\n          ship_type_id: 24690,\\n        }),\\n        TestDataFactory.createFleetMember({\\n          character_id: 111111111,\\n          role: 'wing_commander',\\n          ship_type_id: 17920,\\n        }),\\n      ];\\n\\n      jest\\n        .spyOn(client.fleets, 'getFleetMembers')\\n        .mockResolvedValue(mockMembers);\\n    });\\n\\n    when('I request the member list', async () => {\\n      result = await client.fleets.getFleetMembers(fleetId);\\n    });\\n\\n    then('I should receive member details including ships and roles', () => {\\n      expect(result).toBeInstanceOf(Array);\\n      expect(result).toHaveLength(3);\\n      expect(result[0]).toHaveProperty('character_id');\\n      expect(result[0]).toHaveProperty('role');\\n      expect(result[0]).toHaveProperty('ship_type_id');\\n      expect(result[0]).toHaveProperty('solar_system_id');\\n    });\\n  });\\n\\n  test('Kick a member from the fleet', ({ given, when, then }) => {\\n    let result: any;\\n    const fleetId = 1234567890;\\n    const memberId = 123456789;\\n\\n    given('a fleet commander for kicking', () => {\\n      jest\\n        .spyOn(client.fleets, 'kickFleetMember')\\n        .mockResolvedValue(undefined);\\n    });\\n\\n    when('I kick a member from the fleet', async () => {\\n      result = await client.fleets.kickFleetMember(fleetId, memberId);\\n    });\\n\\n    then('the kick operation should complete without error', () => {\\n      expect(result).toBeUndefined();\\n    });\\n  });\\n\\n  test('Move a member to a different squad', ({ given, when, then }) => {\\n    let result: any;\\n    const fleetId = 1234567890;\\n    const memberId = 123456789;\\n\\n    given('a fleet commander and a member', () => {\\n      jest\\n        .spyOn(client.fleets, 'moveFleetMember')\\n        .mockResolvedValue(undefined);\\n    });\\n\\n    when('I move the member to a new wing and squad', async () => {\\n      const moveBody = {\\n        role: 'squad_member',\\n        wing_id: 987654321,\\n        squad_id: 123456789,\\n      };\\n      result = await client.fleets.moveFleetMember(fleetId, memberId, moveBody);\\n    });\\n\\n    then('the move operation should complete without error', () => {\\n      expect(result).toBeUndefined();\\n    });\\n  });\\n\\n  test('Get fleet wings structure', ({ given, when, then }) => {\\n    let result: any;\\n    const fleetId = 1234567890;\\n\\n    given('an active fleet with wings', () => {\\n      const mockWings = [\\n        TestDataFactory.createFleetWing({\\n          wing_id: 100,\\n          name: 'DPS Wing',\\n          squads: [\\n            { squad_id: 201, name: 'DPS Squad Alpha' },\\n            { squad_id: 202, name: 'DPS Squad Bravo' },\\n          ],\\n        }),\\n        TestDataFactory.createFleetWing({\\n          wing_id: 101,\\n          name: 'Logi Wing',\\n          squads: [{ squad_id: 301, name: 'Logi Squad' }],\\n        }),\\n      ];\\n\\n      jest.spyOn(client.fleets, 'getFleetWings').mockResolvedValue(mockWings);\\n    });\\n\\n    when('I request the fleet wings', async () => {\\n      result = await client.fleets.getFleetWings(fleetId);\\n    });\\n\\n    then('I should receive wings with nested squads', () => {\\n      expect(result).toBeInstanceOf(Array);\\n      expect(result).toHaveLength(2);\\n      expect(result[0]).toHaveProperty('wing_id', 100);\\n      expect(result[0]).toHaveProperty('name', 'DPS Wing');\\n      expect(result[0].squads).toBeInstanceOf(Array);\\n      expect(result[0].squads).toHaveLength(2);\\n      expect(result[1].squads).toHaveLength(1);\\n    });\\n  });\\n\\n  test('Create a new fleet wing', ({ given, when, then }) => {\\n    let result: any;\\n    const fleetId = 1234567890;\\n\\n    given('a fleet commander for wing creation', () => {\\n      jest\\n        .spyOn(client.fleets, 'createFleetWing')\\n        .mockResolvedValue({ wing_id: 555 });\\n    });\\n\\n    when('I create a new wing', async () => {\\n      const wingBody = { name: 'Tackle Wing' };\\n      result = await client.fleets.createFleetWing(fleetId, wingBody);\\n    });\\n\\n    then('I should receive the new wing ID', () => {\\n      expect(result).toBeDefined();\\n      expect(result.wing_id).toBe(555);\\n    });\\n  });\\n\\n  test('Create a new squad under a wing', ({ given, when, then }) => {\\n    let result: any;\\n    const fleetId = 1234567890;\\n    const wingId = 555;\\n\\n    given('a fleet with a wing', () => {\\n      jest\\n        .spyOn(client.fleets, 'createFleetSquad')\\n        .mockResolvedValue({ squad_id: 777 });\\n    });\\n\\n    when('I create a squad under that wing', async () => {\\n      result = await client.fleets.createFleetSquad(fleetId, wingId);\\n    });\\n\\n    then('I should receive the new squad ID', () => {\\n      expect(result).toBeDefined();\\n      expect(result.squad_id).toBe(777);\\n    });\\n  });\\n\\n  test('Unauthorized fleet access', ({ given, when, then }) => {\\n    const fleetId = 1234567890;\\n    let caughtError: any;\\n\\n    given('a non-fleet-boss character', () => {\\n      const forbiddenError = TestDataFactory.createError(403);\\n\\n      jest\\n        .spyOn(client.fleets, 'updateFleet')\\n        .mockRejectedValue(forbiddenError);\\n    });\\n\\n    when('I attempt to modify fleet settings', async () => {\\n      try {\\n        await client.fleets.updateFleet(fleetId, { motd: 'Unauthorized' });\\n      } catch (error) {\\n        caughtError = error;\\n      }\\n    });\\n\\n    then('I should receive a 403 forbidden error for fleet', () => {\\n      expect(caughtError).toBeInstanceOf(EsiError);\\n    });\\n  });\\n\\n  test('Fetch fleet info, members, and wings concurrently', ({ given, when, then }) => {\\n    let fleet: any;\\n    let members: any;\\n    let wings: any;\\n    const fleetId = 1234567890;\\n\\n    given('a valid fleet for concurrent fetch', () => {\\n      const mockFleet = TestDataFactory.createFleetInfo({\\n        fleet_id: fleetId,\\n      });\\n      const mockMembers = [\\n        TestDataFactory.createFleetMember({ character_id: 1689391488 }),\\n        TestDataFactory.createFleetMember({ character_id: 123456789 }),\\n      ];\\n      const mockWings = [\\n        TestDataFactory.createFleetWing({ wing_id: 100, name: 'Wing 1' }),\\n      ];\\n\\n      jest\\n        .spyOn(client.fleets, 'getFleetInformation')\\n        .mockResolvedValue(mockFleet);\\n      jest\\n        .spyOn(client.fleets, 'getFleetMembers')\\n        .mockResolvedValue(mockMembers);\\n      jest.spyOn(client.fleets, 'getFleetWings').mockResolvedValue(mockWings);\\n    });\\n\\n    when('I fetch fleet details, members, and wings in parallel', async () => {\\n      [fleet, members, wings] = await Promise.all([\\n        client.fleets.getFleetInformation(fleetId),\\n        client.fleets.getFleetMembers(fleetId),\\n        client.fleets.getFleetWings(fleetId),\\n      ]);\\n    });\\n\\n    then('all three requests should resolve successfully', () => {\\n      expect(fleet).toBeDefined();\\n      expect(fleet.fleet_id).toBe(fleetId);\\n\\n      expect(members).toBeInstanceOf(Array);\\n      expect(members).toHaveLength(2);\\n\\n      expect(wings).toBeInstanceOf(Array);\\n      expect(wings).toHaveLength(1);\\n      expect(wings[0].name).toBe('Wing 1');\\n    });\\n  });\\n});\\n\"}",
+      "source_message_uuid": "9ca6a993-4d4e-470c-b4b5-ff0501b21fd0",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5927,
+          "repetition_score": 0.5214,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6009,
+          "lexical_similarity": 0.3487,
+          "entity_similarity": 0.3938,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/features/core/fleets.feature\",\"content\":\"Feature: Fleet Management\\n\\n  Scenario: Get character fleet info when in a fleet\\n    Given a character that is in a fleet\\n    When I request their flee"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6178908348083496,
+      "intent_similarity": 0.6178908348083496,
+      "tokens": 112,
+      "text": "Both files have been created successfully:\n\n- **Feature file**: `D:/code/ESI.ts/tests/bdd/features/core/fleets.feature` -- 12 scenarios covering fleet management (character fleet info, fleet CRUD, members, wings/squads, error handling, and concurrent fetching).\n- **Steps file**: `D:/code/ESI.ts/tests/bdd/step-definitions/core/fleets.steps.ts` -- jest-cucumber step definitions with mocked `EsiClient` methods and `TestDataFactory` usage for all 12 scenarios.",
+      "source_message_uuid": "435461d1-1559-4925-89d1-515647fb277a",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6179,
+          "repetition_score": 0.19,
+          "confidence": 0.6179,
+          "semantic_similarity": 0.3201,
+          "lexical_similarity": 0.02,
+          "entity_similarity": 0.0435,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9565
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "\n\nI'll create both files. Let me first verify the parent directories exist."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "context_restatement",
+        "tokens_wasted": 11,
+        "description": "Response restates prior content (similarity: 0.85)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Context Restatement",
+        "tokens": 11,
+        "percentage": 100.0,
+        "cost_usd": 0.000165,
+        "count": 1,
+        "pricing": "output"
+      }
+    ],
+    "total_tokens": 11,
+    "total_cost_usd": 0.000165
+  },
+  "economics": {
+    "total_input_tokens": 5,
+    "total_output_tokens": 138,
+    "total_cache_creation_tokens": 11391,
+    "total_cache_read_tokens": 51288,
+    "input_output_ratio": 0.04,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.0602,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 2,
+      "mid_span_count": 2,
+      "late_span_count": 2
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        12725,
+        18750,
+        19818
+      ],
+      "growth_rate": 1.56,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 3348,
+      "user_result_tokens": 310,
+      "model_reasoning_tokens": 0,
+      "model_tool_tokens": 3875,
+      "model_generation_tokens": 139,
+      "total_user_tokens": 3658,
+      "total_model_tokens": 4014,
+      "user_ratio": 0.4768
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.7693,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "Create two files for the ESI.ts project BDD conversion. The project is at D:/code/ESI.ts.\n\nFILE 1: D:/code/ESI.ts/tests/bdd/features/core/fleets.feature\nFILE 2: D:/code/ESI.ts/tests/bdd/step-definitions/core/fleets.steps.ts\n\nFEATURE FILE content (write this exactly):\n```\nFeature: Fleet Management\n\n  Scenario: Get character fleet info when in a fleet\n    Given a character that is in a fleet\n    When I request their fleet info\n    Then I should receive their fleet assignment details\n\n  Scenario: Character is not in any fleet\n    Given a character that is not in a fleet\n    When I request fleet info for the character not in a fleet\n    Then I should receive a 404 error\n\n  Scenario: Get fleet information\n    Given a valid fleet ID\n    When I request fleet details\n    Then I should receive the fleet MOTD, boss, and settings\n\n  Scenario: Update fleet settings\n    Given a fleet boss\n    When I update the fleet MOTD and free-move setting\n    Then the fleet update should complete without error\n\n  Scenario: List all fleet members\n    Given an active fleet with members\n    When I request the member list\n    Then I should receive member details including ships and roles\n\n  Scenario: Kick a member from the fleet\n    Given a fleet commander for kicking\n    When I kick a member from the fleet\n    Then the kick operation should complete without error\n\n  Scenario: Move a member to a different squad\n    Given a fleet commander and a member\n    When I move the member to a new wing and squad\n    Then the move operation should complete without error\n\n  Scenario: Get fleet wings structure\n    Given an active fleet with wings\n    When I request the fleet wings\n    Then I should receive wings with nested squads\n\n  Scenario: Create a new fleet wing\n    Given a fleet commander for wing creation\n    When I create a new wing\n    Then I should receive the new wing ID\n\n  Scenario: Create a new squad under a wing\n    Given a fleet with a wing\n    When I create a squad under that wing\n    Then I should receive the new squad ID\n\n  Scenario: Unauthorized fleet access\n    Given a non-fleet-boss character\n    When I attempt to modify fleet settings\n    Then I should receive a 403 forbidden error for fleet\n\n  Scenario: Fetch fleet info, members, and wings concurrently\n    Given a valid fleet for concurrent fetch\n    When I fetch fleet details, members, and wings in parallel\n    Then all three requests should resolve successfully\n```\n\nSTEPS FILE content (write this exactly):\n```typescript\nimport { defineFeature, loadFeature } from 'jest-cucumber';\nimport { EsiClient } from '../../../../src/EsiClient';\nimport { EsiError } from '../../../../src/core/util/error';\nimport { TestDataFactory } from '../../../../src/testing/TestDataFactory';\n\nconst feature = loadFeature('tests/bdd/features/core/fleets.feature');\n\ndefineFeature(feature, (test) => {\n  let client: EsiClient;\n\n  beforeEach(() => {\n    client = new EsiClient({\n      clientId: 'test-client',\n      baseUrl: 'https://esi.evetech.net',\n      timeout: 5000,\n    });\n  });\n\n  test('Get character fleet info when in a fleet', ({ given, when, then }) => {\n    let result: any;\n    const characterId = 1689391488;\n\n    given('a character that is in a fleet', () => {\n      const mockFleetInfo = {\n        fleet_id: 1234567890,\n        role: 'fleet_commander' as const,\n        squad_id: -1,\n        wing_id: -1,\n      };\n\n      jest\n        .spyOn(client.fleets, 'getCharacterFleetInfo')\n        .mockResolvedValue(mockFleetInfo);\n    });\n\n    when('I request their fleet info', async () => {\n      result = await client.fleets.getCharacterFleetInfo(characterId);\n    });\n\n    then('I should receive their fleet assignment details', () => {\n      expect(result).toBeDefined();\n      expect(result.fleet_id).toBe(1234567890);\n      expect(result.role).toBe('fleet_commander');\n    });\n  });\n\n  test('Character is not in any fleet', ({ given, when, then }) => {\n    const characterId = 1689391488;\n    let caughtError: any;\n\n    given('a character that is not in a fleet', () => {\n      const notFoundError = TestDataFactory.createError(404);\n\n      jest\n        .spyOn(client.fleets, 'getCharacterFleetInfo')\n        .mockRejectedValue(notFoundError);\n    });\n\n    when('I request fleet info for the character not in a fleet', async () => {\n      try {\n        await client.fleets.getCharacterFleetInfo(characterId);\n      } catch (error) {\n        caughtError = error;\n      }\n    });\n\n    then('I should receive a 404 error', () => {\n      expect(caughtError).toBeInstanceOf(EsiError);\n    });\n  });\n\n  test('Get fleet information', ({ given, when, then }) => {\n    let result: any;\n    const fleetId = 1234567890;\n\n    given('a valid fleet ID', () => {\n      const mockFleet = TestDataFactory.createFleetInfo({\n        fleet_id: fleetId,\n        motd: 'Form up on titan',\n        is_free_move: false,\n      });\n\n      jest\n        .spyOn(client.fleets, 'getFleetInformation')\n        .mockResolvedValue(mockFleet);\n    });\n\n    when('I request fleet details', async () => {\n      result = await client.fleets.getFleetInformation(fleetId);\n    });\n\n    then('I should receive the fleet MOTD, boss, and settings', () => {\n      expect(result).toBeDefined();\n      expect(result.fleet_id).toBe(fleetId);\n      expect(result.motd).toBe('Form up on titan');\n      expect(result.is_free_move).toBe(false);\n      expect(result).toHaveProperty('fleet_boss_id');\n    });\n  });\n\n  test('Update fleet settings', ({ given, when, then }) => {\n    let result: any;\n    const fleetId = 1234567890;\n\n    given('a fleet boss', () => {\n      jest.spyOn(client.fleets, 'updateFleet').mockResolvedValue(undefined);\n    });\n\n    when('I update the fleet MOTD and free-move setting', async () => {\n      const updateBody = {\n        motd: 'Updated MOTD: Align to gate',\n        is_free_move: true,\n      };\n      result = await client.fleets.updateFleet(fleetId, updateBody);\n    });\n\n    then('the fleet update should complete without error', () => {\n      expect(result).toBeUndefined();\n    });\n  });\n\n  test('List all fleet members', ({ given, when, then }) => {\n    let result: any;\n    const fleetId = 1234567890;\n\n    given('an active fleet with members', () => {\n      const mockMembers = [\n        TestDataFactory.createFleetMember({\n          character_id: 1689391488,\n          role: 'fleet_commander',\n          ship_type_id: 17918,\n        }),\n        TestDataFactory.createFleetMember({\n          character_id: 123456789,\n          role: 'squad_member',\n          ship_type_id: 24690,\n        }),\n        TestDataFactory.createFleetMember({\n          character_id: 111111111,\n          role: 'wing_commander',\n          ship_type_id: 17920,\n        }),\n      ];\n\n      jest\n        .spyOn(client.fleets, 'getFleetMembers')\n        .mockResolvedValue(mockMembers);\n    });\n\n    when('I request the member list', async () => {\n      result = await client.fleets.getFleetMembers(fleetId);\n    });\n\n    then('I should receive member details including ships and roles', () => {\n      expect(result).toBeInstanceOf(Array);\n      expect(result).toHaveLength(3);\n      expect(result[0]).toHaveProperty('character_id');\n      expect(result[0]).toHaveProperty('role');\n      expect(result[0]).toHaveProperty('ship_type_id');\n      expect(result[0]).toHaveProperty('solar_system_id');\n    });\n  });\n\n  test('Kick a member from the fleet', ({ given, when, then }) => {\n    let result: any;\n    const fleetId = 1234567890;\n    const memberId = 123456789;\n\n    given('a fleet commander for kicking', () => {\n      jest\n        .spyOn(client.fleets, 'kickFleetMember')\n        .mockResolvedValue(undefined);\n    });\n\n    when('I kick a member from the fleet', async () => {\n      result = await client.fleets.kickFleetMember(fleetId, memberId);\n    });\n\n    then('the kick operation should complete without error', () => {\n      expect(result).toBeUndefined();\n    });\n  });\n\n  test('Move a member to a different squad', ({ given, when, then }) => {\n    let result: any;\n    const fleetId = 1234567890;\n    const memberId = 123456789;\n\n    given('a fleet commander and a member', () => {\n      jest\n        .spyOn(client.fleets, 'moveFleetMember')\n        .mockResolvedValue(undefined);\n    });\n\n    when('I move the member to a new wing and squad', async () => {\n      const moveBody = {\n        role: 'squad_member',\n        wing_id: 987654321,\n        squad_id: 123456789,\n      };\n      result = await client.fleets.moveFleetMember(fleetId, memberId, moveBody);\n    });\n\n    then('the move operation should complete without error', () => {\n      expect(result).toBeUndefined();\n    });\n  });\n\n  test('Get fleet wings structure', ({ given, when, then }) => {\n    let result: any;\n    const fleetId = 1234567890;\n\n    given('an active fleet with wings', () => {\n      const mockWings = [\n        TestDataFactory.createFleetWing({\n          wing_id: 100,\n          name: 'DPS Wing',\n          squads: [\n            { squad_id: 201, name: 'DPS Squad Alpha' },\n            { squad_id: 202, name: 'DPS Squad Bravo' },\n          ],\n        }),\n        TestDataFactory.createFleetWing({\n          wing_id: 101,\n          name: 'Logi Wing',\n          squads: [{ squad_id: 301, name: 'Logi Squad' }],\n        }),\n      ];\n\n      jest.spyOn(client.fleets, 'getFleetWings').mockResolvedValue(mockWings);\n    });\n\n    when('I request the fleet wings', async () => {\n      result = await client.fleets.getFleetWings(fleetId);\n    });\n\n    then('I should receive wings with nested squads', () => {\n      expect(result).toBeInstanceOf(Array);\n      expect(result).toHaveLength(2);\n      expect(result[0]).toHaveProperty('wing_id', 100);\n      expect(result[0]).toHaveProperty('name', 'DPS Wing');\n      expect(result[0].squads).toBeInstanceOf(Array);\n      expect(result[0].squads).toHaveLength(2);\n      expect(result[1].squads).toHaveLength(1);\n    });\n  });\n\n  test('Create a new fleet wing', ({ given, when, then }) => {\n    let result: any;\n    const fleetId = 1234567890;\n\n    given('a fleet commander for wing creation', () => {\n      jest\n        .spyOn(client.fleets, 'createFleetWing')\n        .mockResolvedValue({ wing_id: 555 });\n    });\n\n    when('I create a new wing', async () => {\n      const wingBody = { name: 'Tackle Wing' };\n      result = await client.fleets.createFleetWing(fleetId, wingBody);\n    });\n\n    then('I should receive the new wing ID', () => {\n      expect(result).toBeDefined();\n      expect(result.wing_id).toBe(555);\n    });\n  });\n\n  test('Create a new squad under a wing', ({ given, when, then }) => {\n    let result: any;\n    const fleetId = 1234567890;\n    const wingId = 555;\n\n    given('a fleet with a wing', () => {\n      jest\n        .spyOn(client.fleets, 'createFleetSquad')\n        .mockResolvedValue({ squad_id: 777 });\n    });\n\n    when('I create a squad under that wing', async () => {\n      result = await client.fleets.createFleetSquad(fleetId, wingId);\n    });\n\n    then('I should receive the new squad ID', () => {\n      expect(result).toBeDefined();\n      expect(result.squad_id).toBe(777);\n    });\n  });\n\n  test('Unauthorized fleet access', ({ given, when, then }) => {\n    const fleetId = 1234567890;\n    let caughtError: any;\n\n    given('a non-fleet-boss character', () => {\n      const forbiddenError = TestDataFactory.createError(403);\n\n      jest\n        .spyOn(client.fleets, 'updateFleet')\n        .mockRejectedValue(forbiddenError);\n    });\n\n    when('I attempt to modify fleet settings', async () => {\n      try {\n        await client.fleets.updateFleet(fleetId, { motd: 'Unauthorized' });\n      } catch (error) {\n        caughtError = error;\n      }\n    });\n\n    then('I should receive a 403 forbidden error for fleet', () => {\n      expect(caughtError).toBeInstanceOf(EsiError);\n    });\n  });\n\n  test('Fetch fleet info, members, and wings concurrently', ({ given, when, then }) => {\n    let fleet: any;\n    let members: any;\n    let wings: any;\n    const fleetId = 1234567890;\n\n    given('a valid fleet for concurrent fetch', () => {\n      const mockFleet = TestDataFactory.createFleetInfo({\n        fleet_id: fleetId,\n      });\n      const mockMembers = [\n        TestDataFactory.createFleetMember({ character_id: 1689391488 }),\n        TestDataFactory.createFleetMember({ character_id: 123456789 }),\n      ];\n      const mockWings = [\n        TestDataFactory.createFleetWing({ wing_id: 100, name: 'Wing 1' }),\n      ];\n\n      jest\n        .spyOn(client.fleets, 'getFleetInformation')\n        .mockResolvedValue(mockFleet);\n      jest\n        .spyOn(client.fleets, 'getFleetMembers')\n        .mockResolvedValue(mockMembers);\n      jest.spyOn(client.fleets, 'getFleetWings').mockResolvedValue(mockWings);\n    });\n\n    when('I fetch fleet details, members, and wings in parallel', async () => {\n      [fleet, members, wings] = await Promise.all([\n        client.fleets.getFleetInformation(fleetId),\n        client.fleets.getFleetMembers(fleetId),\n        client.fleets.getFleetWings(fleetId),\n      ]);\n    });\n\n    then('all three requests should resolve successfully', () => {\n      expect(fleet).toBeDefined();\n      expect(fleet.fleet_id).toBe(fleetId);\n\n      expect(members).toBeInstanceOf(Array);\n      expect(members).toHaveLength(2);\n\n      expect(wings).toBeInstanceOf(Array);\n      expect(wings).toHaveLength(1);\n      expect(wings[0].name).toBe('Wing 1');\n    });\n  });\n});\n```\n\nWrite both files using the Write tool. Make sure to use the EXACT content above.",
+          "response_text": "\n\nI'll create both files. Let me first verify the parent directories exist. Both directories exist. Now I'll write both files. Both files have been created successfully:\n\n- **Feature file**: `D:/code/ESI.ts/tests/bdd/features/core/fleets.feature` -- 12 scenarios covering fleet management (character fleet info, fleet CRUD, members, wings/squads, error handling, and concurrent fetching).\n- **Steps file**: `D:/code/ESI.ts/tests/bdd/step-definitions/core/fleets.steps.ts` -- jest-cucumber step definitions with mocked `EsiClient` methods and `TestDataFactory` usage for all 12 scenarios.",
+          "alignment": 0.7693
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+    "source_file": "data/D--code-ESI-ts__agent-ae13041f0d98a12cf.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

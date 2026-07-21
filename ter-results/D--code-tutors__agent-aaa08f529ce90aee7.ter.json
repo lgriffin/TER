@@ -1,0 +1,1086 @@
+{
+  "session_id": "e5951b02-fb12-4026-ae03-11cdabd2d267",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 33123,
+  "aligned_tokens": 33123,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5803,
+    "token_weighted_confidence": 0.6588,
+    "low_confidence_tokens": 2746,
+    "low_confidence_share": 0.0829,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 30,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "waste_patterns": [
+    {
+      "type": "edit_fragmentation",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 3,
+      "tokens_wasted": 0,
+      "description": "3 consecutive edits to topics-1-3.js (0 fragmented tokens)"
+    },
+    {
+      "type": "bash_antipattern",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 1,
+      "tokens_wasted": 24,
+      "description": "1 Bash calls should use dedicated tools (24 tokens)"
+    },
+    {
+      "type": "failed_tool_retry",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 2,
+      "tokens_wasted": 366,
+      "description": "2 failed tool calls (366 wasted tokens)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.4676860272884369,
+      "tokens": 22,
+      "text": "I'll start by examining the existing test-course directory to understand any conventions, then build the comprehensive topics file.",
+      "source_message_uuid": "94a9df87-87db-43da-8685-2402306b8c51",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4677,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.47312527894973755,
+      "tokens": 15,
+      "text": "Glob {\"pattern\":\"D:/code/tutors/test-course/**/*\"}",
+      "source_message_uuid": "94a9df87-87db-43da-8685-2402306b8c51",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4731,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2888394594192505,
+      "tokens": 31,
+      "text": "Bash {\"command\":\"ls \\\"D:/code/tutors/test-course-python\\\" 2>/dev/null || echo \\\"Directory does not exist yet\\\"\"}",
+      "source_message_uuid": "94a9df87-87db-43da-8685-2402306b8c51",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2888,
+          "repetition_score": 0.0263,
+          "confidence": 0.6,
+          "semantic_similarity": 0.3892,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.0,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Glob {\"pattern\":\"D:/code/tutors/test-course/**/*\"}"
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.32691556215286255,
+      "tokens": 45,
+      "text": "Bash {\"command\":\"ls \\\"D:/code/tutors/test-course-python/\\\" 2>/dev/null; echo \\\"---\\\"; ls \\\"D:/code/tutors/test-course/\\\" 2>/dev/null\"}",
+      "source_message_uuid": "7fa5d751-f5f6-45c5-97a9-88e02cd8f2f8",
+      "source_lines": [
+        8
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3269,
+          "repetition_score": 0.5661,
+          "confidence": 0.6,
+          "semantic_similarity": 0.714,
+          "lexical_similarity": 0.4286,
+          "entity_similarity": 0.3333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Bash {\"command\":\"ls \\\"D:/code/tutors/test-course-python\\\" 2>/dev/null || echo \\\"Directory does not exist yet\\\"\"}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5387012362480164,
+      "intent_similarity": 0.5387012362480164,
+      "tokens": 31,
+      "text": "The test-course-python directory exists but is empty. Let me now create the comprehensive topics file. Given the size and complexity, I will write this directly.",
+      "source_message_uuid": "8689e553-c9a8-4e5c-a384-d477504d1409",
+      "source_lines": [
+        10
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5387,
+          "repetition_score": 0.5293,
+          "confidence": 0.5387,
+          "semantic_similarity": 0.806,
+          "lexical_similarity": 0.1714,
+          "entity_similarity": 0.2333,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.7667
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll start by examining the existing test-course directory to understand any conventions, then build the comprehensive topics file."
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4622216820716858,
+      "tokens": 19,
+      "text": "Bash {\"command\":\"mkdir -p \\\"D:/code/tutors/test-course-python\\\"\"}",
+      "source_message_uuid": "8689e553-c9a8-4e5c-a384-d477504d1409",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4622,
+          "repetition_score": 0.536,
+          "confidence": 0.6,
+          "semantic_similarity": 0.714,
+          "lexical_similarity": 0.2143,
+          "entity_similarity": 0.2727,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Bash {\"command\":\"ls \\\"D:/code/tutors/test-course-python\\\" 2>/dev/null || echo \\\"Directory does not exist yet\\\"\"}"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.17083147168159485,
+      "tokens": 20,
+      "text": "Now I'll build the file. Given its substantial size, I'll write it in one go.",
+      "source_message_uuid": "69001209-1986-483f-b408-c060f1fdfe6d",
+      "source_lines": [
+        13
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1708,
+          "repetition_score": 0.2173,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3037,
+          "lexical_similarity": 0.1786,
+          "entity_similarity": 0.1364,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.8636
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll start by examining the existing test-course directory to understand any conventions, then build the comprehensive topics file."
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6623929142951965,
+      "intent_similarity": 0.6623929142951965,
+      "tokens": 28481,
+      "text": "Write {\"file_path\":\"D:/code/tutors/test-course-python/topics-1-3.js\",\"content\":\"// Python Fundamentals Course - Topics 1-3\\n// Topics: Getting Started, Variables & Data Types, Operators & Expressions\\n\\n// ============================================================\\n// TOPIC 1: Getting Started with Python\\n// ============================================================\\n\\nconst topic1 = {\\n  route: \\\"/topic/{{COURSEURL}}/topic-01-getting-started\\\",\\n  type: \\\"topic\\\",\\n  title: \\\"Getting Started with Python\\\",\\n  summary: \\\"Install Python, explore the REPL, and write your first program\\\",\\n  contentMd: \\\"# Getting Started with Python\\\\n\\\\nWelcome to your Python programming journey! In this topic, you will install Python, learn to use the interactive REPL, and write your very first program. Python is one of the most popular programming languages in the world, known for its clean syntax and versatility.\\\\n\\\\n## What You Will Learn\\\\n\\\\n- How to install Python on your computer\\\\n- Using the Python REPL for interactive coding\\\\n- Writing and running your first Python script\\\\n- The `print()` and `input()` functions\\\\n- Basic arithmetic in Python\\\\n- An overview of the Python ecosystem\\\",\\n  frontMatter: {},\\n  id: \\\"topic-01-getting-started\\\",\\n  img: \\\"\\\",\\n  imgFile: \\\"\\\",\\n  video: \\\"\\\",\\n  videoids: { videoid: \\\"\\\", videoIds: [] },\\n  hide: false,\\n  authLevel: 0,\\n  los: [\\n    // ---- Unit: Introduction ----\\n    {\\n      route: \\\"/topic/{{COURSEURL}}/topic-01-getting-started/\\\",\\n      type: \\\"unit\\\",\\n      title: \\\"Introduction\\\",\\n      summary: \\\"Get up and running with Python\\\",\\n      contentMd: \\\"\\\",\\n      frontMatter: {},\\n      id: \\\"unit-1\\\",\\n      img: \\\"\\\",\\n      imgFile: \\\"\\\",\\n      video: \\\"\\\",\\n      videoids: { videoid: \\\"\\\", videoIds: [] },\\n      hide: false,\\n      authLevel: 0,\\n      los: [\\n        // ---- 1a. Talk: Welcome to Python ----\\n        {\\n          route: \\\"/talk/{{COURSEURL}}/topic-01-getting-started/unit-1/talk-welcome-to-python\\\",\\n          type: \\\"talk\\\",\\n          title: \\\"Welcome to Python\\\",\\n          summary: \\\"An introduction to the Python programming language and course overview\\\",\\n          contentMd:\\n`---\\nmarp: true\\ntheme: default\\npaginate: true\\n---\\n\\n# Welcome to Python\\n\\n### Your journey into programming begins\\n\\nPython is the world's most popular programming language for beginners and professionals alike.\\n\\nLet's discover why!\\n\\n---\\n\\n## What is Python?\\n\\nPython is a **high-level**, **interpreted**, **dynamically typed** programming language.\\n\\n- Created by **Guido van Rossum** and first released in **1991**\\n- Named after Monty Python's Flying Circus (not the snake!)\\n- Emphasizes **code readability** and simplicity\\n\\n\\\\`\\\\`\\\\`python\\n# Python reads almost like English\\nif temperature > 30:\\n    print(\\\"It's a hot day!\\\")\\n\\\\`\\\\`\\\\`\\n\\n> \\\"There should be one -- and preferably only one -- obvious way to do it.\\\" - The Zen of Python\\n\\n---\\n\\n## Why Python?\\n\\n### Readability\\nPython uses indentation instead of braces, forcing clean code:\\n\\\\`\\\\`\\\\`python\\ndef greet(name):\\n    return f\\\"Hello, {name}!\\\"\\n\\\\`\\\\`\\\\`\\n\\n### Versatility\\nWeb development, data science, AI, automation, scripting, and more.\\n\\n### Huge Ecosystem\\nOver **400,000 packages** on PyPI (Python Package Index).\\n\\n### Beginner-Friendly\\nMinimal boilerplate. Your first program is just one line:\\n\\\\`\\\\`\\\\`python\\nprint(\\\"Hello, World!\\\")\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## Python's History\\n\\n| Year | Milestone |\\n|------|-----------|\\n| 1991 | Python 0.9.0 released by Guido van Rossum |\\n| 2000 | Python 2.0 - list comprehensions, garbage collection |\\n| 2008 | Python 3.0 - major redesign (not backward-compatible) |\\n| 2020 | Python 2 officially retired (EOL: Jan 1, 2020) |\\n| 2024 | Python 3.12+ - faster, better error messages |\\n\\n### Python 2 vs Python 3\\n- Python 2 is **dead** -- do not use it\\n- Always use **Python 3.10+** for new projects\\n- Current stable: **Python 3.12**\\n\\n\\\\`\\\\`\\\\`python\\n# Python 2 (DON'T use)       # Python 3 (DO use)\\nprint \\\"Hello\\\"                 # print(\\\"Hello\\\")\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## Installing Python\\n\\n### Download from python.org\\n\\n1. Visit [python.org/downloads](https://python.org/downloads)\\n2. Download the latest **Python 3.12+** installer\\n3. **Windows**: Check \\\"Add Python to PATH\\\" during install!\\n4. **macOS**: Use the official installer or \\\\`brew install python3\\\\`\\n5. **Linux**: Usually pre-installed; or \\\\`sudo apt install python3\\\\`\\n\\n### Verify Your Installation\\n\\n\\\\`\\\\`\\\\`bash\\npython --version\\n# Python 3.12.4\\n\\npython3 --version   # on macOS/Linux\\n# Python 3.12.4\\n\\\\`\\\\`\\\\`\\n\\n> **Tip**: On Windows, you might need to use \\\\`python\\\\` while on macOS/Linux you might use \\\\`python3\\\\`.\\n\\n---\\n\\n## The Python REPL\\n\\nThe **REPL** (Read-Eval-Print Loop) is Python's interactive shell.\\n\\n\\\\`\\\\`\\\\`bash\\n$ python\\nPython 3.12.4 (main, Jun  2 2024, 00:00:00)\\n>>> 2 + 3\\n5\\n>>> \\\"Hello\\\" + \\\" \\\" + \\\"World\\\"\\n'Hello World'\\n>>> len(\\\"Python\\\")\\n6\\n>>> exit()\\n\\\\`\\\\`\\\\`\\n\\n### Why Use the REPL?\\n- **Quick experiments** -- test ideas without creating files\\n- **Explore APIs** -- use \\\\`help()\\\\` and \\\\`dir()\\\\` to discover functions\\n- **Debug** -- test small snippets in isolation\\n\\n\\\\`\\\\`\\\\`python\\n>>> help(print)    # Get help on any function\\n>>> dir(str)       # List all string methods\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## Your First Script\\n\\nCreate a file called \\\\`hello.py\\\\`:\\n\\n\\\\`\\\\`\\\\`python\\n# hello.py - My first Python program\\nprint(\\\"Hello, World!\\\")\\nprint(\\\"Welcome to Python programming!\\\")\\n\\\\`\\\\`\\\\`\\n\\n### Running Your Script\\n\\n\\\\`\\\\`\\\\`bash\\n$ python hello.py\\nHello, World!\\nWelcome to Python programming!\\n\\\\`\\\\`\\\\`\\n\\n### The \\\\`print()\\\\` Function\\n- Outputs text to the console\\n- Accepts multiple arguments separated by commas\\n- Adds a newline at the end by default\\n\\n\\\\`\\\\`\\\\`python\\nprint(\\\"Name:\\\", \\\"Alice\\\", \\\"Age:\\\", 25)\\n# Output: Name: Alice Age: 25\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## Python IDEs & Tools\\n\\n| Tool | Best For | Cost |\\n|------|----------|------|\\n| **VS Code** | General development, extensions | Free |\\n| **PyCharm** | Professional Python development | Free / Paid |\\n| **Jupyter Notebook** | Data science, interactive coding | Free |\\n| **IDLE** | Quick scripts, comes with Python | Free |\\n\\n### Recommended Setup for This Course:\\n1. **VS Code** with the Python extension\\n2. Or **Jupyter Notebooks** for interactive exercises\\n\\n\\\\`\\\\`\\\\`bash\\n# Install VS Code Python extension\\ncode --install-extension ms-python.python\\n\\n# Or install Jupyter\\npip install jupyter\\njupyter notebook\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## Course Roadmap\\n\\nWe will cover **10 topics** in this course:\\n\\n1. **Getting Started** -- installing Python, first program (this topic!)\\n2. **Variables & Data Types** -- storing and typing data\\n3. **Operators & Expressions** -- arithmetic, logic, comparisons\\n4. **Control Flow** -- if/elif/else, decision making\\n5. **Loops** -- for, while, iteration patterns\\n6. **Functions** -- defining, calling, parameters, returns\\n7. **Data Structures** -- lists, tuples, dicts, sets\\n8. **File I/O** -- reading, writing, CSV, JSON\\n9. **Error Handling** -- try/except, custom exceptions\\n10. **Modules & Packages** -- imports, pip, virtual environments\\n\\nEach topic includes **slides**, **interactive notebooks**, and **hands-on labs**.\\n\\n---\\n\\n## Let's Get Started!\\n\\nYou are about to learn one of the most **powerful** and **in-demand** programming languages in the world.\\n\\n### What's Next?\\n- Open the **interactive notebook** to write your first Python code\\n- Read the **Python Ecosystem Overview** note\\n- Don't be afraid to **experiment** -- you can't break anything!\\n\\n### Remember:\\n> \\\"The best way to learn programming is by programming.\\\" -- every programmer ever\\n\\n\\\\`\\\\`\\\\`python\\nprint(\\\"Let's begin!\\\")\\n# Output: Let's begin!\\n\\\\`\\\\`\\\\`\\n\\n**Happy coding!** \\ud83d\\udc0d`,\\n          frontMatter: { marp: \\\"true\\\" },\\n          id: \\\"talk-welcome-to-python\\\",\\n          img: \\\"\\\",\\n          imgFile: \\\"\\\",\\n          video: \\\"\\\",\\n          videoids: { videoid: \\\"\\\", videoIds: [] },\\n          hide: false,\\n          authLevel: 0,\\n          pdf: \\\"\\\",\\n          pdfFile: \\\"\\\"\\n        },\\n\\n        // ---- 1b. Notebook: Your First Python Program ----\\n        {\\n          route: \\\"/notebook/{{COURSEURL}}/topic-01-getting-started/unit-1/notebook-first-program\\\",\\n          type: \\\"notebook\\\",\\n          title: \\\"Your First Python Program\\\",\\n          summary: \\\"Write and run your first Python code interactively\\\",\\n          contentMd: \\\"# Your First Python Program\\\\n\\\\nAn interactive notebook to practice the basics of Python programming.\\\",\\n          frontMatter: {},\\n          id: \\\"notebook-first-program\\\",\\n          img: \\\"\\\",\\n          imgFile: \\\"\\\",\\n          video: \\\"\\\",\\n          videoids: { videoid: \\\"\\\", videoIds: [] },\\n          hide: false,\\n          authLevel: 0,\\n          cells: [\\n            // Cell 1: Title\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"# Your First Python Program\\\\n\\\\nIn this notebook, you will learn the absolute basics of Python programming. We will start with the `print()` function and work our way up to simple arithmetic and user input.\\\\n\\\\nLet's dive in!\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-01-001\\\"\\n            },\\n            // Cell 2: print() intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## The `print()` Function\\\\n\\\\nThe `print()` function is how Python outputs text to the screen. It is the most fundamental function you will use. Every programmer's first program involves printing \\\\\\\"Hello, World!\\\\\\\" to the screen.\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-01-002\\\"\\n            },\\n            // Cell 3: Hello World\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"print(\\\\\\\"Hello, World!\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"Hello, World!\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 1,\\n              metadata: {},\\n              id: \\\"cell-01-003\\\"\\n            },\\n            // Cell 4: print() with multiple args and newlines\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# print() with multiple arguments - separated by spaces\\\\nprint(\\\\\\\"Hello,\\\\\\\", \\\\\\\"Python!\\\\\\\")\\\\n\\\\n# Using escape characters for newlines\\\\nprint(\\\\\\\"Line 1\\\\\\\\nLine 2\\\\\\\")\\\\n\\\\n# Using the sep and end parameters\\\\nprint(\\\\\\\"A\\\\\\\", \\\\\\\"B\\\\\\\", \\\\\\\"C\\\\\\\", sep=\\\\\\\"-\\\\\\\")\\\\nprint(\\\\\\\"No newline here\\\\\\\", end=\\\\\\\"... \\\\\\\")\\\\nprint(\\\\\\\"continued!\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"Hello, Python!\\\\nLine 1\\\\nLine 2\\\\nA-B-C\\\\nNo newline here... continued!\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 2,\\n              metadata: {},\\n              id: \\\"cell-01-004\\\"\\n            },\\n            // Cell 5: Comments intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## Comments\\\\n\\\\nComments are notes in your code that Python ignores. They help explain what your code does, both for yourself and for others reading your code later.\\\\n\\\\n- **Single-line comments** start with `#`\\\\n- **Multi-line comments** use triple quotes `\\\\\\\"\\\\\\\"\\\\\\\"...\\\\\\\"\\\\\\\"\\\\\\\"`\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-01-005\\\"\\n            },\\n            // Cell 6: Comments demo\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# This is a single-line comment - Python ignores it\\\\nprint(\\\\\\\"Comments demo\\\\\\\")  # You can also put comments at the end of a line\\\\n\\\\n\\\\\\\"\\\\\\\"\\\\\\\"\\\\nThis is a multi-line comment (docstring).\\\\nIt can span multiple lines.\\\\nOften used to document functions and modules.\\\\n\\\\\\\"\\\\\\\"\\\\\\\"\\\\nprint(\\\\\\\"After the multi-line comment\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"Comments demo\\\\nAfter the multi-line comment\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 3,\\n              metadata: {},\\n              id: \\\"cell-01-006\\\"\\n            },\\n            // Cell 7: Arithmetic intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## Basic Arithmetic\\\\n\\\\nPython can be used as a powerful calculator. It supports all standard arithmetic operations plus a few extras like integer division and exponentiation.\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-01-007\\\"\\n            },\\n            // Cell 8: Arithmetic demo\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# Addition\\\\nprint(\\\\\\\"2 + 3 =\\\\\\\", 2 + 3)\\\\n\\\\n# Subtraction\\\\nprint(\\\\\\\"10 - 4 =\\\\\\\", 10 - 4)\\\\n\\\\n# Multiplication\\\\nprint(\\\\\\\"6 * 7 =\\\\\\\", 6 * 7)\\\\n\\\\n# Division (always returns a float)\\\\nprint(\\\\\\\"10 / 3 =\\\\\\\", 10 / 3)\\\\n\\\\n# Integer (floor) division\\\\nprint(\\\\\\\"10 // 3 =\\\\\\\", 10 // 3)\\\\n\\\\n# Modulo (remainder)\\\\nprint(\\\\\\\"10 % 3 =\\\\\\\", 10 % 3)\\\\n\\\\n# Exponentiation\\\\nprint(\\\\\\\"2 ** 10 =\\\\\\\", 2 ** 10)\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"2 + 3 = 5\\\\n10 - 4 = 6\\\\n6 * 7 = 42\\\\n10 / 3 = 3.3333333333333335\\\\n10 // 3 = 3\\\\n10 % 3 = 1\\\\n2 ** 10 = 1024\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 4,\\n              metadata: {},\\n              id: \\\"cell-01-008\\\"\\n            },\\n            // Cell 9: input() intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## The `input()` Function\\\\n\\\\nThe `input()` function lets your program ask the user for information. It always returns a **string**, so you need to convert the result if you want a number.\\\\n\\\\n> **Note**: In this notebook, we simulate `input()` by assigning values directly to variables, since notebooks do not handle interactive input well.\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-01-009\\\"\\n            },\\n            // Cell 10: input() demo\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# Simulating input() - in a real script you would write:\\\\n# name = input(\\\\\\\"What is your name? \\\\\\\")\\\\nname = \\\\\\\"Alice\\\\\\\"  # simulating input\\\\n\\\\nprint(f\\\\\\\"Hello, {name}!\\\\\\\")\\\\nprint(f\\\\\\\"Your name has {len(name)} letters.\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"Hello, Alice!\\\\nYour name has 5 letters.\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 5,\\n              metadata: {},\\n              id: \\\"cell-01-010\\\"\\n            },\\n            // Cell 11: Exercise 1 intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## Exercise: Greeting Program\\\\n\\\\nWrite a program that:\\\\n1. Stores a person's **name** and **age** in variables (simulating input)\\\\n2. Prints a formatted greeting like: `\\\\\\\"Hello, Alice! You are 25 years old.\\\\\\\"`\\\\n3. Also prints the year they were born (assume current year is 2024)\\\\n\\\\n**Hint**: Use f-strings for formatting and arithmetic for the birth year.\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-01-011\\\"\\n            },\\n            // Cell 12: Exercise 1 skeleton\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# Exercise: Greeting Program\\\\n# YOUR CODE HERE\\\\n\\\\nname = \\\\\\\"Alice\\\\\\\"\\\\nage = 25\\\\n\\\\n# Print a greeting using the name\\\\n# YOUR CODE HERE\\\\n\\\\n# Calculate and print birth year (assume current year is 2024)\\\\n# YOUR CODE HERE\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-01-012\\\"\\n            },\\n            // Cell 13: Exercise 1 solution\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# SOLUTION\\\\n\\\\nname = \\\\\\\"Alice\\\\\\\"\\\\nage = 25\\\\n\\\\n# Print a greeting using the name\\\\nprint(f\\\\\\\"Hello, {name}! You are {age} years old.\\\\\\\")\\\\n\\\\n# Calculate and print birth year\\\\ncurrent_year = 2024\\\\nbirth_year = current_year - age\\\\nprint(f\\\\\\\"You were born in {birth_year}.\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"Hello, Alice! You are 25 years old.\\\\nYou were born in 1999.\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 6,\\n              metadata: {},\\n              id: \\\"cell-01-013\\\"\\n            },\\n            // Cell 14: Exercise 2 intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## Exercise: Simple Calculator\\\\n\\\\nWrite a program that:\\\\n1. Stores two numbers in variables (simulating input)\\\\n2. Calculates and prints the **sum**, **difference**, **product**, and **quotient**\\\\n3. Format the output nicely, one operation per line\\\\n\\\\n**Hint**: Be careful with division -- use both `/` (true division) and `//` (integer division).\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-01-014\\\"\\n            },\\n            // Cell 15: Exercise 2 skeleton\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# Exercise: Simple Calculator\\\\n# YOUR CODE HERE\\\\n\\\\nnum1 = 17\\\\nnum2 = 5\\\\n\\\\n# Calculate sum, difference, product, quotient\\\\n# YOUR CODE HERE\\\\n\\\\n# Print the results\\\\n# YOUR CODE HERE\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-01-015\\\"\\n            },\\n            // Cell 16: Exercise 2 solution\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# SOLUTION\\\\n\\\\nnum1 = 17\\\\nnum2 = 5\\\\n\\\\n# Calculate\\\\nsum_result = num1 + num2\\\\ndifference = num1 - num2\\\\nproduct = num1 * num2\\\\nquotient = num1 / num2\\\\ninteger_quotient = num1 // num2\\\\nremainder = num1 % num2\\\\n\\\\n# Print the results\\\\nprint(f\\\\\\\"Numbers: {num1} and {num2}\\\\\\\")\\\\nprint(f\\\\\\\"Sum:        {num1} + {num2} = {sum_result}\\\\\\\")\\\\nprint(f\\\\\\\"Difference: {num1} - {num2} = {difference}\\\\\\\")\\\\nprint(f\\\\\\\"Product:    {num1} * {num2} = {product}\\\\\\\")\\\\nprint(f\\\\\\\"Quotient:   {num1} / {num2} = {quotient}\\\\\\\")\\\\nprint(f\\\\\\\"Int Div:    {num1} // {num2} = {integer_quotient}\\\\\\\")\\\\nprint(f\\\\\\\"Remainder:  {num1} % {num2} = {remainder}\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"Numbers: 17 and 5\\\\nSum:        17 + 5 = 22\\\\nDifference: 17 - 5 = 12\\\\nProduct:    17 * 5 = 85\\\\nQuotient:   17 / 5 = 3.4\\\\nInt Div:    17 // 5 = 3\\\\nRemainder:  17 % 5 = 2\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 7,\\n              metadata: {},\\n              id: \\\"cell-01-016\\\"\\n            }\\n          ],\\n          kernelLanguage: \\\"python\\\"\\n        },\\n\\n        // ---- 1c. Note: Python Ecosystem Overview ----\\n        {\\n          route: \\\"/note/{{COURSEURL}}/topic-01-getting-started/unit-1/note-python-ecosystem\\\",\\n          type: \\\"note\\\",\\n          title: \\\"Python Ecosystem Overview\\\",\\n          summary: \\\"A visual guide to Python's ecosystem and how Python executes code\\\",\\n          contentMd:\\n`# Python Ecosystem Overview\\n\\nPython is far more than just a programming language -- it is an entire ecosystem of tools, libraries, and frameworks that make it one of the most versatile technologies in the world.\\n\\n## Python's Ecosystem\\n\\nThe following mindmap shows the major areas where Python is used, along with the most popular libraries and frameworks in each domain:\\n\\n\\\\`\\\\`\\\\`mermaid\\nmindmap\\n  root((Python Ecosystem))\\n    Web Development\\n      Django\\n      Flask\\n      FastAPI\\n      Tornado\\n    Data Science\\n      NumPy\\n      Pandas\\n      Matplotlib\\n      Seaborn\\n    Machine Learning\\n      scikit-learn\\n      TensorFlow\\n      PyTorch\\n      Keras\\n    Automation\\n      Scripting\\n      Testing (pytest)\\n      DevOps (Ansible)\\n      Web Scraping (BeautifulSoup)\\n    Scientific Computing\\n      SciPy\\n      SymPy\\n      Jupyter\\n    Game Development\\n      Pygame\\n      Arcade\\n\\\\`\\\\`\\\\`\\n\\n## How Python Executes Code\\n\\nWhen you run a Python script, several things happen behind the scenes. Python is an **interpreted** language, but it actually compiles your code to bytecode first, then executes that bytecode on the Python Virtual Machine (PVM).\\n\\n\\\\`\\\\`\\\\`mermaid\\nflowchart LR\\n    A[\\\".py Source File\\\"] --> B[\\\"Python Interpreter\\\"]\\n    B --> C[\\\"Lexer & Parser\\\"]\\n    C --> D[\\\"Abstract Syntax Tree\\\"]\\n    D --> E[\\\"Compiler\\\"]\\n    E --> F[\\\".pyc Bytecode\\\"]\\n    F --> G[\\\"Python Virtual Machine (PVM)\\\"]\\n    G --> H[\\\"Output / Results\\\"]\\n\\n    style A fill:#f9f,stroke:#333,stroke-width:2px\\n    style F fill:#bbf,stroke:#333,stroke-width:2px\\n    style H fill:#bfb,stroke:#333,stroke-width:2px\\n\\\\`\\\\`\\\\`\\n\\n### Key Points\\n\\n- **Source Code (.py)**: The human-readable Python code you write\\n- **Bytecode (.pyc)**: An intermediate representation, cached in the \\\\`__pycache__\\\\` directory\\n- **PVM**: The runtime engine that executes bytecode instruction by instruction\\n- Python recompiles bytecode only when the source file changes (timestamp/hash check)\\n- This is why Python is sometimes called \\\"semi-compiled\\\" -- it compiles to bytecode, not machine code\\n\\n## Further Reading\\n\\n- [Official Python Documentation](https://docs.python.org/3/)\\n- [Python Package Index (PyPI)](https://pypi.org/)\\n- [The Zen of Python](https://peps.python.org/pep-0020/) -- run \\\\`import this\\\\` in the REPL!`,\\n          frontMatter: {},\\n          id: \\\"note-python-ecosystem\\\",\\n          img: \\\"\\\",\\n          imgFile: \\\"\\\",\\n          video: \\\"\\\",\\n          videoids: { videoid: \\\"\\\", videoIds: [] },\\n          hide: false,\\n          authLevel: 0\\n        }\\n      ]\\n    }\\n  ]\\n};\\n\\n\\n// ============================================================\\n// TOPIC 2: Variables and Data Types\\n// ============================================================\\n\\nconst topic2 = {\\n  route: \\\"/topic/{{COURSEURL}}/topic-02-variables\\\",\\n  type: \\\"topic\\\",\\n  title: \\\"Variables and Data Types\\\",\\n  summary: \\\"Understand Python's core data types and how to store values in variables\\\",\\n  contentMd: \\\"# Variables and Data Types\\\\n\\\\nVariables are the foundation of every program. They let you store, retrieve, and manipulate data. In this topic, you will learn about Python's built-in data types, how to create variables, and how to convert between types.\\\\n\\\\n## What You Will Learn\\\\n\\\\n- How to create and name variables\\\\n- Python's core data types: `int`, `float`, `str`, `bool`, `None`\\\\n- Type checking with `type()` and `isinstance()`\\\\n- Type conversion between different types\\\\n- String formatting with f-strings\\\",\\n  frontMatter: {},\\n  id: \\\"topic-02-variables\\\",\\n  img: \\\"\\\",\\n  imgFile: \\\"\\\",\\n  video: \\\"\\\",\\n  videoids: { videoid: \\\"\\\", videoIds: [] },\\n  hide: false,\\n  authLevel: 0,\\n  los: [\\n    // ---- Unit: Core Types ----\\n    {\\n      route: \\\"/topic/{{COURSEURL}}/topic-02-variables/\\\",\\n      type: \\\"unit\\\",\\n      title: \\\"Core Types\\\",\\n      summary: \\\"Learn Python's fundamental data types and variables\\\",\\n      contentMd: \\\"\\\",\\n      frontMatter: {},\\n      id: \\\"unit-1\\\",\\n      img: \\\"\\\",\\n      imgFile: \\\"\\\",\\n      video: \\\"\\\",\\n      videoids: { videoid: \\\"\\\", videoIds: [] },\\n      hide: false,\\n      authLevel: 0,\\n      los: [\\n        // ---- 2a. Talk: Variables and Data Types ----\\n        {\\n          route: \\\"/talk/{{COURSEURL}}/topic-02-variables/unit-1/talk-variables-types\\\",\\n          type: \\\"talk\\\",\\n          title: \\\"Variables and Data Types\\\",\\n          summary: \\\"Learn about Python's core data types and variable assignment\\\",\\n          contentMd:\\n`---\\nmarp: true\\ntheme: default\\npaginate: true\\n---\\n\\n# Variables and Data Types\\n\\n### Understanding how Python stores and types data\\n\\nEvery program needs to store data. Variables give names to your data so you can use it throughout your code.\\n\\n---\\n\\n## What is a Variable?\\n\\nA variable is a **named reference** to a value stored in memory.\\n\\n\\\\`\\\\`\\\\`python\\n# Creating variables with the assignment operator =\\nname = \\\"Alice\\\"\\nage = 25\\ntemperature = 98.6\\nis_student = True\\n\\\\`\\\\`\\\\`\\n\\nThink of variables as **labeled boxes** that hold values:\\n\\n| Variable | Value | Type |\\n|----------|-------|------|\\n| \\\\`name\\\\` | \\\\`\\\"Alice\\\"\\\\` | str |\\n| \\\\`age\\\\` | \\\\`25\\\\` | int |\\n| \\\\`temperature\\\\` | \\\\`98.6\\\\` | float |\\n| \\\\`is_student\\\\` | \\\\`True\\\\` | bool |\\n\\nVariables can be **reassigned** at any time -- Python is dynamically typed.\\n\\n---\\n\\n## Naming Rules\\n\\n### Valid Variable Names\\n\\\\`\\\\`\\\\`python\\nmy_variable = 1      # snake_case (recommended!)\\nmyVariable = 2       # camelCase (legal but not Pythonic)\\n_private = 3         # leading underscore (convention for private)\\nMAX_SIZE = 100       # ALL_CAPS (convention for constants)\\nname2 = \\\"Bob\\\"        # can contain digits (not at start)\\n\\\\`\\\\`\\\\`\\n\\n### Invalid Variable Names\\n\\\\`\\\\`\\\\`python\\n2name = \\\"error\\\"      # cannot start with a digit\\nmy-var = \\\"error\\\"     # hyphens not allowed\\nclass = \\\"error\\\"      # reserved keyword\\nmy var = \\\"error\\\"     # spaces not allowed\\n\\\\`\\\\`\\\\`\\n\\n### Python Reserved Words (35 total)\\n\\\\`False\\\\`, \\\\`True\\\\`, \\\\`None\\\\`, \\\\`and\\\\`, \\\\`or\\\\`, \\\\`not\\\\`, \\\\`if\\\\`, \\\\`else\\\\`, \\\\`elif\\\\`, \\\\`for\\\\`, \\\\`while\\\\`, \\\\`break\\\\`, \\\\`continue\\\\`, \\\\`def\\\\`, \\\\`class\\\\`, \\\\`return\\\\`, \\\\`import\\\\`, \\\\`from\\\\`, \\\\`try\\\\`, \\\\`except\\\\`, ...\\n\\n---\\n\\n## Integers (\\\\`int\\\\`)\\n\\nIntegers are **whole numbers** -- positive, negative, or zero.\\n\\n\\\\`\\\\`\\\\`python\\ncount = 42\\nnegative = -17\\nzero = 0\\nbig_number = 1_000_000  # underscores for readability\\n\\\\`\\\\`\\\\`\\n\\n### Arbitrary Precision\\nPython integers have **no size limit** -- they can be as large as your memory allows:\\n\\n\\\\`\\\\`\\\\`python\\nhuge = 10 ** 100  # a googol!\\nprint(huge)\\n# 10000000000000000000000000000000000000000000000000000\\n# 00000000000000000000000000000000000000000000000000\\n\\\\`\\\\`\\\\`\\n\\n### Integer Operations\\n\\\\`\\\\`\\\\`python\\nprint(17 // 5)   # 3  (floor division)\\nprint(17 % 5)    # 2  (modulo/remainder)\\nprint(2 ** 10)   # 1024 (exponentiation)\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## Floating Point (\\\\`float\\\\`)\\n\\nFloats represent **decimal numbers** using IEEE 754 double precision.\\n\\n\\\\`\\\\`\\\\`python\\npi = 3.14159\\nprice = 19.99\\nscientific = 2.5e6   # 2,500,000.0\\ntiny = 1.5e-10       # 0.00000000015\\n\\\\`\\\\`\\\\`\\n\\n### Precision Gotcha!\\n\\\\`\\\\`\\\\`python\\n>>> 0.1 + 0.2\\n0.30000000000000004   # NOT exactly 0.3!\\n\\\\`\\\\`\\\\`\\n\\nThis is **not a Python bug** -- it is how all computers store decimals in binary.\\n\\n**Solution**: Use \\\\`round()\\\\` or the \\\\`decimal\\\\` module for exact arithmetic:\\n\\\\`\\\\`\\\\`python\\nfrom decimal import Decimal\\nprint(Decimal(\\\"0.1\\\") + Decimal(\\\"0.2\\\"))  # 0.3\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## Strings (\\\\`str\\\\`)\\n\\nStrings are **sequences of characters**, enclosed in quotes.\\n\\n\\\\`\\\\`\\\\`python\\nsingle = 'Hello'\\ndouble = \\\"World\\\"\\ntriple = \\\"\\\"\\\"This string\\nspans multiple lines\\\"\\\"\\\"\\n\\n# Escape characters\\ntab = \\\"Column1\\\\\\\\tColumn2\\\"\\nnewline = \\\"Line1\\\\\\\\nLine2\\\"\\nquote = \\\"She said \\\\\\\\\\\"hello\\\\\\\\\\\"\\\"\\n\\n# Raw strings (ignore escapes)\\npath = r\\\"C:\\\\\\\\Users\\\\\\\\Alice\\\\\\\\Documents\\\"\\n\\\\`\\\\`\\\\`\\n\\n### Useful String Operations\\n\\\\`\\\\`\\\\`python\\ngreeting = \\\"Hello, World!\\\"\\nprint(len(greeting))       # 13\\nprint(greeting[0])         # 'H'\\nprint(greeting[-1])        # '!'\\nprint(greeting[0:5])       # 'Hello'\\nprint(greeting.upper())    # 'HELLO, WORLD!'\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## Booleans (\\\\`bool\\\\`)\\n\\nBooleans represent **truth values**: \\\\`True\\\\` or \\\\`False\\\\`.\\n\\n\\\\`\\\\`\\\\`python\\nis_active = True\\nis_deleted = False\\n\\n# Comparison results are booleans\\nprint(5 > 3)      # True\\nprint(10 == 20)    # False\\n\\\\`\\\\`\\\\`\\n\\n### Truthy and Falsy Values\\nIn Python, many values can be treated as booleans:\\n\\n| Falsy | Truthy |\\n|-------|--------|\\n| \\\\`False\\\\` | \\\\`True\\\\` |\\n| \\\\`0\\\\`, \\\\`0.0\\\\` | Any non-zero number |\\n| \\\\`\\\"\\\"\\\\` (empty string) | Any non-empty string |\\n| \\\\`[]\\\\`, \\\\`()\\\\`, \\\\`{}\\\\` | Any non-empty collection |\\n| \\\\`None\\\\` | Everything else |\\n\\n\\\\`\\\\`\\\\`python\\nprint(bool(0))       # False\\nprint(bool(42))      # True\\nprint(bool(\\\"\\\"))      # False\\nprint(bool(\\\"hello\\\")) # True\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## None Type\\n\\n\\\\`None\\\\` represents the **absence of a value**. It is Python's version of null.\\n\\n\\\\`\\\\`\\\\`python\\nresult = None\\n\\n# Check with 'is' (not ==)\\nif result is None:\\n    print(\\\"No result yet\\\")\\n\\n# Functions without a return statement return None\\ndef greet(name):\\n    print(f\\\"Hello, {name}\\\")\\n\\nx = greet(\\\"Alice\\\")   # prints \\\"Hello, Alice\\\"\\nprint(x)             # None\\n\\\\`\\\\`\\\\`\\n\\n### Common Uses of None\\n- Default function parameter values\\n- Initializing a variable before assignment\\n- Indicating \\\"no result\\\" or \\\"not found\\\"\\n\\n---\\n\\n## Type Checking\\n\\nUse \\\\`type()\\\\` and \\\\`isinstance()\\\\` to inspect types at runtime.\\n\\n\\\\`\\\\`\\\\`python\\nx = 42\\nprint(type(x))              # <class 'int'>\\nprint(type(x).__name__)     # 'int'\\nprint(isinstance(x, int))   # True\\n\\n# isinstance() can check multiple types\\nvalue = 3.14\\nprint(isinstance(value, (int, float)))  # True\\n\\\\`\\\\`\\\\`\\n\\n### type() vs isinstance()\\n\\n\\\\`\\\\`\\\\`python\\n# isinstance() respects inheritance\\nprint(isinstance(True, int))   # True! (bool is a subclass of int)\\nprint(type(True) == int)       # False (type() is exact match only)\\n\\\\`\\\\`\\\\`\\n\\n> **Best practice**: Use \\\\`isinstance()\\\\` in most cases -- it handles inheritance correctly.\\n\\n---\\n\\n## Type Conversion\\n\\nConvert between types using built-in functions:\\n\\n\\\\`\\\\`\\\\`python\\n# String to Integer\\nage = int(\\\"25\\\")          # 25\\n# int(\\\"hello\\\")           # ValueError!\\n\\n# String to Float\\nprice = float(\\\"19.99\\\")   # 19.99\\n\\n# Number to String\\ntext = str(42)            # \\\"42\\\"\\ntext = str(3.14)          # \\\"3.14\\\"\\n\\n# To Boolean\\nbool(1)       # True\\nbool(0)       # False\\nbool(\\\"text\\\")  # True\\nbool(\\\"\\\")      # False\\n\\n# Float to Integer (truncates, does not round!)\\nint(3.9)      # 3\\nint(-3.9)     # -3\\n\\n# Use round() for rounding\\nround(3.9)    # 4\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## f-strings (Formatted String Literals)\\n\\nf-strings are the modern way to embed expressions inside strings (Python 3.6+).\\n\\n\\\\`\\\\`\\\\`python\\nname = \\\"Alice\\\"\\nage = 25\\n\\n# Basic f-string\\nprint(f\\\"Hello, {name}! You are {age} years old.\\\")\\n\\n# Expressions inside braces\\nprint(f\\\"Next year you will be {age + 1}.\\\")\\n\\n# Formatting numbers\\npi = 3.14159265\\nprint(f\\\"Pi is approximately {pi:.2f}\\\")    # \\\"Pi is approximately 3.14\\\"\\n\\nprice = 1234.5\\nprint(f\\\"Price: ${price:,.2f}\\\")            # \\\"Price: $1,234.50\\\"\\n\\n# Alignment and padding\\nfor item in [\\\"Apple\\\", \\\"Banana\\\", \\\"Cherry\\\"]:\\n    print(f\\\"{item:<10} | in stock\\\")\\n# Apple      | in stock\\n# Banana     | in stock\\n# Cherry     | in stock\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## Key Takeaways\\n\\n| Type | Example | Mutable? | Notes |\\n|------|---------|----------|-------|\\n| \\\\`int\\\\` | \\\\`42\\\\` | No | Arbitrary precision |\\n| \\\\`float\\\\` | \\\\`3.14\\\\` | No | IEEE 754 double |\\n| \\\\`str\\\\` | \\\\`\\\"hello\\\"\\\\` | No | Immutable sequence |\\n| \\\\`bool\\\\` | \\\\`True\\\\` | No | Subclass of int |\\n| \\\\`NoneType\\\\` | \\\\`None\\\\` | No | Singleton |\\n\\n### Rules of Thumb\\n1. Use **snake_case** for variable names\\n2. Use **UPPER_CASE** for constants\\n3. Check types with **isinstance()**, not \\\\`type()\\\\`\\n4. Use **f-strings** for formatting (Python 3.6+)\\n5. Be aware of **float precision** issues\\n6. Check for None with **\\\\`is None\\\\`**, not \\\\`== None\\\\``,\\n          frontMatter: { marp: \\\"true\\\" },\\n          id: \\\"talk-variables-types\\\",\\n          img: \\\"\\\",\\n          imgFile: \\\"\\\",\\n          video: \\\"\\\",\\n          videoids: { videoid: \\\"\\\", videoIds: [] },\\n          hide: false,\\n          authLevel: 0,\\n          pdf: \\\"\\\",\\n          pdfFile: \\\"\\\"\\n        },\\n\\n        // ---- 2b. Notebook: Working with Variables ----\\n        {\\n          route: \\\"/notebook/{{COURSEURL}}/topic-02-variables/unit-1/notebook-variables\\\",\\n          type: \\\"notebook\\\",\\n          title: \\\"Working with Variables\\\",\\n          summary: \\\"Hands-on practice with Python variables and data types\\\",\\n          contentMd: \\\"# Working with Variables\\\\n\\\\nPractice creating, inspecting, and converting Python variables and data types.\\\",\\n          frontMatter: {},\\n          id: \\\"notebook-variables\\\",\\n          img: \\\"\\\",\\n          imgFile: \\\"\\\",\\n          video: \\\"\\\",\\n          videoids: { videoid: \\\"\\\", videoIds: [] },\\n          hide: false,\\n          authLevel: 0,\\n          cells: [\\n            // Cell 1: Title\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"# Working with Variables\\\\n\\\\nIn this notebook we will explore Python's core data types, practice creating variables, and learn how to convert between types. Each section builds on the last, so work through them in order.\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-02-001\\\"\\n            },\\n            // Cell 2: Creating variables intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## Creating Variables\\\\n\\\\nLet's create variables of each core type and inspect them with `type()`.\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-02-002\\\"\\n            },\\n            // Cell 3: Creating variables\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# Integer\\\\nage = 25\\\\nprint(f\\\\\\\"age = {age}, type = {type(age).__name__}\\\\\\\")\\\\n\\\\n# Float\\\\ntemperature = 98.6\\\\nprint(f\\\\\\\"temperature = {temperature}, type = {type(temperature).__name__}\\\\\\\")\\\\n\\\\n# String\\\\nname = \\\\\\\"Alice\\\\\\\"\\\\nprint(f\\\\\\\"name = {name}, type = {type(name).__name__}\\\\\\\")\\\\n\\\\n# Boolean\\\\nis_student = True\\\\nprint(f\\\\\\\"is_student = {is_student}, type = {type(is_student).__name__}\\\\\\\")\\\\n\\\\n# None\\\\nresult = None\\\\nprint(f\\\\\\\"result = {result}, type = {type(result).__name__}\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"age = 25, type = int\\\\ntemperature = 98.6, type = float\\\\nname = Alice, type = str\\\\nis_student = True, type = bool\\\\nresult = None, type = NoneType\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 1,\\n              metadata: {},\\n              id: \\\"cell-02-003\\\"\\n            },\\n            // Cell 4: Arbitrary precision intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## Integer Arbitrary Precision\\\\n\\\\nUnlike many other languages, Python integers have no maximum size. They grow as large as your computer's memory allows.\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-02-004\\\"\\n            },\\n            // Cell 5: Arbitrary precision demo\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# A googol - 10 to the power of 100\\\\ngoogol = 10 ** 100\\\\nprint(f\\\\\\\"A googol has {len(str(googol))} digits\\\\\\\")\\\\nprint(googol)\\\\n\\\\n# Even bigger!\\\\nprint(f\\\\\\\"\\\\\\\\n2 ** 256 = {2 ** 256}\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"A googol has 101 digits\\\\n10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\\\\n\\\\n2 ** 256 = 115792089237316195423570985008687907853269984665640564039457584007913129639936\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 2,\\n              metadata: {},\\n              id: \\\"cell-02-005\\\"\\n            },\\n            // Cell 6: Float precision intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## Float Precision Gotcha\\\\n\\\\nFloating-point numbers are stored in binary, which cannot represent all decimal fractions exactly. This leads to some surprising results.\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-02-006\\\"\\n            },\\n            // Cell 7: Float precision demo\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# The classic gotcha\\\\nresult = 0.1 + 0.2\\\\nprint(f\\\\\\\"0.1 + 0.2 = {result}\\\\\\\")\\\\nprint(f\\\\\\\"0.1 + 0.2 == 0.3? {result == 0.3}\\\\\\\")\\\\n\\\\n# How to handle this properly\\\\nimport math\\\\nprint(f\\\\\\\"\\\\\\\\nUsing math.isclose(): {math.isclose(0.1 + 0.2, 0.3)}\\\\\\\")\\\\nprint(f\\\\\\\"Using round():        {round(0.1 + 0.2, 1) == 0.3}\\\\\\\")\\\\n\\\\n# The Decimal module for exact arithmetic\\\\nfrom decimal import Decimal\\\\nexact = Decimal(\\\\\\\"0.1\\\\\\\") + Decimal(\\\\\\\"0.2\\\\\\\")\\\\nprint(f\\\\\\\"Decimal result:       {exact}\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"0.1 + 0.2 = 0.30000000000000004\\\\n0.1 + 0.2 == 0.3? False\\\\n\\\\nUsing math.isclose(): True\\\\nUsing round():        True\\\\nDecimal result:       0.3\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 3,\\n              metadata: {},\\n              id: \\\"cell-02-007\\\"\\n            },\\n            // Cell 8: String methods intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## String Methods\\\\n\\\\nStrings in Python are **immutable** -- every method returns a new string rather than modifying the original. Python has dozens of built-in string methods.\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-02-008\\\"\\n            },\\n            // Cell 9: String methods demo\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"text = \\\\\\\"  Hello, Python World!  \\\\\\\"\\\\n\\\\n# Case methods\\\\nprint(f\\\\\\\"upper():    '{text.upper()}'\\\\\\\")\\\\nprint(f\\\\\\\"lower():    '{text.lower()}'\\\\\\\")\\\\nprint(f\\\\\\\"title():    '{text.title()}'\\\\\\\")\\\\n\\\\n# Whitespace\\\\nprint(f\\\\\\\"strip():    '{text.strip()}'\\\\\\\")\\\\nprint(f\\\\\\\"lstrip():   '{text.lstrip()}'\\\\\\\")\\\\n\\\\n# Splitting and joining\\\\nwords = text.strip().split(\\\\\\\", \\\\\\\")\\\\nprint(f\\\\\\\"split():    {words}\\\\\\\")\\\\nprint(f\\\\\\\"join():     {' | '.join(words)}\\\\\\\")\\\\n\\\\n# Searching\\\\nprint(f\\\\\\\"find('Python'): {text.find('Python')}\\\\\\\")\\\\nprint(f\\\\\\\"'Python' in text: {'Python' in text}\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"upper():    '  HELLO, PYTHON WORLD!  '\\\\nlower():    '  hello, python world!  '\\\\ntitle():    '  Hello, Python World!  '\\\\nstrip():    'Hello, Python World!'\\\\nlstrip():   'Hello, Python World!  '\\\\nsplit():    ['Hello', 'Python World!']\\\\njoin():     Hello | Python World!\\\\nfind('Python'): 9\\\\n'Python' in text: True\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 4,\\n              metadata: {},\\n              id: \\\"cell-02-009\\\"\\n            },\\n            // Cell 10: String slicing\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# String slicing: string[start:stop:step]\\\\nmessage = \\\\\\\"Python Programming\\\\\\\"\\\\n\\\\nprint(f\\\\\\\"First 6 chars:  '{message[0:6]}'\\\\\\\")\\\\nprint(f\\\\\\\"From index 7:   '{message[7:]}'\\\\\\\")\\\\nprint(f\\\\\\\"Last 5 chars:   '{message[-5:]}'\\\\\\\")\\\\nprint(f\\\\\\\"Every 2nd char: '{message[::2]}'\\\\\\\")\\\\nprint(f\\\\\\\"Reversed:       '{message[::-1]}'\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"First 6 chars:  'Python'\\\\nFrom index 7:   'Programming'\\\\nLast 5 chars:   'mming'\\\\nEvery 2nd char: 'Pto rgamn'\\\\nReversed:       'gnimmargorP nohtyP'\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 5,\\n              metadata: {},\\n              id: \\\"cell-02-010\\\"\\n            },\\n            // Cell 11: Type conversion intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## Type Conversion\\\\n\\\\nPython lets you convert (cast) values between types using built-in functions. Be aware that not all conversions are valid -- some will raise errors.\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-02-011\\\"\\n            },\\n            // Cell 12: Type conversion demo\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# String to numbers\\\\nage_str = \\\\\\\"25\\\\\\\"\\\\nage_int = int(age_str)\\\\nage_float = float(age_str)\\\\nprint(f\\\\\\\"'{age_str}' -> int: {age_int}, float: {age_float}\\\\\\\")\\\\n\\\\n# Number to string\\\\npi = 3.14159\\\\npi_str = str(pi)\\\\nprint(f\\\\\\\"{pi} -> str: '{pi_str}'\\\\\\\")\\\\n\\\\n# Float to int (truncates!)\\\\nprint(f\\\\\\\"int(3.9) = {int(3.9)}\\\\\\\")\\\\nprint(f\\\\\\\"int(-3.9) = {int(-3.9)}\\\\\\\")\\\\nprint(f\\\\\\\"round(3.9) = {round(3.9)}\\\\\\\")\\\\n\\\\n# Boolean conversions\\\\nprint(f\\\\\\\"\\\\\\\\nbool(1) = {bool(1)}\\\\\\\")\\\\nprint(f\\\\\\\"bool(0) = {bool(0)}\\\\\\\")\\\\nprint(f\\\\\\\"bool('hello') = {bool('hello')}\\\\\\\")\\\\nprint(f\\\\\\\"bool('') = {bool('')}\\\\\\\")\\\\nprint(f\\\\\\\"bool(None) = {bool(None)}\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"'25' -> int: 25, float: 25.0\\\\n3.14159 -> str: '3.14159'\\\\nint(3.9) = 3\\\\nint(-3.9) = -3\\\\nround(3.9) = 4\\\\n\\\\nbool(1) = True\\\\nbool(0) = False\\\\nbool('hello') = True\\\\nbool('') = False\\\\nbool(None) = False\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 6,\\n              metadata: {},\\n              id: \\\"cell-02-012\\\"\\n            },\\n            // Cell 13: f-strings intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## f-strings with Formatting\\\\n\\\\nf-strings support a powerful mini-language for formatting numbers, aligning text, and more.\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-02-013\\\"\\n            },\\n            // Cell 14: f-strings demo\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# Number formatting\\\\npi = 3.14159265\\\\nprint(f\\\\\\\"Pi to 2 decimals: {pi:.2f}\\\\\\\")\\\\nprint(f\\\\\\\"Pi to 4 decimals: {pi:.4f}\\\\\\\")\\\\n\\\\n# Thousands separator\\\\nbig_num = 1234567890\\\\nprint(f\\\\\\\"With commas: {big_num:,}\\\\\\\")\\\\nprint(f\\\\\\\"Currency: ${big_num:,.2f}\\\\\\\")\\\\n\\\\n# Percentage\\\\nratio = 0.856\\\\nprint(f\\\\\\\"Percentage: {ratio:.1%}\\\\\\\")\\\\n\\\\n# Padding and alignment\\\\nfor item, price in [(\\\\\\\"Apple\\\\\\\", 1.50), (\\\\\\\"Banana\\\\\\\", 0.75), (\\\\\\\"Cherry\\\\\\\", 3.25)]:\\\\n    print(f\\\\\\\"{item:<10} ${price:>6.2f}\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"Pi to 2 decimals: 3.14\\\\nPi to 4 decimals: 3.1416\\\\nWith commas: 1,234,567,890\\\\nCurrency: $1,234,567,890.00\\\\nPercentage: 85.6%\\\\nApple      $  1.50\\\\nBanana     $  0.75\\\\nCherry     $  3.25\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 7,\\n              metadata: {},\\n              id: \\\"cell-02-014\\\"\\n            },\\n            // Cell 15: Exercise 1 intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## Exercise: Personal Info Card\\\\n\\\\nCreate variables for a person's information and print a nicely formatted \\\\\\\"info card\\\\\\\".\\\\n\\\\nYour card should include:\\\\n- Name (string)\\\\n- Age (integer)\\\\n- Height in meters (float)\\\\n- Is a student (boolean)\\\\n\\\\nFormat the output like this:\\\\n```\\\\n=========================\\\\n  PERSONAL INFO CARD\\\\n=========================\\\\n  Name:    Alice\\\\n  Age:     25\\\\n  Height:  1.68 m\\\\n  Student: Yes\\\\n=========================\\\\n```\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-02-015\\\"\\n            },\\n            // Cell 16: Exercise 1 skeleton\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# Exercise: Personal Info Card\\\\n# YOUR CODE HERE\\\\n\\\\n# Create variables\\\\nname = \\\\\\\"Alice\\\\\\\"\\\\nage = 25\\\\nheight = 1.68\\\\nis_student = True\\\\n\\\\n# Print the formatted card\\\\n# YOUR CODE HERE\\\\n# Hint: Use f-strings with alignment specifiers like {name:<10}\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-02-016\\\"\\n            },\\n            // Cell 17: Exercise 1 solution\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# SOLUTION\\\\n\\\\n# Create variables\\\\nname = \\\\\\\"Alice\\\\\\\"\\\\nage = 25\\\\nheight = 1.68\\\\nis_student = True\\\\n\\\\n# Print the formatted card\\\\nstudent_text = \\\\\\\"Yes\\\\\\\" if is_student else \\\\\\\"No\\\\\\\"\\\\n\\\\nprint(\\\\\\\"=\\\\\\\" * 25)\\\\nprint(\\\\\\\"  PERSONAL INFO CARD\\\\\\\")\\\\nprint(\\\\\\\"=\\\\\\\" * 25)\\\\nprint(f\\\\\\\"  Name:    {name}\\\\\\\")\\\\nprint(f\\\\\\\"  Age:     {age}\\\\\\\")\\\\nprint(f\\\\\\\"  Height:  {height:.2f} m\\\\\\\")\\\\nprint(f\\\\\\\"  Student: {student_text}\\\\\\\")\\\\nprint(\\\\\\\"=\\\\\\\" * 25)\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"=========================\\\\n  PERSONAL INFO CARD\\\\n=========================\\\\n  Name:    Alice\\\\n  Age:     25\\\\n  Height:  1.68 m\\\\n  Student: Yes\\\\n=========================\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 8,\\n              metadata: {},\\n              id: \\\"cell-02-017\\\"\\n            },\\n            // Cell 18: Exercise 2 intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## Exercise: Temperature Converter\\\\n\\\\nWrite a program that converts temperatures between Celsius and Fahrenheit.\\\\n\\\\nFormulas:\\\\n- Fahrenheit = Celsius * 9/5 + 32\\\\n- Celsius = (Fahrenheit - 32) * 5/9\\\\n\\\\nYour program should:\\\\n1. Start with a temperature in Celsius\\\\n2. Convert it to Fahrenheit\\\\n3. Convert a Fahrenheit temperature back to Celsius\\\\n4. Display results formatted to 1 decimal place\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-02-018\\\"\\n            },\\n            // Cell 19: Exercise 2 skeleton\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# Exercise: Temperature Converter\\\\n# YOUR CODE HERE\\\\n\\\\ncelsius = 37.0\\\\n\\\\n# Convert Celsius to Fahrenheit\\\\n# YOUR CODE HERE\\\\n\\\\nfahrenheit_input = 212.0\\\\n\\\\n# Convert Fahrenheit to Celsius\\\\n# YOUR CODE HERE\\\\n\\\\n# Print both results formatted to 1 decimal place\\\\n# YOUR CODE HERE\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-02-019\\\"\\n            },\\n            // Cell 20: Exercise 2 solution\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# SOLUTION\\\\n\\\\ncelsius = 37.0\\\\n\\\\n# Convert Celsius to Fahrenheit\\\\nfahrenheit = celsius * 9/5 + 32\\\\nprint(f\\\\\\\"{celsius:.1f} C = {fahrenheit:.1f} F\\\\\\\")\\\\n\\\\nfahrenheit_input = 212.0\\\\n\\\\n# Convert Fahrenheit to Celsius\\\\ncelsius_result = (fahrenheit_input - 32) * 5/9\\\\nprint(f\\\\\\\"{fahrenheit_input:.1f} F = {celsius_result:.1f} C\\\\\\\")\\\\n\\\\n# Bonus: a conversion table\\\\nprint(\\\\\\\"\\\\\\\\nConversion Table:\\\\\\\")\\\\nprint(f\\\\\\\"{'Celsius':>10} {'Fahrenheit':>12}\\\\\\\")\\\\nprint(\\\\\\\"-\\\\\\\" * 24)\\\\nfor c in range(0, 101, 10):\\\\n    f = c * 9/5 + 32\\\\n    print(f\\\\\\\"{c:>10} {f:>12.1f}\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"37.0 C = 98.6 F\\\\n212.0 F = 100.0 C\\\\n\\\\nConversion Table:\\\\n   Celsius   Fahrenheit\\\\n------------------------\\\\n         0         32.0\\\\n        10         50.0\\\\n        20         68.0\\\\n        30         86.0\\\\n        40        104.0\\\\n        50        122.0\\\\n        60        140.0\\\\n        70        158.0\\\\n        80        176.0\\\\n        90        194.0\\\\n       100        212.0\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 9,\\n              metadata: {},\\n              id: \\\"cell-02-020\\\"\\n            }\\n          ],\\n          kernelLanguage: \\\"python\\\"\\n        },\\n\\n        // ---- 2c. Note: Type System Overview ----\\n        {\\n          route: \\\"/note/{{COURSEURL}}/topic-02-variables/unit-1/note-type-system\\\",\\n          type: \\\"note\\\",\\n          title: \\\"Type System Overview\\\",\\n          summary: \\\"Visual overview of Python's type hierarchy and type conversion paths\\\",\\n          contentMd:\\n`# Type System Overview\\n\\nUnderstanding Python's type system is essential for writing correct programs. This note provides two visual diagrams that illustrate how types are organized and how you can convert between them.\\n\\n## Python Type Hierarchy\\n\\nAll types in Python inherit from \\\\`object\\\\`. The diagram below shows the inheritance relationships between Python's built-in types:\\n\\n\\\\`\\\\`\\\\`mermaid\\nclassDiagram\\n    object <|-- int\\n    object <|-- float\\n    object <|-- str\\n    object <|-- NoneType\\n    object <|-- list\\n    object <|-- tuple\\n    object <|-- dict\\n    object <|-- set\\n    int <|-- bool\\n\\n    class object {\\n        Base class for all Python objects\\n    }\\n    class int {\\n        Whole numbers\\n        Arbitrary precision\\n    }\\n    class float {\\n        Decimal numbers\\n        IEEE 754 double\\n    }\\n    class str {\\n        Text sequences\\n        Immutable\\n    }\\n    class bool {\\n        True or False\\n        Subclass of int\\n    }\\n    class NoneType {\\n        Singleton None\\n        Represents absence\\n    }\\n    class list {\\n        Ordered, mutable\\n        Allows duplicates\\n    }\\n    class tuple {\\n        Ordered, immutable\\n        Allows duplicates\\n    }\\n    class dict {\\n        Key-value pairs\\n        Ordered since 3.7\\n    }\\n    class set {\\n        Unordered, unique\\n        Mutable\\n    }\\n\\\\`\\\\`\\\\`\\n\\n### Key Insight: bool is a subclass of int\\n\\nThis means \\\\`True\\\\` is actually \\\\`1\\\\` and \\\\`False\\\\` is actually \\\\`0\\\\`:\\n\\\\`\\\\`\\\\`python\\n>>> True + True\\n2\\n>>> False * 10\\n0\\n>>> isinstance(True, int)\\nTrue\\n\\\\`\\\\`\\\\`\\n\\n## Type Conversion Paths\\n\\nThe following flowchart shows which conversions are possible between Python's core types. Green arrows indicate safe conversions that always succeed. Red arrows indicate conversions that may fail depending on the value.\\n\\n\\\\`\\\\`\\\\`mermaid\\nflowchart TD\\n    str[\\\"str (string)\\\"]\\n    int_t[\\\"int (integer)\\\"]\\n    float_t[\\\"float (decimal)\\\"]\\n    bool_t[\\\"bool (True/False)\\\"]\\n\\n    str -->|\\\"int('42') - must be valid integer\\\"| int_t\\n    str -->|\\\"float('3.14') - must be valid number\\\"| float_t\\n    str -->|\\\"bool('') = False, bool('x') = True\\\"| bool_t\\n\\n    int_t -->|\\\"str(42) = '42' - always works\\\"| str\\n    int_t -->|\\\"float(42) = 42.0 - always works\\\"| float_t\\n    int_t -->|\\\"bool(0) = False, bool(1) = True\\\"| bool_t\\n\\n    float_t -->|\\\"str(3.14) = '3.14' - always works\\\"| str\\n    float_t -->|\\\"int(3.9) = 3 - truncates!\\\"| int_t\\n    float_t -->|\\\"bool(0.0) = False, bool(1.5) = True\\\"| bool_t\\n\\n    bool_t -->|\\\"str(True) = 'True'\\\"| str\\n    bool_t -->|\\\"int(True) = 1, int(False) = 0\\\"| int_t\\n    bool_t -->|\\\"float(True) = 1.0\\\"| float_t\\n\\n    style str fill:#e1f5fe,stroke:#0288d1\\n    style int_t fill:#f3e5f5,stroke:#7b1fa2\\n    style float_t fill:#fff3e0,stroke:#ef6c00\\n    style bool_t fill:#e8f5e9,stroke:#388e3c\\n\\\\`\\\\`\\\\`\\n\\n### Conversion Tips\\n\\n1. **str to int/float**: The string must contain a valid number, otherwise you get a \\\\`ValueError\\\\`\\n2. **float to int**: Uses truncation (toward zero), not rounding -- use \\\\`round()\\\\` if you need rounding\\n3. **Any type to bool**: Empty/zero values are \\\\`False\\\\`, everything else is \\\\`True\\\\`\\n4. **bool to int**: \\\\`True\\\\` becomes \\\\`1\\\\`, \\\\`False\\\\` becomes \\\\`0\\\\``,\\n          frontMatter: {},\\n          id: \\\"note-type-system\\\",\\n          img: \\\"\\\",\\n          imgFile: \\\"\\\",\\n          video: \\\"\\\",\\n          videoids: { videoid: \\\"\\\", videoIds: [] },\\n          hide: false,\\n          authLevel: 0\\n        },\\n\\n        // ---- 2d. Lab: Variables Practice ----\\n        {\\n          route: \\\"/lab/{{COURSEURL}}/topic-02-variables/unit-1/lab-variables-practice\\\",\\n          type: \\\"lab\\\",\\n          title: \\\"Variables Practice\\\",\\n          summary: \\\"Hands-on lab to practice variables, types, and string formatting\\\",\\n          contentMd: \\\"# Variables Practice Lab\\\\n\\\\nIn this lab you will put your knowledge of Python variables and data types to the test. Work through each step in order, writing code in your editor or notebook.\\\",\\n          frontMatter: {},\\n          id: \\\"lab-variables-practice\\\",\\n          img: \\\"\\\",\\n          imgFile: \\\"\\\",\\n          video: \\\"\\\",\\n          videoids: { videoid: \\\"\\\", videoIds: [] },\\n          hide: false,\\n          authLevel: 0,\\n          pdf: \\\"\\\",\\n          pdfFile: \\\"\\\",\\n          los: [\\n            // Step 01: Setup\\n            {\\n              title: \\\"Setup\\\",\\n              shortTitle: \\\"01\\\",\\n              contentMd:\\n`# Step 01: Setup\\n\\nIn this step, you will create variables of each core Python type and verify them.\\n\\n## Instructions\\n\\n1. Create a new Python file called \\\\`variables_lab.py\\\\`\\n2. Declare the following variables:\\n\\n\\\\`\\\\`\\\\`python\\n# Integers\\nstudent_count = 30\\nyear = 2024\\n\\n# Floats\\naverage_grade = 85.5\\npi = 3.14159\\n\\n# Strings\\ncourse_name = \\\"Python Fundamentals\\\"\\ninstructor = \\\"Dr. Smith\\\"\\n\\n# Booleans\\nis_active = True\\nhas_prerequisite = False\\n\\n# None\\nfinal_grade = None\\n\\\\`\\\\`\\\\`\\n\\n3. Print each variable along with its type:\\n\\n\\\\`\\\\`\\\\`python\\nprint(f\\\"student_count = {student_count} ({type(student_count).__name__})\\\")\\nprint(f\\\"average_grade = {average_grade} ({type(average_grade).__name__})\\\")\\nprint(f\\\"course_name = {course_name} ({type(course_name).__name__})\\\")\\nprint(f\\\"is_active = {is_active} ({type(is_active).__name__})\\\")\\nprint(f\\\"final_grade = {final_grade} ({type(final_grade).__name__})\\\")\\n\\\\`\\\\`\\\\`\\n\\n4. Run your file and verify the output shows the correct type for each variable.\\n\\n## Expected Output\\n\\n\\\\`\\\\`\\\\`\\nstudent_count = 30 (int)\\naverage_grade = 85.5 (float)\\ncourse_name = Python Fundamentals (str)\\nis_active = True (bool)\\nfinal_grade = None (NoneType)\\n\\\\`\\\\`\\\\``,\\n              contentHtml: \\\"\\\",\\n              route: \\\"/lab/{{COURSEURL}}/topic-02-variables/unit-1/lab-variables-practice/01\\\",\\n              id: \\\"step-01\\\",\\n              type: \\\"step\\\"\\n            },\\n            // Step 02: Type Exploration\\n            {\\n              title: \\\"Type Exploration\\\",\\n              shortTitle: \\\"02\\\",\\n              contentMd:\\n`# Step 02: Type Exploration\\n\\nNow let's explore Python's type system more deeply using \\\\`isinstance()\\\\` and experimenting with invalid conversions.\\n\\n## Instructions\\n\\n1. Add the following code to test \\\\`isinstance()\\\\`:\\n\\n\\\\`\\\\`\\\\`python\\n# isinstance() checks\\nprint(\\\"--- isinstance() checks ---\\\")\\nprint(f\\\"isinstance(42, int):       {isinstance(42, int)}\\\")\\nprint(f\\\"isinstance(42, float):     {isinstance(42, float)}\\\")\\nprint(f\\\"isinstance(True, bool):    {isinstance(True, bool)}\\\")\\nprint(f\\\"isinstance(True, int):     {isinstance(True, int)}\\\")  # True! bool is subclass of int\\nprint(f\\\"isinstance(3.14, (int, float)): {isinstance(3.14, (int, float))}\\\")\\n\\\\`\\\\`\\\\`\\n\\n2. Experiment with conversions that fail. Wrap them in try/except:\\n\\n\\\\`\\\\`\\\\`python\\n# What happens with invalid conversions?\\nprint(\\\"\\\\\\\\n--- Invalid Conversions ---\\\")\\n\\ntest_values = [\\\"hello\\\", \\\"12.5\\\", \\\"\\\", \\\"42\\\", \\\"True\\\"]\\nfor val in test_values:\\n    try:\\n        result = int(val)\\n        print(f\\\"int('{val}') = {result}\\\")\\n    except ValueError as e:\\n        print(f\\\"int('{val}') -> ValueError: {e}\\\")\\n\\\\`\\\\`\\\\`\\n\\n3. Explore the relationship between bool and int:\\n\\n\\\\`\\\\`\\\\`python\\nprint(\\\"\\\\\\\\n--- bool and int relationship ---\\\")\\nprint(f\\\"True + True = {True + True}\\\")\\nprint(f\\\"True * 10 = {True * 10}\\\")\\nprint(f\\\"False + 42 = {False + 42}\\\")\\nprint(f\\\"sum([True, False, True, True]) = {sum([True, False, True, True])}\\\")\\n\\\\`\\\\`\\\\`\\n\\n## Questions to Answer\\n\\n- Why does \\\\`isinstance(True, int)\\\\` return \\\\`True\\\\`?\\n- What happens when you try to convert the string \\\\`\\\"12.5\\\"\\\\` to an int directly?\\n- How can you count the number of \\\\`True\\\\` values in a list of booleans?`,\\n              contentHtml: \\\"\\\",\\n              route: \\\"/lab/{{COURSEURL}}/topic-02-variables/unit-1/lab-variables-practice/02\\\",\\n              id: \\\"step-02\\\",\\n              type: \\\"step\\\"\\n            },\\n            // Step 03: String Formatting\\n            {\\n              title: \\\"String Formatting\\\",\\n              shortTitle: \\\"03\\\",\\n              contentMd:\\n`# Step 03: String Formatting\\n\\nBuild a formatted receipt using f-strings with alignment and number formatting.\\n\\n## Instructions\\n\\nCreate a program that prints a nicely formatted receipt:\\n\\n\\\\`\\\\`\\\\`python\\n# Receipt data\\nitems = [\\n    (\\\"Widget A\\\", 3, 9.99),\\n    (\\\"Gadget B\\\", 1, 24.50),\\n    (\\\"Doohickey\\\", 5, 2.75),\\n    (\\\"Thingamajig\\\", 2, 15.00),\\n]\\ntax_rate = 0.08\\n\\n# Print the receipt header\\nprint(\\\"=\\\" * 45)\\nprint(f\\\"{'PYTHON STORE RECEIPT':^45}\\\")\\nprint(\\\"=\\\" * 45)\\nprint(f\\\"{'Item':<15} {'Qty':>5} {'Price':>8} {'Total':>10}\\\")\\nprint(\\\"-\\\" * 45)\\n\\n# Print each item\\nsubtotal = 0\\nfor name, qty, price in items:\\n    total = qty * price\\n    subtotal += total\\n    print(f\\\"{name:<15} {qty:>5} {price:>8.2f} {total:>10.2f}\\\")\\n\\n# Print totals\\ntax = subtotal * tax_rate\\ngrand_total = subtotal + tax\\n\\nprint(\\\"-\\\" * 45)\\nprint(f\\\"{'Subtotal:':>30} {subtotal:>10.2f}\\\")\\nprint(f\\\"{'Tax (8%):':>30} {tax:>10.2f}\\\")\\nprint(f\\\"{'TOTAL:':>30} {grand_total:>10.2f}\\\")\\nprint(\\\"=\\\" * 45)\\n\\\\`\\\\`\\\\`\\n\\n## Expected Output\\n\\n\\\\`\\\\`\\\\`\\n=============================================\\n          PYTHON STORE RECEIPT\\n=============================================\\nItem              Qty    Price      Total\\n---------------------------------------------\\nWidget A            3     9.99      29.97\\nGadget B            1    24.50      24.50\\nDoohickey           5     2.75      13.75\\nThingamajig         2    15.00      30.00\\n---------------------------------------------\\n                     Subtotal:      98.22\\n                      Tax (8%):       7.86\\n                        TOTAL:     106.08\\n=============================================\\n\\\\`\\\\`\\\\`\\n\\n## Bonus Challenge\\n\\nAdd a \\\"discount\\\" column: if quantity >= 3, apply a 10% discount on that item's total.`,\\n              contentHtml: \\\"\\\",\\n              route: \\\"/lab/{{COURSEURL}}/topic-02-variables/unit-1/lab-variables-practice/03\\\",\\n              id: \\\"step-03\\\",\\n              type: \\\"step\\\"\\n            },\\n            // Step 04: Challenge\\n            {\\n              title: \\\"Challenge\\\",\\n              shortTitle: \\\"04\\\",\\n              contentMd:\\n`# Step 04: Challenge - Mad Libs\\n\\nBuild a Mad Libs program that uses multiple variable types and string formatting.\\n\\n## What is Mad Libs?\\n\\nMad Libs is a word game where you fill in blanks with specific types of words (noun, verb, adjective, etc.) to create a funny story.\\n\\n## Instructions\\n\\n1. Create variables for Mad Libs inputs (simulate user input):\\n\\n\\\\`\\\\`\\\\`python\\n# Mad Libs inputs (in a real program, these would come from input())\\nadjective_1 = \\\"fluffy\\\"\\nnoun_1 = \\\"dragon\\\"\\nverb_past = \\\"danced\\\"\\nnumber = 42\\nadjective_2 = \\\"sparkly\\\"\\nnoun_2 = \\\"pizza\\\"\\nverb_present = \\\"juggling\\\"\\nplace = \\\"the moon\\\"\\nfloat_value = 3.14\\nis_funny = True\\n\\\\`\\\\`\\\\`\\n\\n2. Build the story using f-strings:\\n\\n\\\\`\\\\`\\\\`python\\nstory = f\\\"\\\"\\\"\\n{'=' * 50}\\n{'MAD LIBS: The Python Adventure':^50}\\n{'=' * 50}\\n\\nOnce upon a time, a {adjective_1} {noun_1} was walking\\nthrough {place}. It had been {verb_present} for exactly\\n{number} hours and {float_value:.1f} minutes.\\n\\nSuddenly, it found a {adjective_2} {noun_2} lying on the\\nground! The {noun_1} {verb_past} with joy.\\n\\n\\\"This is {'hilarious' if is_funny else 'not funny'}!\\\"\\nsaid the {noun_1}, picking up the {noun_2}.\\n\\nTHE END\\n{'=' * 50}\\n\\\"\\\"\\\"\\n\\nprint(story)\\n\\\\`\\\\`\\\\`\\n\\n3. Add a \\\"story stats\\\" section at the bottom:\\n\\n\\\\`\\\\`\\\\`python\\n# Story stats\\ntotal_words = len(story.split())\\ntotal_chars = len(story)\\nunique_words = len(set(story.lower().split()))\\n\\nprint(f\\\"{'Story Statistics':^50}\\\")\\nprint(f\\\"-\\\" * 50)\\nprint(f\\\"Total words:  {total_words:>10,}\\\")\\nprint(f\\\"Total chars:  {total_chars:>10,}\\\")\\nprint(f\\\"Unique words: {unique_words:>10,}\\\")\\nprint(f\\\"Funny:        {'Yes':>10}\\\" if is_funny else f\\\"Funny:        {'No':>10}\\\")\\n\\\\`\\\\`\\\\`\\n\\n## Bonus Challenges\\n\\n1. Add more variable types (a list of adjectives, pick one randomly)\\n2. Add error handling -- what if someone enters an empty string?\\n3. Create a second story template and let the user choose between them`,\\n              contentHtml: \\\"\\\",\\n              route: \\\"/lab/{{COURSEURL}}/topic-02-variables/unit-1/lab-variables-practice/04\\\",\\n              id: \\\"step-04\\\",\\n              type: \\\"step\\\"\\n            }\\n          ]\\n        }\\n      ]\\n    }\\n  ]\\n};\\n\\n\\n// ============================================================\\n// TOPIC 3: Operators and Expressions\\n// ============================================================\\n\\nconst topic3 = {\\n  route: \\\"/topic/{{COURSEURL}}/topic-03-operators\\\",\\n  type: \\\"topic\\\",\\n  title: \\\"Operators and Expressions\\\",\\n  summary: \\\"Master arithmetic, comparison, logical, and string operations\\\",\\n  contentMd: \\\"# Operators and Expressions\\\\n\\\\nOperators are the building blocks of computation. They let you perform calculations, compare values, and combine conditions. In this topic, you will learn about all of Python's operators and how to build complex expressions.\\\\n\\\\n## What You Will Learn\\\\n\\\\n- Arithmetic operators: `+`, `-`, `*`, `/`, `//`, `%`, `**`\\\\n- Comparison and logical operators\\\\n- Assignment operators and shorthand notation\\\\n- String operations and membership testing\\\\n- Operator precedence rules\\\",\\n  frontMatter: {},\\n  id: \\\"topic-03-operators\\\",\\n  img: \\\"\\\",\\n  imgFile: \\\"\\\",\\n  video: \\\"\\\",\\n  videoids: { videoid: \\\"\\\", videoIds: [] },\\n  hide: false,\\n  authLevel: 0,\\n  los: [\\n    // ---- Unit: Operations ----\\n    {\\n      route: \\\"/topic/{{COURSEURL}}/topic-03-operators/\\\",\\n      type: \\\"unit\\\",\\n      title: \\\"Operations\\\",\\n      summary: \\\"Explore Python operators and expressions\\\",\\n      contentMd: \\\"\\\",\\n      frontMatter: {},\\n      id: \\\"unit-1\\\",\\n      img: \\\"\\\",\\n      imgFile: \\\"\\\",\\n      video: \\\"\\\",\\n      videoids: { videoid: \\\"\\\", videoIds: [] },\\n      hide: false,\\n      authLevel: 0,\\n      los: [\\n        // ---- 3a. Talk: Operators in Python ----\\n        {\\n          route: \\\"/talk/{{COURSEURL}}/topic-03-operators/unit-1/talk-operators\\\",\\n          type: \\\"talk\\\",\\n          title: \\\"Operators in Python\\\",\\n          summary: \\\"A comprehensive tour of all Python operators\\\",\\n          contentMd:\\n`---\\nmarp: true\\ntheme: default\\npaginate: true\\n---\\n\\n# Operators and Expressions\\n\\n### Mastering computation in Python\\n\\nOperators are special symbols that perform operations on values and variables. Let's explore them all!\\n\\n---\\n\\n## Arithmetic Operators\\n\\nPython supports seven arithmetic operators:\\n\\n| Operator | Name | Example | Result |\\n|----------|------|---------|--------|\\n| \\\\`+\\\\` | Addition | \\\\`7 + 3\\\\` | \\\\`10\\\\` |\\n| \\\\`-\\\\` | Subtraction | \\\\`7 - 3\\\\` | \\\\`4\\\\` |\\n| \\\\`*\\\\` | Multiplication | \\\\`7 * 3\\\\` | \\\\`21\\\\` |\\n| \\\\`/\\\\` | Division | \\\\`7 / 3\\\\` | \\\\`2.333...\\\\` |\\n| \\\\`//\\\\` | Floor Division | \\\\`7 // 3\\\\` | \\\\`2\\\\` |\\n| \\\\`%\\\\` | Modulo | \\\\`7 % 3\\\\` | \\\\`1\\\\` |\\n| \\\\`**\\\\` | Exponentiation | \\\\`7 ** 3\\\\` | \\\\`343\\\\` |\\n\\n\\\\`\\\\`\\\\`python\\n# Division ALWAYS returns a float\\nprint(10 / 5)     # 2.0  (not 2!)\\n\\n# Floor division truncates toward negative infinity\\nprint(7 // 2)     # 3\\nprint(-7 // 2)    # -4  (not -3!)\\n\\n# Modulo finds the remainder\\nprint(17 % 5)     # 2\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## Assignment Operators\\n\\nAssignment operators combine an operation with assignment:\\n\\n\\\\`\\\\`\\\\`python\\nx = 10       # Simple assignment\\n\\nx += 5       # x = x + 5  ->  15\\nx -= 3       # x = x - 3  ->  12\\nx *= 2       # x = x * 2  ->  24\\nx /= 4       # x = x / 4  ->  6.0\\nx //= 2      # x = x // 2 ->  3.0\\nx %= 2       # x = x % 2  ->  1.0\\nx **= 3      # x = x ** 3 ->  1.0\\n\\\\`\\\\`\\\\`\\n\\n### String Assignment Operators\\n\\\\`\\\\`\\\\`python\\ngreeting = \\\"Hello\\\"\\ngreeting += \\\", World!\\\"    # \\\"Hello, World!\\\"\\n\\\\`\\\\`\\\\`\\n\\n> **Note**: There is no \\\\`++\\\\` or \\\\`--\\\\` in Python. Use \\\\`x += 1\\\\` and \\\\`x -= 1\\\\` instead.\\n\\n---\\n\\n## Comparison Operators\\n\\nComparison operators return \\\\`True\\\\` or \\\\`False\\\\`:\\n\\n| Operator | Meaning | Example |\\n|----------|---------|---------|\\n| \\\\`==\\\\` | Equal | \\\\`5 == 5\\\\` -> \\\\`True\\\\` |\\n| \\\\`!=\\\\` | Not equal | \\\\`5 != 3\\\\` -> \\\\`True\\\\` |\\n| \\\\`<\\\\` | Less than | \\\\`3 < 5\\\\` -> \\\\`True\\\\` |\\n| \\\\`>\\\\` | Greater than | \\\\`5 > 3\\\\` -> \\\\`True\\\\` |\\n| \\\\`<=\\\\` | Less or equal | \\\\`5 <= 5\\\\` -> \\\\`True\\\\` |\\n| \\\\`>=\\\\` | Greater or equal | \\\\`3 >= 5\\\\` -> \\\\`False\\\\` |\\n\\n\\\\`\\\\`\\\\`python\\n# Chained comparisons (unique to Python!)\\nx = 5\\nprint(1 < x < 10)     # True  (equivalent to: 1 < x and x < 10)\\nprint(1 < x < 3)      # False\\n\\n# String comparison (lexicographic)\\nprint(\\\"apple\\\" < \\\"banana\\\")   # True\\nprint(\\\"A\\\" < \\\"a\\\")            # True (uppercase < lowercase in ASCII)\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## Logical Operators\\n\\nCombine boolean expressions with \\\\`and\\\\`, \\\\`or\\\\`, and \\\\`not\\\\`:\\n\\n\\\\`\\\\`\\\\`python\\nage = 25\\nhas_license = True\\n\\n# and - both must be True\\ncan_drive = age >= 16 and has_license    # True\\n\\n# or - at least one must be True\\nis_weekend = False\\nis_holiday = True\\nday_off = is_weekend or is_holiday       # True\\n\\n# not - inverts the boolean\\nis_working = not day_off                 # False\\n\\\\`\\\\`\\\\`\\n\\n### Short-Circuit Evaluation\\nPython stops evaluating as soon as the result is determined:\\n\\n\\\\`\\\\`\\\\`python\\n# 'and' stops at the first False\\nresult = False and expensive_function()  # expensive_function() never runs!\\n\\n# 'or' stops at the first True\\nresult = True or expensive_function()    # expensive_function() never runs!\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## Identity and Membership\\n\\n### Identity Operators: \\\\`is\\\\`, \\\\`is not\\\\`\\nTest if two variables refer to the **same object** in memory:\\n\\n\\\\`\\\\`\\\\`python\\na = [1, 2, 3]\\nb = [1, 2, 3]\\nc = a\\n\\nprint(a == b)      # True  (same value)\\nprint(a is b)      # False (different objects)\\nprint(a is c)      # True  (same object)\\n\\n# Always use 'is' for None checks\\nx = None\\nprint(x is None)   # True  (correct way!)\\n\\\\`\\\\`\\\\`\\n\\n### Membership Operators: \\\\`in\\\\`, \\\\`not in\\\\`\\nTest if a value exists in a sequence:\\n\\n\\\\`\\\\`\\\\`python\\nfruits = [\\\"apple\\\", \\\"banana\\\", \\\"cherry\\\"]\\nprint(\\\"apple\\\" in fruits)        # True\\nprint(\\\"grape\\\" not in fruits)    # True\\n\\nname = \\\"Python\\\"\\nprint(\\\"th\\\" in name)             # True\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## Bitwise Operators\\n\\nBitwise operators work on individual bits of integers:\\n\\n| Operator | Name | Example | Result |\\n|----------|------|---------|--------|\\n| \\\\`&\\\\` | AND | \\\\`5 & 3\\\\` | \\\\`1\\\\` |\\n| \\\\`\\\\\\\\|\\\\` | OR | \\\\`5 \\\\\\\\| 3\\\\` | \\\\`7\\\\` |\\n| \\\\`^\\\\` | XOR | \\\\`5 ^ 3\\\\` | \\\\`6\\\\` |\\n| \\\\`~\\\\` | NOT | \\\\`~5\\\\` | \\\\`-6\\\\` |\\n| \\\\`<<\\\\` | Left shift | \\\\`5 << 1\\\\` | \\\\`10\\\\` |\\n| \\\\`>>\\\\` | Right shift | \\\\`5 >> 1\\\\` | \\\\`2\\\\` |\\n\\n\\\\`\\\\`\\\\`python\\n# Practical use: checking if a number is even/odd\\nn = 7\\nis_odd = n & 1       # 1 (True) if odd, 0 (False) if even\\n\\n# Left shift = multiply by 2\\nprint(3 << 2)        # 12  (3 * 4)\\n\\n# Right shift = integer divide by 2\\nprint(20 >> 1)       # 10  (20 / 2)\\n\\\\`\\\\`\\\\`\\n\\n> Bitwise operators are rarely needed in everyday Python, but useful for flags, permissions, and low-level operations.\\n\\n---\\n\\n## String Operations\\n\\nStrings support several operator-based operations:\\n\\n\\\\`\\\\`\\\\`python\\n# Concatenation (+)\\nfirst = \\\"Hello\\\"\\nlast = \\\"World\\\"\\nfull = first + \\\" \\\" + last    # \\\"Hello World\\\"\\n\\n# Repetition (*)\\nline = \\\"-\\\" * 30               # \\\"------------------------------\\\"\\nbanner = (\\\"! \\\" * 5).strip()   # \\\"! ! ! ! !\\\"\\n\\n# Membership (in)\\nemail = \\\"user@example.com\\\"\\nhas_at = \\\"@\\\" in email         # True\\n\\n# Length (len)\\npassword = \\\"secret123\\\"\\nprint(len(password))          # 9\\n\\\\`\\\\`\\\\`\\n\\n### Common String Patterns\\n\\\\`\\\\`\\\\`python\\n# Building a separator\\nprint(\\\"=\\\" * 40)\\n\\n# Centering text\\ntitle = \\\"Python\\\"\\nprint(f\\\"{title:=^40}\\\")  # \\\"=================Python=================\\\"\\n\\n# Checking string content\\ntext = \\\"Hello123\\\"\\nprint(text.isalpha())   # False (contains digits)\\nprint(text.isalnum())   # True  (letters and digits)\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## Operator Precedence\\n\\nWhen multiple operators appear in one expression, Python evaluates them in this order (highest to lowest):\\n\\n| Priority | Operator(s) | Description |\\n|----------|-------------|-------------|\\n| 1 | \\\\`()\\\\` | Parentheses |\\n| 2 | \\\\`**\\\\` | Exponentiation |\\n| 3 | \\\\`+x\\\\`, \\\\`-x\\\\`, \\\\`~x\\\\` | Unary operators |\\n| 4 | \\\\`*\\\\`, \\\\`/\\\\`, \\\\`//\\\\`, \\\\`%\\\\` | Multiplication family |\\n| 5 | \\\\`+\\\\`, \\\\`-\\\\` | Addition, subtraction |\\n| 6 | \\\\`<<\\\\`, \\\\`>>\\\\` | Bitwise shifts |\\n| 7 | \\\\`&\\\\` | Bitwise AND |\\n| 8 | \\\\`^\\\\` | Bitwise XOR |\\n| 9 | \\\\`\\\\\\\\|\\\\` | Bitwise OR |\\n| 10 | \\\\`==\\\\`, \\\\`!=\\\\`, \\\\`<\\\\`, \\\\`>\\\\`, \\\\`<=\\\\`, \\\\`>=\\\\`, \\\\`is\\\\`, \\\\`in\\\\` | Comparisons |\\n| 11 | \\\\`not\\\\` | Logical NOT |\\n| 12 | \\\\`and\\\\` | Logical AND |\\n| 13 | \\\\`or\\\\` | Logical OR |\\n\\n\\\\`\\\\`\\\\`python\\n# Without parentheses:\\nresult = 2 + 3 * 4 ** 2     # 2 + 3 * 16 = 2 + 48 = 50\\n\\n# Use parentheses for clarity!\\nresult = 2 + (3 * (4 ** 2)) # Same: 50\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## Expressions vs Statements\\n\\n### Expression\\nProduces a value -- can be used inside other expressions:\\n\\\\`\\\\`\\\\`python\\n# These are expressions:\\nx + y\\nlen(\\\"hello\\\")\\n3 > 2\\nf\\\"Hello, {name}\\\"\\n\\\\`\\\\`\\\\`\\n\\n### Statement\\nPerforms an action -- cannot be used inside expressions:\\n\\\\`\\\\`\\\\`python\\n# These are statements:\\nx = 42                # assignment\\nif x > 0: print(x)   # if statement\\nimport math           # import statement\\n\\\\`\\\\`\\\\`\\n\\n### The Walrus Operator \\\\`:=\\\\` (Python 3.8+)\\nTurns an assignment into an expression:\\n\\\\`\\\\`\\\\`python\\n# Without walrus:\\nn = len(\\\"hello\\\")\\nif n > 3:\\n    print(f\\\"Long string: {n} chars\\\")\\n\\n# With walrus:\\nif (n := len(\\\"hello\\\")) > 3:\\n    print(f\\\"Long string: {n} chars\\\")\\n\\\\`\\\\`\\\\`\\n\\n---\\n\\n## Summary\\n\\n| Category | Operators |\\n|----------|-----------|\\n| **Arithmetic** | \\\\`+  -  *  /  //  %  **\\\\` |\\n| **Assignment** | \\\\`=  +=  -=  *=  /=  //=  %=  **=\\\\` |\\n| **Comparison** | \\\\`==  !=  <  >  <=  >=\\\\` |\\n| **Logical** | \\\\`and  or  not\\\\` |\\n| **Identity** | \\\\`is  is not\\\\` |\\n| **Membership** | \\\\`in  not in\\\\` |\\n| **Bitwise** | \\\\`&  |  ^  ~  <<  >>\\\\` |\\n| **Walrus** | \\\\`:=\\\\` |\\n\\n### Golden Rules\\n1. **Use parentheses** when precedence is not obvious\\n2. **Never use \\\\`==\\\\` for None** -- use \\\\`is None\\\\`\\n3. Understand **short-circuit evaluation** for \\\\`and\\\\`/\\\\`or\\\\`\\n4. **Division always returns float** -- use \\\\`//\\\\` for integers\\n5. The **walrus operator** is powerful but use it sparingly`,\\n          frontMatter: { marp: \\\"true\\\" },\\n          id: \\\"talk-operators\\\",\\n          img: \\\"\\\",\\n          imgFile: \\\"\\\",\\n          video: \\\"\\\",\\n          videoids: { videoid: \\\"\\\", videoIds: [] },\\n          hide: false,\\n          authLevel: 0,\\n          pdf: \\\"\\\",\\n          pdfFile: \\\"\\\"\\n        },\\n\\n        // ---- 3b. Notebook: Operator Playground ----\\n        {\\n          route: \\\"/notebook/{{COURSEURL}}/topic-03-operators/unit-1/notebook-operators\\\",\\n          type: \\\"notebook\\\",\\n          title: \\\"Operator Playground\\\",\\n          summary: \\\"Interactive exploration of Python operators and expressions\\\",\\n          contentMd: \\\"# Operator Playground\\\\n\\\\nExperiment with all of Python's operators in this interactive notebook.\\\",\\n          frontMatter: {},\\n          id: \\\"notebook-operators\\\",\\n          img: \\\"\\\",\\n          imgFile: \\\"\\\",\\n          video: \\\"\\\",\\n          videoids: { videoid: \\\"\\\", videoIds: [] },\\n          hide: false,\\n          authLevel: 0,\\n          cells: [\\n            // Cell 1: Title\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"# Operator Playground\\\\n\\\\nThis notebook is your sandbox for experimenting with Python's operators. Run each cell, observe the output, and try modifying the expressions to deepen your understanding.\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-03-001\\\"\\n            },\\n            // Cell 2: Arithmetic intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## Arithmetic Operators\\\\n\\\\nLet's start with the seven arithmetic operators. Pay special attention to the difference between `/` (true division) and `//` (floor division).\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-03-002\\\"\\n            },\\n            // Cell 3: Arithmetic demo\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"a, b = 17, 5\\\\n\\\\nprint(f\\\\\\\"{a} + {b}  = {a + b}\\\\\\\")\\\\nprint(f\\\\\\\"{a} - {b}  = {a - b}\\\\\\\")\\\\nprint(f\\\\\\\"{a} * {b}  = {a * b}\\\\\\\")\\\\nprint(f\\\\\\\"{a} / {b}  = {a / b}\\\\\\\")\\\\nprint(f\\\\\\\"{a} // {b} = {a // b}\\\\\\\")\\\\nprint(f\\\\\\\"{a} % {b}  = {a % b}\\\\\\\")\\\\nprint(f\\\\\\\"{a} ** {b} = {a ** b}\\\\\\\")\\\\n\\\\n# Division always returns float, even when it divides evenly\\\\nprint(f\\\\\\\"\\\\\\\\n10 / 5 = {10 / 5}  (type: {type(10 / 5).__name__})\\\\\\\")\\\\nprint(f\\\\\\\"10 // 5 = {10 // 5} (type: {type(10 // 5).__name__})\\\\\\\")\\\\n\\\\n# Negative floor division\\\\nprint(f\\\\\\\"\\\\\\\\n-7 // 2 = {-7 // 2}  (floors toward negative infinity)\\\\\\\")\\\\nprint(f\\\\\\\"-7 % 2  = {-7 % 2}   (result has sign of divisor)\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"17 + 5  = 22\\\\n17 - 5  = 12\\\\n17 * 5  = 85\\\\n17 / 5  = 3.4\\\\n17 // 5 = 3\\\\n17 % 5  = 2\\\\n17 ** 5 = 1419857\\\\n\\\\n10 / 5 = 2.0  (type: float)\\\\n10 // 5 = 2 (type: int)\\\\n\\\\n-7 // 2 = -4  (floors toward negative infinity)\\\\n-7 % 2  = 1   (result has sign of divisor)\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 1,\\n              metadata: {},\\n              id: \\\"cell-03-003\\\"\\n            },\\n            // Cell 4: Comparison intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## Comparison Operators\\\\n\\\\nComparison operators return boolean values. Python uniquely supports **chained comparisons** like `1 < x < 10`.\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-03-004\\\"\\n            },\\n            // Cell 5: Comparison demo\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"x = 7\\\\n\\\\nprint(f\\\\\\\"x = {x}\\\\\\\")\\\\nprint(f\\\\\\\"x == 7: {x == 7}\\\\\\\")\\\\nprint(f\\\\\\\"x != 5: {x != 5}\\\\\\\")\\\\nprint(f\\\\\\\"x > 3:  {x > 3}\\\\\\\")\\\\nprint(f\\\\\\\"x < 10: {x < 10}\\\\\\\")\\\\nprint(f\\\\\\\"x >= 7: {x >= 7}\\\\\\\")\\\\nprint(f\\\\\\\"x <= 6: {x <= 6}\\\\\\\")\\\\n\\\\n# Chained comparisons\\\\nprint(f\\\\\\\"\\\\\\\\nChained comparisons:\\\\\\\")\\\\nprint(f\\\\\\\"1 < {x} < 10: {1 < x < 10}\\\\\\\")\\\\nprint(f\\\\\\\"1 < {x} < 5:  {1 < x < 5}\\\\\\\")\\\\nprint(f\\\\\\\"5 <= {x} <= 10: {5 <= x <= 10}\\\\\\\")\\\\n\\\\n# String comparisons (lexicographic/alphabetical)\\\\nprint(f\\\\\\\"\\\\\\\\nString comparisons:\\\\\\\")\\\\nprint(f\\\\\\\"'apple' < 'banana': {'apple' < 'banana'}\\\\\\\")\\\\nprint(f\\\\\\\"'abc' == 'abc':     {'abc' == 'abc'}\\\\\\\")\\\\nprint(f\\\\\\\"'A' < 'a':          {'A' < 'a'}\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"x = 7\\\\nx == 7: True\\\\nx != 5: True\\\\nx > 3:  True\\\\nx < 10: True\\\\nx >= 7: True\\\\nx <= 6: False\\\\n\\\\nChained comparisons:\\\\n1 < 7 < 10: True\\\\n1 < 7 < 5:  False\\\\n5 <= 7 <= 10: True\\\\n\\\\nString comparisons:\\\\n'apple' < 'banana': True\\\\n'abc' == 'abc':     True\\\\n'A' < 'a':          True\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 2,\\n              metadata: {},\\n              id: \\\"cell-03-005\\\"\\n            },\\n            // Cell 6: Logical intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## Logical Operators and Short-Circuit Evaluation\\\\n\\\\nLogical operators combine boolean expressions. Python uses **short-circuit evaluation**, meaning it stops as soon as the result is determined.\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-03-006\\\"\\n            },\\n            // Cell 7: Logical demo\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"age = 25\\\\nhas_id = True\\\\nis_vip = False\\\\n\\\\nprint(f\\\\\\\"age = {age}, has_id = {has_id}, is_vip = {is_vip}\\\\\\\")\\\\nprint(f\\\\\\\"\\\\\\\\nage >= 18 and has_id: {age >= 18 and has_id}\\\\\\\")\\\\nprint(f\\\\\\\"age >= 18 or is_vip:  {age >= 18 or is_vip}\\\\\\\")\\\\nprint(f\\\\\\\"not is_vip:           {not is_vip}\\\\\\\")\\\\n\\\\n# Short-circuit demonstration\\\\ndef check(label, value):\\\\n    print(f\\\\\\\"  Evaluated: {label}\\\\\\\")\\\\n    return value\\\\n\\\\nprint(\\\\\\\"\\\\\\\\nShort-circuit with 'and':\\\\\\\")\\\\nresult = check(\\\\\\\"False\\\\\\\", False) and check(\\\\\\\"True\\\\\\\", True)\\\\nprint(f\\\\\\\"  Result: {result}  (second expression was NOT evaluated)\\\\\\\")\\\\n\\\\nprint(\\\\\\\"\\\\\\\\nShort-circuit with 'or':\\\\\\\")\\\\nresult = check(\\\\\\\"True\\\\\\\", True) or check(\\\\\\\"False\\\\\\\", False)\\\\nprint(f\\\\\\\"  Result: {result}  (second expression was NOT evaluated)\\\\\\\")\\\\n\\\\n# and/or return the deciding value (not necessarily True/False)\\\\nprint(f\\\\\\\"\\\\\\\\n'hello' and 'world': {'hello' and 'world'}\\\\\\\")\\\\nprint(f\\\\\\\"'' and 'world':      {repr('' and 'world')}\\\\\\\")\\\\nprint(f\\\\\\\"'hello' or 'world':  {'hello' or 'world'}\\\\\\\")\\\\nprint(f\\\\\\\"'' or 'world':       {'' or 'world'}\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"age = 25, has_id = True, is_vip = False\\\\n\\\\nage >= 18 and has_id: True\\\\nage >= 18 or is_vip:  True\\\\nnot is_vip:           True\\\\n\\\\nShort-circuit with 'and':\\\\n  Evaluated: False\\\\n  Result: False  (second expression was NOT evaluated)\\\\n\\\\nShort-circuit with 'or':\\\\n  Evaluated: True\\\\n  Result: True  (second expression was NOT evaluated)\\\\n\\\\n'hello' and 'world': world\\\\n'' and 'world':      ''\\\\n'hello' or 'world':  hello\\\\n'' or 'world':       world\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 3,\\n              metadata: {},\\n              id: \\\"cell-03-007\\\"\\n            },\\n            // Cell 8: Assignment intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## Assignment Operators and the Walrus Operator\\\\n\\\\nAssignment operators provide shorthand for updating variables. Python 3.8 introduced the walrus operator `:=` for assignment expressions.\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-03-008\\\"\\n            },\\n            // Cell 9: Assignment demo\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# Augmented assignment operators\\\\nx = 100\\\\nprint(f\\\\\\\"Start:  x = {x}\\\\\\\")\\\\n\\\\nx += 10\\\\nprint(f\\\\\\\"x += 10: x = {x}\\\\\\\")\\\\n\\\\nx -= 25\\\\nprint(f\\\\\\\"x -= 25: x = {x}\\\\\\\")\\\\n\\\\nx *= 2\\\\nprint(f\\\\\\\"x *= 2:  x = {x}\\\\\\\")\\\\n\\\\nx //= 3\\\\nprint(f\\\\\\\"x //= 3: x = {x}\\\\\\\")\\\\n\\\\nx %= 7\\\\nprint(f\\\\\\\"x %= 7:  x = {x}\\\\\\\")\\\\n\\\\nx **= 3\\\\nprint(f\\\\\\\"x **= 3: x = {x}\\\\\\\")\\\\n\\\\n# Walrus operator (:=) - assignment as an expression\\\\nprint(\\\\\\\"\\\\\\\\nWalrus operator demo:\\\\\\\")\\\\ndata = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\\\\n\\\\n# Without walrus - need two lines\\\\nn = len(data)\\\\nif n > 5:\\\\n    print(f\\\\\\\"  List has {n} items (more than 5)\\\\\\\")\\\\n\\\\n# With walrus - one line\\\\nif (n := len(data)) > 5:\\\\n    print(f\\\\\\\"  List has {n} items (more than 5) [walrus version]\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"Start:  x = 100\\\\nx += 10: x = 110\\\\nx -= 25: x = 85\\\\nx *= 2:  x = 170\\\\nx //= 3: x = 56\\\\nx %= 7:  x = 0\\\\nx **= 3: x = 0\\\\n\\\\nWalrus operator demo:\\\\n  List has 10 items (more than 5)\\\\n  List has 10 items (more than 5) [walrus version]\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 4,\\n              metadata: {},\\n              id: \\\"cell-03-009\\\"\\n            },\\n            // Cell 10: String ops intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## String Operations\\\\n\\\\nStrings support concatenation (`+`), repetition (`*`), membership (`in`), and the `len()` function.\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-03-010\\\"\\n            },\\n            // Cell 11: String ops demo\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# Concatenation\\\\nfirst = \\\\\\\"Hello\\\\\\\"\\\\nsecond = \\\\\\\"World\\\\\\\"\\\\ngreeting = first + \\\\\\\", \\\\\\\" + second + \\\\\\\"!\\\\\\\"\\\\nprint(f\\\\\\\"Concatenation: {greeting}\\\\\\\")\\\\n\\\\n# Repetition\\\\nborder = \\\\\\\"*\\\\\\\" * 30\\\\nprint(f\\\\\\\"Repetition:    {border}\\\\\\\")\\\\npattern = \\\\\\\"=-\\\\\\\" * 15 + \\\\\\\"=\\\\\\\"\\\\nprint(f\\\\\\\"Pattern:       {pattern}\\\\\\\")\\\\n\\\\n# Membership testing\\\\nemail = \\\\\\\"student@university.edu\\\\\\\"\\\\nprint(f\\\\\\\"\\\\\\\\n'@' in email:        {'@' in email}\\\\\\\")\\\\nprint(f\\\\\\\"'gmail' in email:    {'gmail' in email}\\\\\\\")\\\\nprint(f\\\\\\\"'.edu' in email:     {'.edu' in email}\\\\\\\")\\\\nprint(f\\\\\\\"'gmail' not in email: {'gmail' not in email}\\\\\\\")\\\\n\\\\n# Length\\\\npassword = \\\\\\\"MySecretP@ss\\\\\\\"\\\\nprint(f\\\\\\\"\\\\\\\\nlen('{password}'): {len(password)}\\\\\\\")\\\\nprint(f\\\\\\\"Long enough (>=8)? {len(password) >= 8}\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"Concatenation: Hello, World!\\\\nRepetition:    ******************************\\\\nPattern:       =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\\\\n\\\\n'@' in email:        True\\\\n'gmail' in email:    False\\\\n'.edu' in email:     True\\\\n'gmail' not in email: True\\\\n\\\\nlen('MySecretP@ss'): 12\\\\nLong enough (>=8)? True\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 5,\\n              metadata: {},\\n              id: \\\"cell-03-011\\\"\\n            },\\n            // Cell 12: Precedence intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## Operator Precedence Puzzles\\\\n\\\\nTest your understanding of operator precedence. Try to predict the result before running each cell!\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-03-012\\\"\\n            },\\n            // Cell 13: Precedence demo\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# Puzzle 1: What is the result?\\\\nresult1 = 2 + 3 * 4\\\\nprint(f\\\\\\\"2 + 3 * 4 = {result1}\\\\\\\")  # Not 20!\\\\n\\\\n# Puzzle 2: Exponentiation is right-associative\\\\nresult2 = 2 ** 3 ** 2\\\\nprint(f\\\\\\\"2 ** 3 ** 2 = {result2}\\\\\\\")  # 2 ** (3 ** 2) = 2 ** 9 = 512\\\\n\\\\n# Puzzle 3: Mixed operators\\\\nresult3 = 10 - 3 * 2 + 4 // 2\\\\nprint(f\\\\\\\"10 - 3 * 2 + 4 // 2 = {result3}\\\\\\\")\\\\n\\\\n# Puzzle 4: Comparison chaining\\\\nresult4 = 1 < 2 < 3 < 4\\\\nprint(f\\\\\\\"1 < 2 < 3 < 4 = {result4}\\\\\\\")\\\\n\\\\n# Puzzle 5: Logical operators with comparison\\\\nresult5 = 3 > 2 and 5 < 10 or 1 == 2\\\\nprint(f\\\\\\\"3 > 2 and 5 < 10 or 1 == 2 = {result5}\\\\\\\")\\\\n\\\\n# Puzzle 6: Use parentheses for clarity!\\\\nresult6 = (3 > 2) and ((5 < 10) or (1 == 2))\\\\nprint(f\\\\\\\"(3 > 2) and ((5 < 10) or (1 == 2)) = {result6}\\\\\\\")\\\\nprint(\\\\\\\"\\\\\\\\nAlways use parentheses to make your intent clear!\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"2 + 3 * 4 = 14\\\\n2 ** 3 ** 2 = 512\\\\n10 - 3 * 2 + 4 // 2 = 6\\\\n1 < 2 < 3 < 4 = True\\\\n3 > 2 and 5 < 10 or 1 == 2 = True\\\\n(3 > 2) and ((5 < 10) or (1 == 2)) = True\\\\n\\\\nAlways use parentheses to make your intent clear!\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 6,\\n              metadata: {},\\n              id: \\\"cell-03-013\\\"\\n            },\\n            // Cell 14: Exercise 1 intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## Exercise: Expression Evaluator\\\\n\\\\nPredict the output of each expression below **before** running the cell. Write your predictions as comments, then run the cell to check.\\\\n\\\\nThis exercise tests your understanding of:\\\\n- Operator precedence\\\\n- Integer vs float division\\\\n- Short-circuit evaluation\\\\n- Truthy/falsy values\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-03-014\\\"\\n            },\\n            // Cell 15: Exercise 1 skeleton\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# Exercise: Expression Evaluator\\\\n# YOUR CODE HERE\\\\n# Write your prediction for each expression as a comment, then uncomment the print\\\\n\\\\n# Prediction: ?\\\\nprint(\\\\\\\"1.\\\\\\\", 2 ** 2 ** 3)\\\\n\\\\n# Prediction: ?\\\\nprint(\\\\\\\"2.\\\\\\\", 15 // 4 + 15 % 4)\\\\n\\\\n# Prediction: ?\\\\nprint(\\\\\\\"3.\\\\\\\", True + True + False)\\\\n\\\\n# Prediction: ?\\\\nprint(\\\\\\\"4.\\\\\\\", \\\\\\\"hello\\\\\\\" and \\\\\\\"world\\\\\\\" and \\\\\\\"python\\\\\\\")\\\\n\\\\n# Prediction: ?\\\\nprint(\\\\\\\"5.\\\\\\\", 0 or \\\\\\\"\\\\\\\" or [] or \\\\\\\"found it!\\\\\\\")\\\\n\\\\n# Prediction: ?\\\\nprint(\\\\\\\"6.\\\\\\\", not not True)\\\\n\\\\n# Prediction: ?\\\\nprint(\\\\\\\"7.\\\\\\\", 10 == 10.0)\\\\n\\\\n# Prediction: ?\\\\nprint(\\\\\\\"8.\\\\\\\", \\\\\\\"bat\\\\\\\" < \\\\\\\"cat\\\\\\\" < \\\\\\\"hat\\\\\\\")\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-03-015\\\"\\n            },\\n            // Cell 16: Exercise 1 solution\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# SOLUTION\\\\n\\\\n# 1. 2 ** (2 ** 3) = 2 ** 8 = 256  (** is right-associative)\\\\nprint(\\\\\\\"1.\\\\\\\", 2 ** 2 ** 3)\\\\n\\\\n# 2. (15 // 4) + (15 % 4) = 3 + 3 = 6\\\\nprint(\\\\\\\"2.\\\\\\\", 15 // 4 + 15 % 4)\\\\n\\\\n# 3. 1 + 1 + 0 = 2  (True=1, False=0)\\\\nprint(\\\\\\\"3.\\\\\\\", True + True + False)\\\\n\\\\n# 4. \\\\\\\"python\\\\\\\"  (and returns last truthy value if all truthy)\\\\nprint(\\\\\\\"4.\\\\\\\", \\\\\\\"hello\\\\\\\" and \\\\\\\"world\\\\\\\" and \\\\\\\"python\\\\\\\")\\\\n\\\\n# 5. \\\\\\\"found it!\\\\\\\"  (or returns first truthy value)\\\\nprint(\\\\\\\"5.\\\\\\\", 0 or \\\\\\\"\\\\\\\" or [] or \\\\\\\"found it!\\\\\\\")\\\\n\\\\n# 6. True  (not not True = not False = True)\\\\nprint(\\\\\\\"6.\\\\\\\", not not True)\\\\n\\\\n# 7. True  (int and float can be equal)\\\\nprint(\\\\\\\"7.\\\\\\\", 10 == 10.0)\\\\n\\\\n# 8. True  (chained comparison, lexicographic)\\\\nprint(\\\\\\\"8.\\\\\\\", \\\\\\\"bat\\\\\\\" < \\\\\\\"cat\\\\\\\" < \\\\\\\"hat\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"1. 256\\\\n2. 6\\\\n3. 2\\\\n4. python\\\\n5. found it!\\\\n6. True\\\\n7. True\\\\n8. True\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 7,\\n              metadata: {},\\n              id: \\\"cell-03-016\\\"\\n            },\\n            // Cell 17: Exercise 2 intro\\n            {\\n              cellType: \\\"markdown\\\",\\n              source: \\\"## Exercise: Time Converter\\\\n\\\\nWrite a program that converts a total number of seconds into hours, minutes, and remaining seconds.\\\\n\\\\nFor example: **4000 seconds** = **1 hour, 6 minutes, and 40 seconds**\\\\n\\\\n**Hint**: Use `//` (floor division) and `%` (modulo) operators:\\\\n- `hours = total_seconds // 3600`\\\\n- `remaining = total_seconds % 3600`\\\\n- Then get minutes and seconds from `remaining`\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-03-017\\\"\\n            },\\n            // Cell 18: Exercise 2 skeleton\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# Exercise: Time Converter\\\\n# YOUR CODE HERE\\\\n\\\\ntotal_seconds = 4000\\\\n\\\\n# Calculate hours, minutes, and remaining seconds\\\\n# YOUR CODE HERE\\\\n\\\\n# Print the result in the format: \\\\\\\"X hours, Y minutes, Z seconds\\\\\\\"\\\\n# YOUR CODE HERE\\\\n\\\\n# Bonus: also convert 86461 seconds and 3599 seconds\\\\n# YOUR CODE HERE\\\",\\n              outputs: [],\\n              executionCount: null,\\n              metadata: {},\\n              id: \\\"cell-03-018\\\"\\n            },\\n            // Cell 19: Exercise 2 solution\\n            {\\n              cellType: \\\"code\\\",\\n              source: \\\"# SOLUTION\\\\n\\\\ndef convert_seconds(total_seconds):\\\\n    \\\\\\\"\\\\\\\"\\\\\\\"Convert total seconds to hours, minutes, and seconds.\\\\\\\"\\\\\\\"\\\\\\\"\\\\n    hours = total_seconds // 3600\\\\n    remaining = total_seconds % 3600\\\\n    minutes = remaining // 60\\\\n    seconds = remaining % 60\\\\n    return hours, minutes, seconds\\\\n\\\\n# Test with multiple values\\\\ntest_values = [4000, 86461, 3599, 0, 60, 3600]\\\\n\\\\nprint(f\\\\\\\"{'Total Seconds':>15} -> {'H':>4}:{'M':>02}:{'S':>02}\\\\\\\")\\\\nprint(\\\\\\\"-\\\\\\\" * 35)\\\\n\\\\nfor total in test_values:\\\\n    h, m, s = convert_seconds(total)\\\\n    print(f\\\\\\\"{total:>15} -> {h:>4}:{m:02}:{s:02}\\\\\\\")\\\\n    \\\\n# Detailed output for 4000\\\\nprint(f\\\\\\\"\\\\\\\\nDetailed: 4000 seconds = {convert_seconds(4000)[0]} hour(s), \\\\\\\"\\\\n      f\\\\\\\"{convert_seconds(4000)[1]} minute(s), \\\\\\\"\\\\n      f\\\\\\\"{convert_seconds(4000)[2]} second(s)\\\\\\\")\\\",\\n              outputs: [{ outputType: \\\"stream\\\", text: \\\"  Total Seconds ->    H: M: S\\\\n-----------------------------------\\\\n           4000 ->    1:06:40\\\\n          86461 ->   24:01:01\\\\n           3599 ->    0:59:59\\\\n              0 ->    0:00:00\\\\n             60 ->    0:01:00\\\\n           3600 ->    1:00:00\\\\n\\\\nDetailed: 4000 seconds = 1 hour(s), 6 minute(s), 40 second(s)\\\\n\\\", name: \\\"stdout\\\" }],\\n              executionCount: 8,\\n              metadata: {},\\n              id: \\\"cell-03-019\\\"\\n            }\\n          ],\\n          kernelLanguage: \\\"python\\\"\\n        },\\n\\n        // ---- 3c. Note: Operator Precedence ----\\n        {\\n          route: \\\"/note/{{COURSEURL}}/topic-03-operators/unit-1/note-operator-precedence\\\",\\n          type: \\\"note\\\",\\n          title: \\\"Operator Precedence\\\",\\n          summary: \\\"Visual reference for Python's operator precedence hierarchy\\\",\\n          contentMd:\\n`# Operator Precedence\\n\\nWhen Python encounters an expression with multiple operators, it needs to decide which operations to perform first. This is called **operator precedence** (sometimes called \\\"order of operations\\\").\\n\\n## The Golden Rule\\n\\n> When in doubt, use parentheses! They make your code clearer and prevent bugs.\\n\\n## Precedence Hierarchy\\n\\nThe following diagram shows Python's operator precedence from highest priority (evaluated first) at the top to lowest priority (evaluated last) at the bottom:\\n\\n\\\\`\\\\`\\\\`mermaid\\nflowchart TD\\n    A[\\\"() Parentheses<br/><i>Highest priority - always evaluated first</i>\\\"]\\n    B[\\\"** Exponentiation<br/><i>Right-associative: 2**3**2 = 2**(3**2)</i>\\\"]\\n    C[\\\"+x  -x  ~x Unary<br/><i>Positive, negative, bitwise NOT</i>\\\"]\\n    D[\\\"*  /  //  % Multiplication family<br/><i>Multiply, divide, floor divide, modulo</i>\\\"]\\n    E[\\\"+  - Addition family<br/><i>Add, subtract</i>\\\"]\\n    F[\\\"<<  >> Bitwise shifts<br/><i>Left shift, right shift</i>\\\"]\\n    G[\\\"& Bitwise AND\\\"]\\n    H[\\\"^ Bitwise XOR\\\"]\\n    I[\\\"| Bitwise OR\\\"]\\n    J[\\\"==  !=  <  >  <=  >=  is  in Comparisons<br/><i>All comparisons, identity, membership</i>\\\"]\\n    K[\\\"not Logical NOT<br/><i>Inverts boolean</i>\\\"]\\n    L[\\\"and Logical AND<br/><i>Short-circuits on False</i>\\\"]\\n    M[\\\"or Logical OR<br/><i>Short-circuits on True</i>\\\"]\\n\\n    A --> B\\n    B --> C\\n    C --> D\\n    D --> E\\n    E --> F\\n    F --> G\\n    G --> H\\n    H --> I\\n    I --> J\\n    J --> K\\n    K --> L\\n    L --> M\\n\\n    style A fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px\\n    style M fill:#ffcdd2,stroke:#c62828,stroke-width:2px\\n\\\\`\\\\`\\\\`\\n\\n## Examples\\n\\n### Example 1: Arithmetic\\n\\\\`\\\\`\\\\`python\\nresult = 2 + 3 * 4 ** 2\\n# Step 1: 4 ** 2 = 16     (exponentiation first)\\n# Step 2: 3 * 16 = 48     (multiplication next)\\n# Step 3: 2 + 48 = 50     (addition last)\\n\\\\`\\\\`\\\\`\\n\\n### Example 2: Mixed operators\\n\\\\`\\\\`\\\\`python\\nresult = not 3 > 2 and 5 < 10\\n# Step 1: 3 > 2 = True        (comparison)\\n# Step 2: 5 < 10 = True       (comparison)\\n# Step 3: not True = False     (logical NOT)\\n# Step 4: False and True = False  (logical AND)\\n\\\\`\\\\`\\\\`\\n\\n### Example 3: With parentheses for clarity\\n\\\\`\\\\`\\\\`python\\nresult = (not (3 > 2)) and (5 < 10)   # False\\nresult = not ((3 > 2) and (5 < 10))   # False (different grouping, same result here)\\n\\\\`\\\\`\\\\`\\n\\n## Tips for Beginners\\n\\n1. **PEMDAS/BODMAS** from math class still applies for arithmetic operators\\n2. Comparisons have **lower** precedence than arithmetic -- \\\\`x + 1 > y\\\\` works as expected\\n3. \\\\`not\\\\` has **higher** precedence than \\\\`and\\\\` and \\\\`or\\\\`\\n4. \\\\`and\\\\` has **higher** precedence than \\\\`or\\\\` -- this matters!\\n5. When mixing \\\\`and\\\\` and \\\\`or\\\\`, **always use parentheses**`,\\n          frontMatter: {},\\n          id: \\\"note-operator-precedence\\\",\\n          img: \\\"\\\",\\n          imgFile: \\\"\\\",\\n          video: \\\"\\\",\\n          videoids: { videoid: \\\"\\\", videoIds: [] },\\n          hide: false,\\n          authLevel: 0\\n        }\\n      ]\\n    }\\n  ]\\n};\\n\\n\\n// ============================================================\\n// Export all three topics\\n// ============================================================\\n\\nmodule.exports = [topic1, topic2, topic3];\\n\"}",
+      "source_message_uuid": "69001209-1986-483f-b408-c060f1fdfe6d",
+      "source_lines": [
+        14
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6624,
+          "repetition_score": 0.0449,
+          "confidence": 0.6624,
+          "semantic_similarity": 0.6648,
+          "lexical_similarity": 0.0005,
+          "entity_similarity": 0.0006,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Bash {\"command\":\"mkdir -p \\\"D:/code/tutors/test-course-python\\\"\"}"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.18924567103385925,
+      "tokens": 17,
+      "text": "Now let me verify the file is syntactically valid and the structure is correct.",
+      "source_message_uuid": "dbbdbac0-f67e-49d3-8074-bf01a4b5d787",
+      "source_lines": [
+        16
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1892,
+          "repetition_score": 0.322,
+          "confidence": 0.5,
+          "semantic_similarity": 0.5019,
+          "lexical_similarity": 0.08,
+          "entity_similarity": 0.1765,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8235
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Now I'll build the file. Given its substantial size, I'll write it in one go."
+      }
+    },
+    {
+      "position": 9,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6448305249214172,
+      "intent_similarity": 0.6448305249214172,
+      "tokens": 397,
+      "text": "Bash {\"command\":\"cd \\\"D:/code/tutors/test-course-python\\\" && node -e \\\"\\nconst topics = require('./topics-1-3.js');\\nconsole.log('Loaded successfully.');\\nconsole.log('Number of topics:', topics.length);\\n\\ntopics.forEach((t, i) => {\\n  console.log('\\\\n--- Topic ' + (i+1) + ' ---');\\n  console.log('  id:', t.id);\\n  console.log('  title:', t.title);\\n  console.log('  type:', t.type);\\n  console.log('  route:', t.route);\\n  console.log('  units:', t.los.length);\\n  \\n  t.los.forEach(unit => {\\n    console.log('  Unit:', unit.id, unit.title);\\n    console.log('    items:', unit.los.length);\\n    unit.los.forEach(item => {\\n      console.log('    -', item.type, item.id, '(' + item.title + ')');\\n      if (item.type === 'notebook') {\\n        console.log('      cells:', item.cells.length, '| kernelLanguage:', item.kernelLanguage);\\n      }\\n      if (item.type === 'talk') {\\n        console.log('      marp:', item.frontMatter.marp, '| has pdf fields:', 'pdf' in item);\\n        // count slides\\n        const slides = item.contentMd.split('---').filter(s => s.trim().length > 0);\\n        console.log('      slides (approx):', slides.length);\\n      }\\n      if (item.type === 'lab') {\\n        console.log('      steps:', item.los.length);\\n        item.los.forEach(s => console.log('        step:', s.shortTitle, s.title));\\n      }\\n    });\\n  });\\n});\\n\\\"\\n\"}",
+      "source_message_uuid": "dbbdbac0-f67e-49d3-8074-bf01a4b5d787",
+      "source_lines": [
+        17
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6448,
+          "repetition_score": 0.4363,
+          "confidence": 0.6448,
+          "semantic_similarity": 0.5381,
+          "lexical_similarity": 0.0375,
+          "entity_similarity": 0.0625,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Bash {\"command\":\"mkdir -p \\\"D:/code/tutors/test-course-python\\\"\"}"
+      }
+    },
+    {
+      "position": 10,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.16987094283103943,
+      "tokens": 106,
+      "text": "The issue is that the file uses template literals (backtick strings) for contentMd, and inside those template literals, there are `${...}` expressions that JavaScript interprets as template literal interpolations. I need to escape all `${...}` inside the template literals, or switch to regular strings.\n\nThe problematic strings are things like `${price:,.2f}` in f-string examples. In JavaScript template literals, `${` starts an interpolation. I need to escape them as `\\${`.\n\nLet me find all occurrences and fix them.",
+      "source_message_uuid": "75839095-f7ef-48e7-b373-abf84beac3da",
+      "source_lines": [
+        19
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.1699,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 11,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.13057804107666016,
+      "tokens": 37,
+      "text": "The issue is that JavaScript template literals (backtick strings) interpret `${...}` as interpolation. I need to escape the dollar signs inside template literals where Python f-strings use `$`.",
+      "source_message_uuid": "75839095-f7ef-48e7-b373-abf84beac3da",
+      "source_lines": [
+        20
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1306,
+          "repetition_score": 0.0484,
+          "confidence": 0.5,
+          "semantic_similarity": 0.0745,
+          "lexical_similarity": 0.0606,
+          "entity_similarity": 0.037,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.963
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Now let me verify the file is syntactically valid and the structure is correct."
+      }
+    },
+    {
+      "position": 12,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4744282364845276,
+      "tokens": 32,
+      "text": "Grep {\"pattern\":\"\\\\$\\\\{\",\"path\":\"D:/code/tutors/test-course-python/topics-1-3.js\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "75839095-f7ef-48e7-b373-abf84beac3da",
+      "source_lines": [
+        21
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4744,
+          "repetition_score": 0.0489,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6545,
+          "lexical_similarity": 0.125,
+          "entity_similarity": 0.125,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Glob {\"pattern\":\"D:/code/tutors/test-course/**/*\"}"
+      }
+    },
+    {
+      "position": 13,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.44762372970581055,
+      "tokens": 84,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:/code/tutors/test-course-python/topics-1-3.js\",\"old_string\":\"print(f\\\"Price: ${price:,.2f}\\\")            # \\\"Price: $1,234.50\\\"\",\"new_string\":\"print(f\\\"Price: \\\\${price:,.2f}\\\")            # \\\"Price: $1,234.50\\\"\"}",
+      "source_message_uuid": "65af8ce8-6a3e-48ee-91aa-dff8fc9c63ac",
+      "source_lines": [
+        23
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4476,
+          "repetition_score": 0.0396,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5839,
+          "lexical_similarity": 0.0052,
+          "entity_similarity": 0.0045,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Write {\"file_path\":\"D:/code/tutors/test-course-python/topics-1-3.js\",\"content\":\"// Python Fundamentals Course - Topics 1-3\\n// Topics: Getting Started, Variables & Data Types, Operators & Expressions\\n\\n// =================================="
+      }
+    },
+    {
+      "position": 14,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4007529020309448,
+      "tokens": 269,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:/code/tutors/test-course-python/topics-1-3.js\",\"old_string\":\"print(f\\\\\\\"Currency: ${big_num:,.2f}\\\\\\\")\\\\n\\\\n# Percentage\\\\nratio = 0.856\\\\nprint(f\\\\\\\"Percentage: {ratio:.1%}\\\\\\\")\\\\n\\\\n# Padding and alignment\\\\nfor item, price in [(\\\\\\\"Apple\\\\\\\", 1.50), (\\\\\\\"Banana\\\\\\\", 0.75), (\\\\\\\"Cherry\\\\\\\", 3.25)]:\\\\n    print(f\\\\\\\"{item:<10} ${price:>6.2f}\\\\\\\")\",\"new_string\":\"print(f\\\\\\\"Currency: \\\\\\\\${big_num:,.2f}\\\\\\\")\\\\n\\\\n# Percentage\\\\nratio = 0.856\\\\nprint(f\\\\\\\"Percentage: {ratio:.1%}\\\\\\\")\\\\n\\\\n# Padding and alignment\\\\nfor item, price in [(\\\\\\\"Apple\\\\\\\", 1.50), (\\\\\\\"Banana\\\\\\\", 0.75), (\\\\\\\"Cherry\\\\\\\", 3.25)]:\\\\n    print(f\\\\\\\"{item:<10} \\\\\\\\${price:>6.2f}\\\\\\\")\"}",
+      "source_message_uuid": "c9bc862d-227a-4a26-93b9-a53b1525918d",
+      "source_lines": [
+        25
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4008,
+          "repetition_score": 0.5757,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7728,
+          "lexical_similarity": 0.325,
+          "entity_similarity": 0.3448,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 13,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:/code/tutors/test-course-python/topics-1-3.js\",\"old_string\":\"print(f\\\"Price: ${price:,.2f}\\\")            # \\\"Price: $1,234.50\\\"\",\"new_string\":\"print(f\\\"Price: \\\\${price:,.2f}\\\")            # \\\"Price:"
+      }
+    },
+    {
+      "position": 15,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.05509038642048836,
+      "tokens": 8,
+      "text": "Now let me verify it loads correctly.",
+      "source_message_uuid": "b328a82d-8f0c-46d4-b333-038baecd84e2",
+      "source_lines": [
+        27
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.0551,
+          "repetition_score": 0.3336,
+          "confidence": 0.5,
+          "semantic_similarity": 0.4273,
+          "lexical_similarity": 0.2667,
+          "entity_similarity": 0.25,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.75
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Now let me verify the file is syntactically valid and the structure is correct."
+      }
+    },
+    {
+      "position": 16,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6448305249214172,
+      "intent_similarity": 0.6448305249214172,
+      "tokens": 392,
+      "text": "Bash {\"command\":\"cd \\\"D:/code/tutors/test-course-python\\\" && node -e \\\"\\nconst topics = require('./topics-1-3.js');\\nconsole.log('Loaded successfully.');\\nconsole.log('Number of topics:', topics.length);\\n\\ntopics.forEach((t, i) => {\\n  console.log('\\\\n--- Topic ' + (i+1) + ' ---');\\n  console.log('  id:', t.id);\\n  console.log('  title:', t.title);\\n  console.log('  type:', t.type);\\n  console.log('  route:', t.route);\\n  console.log('  units:', t.los.length);\\n  \\n  t.los.forEach(unit => {\\n    console.log('  Unit:', unit.id, unit.title);\\n    console.log('    items:', unit.los.length);\\n    unit.los.forEach(item => {\\n      console.log('    -', item.type, item.id, '(' + item.title + ')');\\n      if (item.type === 'notebook') {\\n        console.log('      cells:', item.cells.length, '| kernelLanguage:', item.kernelLanguage);\\n      }\\n      if (item.type === 'talk') {\\n        console.log('      marp:', item.frontMatter.marp, '| has pdf fields:', 'pdf' in item);\\n        const slides = item.contentMd.split('---').filter(s => s.trim().length > 0);\\n        console.log('      slides (approx):', slides.length);\\n      }\\n      if (item.type === 'lab') {\\n        console.log('      steps:', item.los.length);\\n        item.los.forEach(s => console.log('        step:', s.shortTitle, s.title));\\n      }\\n    });\\n  });\\n});\\n\\\"\\n\"}",
+      "source_message_uuid": "b328a82d-8f0c-46d4-b333-038baecd84e2",
+      "source_lines": [
+        28
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6448,
+          "repetition_score": 0.7843,
+          "confidence": 0.6448,
+          "semantic_similarity": 1.0,
+          "lexical_similarity": 0.9872,
+          "entity_similarity": 0.9787,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Bash {\"command\":\"cd \\\"D:/code/tutors/test-course-python\\\" && node -e \\\"\\nconst topics = require('./topics-1-3.js');\\nconsole.log('Loaded successfully.');\\nconsole.log('Number of topics:', topics.length);\\n\\ntopics.forEach((t, i) => {\\n  con"
+      }
+    },
+    {
+      "position": 17,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.45386701822280884,
+      "tokens": 38,
+      "text": "The module.exports is not returning an array properly. Let me check what's happening. It might be that the newer Node.js version treats .js files as ESM. Let me check.",
+      "source_message_uuid": "7d433f1e-f707-48a9-863a-0f2f455f77db",
+      "source_lines": [
+        30
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4539,
+          "repetition_score": 0.1064,
+          "confidence": 0.5,
+          "semantic_similarity": 0.1679,
+          "lexical_similarity": 0.0986,
+          "entity_similarity": 0.0545,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9455
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 10,
+        "matched_prior_text": "The issue is that the file uses template literals (backtick strings) for contentMd, and inside those template literals, there are `${...}` expressions that JavaScript interprets as template literal interpolations. I need to escape all `${.."
+      }
+    },
+    {
+      "position": 18,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6923576593399048,
+      "intent_similarity": 0.6923576593399048,
+      "tokens": 91,
+      "text": "Bash {\"command\":\"cd \\\"D:/code/tutors/test-course-python\\\" && node -e \\\"\\nconst topics = require('./topics-1-3.js');\\nconsole.log('Type:', typeof topics);\\nconsole.log('Is array:', Array.isArray(topics));\\nconsole.log('Keys:', Object.keys(topics));\\nconsole.log('default?', topics.default ? 'yes' : 'no');\\n\\\"\\n\"}",
+      "source_message_uuid": "7d433f1e-f707-48a9-863a-0f2f455f77db",
+      "source_lines": [
+        31
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6924,
+          "repetition_score": 0.6005,
+          "confidence": 0.6924,
+          "semantic_similarity": 0.9318,
+          "lexical_similarity": 0.1494,
+          "entity_similarity": 0.2075,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 16,
+        "matched_prior_text": "Bash {\"command\":\"cd \\\"D:/code/tutors/test-course-python\\\" && node -e \\\"\\nconst topics = require('./topics-1-3.js');\\nconsole.log('Loaded successfully.');\\nconsole.log('Number of topics:', topics.length);\\n\\ntopics.forEach((t, i) => {\\n  con"
+      }
+    },
+    {
+      "position": 19,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6457090973854065,
+      "intent_similarity": 0.6457090973854065,
+      "tokens": 55,
+      "text": "Bash {\"command\":\"cd \\\"D:/code/tutors/test-course-python\\\" && node -e \\\"\\nconst m = require('./topics-1-3.js');\\nconsole.log(JSON.stringify(m).substring(0, 200));\\n\\\"\\n\"}",
+      "source_message_uuid": "86fd14a1-4262-4101-be38-93fdc3effc86",
+      "source_lines": [
+        33
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6457,
+          "repetition_score": 0.6214,
+          "confidence": 0.6457,
+          "semantic_similarity": 0.865,
+          "lexical_similarity": 0.3929,
+          "entity_similarity": 0.4091,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 18,
+        "matched_prior_text": "Bash {\"command\":\"cd \\\"D:/code/tutors/test-course-python\\\" && node -e \\\"\\nconst topics = require('./topics-1-3.js');\\nconsole.log('Type:', typeof topics);\\nconsole.log('Is array:', Array.isArray(topics));\\nconsole.log('Keys:', Object.keys(to"
+      }
+    },
+    {
+      "position": 20,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.4734255373477936,
+      "tokens": 41,
+      "text": "The issue is that Node.js v24 might be treating .js files as ESM by default. Let me check if there's a package.json with \"type\": \"module\" in the tutors project.",
+      "source_message_uuid": "163fa562-04f6-4b0e-97ab-209006a19dc7",
+      "source_lines": [
+        35
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4734,
+          "repetition_score": 0.5394,
+          "confidence": 0.5,
+          "semantic_similarity": 0.7282,
+          "lexical_similarity": 0.3023,
+          "entity_similarity": 0.3,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.7
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 17,
+        "matched_prior_text": "The module.exports is not returning an array properly. Let me check what's happening. It might be that the newer Node.js version treats .js files as ESM. Let me check."
+      }
+    },
+    {
+      "position": 21,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4002264440059662,
+      "tokens": 37,
+      "text": "Bash {\"command\":\"node -e \\\"console.log(process.version)\\\"\\ncat \\\"D:/code/tutors/package.json\\\" | head -5 2>/dev/null\\n\"}",
+      "source_message_uuid": "163fa562-04f6-4b0e-97ab-209006a19dc7",
+      "source_lines": [
+        36
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4002,
+          "repetition_score": 0.5142,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6704,
+          "lexical_similarity": 0.2083,
+          "entity_similarity": 0.2,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 19,
+        "matched_prior_text": "Bash {\"command\":\"cd \\\"D:/code/tutors/test-course-python\\\" && node -e \\\"\\nconst m = require('./topics-1-3.js');\\nconsole.log(JSON.stringify(m).substring(0, 200));\\n\\\"\\n\"}"
+      }
+    },
+    {
+      "position": 22,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.4269503057003021,
+      "tokens": 246,
+      "text": "The parent `package.json` has `\"type\": \"module\"`, so `.js` files are treated as ESM. The `module.exports` CJS syntax is being silently ignored. I need to either rename the file to `.cjs` or use `export default`. Let me check what the user specified -- they said `module.exports = [...]`. Since the project uses ESM, the file needs to be `.cjs` to use CommonJS `module.exports`, or I should keep the `.js` extension and switch to ESM syntax. But the user explicitly asked for `module.exports`. Let me rename to `.cjs`.\n\nActually, looking again at the user's request: \"Write a Node.js module that exports an array\" and \"Write to file: `D:\\code\\tutors\\test-course-python\\topics-1-3.js`\" and \"The file should `module.exports = [topic1, topic2, topic3]`\". The simplest fix is to add a local package.json that overrides the type, or rename to .cjs. But they specifically asked for `.js`. Let me add a minimal package.json to the test-course-python directory to override the module type.",
+      "source_message_uuid": "0390d5ba-dcee-4c36-b2a9-4f1bf30d2464",
+      "source_lines": [
+        38
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.427,
+          "repetition_score": 0.1039,
+          "confidence": 0.5,
+          "semantic_similarity": 0.165,
+          "lexical_similarity": 0.0777,
+          "entity_similarity": 0.0595,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9405
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 11,
+        "matched_prior_text": "The issue is that JavaScript template literals (backtick strings) interpret `${...}` as interpolation. I need to escape the dollar signs inside template literals where Python f-strings use `$`."
+      }
+    },
+    {
+      "position": 23,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6399935483932495,
+      "intent_similarity": 0.6399935483932495,
+      "tokens": 39,
+      "text": "Write {\"file_path\":\"D:/code/tutors/test-course-python/package.json\",\"content\":\"{\\n  \\\"private\\\": true,\\n  \\\"type\\\": \\\"commonjs\\\"\\n}\\n\"}",
+      "source_message_uuid": "0390d5ba-dcee-4c36-b2a9-4f1bf30d2464",
+      "source_lines": [
+        39
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.64,
+          "repetition_score": 0.5049,
+          "confidence": 0.64,
+          "semantic_similarity": 0.7561,
+          "lexical_similarity": 0.0037,
+          "entity_similarity": 0.0039,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Write {\"file_path\":\"D:/code/tutors/test-course-python/topics-1-3.js\",\"content\":\"// Python Fundamentals Course - Topics 1-3\\n// Topics: Getting Started, Variables & Data Types, Operators & Expressions\\n\\n// =================================="
+      }
+    },
+    {
+      "position": 24,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6407240033149719,
+      "intent_similarity": 0.6407240033149719,
+      "tokens": 405,
+      "text": "Bash {\"command\":\"cd \\\"D:/code/tutors/test-course-python\\\" && node -e \\\"\\nconst topics = require('./topics-1-3.js');\\nconsole.log('Loaded successfully.');\\nconsole.log('Number of topics:', topics.length);\\nconsole.log('Is array:', Array.isArray(topics));\\n\\ntopics.forEach((t, i) => {\\n  console.log('\\\\n--- Topic ' + (i+1) + ' ---');\\n  console.log('  id:', t.id);\\n  console.log('  title:', t.title);\\n  console.log('  type:', t.type);\\n  console.log('  route:', t.route);\\n  console.log('  units:', t.los.length);\\n  \\n  t.los.forEach(unit => {\\n    console.log('  Unit:', unit.id, unit.title);\\n    console.log('    items:', unit.los.length);\\n    unit.los.forEach(item => {\\n      console.log('    -', item.type, item.id, '(' + item.title + ')');\\n      if (item.type === 'notebook') {\\n        console.log('      cells:', item.cells.length, '| kernelLanguage:', item.kernelLanguage);\\n      }\\n      if (item.type === 'talk') {\\n        console.log('      marp:', item.frontMatter.marp, '| has pdf fields:', 'pdf' in item);\\n        const slides = item.contentMd.split('---').filter(s => s.trim().length > 0);\\n        console.log('      slides (approx):', slides.length);\\n      }\\n      if (item.type === 'lab') {\\n        console.log('      steps:', item.los.length);\\n        item.los.forEach(s => console.log('        step:', s.shortTitle, s.title));\\n      }\\n    });\\n  });\\n});\\n\\\"\\n\"}",
+      "source_message_uuid": "b9f8ec63-5e59-41f6-b46a-b70fc371663a",
+      "source_lines": [
+        41
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6407,
+          "repetition_score": 0.7747,
+          "confidence": 0.6407,
+          "semantic_similarity": 0.9856,
+          "lexical_similarity": 0.9625,
+          "entity_similarity": 0.9583,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 16,
+        "matched_prior_text": "Bash {\"command\":\"cd \\\"D:/code/tutors/test-course-python\\\" && node -e \\\"\\nconst topics = require('./topics-1-3.js');\\nconsole.log('Loaded successfully.');\\nconsole.log('Number of topics:', topics.length);\\n\\ntopics.forEach((t, i) => {\\n  con"
+      }
+    },
+    {
+      "position": 25,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.32601574063301086,
+      "tokens": 23,
+      "text": "The file loads correctly. Now let me run a deeper structural validation to confirm every learning object has all required fields.",
+      "source_message_uuid": "add5ecc6-9479-43da-866c-a77be860e709",
+      "source_lines": [
+        43
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.326,
+          "repetition_score": 0.3113,
+          "confidence": 0.5,
+          "semantic_similarity": 0.4776,
+          "lexical_similarity": 0.1786,
+          "entity_similarity": 0.1667,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8333
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Now let me verify the file is syntactically valid and the structure is correct."
+      }
+    },
+    {
+      "position": 26,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6709808111190796,
+      "intent_similarity": 0.6709808111190796,
+      "tokens": 1108,
+      "text": "Bash {\"command\":\"cd \\\"D:/code/tutors/test-course-python\\\" && node -e \\\"\\nconst topics = require('./topics-1-3.js');\\n\\nconst baseFields = ['route','type','title','summary','contentMd','frontMatter','id','img','imgFile','video','videoids','hide','authLevel'];\\nlet errors = [];\\n\\nfunction checkBase(obj, path) {\\n  baseFields.forEach(f => {\\n    if (!(f in obj)) errors.push(path + ' missing field: ' + f);\\n  });\\n  if (!('videoid' in (obj.videoids || {}))) errors.push(path + ' videoids missing videoid');\\n  if (!('videoIds' in (obj.videoids || {}))) errors.push(path + ' videoids missing videoIds');\\n}\\n\\nfunction checkLO(obj, path) {\\n  checkBase(obj, path);\\n  \\n  if (obj.type === 'topic' || obj.type === 'unit') {\\n    if (!Array.isArray(obj.los)) errors.push(path + ' missing los array');\\n    else obj.los.forEach((c, i) => checkLO(c, path + '/los[' + i + ']'));\\n  }\\n  \\n  if (obj.type === 'talk') {\\n    if (!('pdf' in obj)) errors.push(path + ' talk missing pdf');\\n    if (!('pdfFile' in obj)) errors.push(path + ' talk missing pdfFile');\\n    if (obj.frontMatter.marp !== 'true') errors.push(path + ' talk frontMatter.marp should be \\\\\\\"true\\\\\\\"');\\n  }\\n  \\n  if (obj.type === 'notebook') {\\n    if (!Array.isArray(obj.cells)) errors.push(path + ' notebook missing cells');\\n    if (obj.kernelLanguage !== 'python') errors.push(path + ' notebook kernelLanguage not python');\\n    if (obj.cells) {\\n      obj.cells.forEach((cell, ci) => {\\n        const cp = path + '/cells[' + ci + ']';\\n        if (!cell.cellType) errors.push(cp + ' missing cellType');\\n        if (!('source' in cell)) errors.push(cp + ' missing source');\\n        if (!Array.isArray(cell.outputs)) errors.push(cp + ' missing outputs array');\\n        if (!('executionCount' in cell)) errors.push(cp + ' missing executionCount');\\n        if (!('metadata' in cell)) errors.push(cp + ' missing metadata');\\n        if (!('id' in cell)) errors.push(cp + ' missing id');\\n      });\\n    }\\n  }\\n  \\n  if (obj.type === 'lab') {\\n    if (!Array.isArray(obj.los)) errors.push(path + ' lab missing los array');\\n    if (!('pdf' in obj)) errors.push(path + ' lab missing pdf');\\n    if (!('pdfFile' in obj)) errors.push(path + ' lab missing pdfFile');\\n    if (obj.los) {\\n      obj.los.forEach((step, si) => {\\n        const sp = path + '/los[' + si + ']';\\n        if (!step.title) errors.push(sp + ' step missing title');\\n        if (!step.shortTitle) errors.push(sp + ' step missing shortTitle');\\n        if (!('contentMd' in step)) errors.push(sp + ' step missing contentMd');\\n        if (!('contentHtml' in step)) errors.push(sp + ' step missing contentHtml');\\n        if (!step.route) errors.push(sp + ' step missing route');\\n        if (!step.id) errors.push(sp + ' step missing id');\\n        if (step.type !== 'step') errors.push(sp + ' step type should be step');\\n      });\\n    }\\n  }\\n}\\n\\ntopics.forEach((t, i) => checkLO(t, 'topic[' + i + ']'));\\n\\nif (errors.length === 0) {\\n  console.log('ALL STRUCTURAL CHECKS PASSED');\\n} else {\\n  console.log('ERRORS FOUND:');\\n  errors.forEach(e => console.log('  - ' + e));\\n}\\n\\n// Count total content\\nlet totalCells = 0, totalSteps = 0, totalSlides = 0;\\nfunction countContent(obj) {\\n  if (obj.type === 'notebook' && obj.cells) totalCells += obj.cells.length;\\n  if (obj.type === 'talk') totalSlides += obj.contentMd.split('---').filter(s => s.trim()).length;\\n  if (obj.type === 'lab' && obj.los) totalSteps += obj.los.length;\\n  if (obj.los) obj.los.forEach(countContent);\\n}\\ntopics.forEach(countContent);\\nconsole.log('\\\\nContent totals:');\\nconsole.log('  Notebook cells:', totalCells);\\nconsole.log('  Slide sections:', totalSlides);\\nconsole.log('  Lab steps:', totalSteps);\\n\\\"\\n\"}",
+      "source_message_uuid": "add5ecc6-9479-43da-866c-a77be860e709",
+      "source_lines": [
+        44
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.671,
+          "repetition_score": 0.5987,
+          "confidence": 0.671,
+          "semantic_similarity": 0.8723,
+          "lexical_similarity": 0.193,
+          "entity_similarity": 0.3878,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 24,
+        "matched_prior_text": "Bash {\"command\":\"cd \\\"D:/code/tutors/test-course-python\\\" && node -e \\\"\\nconst topics = require('./topics-1-3.js');\\nconsole.log('Loaded successfully.');\\nconsole.log('Number of topics:', topics.length);\\nconsole.log('Is array:', Array.isAr"
+      }
+    },
+    {
+      "position": 27,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": -0.004529635421931744,
+      "tokens": 19,
+      "text": "All structural checks pass. Let me also verify that route patterns and execution counts follow the spec.",
+      "source_message_uuid": "d08fd878-e5b7-4530-9af5-449c00cf38b1",
+      "source_lines": [
+        46
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": -0.0045,
+          "repetition_score": 0.2312,
+          "confidence": 0.5,
+          "semantic_similarity": 0.2862,
+          "lexical_similarity": 0.2083,
+          "entity_similarity": 0.1818,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.8182
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Now let me verify the file is syntactically valid and the structure is correct."
+      }
+    },
+    {
+      "position": 28,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5555253028869629,
+      "tokens": 318,
+      "text": "Bash {\"command\":\"cd \\\"D:/code/tutors/test-course-python\\\" && node -e \\\"\\nconst topics = require('./topics-1-3.js');\\n\\n// Check routes\\nfunction printRoutes(obj, depth) {\\n  const indent = '  '.repeat(depth);\\n  console.log(indent + obj.type + ': ' + obj.route);\\n  if (obj.los) obj.los.forEach(c => printRoutes(c, depth + 1));\\n}\\nconsole.log('=== ROUTES ===');\\ntopics.forEach(t => printRoutes(t, 0));\\n\\n// Check execution counts per notebook\\nconsole.log('\\\\n=== EXECUTION COUNTS ===');\\nfunction checkExecCounts(obj, path) {\\n  if (obj.type === 'notebook') {\\n    console.log(path);\\n    obj.cells.forEach(c => {\\n      const marker = c.source.includes('YOUR CODE HERE') ? ' [skeleton]' : \\n                     c.source.includes('SOLUTION') ? ' [solution]' : '';\\n      console.log('  ' + c.id + ' (' + c.cellType + ') exec=' + c.executionCount + \\n                  ' outputs=' + c.outputs.length + marker);\\n    });\\n  }\\n  if (obj.los) obj.los.forEach((c,i) => checkExecCounts(c, path + '/' + c.id));\\n}\\ntopics.forEach(t => checkExecCounts(t, t.id));\\n\\\"\\n\"}",
+      "source_message_uuid": "d08fd878-e5b7-4530-9af5-449c00cf38b1",
+      "source_lines": [
+        47
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5555,
+          "repetition_score": 0.5761,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8307,
+          "lexical_similarity": 0.2,
+          "entity_similarity": 0.2778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 16,
+        "matched_prior_text": "Bash {\"command\":\"cd \\\"D:/code/tutors/test-course-python\\\" && node -e \\\"\\nconst topics = require('./topics-1-3.js');\\nconsole.log('Loaded successfully.');\\nconsole.log('Number of topics:', topics.length);\\n\\ntopics.forEach((t, i) => {\\n  con"
+      }
+    },
+    {
+      "position": 29,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.7272987961769104,
+      "intent_similarity": 0.7272987961769104,
+      "tokens": 697,
+      "text": "Everything validates correctly. Here is a summary of what was created:\n\n**File**: `D:\\code\\tutors\\test-course-python\\topics-1-3.js`\n\nThe file exports an array of 3 topic objects via `module.exports = [topic1, topic2, topic3]`.\n\nA supporting `D:\\code\\tutors\\test-course-python\\package.json` was also created with `\"type\": \"commonjs\"` to override the parent project's ESM setting, since the user specified CommonJS `module.exports` syntax.\n\n### Structure summary:\n\n**Topic 1: Getting Started with Python** (`topic-01-getting-started`)\n- Unit \"Introduction\" containing:\n  - Talk: \"Welcome to Python\" (10 Marp slides covering what Python is, installation, REPL, first script, IDEs, course roadmap)\n  - Notebook: \"Your First Python Program\" (16 cells -- print(), comments, arithmetic, input(), 2 exercises with skeletons and solutions)\n  - Note: \"Python Ecosystem Overview\" (2 Mermaid diagrams -- ecosystem mindmap + code execution flowchart)\n\n**Topic 2: Variables and Data Types** (`topic-02-variables`)\n- Unit \"Core Types\" containing:\n  - Talk: \"Variables and Data Types\" (12 Marp slides covering int, float, str, bool, None, type checking, conversion, f-strings)\n  - Notebook: \"Working with Variables\" (20 cells -- type creation, arbitrary precision, float gotcha, string methods/slicing, type conversion, f-string formatting, 2 exercises)\n  - Note: \"Type System Overview\" (2 Mermaid diagrams -- classDiagram of type hierarchy + flowchart of conversion paths)\n  - Lab: \"Variables Practice\" (4 steps -- Setup, Type Exploration, String Formatting receipt, Mad Libs challenge)\n\n**Topic 3: Operators and Expressions** (`topic-03-operators`)\n- Unit \"Operations\" containing:\n  - Talk: \"Operators in Python\" (11 Marp slides covering arithmetic, assignment, comparison, logical, identity/membership, bitwise, string ops, precedence, expressions vs statements)\n  - Notebook: \"Operator Playground\" (19 cells -- all operator types, short-circuit demo, walrus operator, precedence puzzles, 2 exercises)\n  - Note: \"Operator Precedence\" (1 Mermaid flowchart showing full precedence hierarchy top-to-bottom)\n\n### Validation results:\n- All 55 notebook cells have correct `cellType`, `source`, `outputs`, `executionCount`, `metadata`, and `id`\n- All skeleton cells have `executionCount: null` and empty `outputs: []`\n- All solution cells have incrementing `executionCount` and realistic outputs\n- All learning objects have every required base field (`route`, `type`, `title`, `summary`, `contentMd`, `frontMatter`, `id`, `img`, `imgFile`, `video`, `videoids`, `hide`, `authLevel`)\n- All talks have `pdf`, `pdfFile`, and `frontMatter: { marp: \"true\" }`\n- All route patterns use the `{{COURSEURL}}` placeholder correctly\n- The lab has 4 steps, each with `title`, `shortTitle`, `contentMd`, `contentHtml`, `route`, `id`, and `type: \"step\"`",
+      "source_message_uuid": "848f8e44-2447-4827-a4c8-ec45477ad49c",
+      "source_lines": [
+        49
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.7273,
+          "repetition_score": 0.4242,
+          "confidence": 0.7273,
+          "semantic_similarity": 0.6786,
+          "lexical_similarity": 0.125,
+          "entity_similarity": 0.1316,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8684
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 22,
+        "matched_prior_text": "The parent `package.json` has `\"type\": \"module\"`, so `.js` files are treated as ESM. The `module.exports` CJS syntax is being silently ignored. I need to either rename the file to `.cjs` or use `export default`. Let me check what the user s"
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "failed_tool_retry",
+        "tokens_wasted": 366,
+        "description": "2 failed tool calls (366 wasted tokens)"
+      },
+      {
+        "type": "bash_antipattern",
+        "tokens_wasted": 24,
+        "description": "1 Bash calls should use dedicated tools (24 tokens)"
+      },
+      {
+        "type": "edit_fragmentation",
+        "tokens_wasted": 0,
+        "description": "3 consecutive edits to topics-1-3.js (0 fragmented tokens)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Failed Tool Retries",
+        "tokens": 366,
+        "percentage": 93.8,
+        "cost_usd": 0.001098,
+        "count": 1,
+        "pricing": "input"
+      },
+      {
+        "source": "Bash Anti-Patterns",
+        "tokens": 24,
+        "percentage": 6.2,
+        "cost_usd": 7.2e-05,
+        "count": 1,
+        "pricing": "input"
+      },
+      {
+        "source": "Edit Fragmentation",
+        "tokens": 0,
+        "percentage": 0.0,
+        "cost_usd": 0.0,
+        "count": 1,
+        "pricing": "output"
+      }
+    ],
+    "total_tokens": 390,
+    "total_cost_usd": 0.00117
+  },
+  "economics": {
+    "total_input_tokens": 19,
+    "total_output_tokens": 2069,
+    "total_cache_creation_tokens": 63061,
+    "total_cache_read_tokens": 686148,
+    "input_output_ratio": 0.01,
+    "cache_hit_rate": 1.0,
+    "estimated_cost_usd": 0.4734,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 10,
+      "mid_span_count": 10,
+      "late_span_count": 10
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        18462,
+        19346,
+        19460,
+        13235,
+        48574,
+        49432,
+        49982,
+        50214,
+        50633,
+        51338,
+        51568,
+        51686,
+        51890,
+        52310,
+        53345,
+        54689
+      ],
+      "growth_rate": 2.96,
+      "is_superlinear": true,
+      "context_bloat_detected": true
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 2780,
+      "user_result_tokens": 2756,
+      "model_reasoning_tokens": 185,
+      "model_tool_tokens": 31818,
+      "model_generation_tokens": 1120,
+      "total_user_tokens": 5536,
+      "total_model_tokens": 33123,
+      "user_ratio": 0.1432
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.597,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "You are building content for a Python Fundamentals course on the Tutors learning platform. Write a Node.js module that exports an array of 3 topic objects for topics 1-3.\n\nWrite to file: `D:\\code\\tutors\\test-course-python\\topics-1-3.js`\n\nThe file should `module.exports = [topic1, topic2, topic3]` where each topic is a plain JS object matching the exact JSON structure below.\n\n## CRITICAL: Exact JSON structure for every learning object\n\nEvery single learning object (topic, unit, note, talk, notebook, lab) MUST have ALL of these base fields:\n```js\n{\n  route: \"...\",        // string\n  type: \"...\",         // string  \n  title: \"...\",        // string\n  summary: \"...\",      // string\n  contentMd: \"...\",    // string (markdown content)\n  frontMatter: {},     // object\n  id: \"...\",           // string\n  img: \"\",             // always empty string\n  imgFile: \"\",         // always empty string\n  video: \"\",           // always empty string\n  videoids: { videoid: \"\", videoIds: [] },\n  hide: false,\n  authLevel: 0\n}\n```\n\n### Additional fields by type:\n- **topic**: add `los: [...]` (array of units)\n- **unit**: add `los: [...]` (array of content items)\n- **talk** (Marp): add `pdf: \"\", pdfFile: \"\"`; set `frontMatter: { marp: \"true\" }`\n- **note**: no additional fields\n- **notebook**: add `cells: [...], kernelLanguage: \"python\"`\n- **lab**: add `los: [...], pdf: \"\", pdfFile: \"\"` where los contains LabStep objects\n\n### Route patterns (use `{{COURSEURL}}` placeholder):\n- topic: `/topic/{{COURSEURL}}/topic-NN-slug`\n- unit: `/topic/{{COURSEURL}}/topic-NN-slug/`  (trailing slash!)\n- talk: `/talk/{{COURSEURL}}/topic-NN-slug/unit-1/talk-id`\n- notebook: `/notebook/{{COURSEURL}}/topic-NN-slug/unit-1/notebook-id`\n- note: `/note/{{COURSEURL}}/topic-NN-slug/unit-1/note-id`\n- lab: `/lab/{{COURSEURL}}/topic-NN-slug/unit-1/lab-id`\n\n### Notebook cell format:\n```js\n{\n  cellType: \"markdown\" | \"code\",  // string\n  source: \"...\",                   // the raw source text\n  outputs: [],                     // array - empty for markdown cells\n  executionCount: null,            // null for markdown, number for code  \n  metadata: {},\n  id: \"cell-NN-MMM\"               // unique: topic number + cell sequence\n}\n```\n\nFor code cells with output, use:\n```js\noutputs: [{ outputType: \"stream\", text: \"the output\\n\", name: \"stdout\" }]\n// OR for expressions:\noutputs: [{ outputType: \"execute_result\", data: { \"text/plain\": \"42\" }, executionCount: 1 }]\n```\n\nExercise cells should follow this 3-cell pattern:\n1. Markdown cell: \"## Exercise: Title\" with instructions\n2. Code cell: skeleton with `# YOUR CODE HERE` comments (no outputs, executionCount: null)\n3. Code cell: solution with `# SOLUTION` header comment (include outputs showing the solution working)\n\n### LabStep format:\n```js\n{\n  title: \"Step Title\",\n  shortTitle: \"01\",\n  contentMd: \"markdown content for this step...\",\n  contentHtml: \"\",\n  route: \"/lab/{{COURSEURL}}/topic-NN-slug/unit-1/lab-id/01\",\n  id: \"step-01\",\n  type: \"step\"\n}\n```\n\n## TOPIC 1: Getting Started with Python\n**id**: `topic-01-getting-started`\n**title**: \"Getting Started with Python\"\n**summary**: \"Install Python, explore the REPL, and write your first program\"\n\nUnit: \"Introduction\" (id: `unit-1`), contains:\n\n### 1a. Talk: \"Welcome to Python\" (id: `talk-welcome-to-python`)\nMarp slides (10 slides, separated by `---` in contentMd):\n1. Title: \"Welcome to Python\" \u2014 subtitle: \"Your journey into programming begins\"\n2. \"What is Python?\" \u2014 high-level, interpreted, dynamically typed, created by Guido van Rossum\n3. \"Why Python?\" \u2014 readability, versatility, huge ecosystem, beginner-friendly\n4. \"Python's History\" \u2014 1991, Python 2 vs 3, current Python 3.12+\n5. \"Installing Python\" \u2014 python.org, verify with `python --version`, platform tips\n6. \"The Python REPL\" \u2014 interactive shell, `>>>` prompt, quick experiments\n7. \"Your First Script\" \u2014 `hello.py`, `print(\"Hello, World!\")`, running it\n8. \"Python IDEs & Tools\" \u2014 VS Code, PyCharm, Jupyter Notebooks, IDLE\n9. \"Course Roadmap\" \u2014 overview of all 10 topics we'll cover\n10. \"Let's Get Started!\" \u2014 encouragement, what's next\n\n### 1b. Notebook: \"Your First Python Program\" (id: `notebook-first-program`)\nCells (aim for ~16 cells):\n- Markdown: \"# Your First Python Program\" intro\n- Markdown: \"## The `print()` Function\"\n- Code: `print(\"Hello, World!\")` \u2192 output: \"Hello, World!\\n\"\n- Code: `print(\"Hello,\", \"Python!\")` and `print(\"Line 1\\nLine 2\")` \u2192 outputs\n- Markdown: \"## Comments\"\n- Code: showing `# single line` and `\"\"\"docstring\"\"\"` comments\n- Markdown: \"## Basic Arithmetic\"\n- Code: `print(2 + 3)`, `print(10 / 3)`, `print(10 // 3)`, `print(2 ** 10)` \u2192 outputs\n- Markdown: \"## The `input()` Function\"\n- Code: `name = \"Alice\"  # simulating input` / `print(f\"Hello, {name}!\")` \u2192 output\n- Exercise: \"Greeting Program\" \u2014 ask for name and age, print formatted greeting\n- Skeleton + Solution\n- Exercise: \"Simple Calculator\" \u2014 two numbers, print sum/difference/product/quotient\n- Skeleton + Solution\n\n### 1c. Note: \"Python Ecosystem Overview\" (id: `note-python-ecosystem`)\ncontentMd with two Mermaid diagrams:\n1. A mindmap showing Python's ecosystem (Web Dev: Django/Flask/FastAPI, Data Science: NumPy/Pandas/Matplotlib, ML: scikit-learn/TensorFlow/PyTorch, Automation: Scripting/Testing/DevOps)\n2. A flowchart showing how Python executes code: .py file \u2192 Interpreter \u2192 Bytecode \u2192 Python VM \u2192 Output\n\nNO lab for topic 1.\n\n---\n\n## TOPIC 2: Variables and Data Types\n**id**: `topic-02-variables`\n**title**: \"Variables and Data Types\"\n**summary**: \"Understand Python's core data types and how to store values in variables\"\n\nUnit: \"Core Types\" (id: `unit-1`), contains:\n\n### 2a. Talk: \"Variables and Data Types\" (id: `talk-variables-types`)\nMarp slides (12 slides):\n1. Title: \"Variables and Data Types\"\n2. \"What is a Variable?\" \u2014 naming a storage location, `=` operator\n3. \"Naming Rules\" \u2014 valid names, snake_case convention, reserved words\n4. \"Integers (`int`)\" \u2014 whole numbers, arbitrary precision\n5. \"Floating Point (`float`)\" \u2014 decimal numbers, precision gotchas\n6. \"Strings (`str`)\" \u2014 quotes, triple quotes, escape chars, raw strings\n7. \"Booleans (`bool`)\" \u2014 True/False, truthy/falsy\n8. \"None Type\" \u2014 `None`, checking with `is None`\n9. \"Type Checking\" \u2014 `type()`, `isinstance()`\n10. \"Type Conversion\" \u2014 `int()`, `float()`, `str()`, `bool()`\n11. \"f-strings\" \u2014 `f\"Hello {name}\"`, expressions inside `{}`\n12. \"Key Takeaways\" \u2014 summary table\n\n### 2b. Notebook: \"Working with Variables\" (id: `notebook-variables`)\nCells (~20 cells):\n- Creating variables (int, float, str, bool) with type() checks \u2192 outputs\n- Integer arbitrary precision demo: `10 ** 100`\n- Float precision: `0.1 + 0.2` gotcha\n- String methods: `.upper()`, `.lower()`, `.strip()`, `.split()`, slicing\n- Type conversion examples\n- f-strings with formatting like `:.2f`\n- Exercise: \"Personal Info Card\" \u2014 create variables, print formatted card\n- Solution with output\n- Exercise: \"Temperature Converter\" \u2014 celsius to fahrenheit\n- Solution with output\n\n### 2c. Note: \"Type System Overview\" (id: `note-type-system`)\nTwo Mermaid diagrams:\n1. classDiagram showing Python type hierarchy (object \u2192 int, float, str, bool, NoneType, list, tuple, dict, set)\n2. flowchart showing type conversion paths (str\u2192int\u2192float\u2192str, int\u2192bool)\n\n### 2d. Lab: \"Variables Practice\" (id: `lab-variables-practice`)\n4 steps:\n1. \"Setup\" (01): Declare variables of each type, print them with type()\n2. \"Type Exploration\" (02): Use isinstance(), try invalid conversions, discover what happens\n3. \"String Formatting\" (03): Build a formatted receipt using f-strings with alignment\n4. \"Challenge\" (04): Build a Mad Libs program with multiple variable types\n\n---\n\n## TOPIC 3: Operators and Expressions\n**id**: `topic-03-operators`\n**title**: \"Operators and Expressions\"\n**summary**: \"Master arithmetic, comparison, logical, and string operations\"\n\nUnit: \"Operations\" (id: `unit-1`), contains:\n\n### 3a. Talk: \"Operators in Python\" (id: `talk-operators`)\nMarp slides (11 slides):\n1. Title: \"Operators and Expressions\"\n2. \"Arithmetic Operators\" \u2014 `+`, `-`, `*`, `/`, `//`, `%`, `**`\n3. \"Assignment Operators\" \u2014 `=`, `+=`, `-=`, `*=`, etc.\n4. \"Comparison Operators\" \u2014 `==`, `!=`, `<`, `>`, `<=`, `>=`\n5. \"Logical Operators\" \u2014 `and`, `or`, `not`\n6. \"Identity and Membership\" \u2014 `is`, `is not`, `in`, `not in`\n7. \"Bitwise Operators\" \u2014 `&`, `|`, `^`, `~`, `<<`, `>>` (brief)\n8. \"String Operations\" \u2014 concatenation, repetition, membership\n9. \"Operator Precedence\" \u2014 PEMDAS, precedence table\n10. \"Expressions vs Statements\"\n11. \"Summary\" \u2014 quick reference\n\n### 3b. Notebook: \"Operator Playground\" (id: `notebook-operators`)\nCells (~18 cells):\n- All arithmetic operators with outputs\n- Comparison operators returning booleans, chained comparisons\n- Logical operators, short-circuit demo\n- Assignment operators, walrus operator `:=`\n- String operations: concatenation, repetition, membership, len()\n- Operator precedence puzzles\n- Exercise: \"Expression Evaluator\" \u2014 predict outputs before running\n- Solution\n- Exercise: \"Time Converter\" \u2014 seconds to hours/minutes/seconds using // and %\n- Solution\n\n### 3c. Note: \"Operator Precedence\" (id: `note-operator-precedence`)\nOne Mermaid flowchart showing precedence hierarchy top-to-bottom:\n() \u2192 ** \u2192 +x -x ~x \u2192 * / // % \u2192 + - \u2192 << >> \u2192 & \u2192 ^ \u2192 | \u2192 == != < > \u2192 not \u2192 and \u2192 or\n\nNO lab for topic 3.\n\n---\n\n## Important notes:\n- Make ALL content educational, accurate, and beginner-friendly\n- Code cell outputs must be realistic and correct\n- Use execution counts for code cells that have outputs (1, 2, 3... incrementing per notebook)\n- Exercise code cells have `executionCount: null` and empty `outputs: []`\n- Solution code cells have `executionCount` set and realistic outputs\n- Write substantial content in each Marp slide (not just bullet points \u2014 include code examples in slides using markdown code blocks)\n- Mermaid diagrams should be syntactically correct\n- All strings in JS should use template literals or properly escape newlines for JSON output",
+          "response_text": "I'll start by examining the existing test-course directory to understand any conventions, then build the comprehensive topics file. The test-course-python directory exists but is empty. Let me now create the comprehensive topics file. Given the size and complexity, I will write this directly. Now I'll build the file. Given its substantial size, I'll write it in one go. Now let me verify the file is syntactically valid and the structure is correct. The issue is that JavaScript template literals (backtick strings) interpret `${...}` as interpolation. I need to escape the dollar signs inside template literals where Python f-strings use `$`. Now let me verify it loads correctly. The parent `package.json` has `\"type\": \"module\"`, so `.js` files are treated as ESM. The `module.exports` CJS syntax is being silently ignored. I need to either rename the file to `.cjs` or use `export default`. Let me check what the user specified -- they said `module.exports = [...]`. Since the project uses ESM, the file needs to be `.cjs` to use CommonJS `module.exports`, or I should keep the `.js` extension and switch to ESM syntax. But the user explicitly asked for `module.exports`. Let me rename to `.cjs`.\n\nActually, looking again at the user's request: \"Write a Node.js module that exports an array\" and \"Write to file: `D:\\code\\tutors\\test-course-python\\topics-1-3.js`\" and \"The file should `module.exports = [topic1, topic2, topic3]`\". The simplest fix is to add a local package.json that overrides the type, or rename to .cjs. But they specifically asked for `.js`. Let me add a minimal package.json to the test-course-python directory to override the module type. The file loads correctly. Now let me run a deeper structural validation to confirm every learning object has all required fields. All structural checks pass. Let me also verify that route patterns and execution counts follow the spec. Everything validates correctly. Here is a summary of what was created:\n\n**File**: `D:\\code\\tutors\\test-course-python\\topics-1-3.js`\n\nThe file exports an array of 3 topic objects via `module.exports = [topic1, topic2, topic3]`.\n\nA supporting `D:\\code\\tutors\\test-course-python\\package.json` was also created with `\"type\": \"commonjs\"` to override the parent project's ESM setting, since the user specified CommonJS `module.exports` syntax.\n\n### Structure summary:\n\n**Topic 1: Getting Started with Python** (`topic-01-getting-started`)\n- Unit \"Introduction\" containing:\n  - Talk: \"Welcome to Python\" (10 Marp slides covering what Python is, installation, REPL, first script, IDEs, course roadmap)\n  - Notebook: \"Your First Python Program\" (16 cells -- print(), comments, arithmetic, input(), 2 exercises with skeletons and solutions)\n  - Note: \"Python Ecosystem Overview\" (2 Mermaid diagrams -- ecosystem mindmap + code execution flowchart)\n\n**Topic 2: Variables and Data Types** (`topic-02-variables`)\n- Unit \"Core Types\" containing:\n  - Talk: \"Variables and Data Types\" (12 Marp slides covering int, float, str, bool, None, type checking, conversion, f-strings)\n  - Notebook: \"Working with Variables\" (20 cells -- type creation, arbitrary precision, float gotcha, string methods/slicing, type conversion, f-string formatting, 2 exercises)\n  - Note: \"Type System Overview\" (2 Mermaid diagrams -- classDiagram of type hierarchy + flowchart of conversion paths)\n  - Lab: \"Variables Practice\" (4 steps -- Setup, Type Exploration, String Formatting receipt, Mad Libs challenge)\n\n**Topic 3: Operators and Expressions** (`topic-03-operators`)\n- Unit \"Operations\" containing:\n  - Talk: \"Operators in Python\" (11 Marp slides covering arithmetic, assignment, comparison, logical, identity/membership, bitwise, string ops, precedence, expressions vs statements)\n  - Notebook: \"Operator Playground\" (19 cells -- all operator types, short-circuit demo, walrus operator, precedence puzzles, 2 exercises)\n  - Note: \"Operator Precedence\" (1 Mermaid flowchart showing full precedence hierarchy top-to-bottom)\n\n### Validation results:\n- All 55 notebook cells have correct `cellType`, `source`, `outputs`, `executionCount`, `metadata`, and `id`\n- All skeleton cells have `executionCount: null` and empty `outputs: []`\n- All solution cells have incrementing `executionCount` and realistic outputs\n- All learning objects have every required base field (`route`, `type`, `title`, `summary`, `contentMd`, `frontMatter`, `id`, `img`, `imgFile`, `video`, `videoids`, `hide`, `authLevel`)\n- All talks have `pdf`, `pdfFile`, and `frontMatter: { marp: \"true\" }`\n- All route patterns use the `{{COURSEURL}}` placeholder correctly\n- The lab has 4 steps, each with `title`, `shortTitle`, `contentMd`, `contentHtml`, `route`, `id`, and `type: \"step\"`",
+          "alignment": 0.597
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "e5951b02-fb12-4026-ae03-11cdabd2d267",
+    "source_file": "data/D--code-tutors__agent-aaa08f529ce90aee7.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

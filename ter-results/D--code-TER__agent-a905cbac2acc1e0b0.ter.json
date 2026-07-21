@@ -1,0 +1,251 @@
+{
+  "session_id": "e0cd3457-3774-47bf-ade8-372891f95dec",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 1224,
+  "aligned_tokens": 1224,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6153,
+    "token_weighted_confidence": 0.6429,
+    "low_confidence_tokens": 1199,
+    "low_confidence_share": 0.9796,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 5,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.7293195724487305,
+      "intent_similarity": 0.7293195724487305,
+      "tokens": 25,
+      "text": "The user wants me to review the .gitignore changes in PR #27. Let me fetch the patch and analyze it.",
+      "source_message_uuid": "f554aa0e-7060-475a-a763-5101605260cc",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.7293,
+          "repetition_score": 0.0,
+          "confidence": 0.7293
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5550851821899414,
+      "tokens": 44,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\".gitignore\\\") | .patch'\",\"timeout\":30000}",
+      "source_message_uuid": "f554aa0e-7060-475a-a763-5101605260cc",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.5551,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.49220922589302063,
+      "tokens": 22,
+      "text": "Now let me also look at the current `.gitignore` on the main branch to confirm what existed before.",
+      "source_message_uuid": "c908ea75-01c2-47ae-a79c-43fe035aed0f",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4922,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4235285222530365,
+      "tokens": 38,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/contents/.gitignore?ref=main --jq '.content' | base64 -d\",\"timeout\":15000}",
+      "source_message_uuid": "c908ea75-01c2-47ae-a79c-43fe035aed0f",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4235,
+          "repetition_score": 0.569,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7865,
+          "lexical_similarity": 0.3,
+          "entity_similarity": 0.2353,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\".gitignore\\\") | .patch'\",\"timeout\":30000}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6469740271568298,
+      "intent_similarity": 0.6469740271568298,
+      "tokens": 1095,
+      "text": "Here is my analysis of the `.gitignore` changes in PR #27:\n\n---\n\n## REMOVED Lines\n\n**[CRITICAL] `scripts/` directory removed from ignore**\nThe old `.gitignore` ignored the entire `scripts/` directory. The PR removes this line entirely with no replacement. If `scripts/` contains private or local-only tooling, those files could now be accidentally committed. However, if the intent is to start tracking shared scripts, this is deliberate. Needs confirmation from the author on whether `scripts/` contents are meant to be public.\n\n**[INFO] `*.pyo` and `*.pyd` replaced by `*.py[cod]` glob**\nThe old file listed `*.pyc`, `*.pyo`, `*.pyd` individually. The new file uses `*.py[cod]`, which covers all three in one pattern. Functionally equivalent -- no coverage lost.\n\n**[WARNING] `sample_sessions/` broadened to only ignore subdirectories**\nThe old rule ignored the entire `sample_sessions/` directory. The PR narrows this to `sample_sessions/private/` and `sample_sessions/generated/`. This means files directly in `sample_sessions/` and any non-private/non-generated subdirectories will now be tracked. The CLAUDE.md documents `sample_sessions/` as a project directory for \"Sample JSONL files for testing,\" so tracking the public fixtures is likely intentional. But any sensitive session data in other subdirectories would get committed.\n\n**[INFO] `*.swp` moved, not removed**\nThe `*.swp` pattern was under \"# OS\" before and is now under \"# IDE and editor files.\" Still present -- no issue.\n\n---\n\n## ADDED Lines\n\n**[INFO] Local/private data section -- reasonable**\n`Backup/`, `reports/`, `benchmark-results/`, `evaluation-results/`, `priority.csv`, `*.ter-report.html`, `*.benchmark.json`, `*.analysis.json` -- these are project-specific generated/local data patterns. All sensible for a tool that produces reports and benchmarks.\n\n**[INFO] Python tooling caches -- standard**\n`*$py.class`, `.ruff_cache/`, `.hypothesis/` -- standard additions for a Python project using ruff and hypothesis.\n\n**[INFO] `env/` added**\nAdds the `env/` virtualenv directory name alongside `.venv/`, `venv/`, `ENV/`. Common pattern, good to have.\n\n**[INFO] Packaging extras -- standard**\n`pip-wheel-metadata/` -- standard for modern pip workflows.\n\n**[INFO] Coverage and test tooling -- standard**\n`.coverage.*`, `coverage.xml`, `.tox/`, `.nox/` -- all standard Python testing patterns.\n\n**[INFO] Type checking and profiling -- standard**\n`.dmypy.json`, `dmypy.json` (mypy daemon), `*.prof` (profiling output) -- good additions.\n\n**[INFO] Documentation build output -- standard**\n`site/`, `docs/_build/` -- standard for mkdocs/sphinx builds.\n\n**[INFO] Editor files expanded -- reasonable**\n`*.swo`, `*~`, `.project`, `.pydevproject` -- covers vim backup files and Eclipse/PyDev project files.\n\n**[INFO] OS files expanded -- reasonable**\n`Desktop.ini` for Windows -- sensible given the project runs on Windows.\n\n**[INFO] Temp/log files expanded -- reasonable**\n`*.temp`, `*.bak`, `*.log` -- common transient file patterns.\n\n**[INFO] `!.env.example` negation -- good practice**\nAllows `.env.example` to be tracked while still ignoring all other `.env.*` files. This is a best practice for documenting required environment variables.\n\n---\n\n## Overly Broad Patterns\n\n**[WARNING] `*.log` could suppress tracked log files**\nThe `*.log` pattern will ignore any file ending in `.log` anywhere in the repo. If the project ever has intentional `.log` files (e.g., sample log fixtures for testing), they would be silently excluded. The two `watch_log.jsonl` files currently shown as untracked in git status use the `.jsonl` extension, so they are unaffected. But worth noting.\n\n**[WARNING] `*.bak` is broad but generally safe**\nBackup files should typically not be tracked. Low risk.\n\n**[INFO] `.claude/` is still ignored**\nThis means any `.claude/settings.json` or hooks configuration is local-only. This is the existing behavior and unchanged by the PR -- just noting it for awareness.\n\n---\n\n## Summary\n\n| Severity | Count | Key Items |\n|----------|-------|-----------|\n| CRITICAL | 1 | `scripts/` no longer ignored -- verify intent |\n| WARNING  | 2 | `sample_sessions/` narrowed (verify no sensitive data leaks); `*.log` is broad |\n| INFO     | 12 | Standard Python gitignore improvements, all reasonable |\n\nThe PR modernizes the `.gitignore` into a comprehensive, well-organized Python template. The one item requiring author confirmation is the removal of `scripts/` from the ignore list. The narrowing of `sample_sessions/` looks intentional per the comment in the new file but should be verified against what currently exists in that directory.",
+      "source_message_uuid": "ea05c75d-d56d-48f2-8fc0-fc2f3a3ea181",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.647,
+          "repetition_score": 0.3528,
+          "confidence": 0.647,
+          "semantic_similarity": 0.6069,
+          "lexical_similarity": 0.019,
+          "entity_similarity": 0.0179,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9821
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Now let me also look at the current `.gitignore` on the main branch to confirm what existed before."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 5,
+    "total_output_tokens": 1248,
+    "total_cache_creation_tokens": 4132,
+    "total_cache_read_tokens": 45589,
+    "input_output_ratio": 0.0,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.0479,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 3
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        13121,
+        15526,
+        16947
+      ],
+      "growth_rate": 1.29,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 160,
+      "user_result_tokens": 576,
+      "model_reasoning_tokens": 25,
+      "model_tool_tokens": 82,
+      "model_generation_tokens": 1117,
+      "total_user_tokens": 736,
+      "total_model_tokens": 1224,
+      "user_ratio": 0.3755
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.6152,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "I'm reviewing PR #27 on the lgriffin/TER repository. I need to examine the .gitignore changes (62 additions, 24 deletions). \n\nRun this command to get the patch:\n```\ngh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \".gitignore\") | .patch'\n```\n\nThen analyze:\n1. What lines were REMOVED? Are any of them important patterns that should stay (e.g., .env, credentials, secrets, build artifacts)?\n2. What lines were ADDED? Are they reasonable for a Python project?\n3. Any overly broad patterns that might accidentally exclude important files?\n\nReport your findings as a structured list with severity (critical/warning/info) and description.",
+          "response_text": "Now let me also look at the current `.gitignore` on the main branch to confirm what existed before. Here is my analysis of the `.gitignore` changes in PR #27:\n\n---\n\n## REMOVED Lines\n\n**[CRITICAL] `scripts/` directory removed from ignore**\nThe old `.gitignore` ignored the entire `scripts/` directory. The PR removes this line entirely with no replacement. If `scripts/` contains private or local-only tooling, those files could now be accidentally committed. However, if the intent is to start tracking shared scripts, this is deliberate. Needs confirmation from the author on whether `scripts/` contents are meant to be public.\n\n**[INFO] `*.pyo` and `*.pyd` replaced by `*.py[cod]` glob**\nThe old file listed `*.pyc`, `*.pyo`, `*.pyd` individually. The new file uses `*.py[cod]`, which covers all three in one pattern. Functionally equivalent -- no coverage lost.\n\n**[WARNING] `sample_sessions/` broadened to only ignore subdirectories**\nThe old rule ignored the entire `sample_sessions/` directory. The PR narrows this to `sample_sessions/private/` and `sample_sessions/generated/`. This means files directly in `sample_sessions/` and any non-private/non-generated subdirectories will now be tracked. The CLAUDE.md documents `sample_sessions/` as a project directory for \"Sample JSONL files for testing,\" so tracking the public fixtures is likely intentional. But any sensitive session data in other subdirectories would get committed.\n\n**[INFO] `*.swp` moved, not removed**\nThe `*.swp` pattern was under \"# OS\" before and is now under \"# IDE and editor files.\" Still present -- no issue.\n\n---\n\n## ADDED Lines\n\n**[INFO] Local/private data section -- reasonable**\n`Backup/`, `reports/`, `benchmark-results/`, `evaluation-results/`, `priority.csv`, `*.ter-report.html`, `*.benchmark.json`, `*.analysis.json` -- these are project-specific generated/local data patterns. All sensible for a tool that produces reports and benchmarks.\n\n**[INFO] Python tooling caches -- standard**\n`*$py.class`, `.ruff_cache/`, `.hypothesis/` -- standard additions for a Python project using ruff and hypothesis.\n\n**[INFO] `env/` added**\nAdds the `env/` virtualenv directory name alongside `.venv/`, `venv/`, `ENV/`. Common pattern, good to have.\n\n**[INFO] Packaging extras -- standard**\n`pip-wheel-metadata/` -- standard for modern pip workflows.\n\n**[INFO] Coverage and test tooling -- standard**\n`.coverage.*`, `coverage.xml`, `.tox/`, `.nox/` -- all standard Python testing patterns.\n\n**[INFO] Type checking and profiling -- standard**\n`.dmypy.json`, `dmypy.json` (mypy daemon), `*.prof` (profiling output) -- good additions.\n\n**[INFO] Documentation build output -- standard**\n`site/`, `docs/_build/` -- standard for mkdocs/sphinx builds.\n\n**[INFO] Editor files expanded -- reasonable**\n`*.swo`, `*~`, `.project`, `.pydevproject` -- covers vim backup files and Eclipse/PyDev project files.\n\n**[INFO] OS files expanded -- reasonable**\n`Desktop.ini` for Windows -- sensible given the project runs on Windows.\n\n**[INFO] Temp/log files expanded -- reasonable**\n`*.temp`, `*.bak`, `*.log` -- common transient file patterns.\n\n**[INFO] `!.env.example` negation -- good practice**\nAllows `.env.example` to be tracked while still ignoring all other `.env.*` files. This is a best practice for documenting required environment variables.\n\n---\n\n## Overly Broad Patterns\n\n**[WARNING] `*.log` could suppress tracked log files**\nThe `*.log` pattern will ignore any file ending in `.log` anywhere in the repo. If the project ever has intentional `.log` files (e.g., sample log fixtures for testing), they would be silently excluded. The two `watch_log.jsonl` files currently shown as untracked in git status use the `.jsonl` extension, so they are unaffected. But worth noting.\n\n**[WARNING] `*.bak` is broad but generally safe**\nBackup files should typically not be tracked. Low risk.\n\n**[INFO] `.claude/` is still ignored**\nThis means any `.claude/settings.json` or hooks configuration is local-only. This is the existing behavior and unchanged by the PR -- just noting it for awareness.\n\n---\n\n## Summary\n\n| Severity | Count | Key Items |\n|----------|-------|-----------|\n| CRITICAL | 1 | `scripts/` no longer ignored -- verify intent |\n| WARNING  | 2 | `sample_sessions/` narrowed (verify no sensitive data leaks); `*.log` is broad |\n| INFO     | 12 | Standard Python gitignore improvements, all reasonable |\n\nThe PR modernizes the `.gitignore` into a comprehensive, well-organized Python template. The one item requiring author confirmation is the removal of `scripts/` from the ignore list. The narrowing of `sample_sessions/` looks intentional per the comment in the new file but should be verified against what currently exists in that directory.",
+          "alignment": 0.6152
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "e0cd3457-3774-47bf-ade8-372891f95dec",
+    "source_file": "data/D--code-TER__agent-a905cbac2acc1e0b0.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

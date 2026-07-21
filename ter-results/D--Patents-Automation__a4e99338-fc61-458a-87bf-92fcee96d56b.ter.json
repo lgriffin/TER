@@ -1,0 +1,164 @@
+{
+  "session_id": "a4e99338-fc61-458a-87bf-92fcee96d56b",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 999,
+  "aligned_tokens": 999,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6241,
+    "token_weighted_confidence": 0.5243,
+    "low_confidence_tokens": 901,
+    "low_confidence_share": 0.9019,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 2,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.7481293082237244,
+      "intent_similarity": 0.7481293082237244,
+      "tokens": 98,
+      "text": "The user wants mermaid.js diagrams for the Agent Identity and Trust Resolution Protocol (AITRP) invention. I need to create diagrams that accurately represent this specific invention - a DNS-like mechanism for agent discovery, authentication, and trust resolution.\n\nLet me create:\n1. A system architecture diagram showing the AITRP components\n2. A sequence diagram showing the trust resolution flow\n\nI need to follow the mermaid rules - no HTML line breaks, shorter labels, multiple nodes/subgraphs instead.",
+      "source_message_uuid": "f7fc5ffc-ed53-4d3e-8d99-6e0c4a03c877",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.7481,
+          "repetition_score": 0.0,
+          "confidence": 0.7481
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.36840400099754333,
+      "tokens": 901,
+      "text": "## System Architecture\n\n```mermaid\nflowchart TD\n    subgraph Agents[Agent Ecosystem]\n        A1[Agent A]\n        A2[Agent B]\n        A3[Agent C]\n    end\n    subgraph AITRP[Trust Resolution Layer]\n        REG[Identity Registry]\n        RES[Trust Resolver]\n        VAL[Policy Validator]\n    end\n    subgraph Identity[Agent Identity Record]\n        CAP[Capabilities Manifest]\n        KEY[Public Keys]\n        ATT[Security Attestations]\n        PROTO[Supported Protocols]\n        TL[Trust Level]\n    end\n    subgraph Trust[Trust Chain Authorities]\n        ORG[Organization CA]\n        PLAT[Platform CA]\n        GOV[Governance Authority]\n    end\n    A1 -->|Register Identity| REG\n    A2 -->|Register Identity| REG\n    A3 -->|Register Identity| REG\n    REG --- Identity\n    A1 -->|Trust Resolution Query| RES\n    RES -->|Retrieve Signed Metadata| REG\n    RES -->|Validate Authorization| VAL\n    VAL -->|Verify Trust Chain| Trust\n    RES -->|Return Trust Decision| A1\n    A1 -->|Secure Task Delegation| A2\n```\n\n## Sequence Diagram\n\n```mermaid\nsequenceDiagram\n    participant A as Agent A\n    participant RES as Trust Resolver\n    participant REG as Identity Registry\n    participant VAL as Policy Validator\n    participant CA as Trust Chain Authority\n    participant B as Agent B\n\n    A->>REG: Register identity record with keys and capabilities\n    B->>REG: Register identity record with keys and capabilities\n    Note over REG: Stores cryptographically signed identity records\n\n    A->>RES: Trust resolution query for Agent B\n    RES->>REG: Retrieve signed metadata for Agent B\n    REG-->>RES: Return signed identity record\n    RES->>VAL: Validate policies and trust level\n    VAL->>CA: Verify trust chain and authorization\n    CA-->>VAL: Confirm organizational endorsement\n    VAL-->>RES: Policy validation result\n    RES-->>A: Trust decision with verified metadata\n\n    A->>B: Establish authenticated channel\n    B->>RES: Reciprocal trust query for Agent A\n    RES-->>B: Trust decision for Agent A\n    A->>B: Delegate task with signed request\n    B-->>A: Return signed result\n```\n\n## Trust Chain Validation\n\n```mermaid\nflowchart BT\n    subgraph AgentLayer[Agent Level]\n        AG1[Agent X Identity]\n        AG2[Agent Y Identity]\n    end\n    subgraph OrgLayer[Organization Level]\n        ORG1[Org A Certificate]\n        ORG2[Org B Certificate]\n    end\n    subgraph PlatLayer[Platform Level]\n        P1[Platform Authority]\n    end\n    subgraph RootLayer[Root of Trust]\n        GOV[Governance Root CA]\n    end\n    AG1 -->|Signed by| ORG1\n    AG2 -->|Signed by| ORG2\n    ORG1 -->|Endorsed by| P1\n    ORG2 -->|Endorsed by| P1\n    P1 -->|Anchored to| GOV\n```\n\n## Threat Prevention Flow\n\n```mermaid\nflowchart LR\n    subgraph Requests[Incoming Requests]\n        LEGIT[Legitimate Agent]\n        IMP[Impersonator]\n        ROGUE[Rogue Agent]\n        UNAUTH[Unauthorized Delegator]\n    end\n    subgraph Resolution[AITRP Resolution]\n        LOOKUP[Identity Lookup]\n        SIG[Signature Verification]\n        CHAIN[Trust Chain Check]\n        POL[Policy Enforcement]\n    end\n    subgraph Outcomes[Results]\n        ALLOW[Task Delegation Allowed]\n        DENY[Request Denied]\n        ALERT[Security Alert Raised]\n    end\n    LEGIT --> LOOKUP\n    IMP --> LOOKUP\n    ROGUE --> LOOKUP\n    UNAUTH --> LOOKUP\n    LOOKUP --> SIG\n    SIG --> CHAIN\n    CHAIN --> POL\n    POL -->|Valid identity and policy| ALLOW\n    POL -->|Invalid signature| DENY\n    POL -->|No trust chain| DENY\n    POL -->|Policy violation| ALERT\n```",
+      "source_message_uuid": "f7fc5ffc-ed53-4d3e-8d99-6e0c4a03c877",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3684,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 3,
+    "total_output_tokens": 1223,
+    "total_cache_creation_tokens": 648,
+    "total_cache_read_tokens": 5994,
+    "input_output_ratio": 0.0,
+    "cache_hit_rate": 0.9995,
+    "estimated_cost_usd": 0.0226,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 0
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        5997
+      ],
+      "growth_rate": 1.0,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 504,
+      "user_result_tokens": 0,
+      "model_reasoning_tokens": 98,
+      "model_tool_tokens": 0,
+      "model_generation_tokens": 901,
+      "total_user_tokens": 504,
+      "total_model_tokens": 999,
+      "user_ratio": 0.3353
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.3684,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "TASK: Create mermaid.js diagrams for this invention.\r\n\r\nINSTRUCTION: Output ONLY mermaid code blocks. No explanations.\r\n\r\nMERMAID RULES (for PNG / mermaid-cli compatibility):\r\n- Do NOT use HTML line breaks in the diagram: no <br/>, <br>, or similar anywhere in the mermaid source (including inside node labels). They break many renderers and image export.\r\n- Use shorter labels, multiple nodes, or subgraphs instead of forcing line breaks inside one label.\r\n\r\nINVENTION:\r\n---\r\ninvention-id: invention-20260622-100716\r\ncompany: IBM\r\ncreated: 2026-06-22T10:08:07\r\n---\r\n\r\n# Invention Idea\r\n\r\nAs multi-agent systems become distributed across clouds, edge devices, and organizational boundaries, there is a need for a DNS-like mechanism that allows agents to discover, authenticate, and establish trust with other agents before exchanging tasks or data. We propose an Agent Identity and Trust Resolution Protocol (AITRP), where each agent registers a cryptographically verifiable identity record containing its capabilities, trust level, supported communication protocols, security attestations, and public keys. When one agent wishes to delegate work, it performs a trust resolution query similar to a DNS lookup, retrieving signed metadata and policy information before establishing communication. The protocol can support trust chains, allowing agents to validate whether another agent is authorized by a particular organization, platform, or governance authority. This creates a secure, decentralized service-discovery layer for agent ecosystems, enabling controlled agent-to-agent communication while reducing the risk of impersonation, rogue agents, and unauthorized task delegation.\r\n\r\n\r\nOUTPUT:\r\n\r\n## System Architecture\r\n\r\n`mermaid\r\nflowchart TD\r\n    subgraph Input[Data Sources]\r\n        A[Source A]\r\n        B[Source B]\r\n    end\r\n    subgraph Process[Processing]\r\n        C[Tracker]\r\n        D[Detector]\r\n    end\r\n    subgraph Output[Results]\r\n        E[Clean Data]\r\n        F[Alerts]\r\n    end\r\n    A --> C\r\n    B --> C\r\n    C --> D\r\n    D --> E\r\n    D --> F\r\n`\r\n\r\n## Sequence Diagram\r\n\r\n`mermaid\r\nsequenceDiagram\r\n    participant S as Source\r\n    participant T as Tracker\r\n    participant D as Detector\r\n    participant Sys as System\r\n    S->>T: Submit Data\r\n    T->>D: Validate\r\n    D->>Sys: Forward or Block\r\n`\r\n\r\nCreate diagrams specific to THIS invention.",
+          "response_text": "## System Architecture\n\n```mermaid\nflowchart TD\n    subgraph Agents[Agent Ecosystem]\n        A1[Agent A]\n        A2[Agent B]\n        A3[Agent C]\n    end\n    subgraph AITRP[Trust Resolution Layer]\n        REG[Identity Registry]\n        RES[Trust Resolver]\n        VAL[Policy Validator]\n    end\n    subgraph Identity[Agent Identity Record]\n        CAP[Capabilities Manifest]\n        KEY[Public Keys]\n        ATT[Security Attestations]\n        PROTO[Supported Protocols]\n        TL[Trust Level]\n    end\n    subgraph Trust[Trust Chain Authorities]\n        ORG[Organization CA]\n        PLAT[Platform CA]\n        GOV[Governance Authority]\n    end\n    A1 -->|Register Identity| REG\n    A2 -->|Register Identity| REG\n    A3 -->|Register Identity| REG\n    REG --- Identity\n    A1 -->|Trust Resolution Query| RES\n    RES -->|Retrieve Signed Metadata| REG\n    RES -->|Validate Authorization| VAL\n    VAL -->|Verify Trust Chain| Trust\n    RES -->|Return Trust Decision| A1\n    A1 -->|Secure Task Delegation| A2\n```\n\n## Sequence Diagram\n\n```mermaid\nsequenceDiagram\n    participant A as Agent A\n    participant RES as Trust Resolver\n    participant REG as Identity Registry\n    participant VAL as Policy Validator\n    participant CA as Trust Chain Authority\n    participant B as Agent B\n\n    A->>REG: Register identity record with keys and capabilities\n    B->>REG: Register identity record with keys and capabilities\n    Note over REG: Stores cryptographically signed identity records\n\n    A->>RES: Trust resolution query for Agent B\n    RES->>REG: Retrieve signed metadata for Agent B\n    REG-->>RES: Return signed identity record\n    RES->>VAL: Validate policies and trust level\n    VAL->>CA: Verify trust chain and authorization\n    CA-->>VAL: Confirm organizational endorsement\n    VAL-->>RES: Policy validation result\n    RES-->>A: Trust decision with verified metadata\n\n    A->>B: Establish authenticated channel\n    B->>RES: Reciprocal trust query for Agent A\n    RES-->>B: Trust decision for Agent A\n    A->>B: Delegate task with signed request\n    B-->>A: Return signed result\n```\n\n## Trust Chain Validation\n\n```mermaid\nflowchart BT\n    subgraph AgentLayer[Agent Level]\n        AG1[Agent X Identity]\n        AG2[Agent Y Identity]\n    end\n    subgraph OrgLayer[Organization Level]\n        ORG1[Org A Certificate]\n        ORG2[Org B Certificate]\n    end\n    subgraph PlatLayer[Platform Level]\n        P1[Platform Authority]\n    end\n    subgraph RootLayer[Root of Trust]\n        GOV[Governance Root CA]\n    end\n    AG1 -->|Signed by| ORG1\n    AG2 -->|Signed by| ORG2\n    ORG1 -->|Endorsed by| P1\n    ORG2 -->|Endorsed by| P1\n    P1 -->|Anchored to| GOV\n```\n\n## Threat Prevention Flow\n\n```mermaid\nflowchart LR\n    subgraph Requests[Incoming Requests]\n        LEGIT[Legitimate Agent]\n        IMP[Impersonator]\n        ROGUE[Rogue Agent]\n        UNAUTH[Unauthorized Delegator]\n    end\n    subgraph Resolution[AITRP Resolution]\n        LOOKUP[Identity Lookup]\n        SIG[Signature Verification]\n        CHAIN[Trust Chain Check]\n        POL[Policy Enforcement]\n    end\n    subgraph Outcomes[Results]\n        ALLOW[Task Delegation Allowed]\n        DENY[Request Denied]\n        ALERT[Security Alert Raised]\n    end\n    LEGIT --> LOOKUP\n    IMP --> LOOKUP\n    ROGUE --> LOOKUP\n    UNAUTH --> LOOKUP\n    LOOKUP --> SIG\n    SIG --> CHAIN\n    CHAIN --> POL\n    POL -->|Valid identity and policy| ALLOW\n    POL -->|Invalid signature| DENY\n    POL -->|No trust chain| DENY\n    POL -->|Policy violation| ALERT\n```",
+          "alignment": 0.3684
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "a4e99338-fc61-458a-87bf-92fcee96d56b",
+    "source_file": "data/D--Patents-Automation__a4e99338-fc61-458a-87bf-92fcee96d56b.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

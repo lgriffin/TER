@@ -1,0 +1,195 @@
+{
+  "session_id": "6e2ed656-5125-442d-8e22-03e9994be4c0",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 847,
+  "aligned_tokens": 847,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6235,
+    "token_weighted_confidence": 0.6005,
+    "low_confidence_tokens": 833,
+    "low_confidence_share": 0.9835,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 3,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6711547374725342,
+      "intent_similarity": 0.6711547374725342,
+      "tokens": 14,
+      "text": "I'll fetch the full descriptions of all those GitHub issues for you.",
+      "source_message_uuid": "cf1c30d0-23e4-41dc-a809-91e60814423b",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6712,
+          "repetition_score": 0.0,
+          "confidence": 0.6712
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.37878814339637756,
+      "tokens": 66,
+      "text": "Bash {\"command\":\"gh issue view 76 && echo \\\"---\\\" && gh issue view 77 && echo \\\"---\\\" && gh issue view 78 && echo \\\"---\\\" && gh issue view 79 && echo \\\"---\\\" && gh issue view 80 && echo \\\"---\\\" && gh issue view 81\"}",
+      "source_message_uuid": "cf1c30d0-23e4-41dc-a809-91e60814423b",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3788,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5992913246154785,
+      "intent_similarity": 0.5992913246154785,
+      "tokens": 767,
+      "text": "Perfect! Here are the full descriptions of all six GitHub issues:\n\n## Issue #76: Add mypy type checking\n**Problem:** Codebase uses type hints inconsistently with no static type checker. Type errors are only caught at runtime.\n**Proposal:** Add mypy with config including python_version 3.10, warn_return_any, and gradually enabling stricter checks. Start with `--ignore-missing-imports` due to incomplete PySide6 stubs.\n**Impact:** Catches bugs like passing None where string expected, wrong argument order, missing return statements\u2014especially valuable for models.py and database.py.\n\n## Issue #77: Expand ruff lint rules\n**Current state:** Only using E, F, I, W rules (syntax errors, imports).\n**Proposal:** Incrementally enable additional rule sets:\n- **B** (flake8-bugbear) \u2014 common bugs, mutable defaults, unreachable code [HIGH]\n- **UP** (pyupgrade) \u2014 Python upgrade opportunities [HIGH]\n- **SIM** (flake8-simplify) \u2014 code simplification opportunities [MEDIUM]\n- **C4** (flake8-comprehensions) \u2014 comprehension patterns [MEDIUM]\n- **RUF** (ruff-specific) \u2014 ruff's own checks [MEDIUM]\n- **PT** (pytest-style) \u2014 pytest best practices [LOW]\n- **ERA** (eradicate) \u2014 commented-out code [LOW]\n\nStart with B, UP, SIM, C4, RUF.\n\n## Issue #78: Add CI workflow\n**Problem:** Only build-installer.yml runs on tag pushes. No CI for PRs\u2014tests/lint/type-checks can be merged broken.\n**Proposal:** Add `.github/workflows/ci.yml` that:\n- Runs on PRs and master push\n- Tests on Python 3.10 and 3.12 matrix\n- Runs ruff check and pytest\n- Can skip GUI tests with `@pytest.mark.skipif` or separate job with gui extra\n- Fix existing build-installer.yml to use `pip install -e \".[gui]\"` instead of requirements.txt\n\n## Issue #79: Add pre-commit hooks\n**Problem:** No automated formatting or pre-commit linting enforcement.\n**Proposal:** Add `.pre-commit-config.yaml` with:\n- ruff linting (with --fix) and ruff-format\n- trailing-whitespace, end-of-file-fixer\n- check-yaml, check-json, check-added-large-files (500KB limit)\n\nAdd pre-commit to dev dependencies. Contributors run `pre-commit install` once.\n\n**Benefits:** Consistent style, catches lint before PRs, prevents large binary commits, validates JSON configs.\n\n## Issue #80: Add bandit for security scanning\n**Problem:** Code handles OAuth tokens, credentials, and HTTP requests with no security scanning.\n**Proposal:** Add bandit with config skipping B101 (assert warnings), excluding tests.\n**Key areas to scan:** auth.py, user_auth.py (credentials), database.py (SQL), updater.py (downloads), client.py (HTTP requests).\n\nCatches hardcoded secrets, insecure subprocess/exec/eval, weak crypto, SQL injection.\n\n## Issue #81: Add Python logging\n**Problem:** Codebase uses `print()` everywhere\u2014invisible in GUI, not filterable, not configurable.\n**Locations:** analysis.py (6+ errors), client.py (rate limiting), database.py (migrations), consumes_analysis.py (status).\n**Proposal:** Replace `print()` with `logging.getLogger(__name__)` per module, configure root logger in cli.py and gui/app.py, add `--verbose`/`--debug` CLI flags.\n\n**Benefits:** GUI can display logs in status panel, severity filtering, configurable verbosity, consistent diagnostics.",
+      "source_message_uuid": "b05fb466-a042-467b-8407-922748d40efa",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5993,
+          "repetition_score": 0.3251,
+          "confidence": 0.5993,
+          "semantic_similarity": 0.5549,
+          "lexical_similarity": 0.0293,
+          "entity_similarity": 0.0281,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9719
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll fetch the full descriptions of all those GitHub issues for you."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 8,
+    "total_output_tokens": 899,
+    "total_cache_creation_tokens": 4675,
+    "total_cache_read_tokens": 29148,
+    "input_output_ratio": 0.01,
+    "cache_hit_rate": 0.9997,
+    "estimated_cost_usd": 0.0398,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 1
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        13707,
+        15449
+      ],
+      "growth_rate": 1.13,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 136,
+      "user_result_tokens": 2151,
+      "model_reasoning_tokens": 0,
+      "model_tool_tokens": 66,
+      "model_generation_tokens": 781,
+      "total_user_tokens": 2287,
+      "total_model_tokens": 847,
+      "user_ratio": 0.7297
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.673,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "Fetch the full body/description of these GitHub issues using `gh issue view`:\n- Issue #76 (Add mypy type checking)\n- Issue #77 (Expand ruff lint rules)\n- Issue #78 (Add CI workflow)\n- Issue #79 (Add pre-commit hooks)\n- Issue #80 (Add bandit for security scanning)\n- Issue #81 (Add Python logging)\n\nRun: gh issue view 76 && gh issue view 77 && gh issue view 78 && gh issue view 79 && gh issue view 80 && gh issue view 81\n\nReport the full descriptions so I can understand what each issue requests in detail.\n\nSearch breadth: quick",
+          "response_text": "I'll fetch the full descriptions of all those GitHub issues for you. Perfect! Here are the full descriptions of all six GitHub issues:\n\n## Issue #76: Add mypy type checking\n**Problem:** Codebase uses type hints inconsistently with no static type checker. Type errors are only caught at runtime.\n**Proposal:** Add mypy with config including python_version 3.10, warn_return_any, and gradually enabling stricter checks. Start with `--ignore-missing-imports` due to incomplete PySide6 stubs.\n**Impact:** Catches bugs like passing None where string expected, wrong argument order, missing return statements\u2014especially valuable for models.py and database.py.\n\n## Issue #77: Expand ruff lint rules\n**Current state:** Only using E, F, I, W rules (syntax errors, imports).\n**Proposal:** Incrementally enable additional rule sets:\n- **B** (flake8-bugbear) \u2014 common bugs, mutable defaults, unreachable code [HIGH]\n- **UP** (pyupgrade) \u2014 Python upgrade opportunities [HIGH]\n- **SIM** (flake8-simplify) \u2014 code simplification opportunities [MEDIUM]\n- **C4** (flake8-comprehensions) \u2014 comprehension patterns [MEDIUM]\n- **RUF** (ruff-specific) \u2014 ruff's own checks [MEDIUM]\n- **PT** (pytest-style) \u2014 pytest best practices [LOW]\n- **ERA** (eradicate) \u2014 commented-out code [LOW]\n\nStart with B, UP, SIM, C4, RUF.\n\n## Issue #78: Add CI workflow\n**Problem:** Only build-installer.yml runs on tag pushes. No CI for PRs\u2014tests/lint/type-checks can be merged broken.\n**Proposal:** Add `.github/workflows/ci.yml` that:\n- Runs on PRs and master push\n- Tests on Python 3.10 and 3.12 matrix\n- Runs ruff check and pytest\n- Can skip GUI tests with `@pytest.mark.skipif` or separate job with gui extra\n- Fix existing build-installer.yml to use `pip install -e \".[gui]\"` instead of requirements.txt\n\n## Issue #79: Add pre-commit hooks\n**Problem:** No automated formatting or pre-commit linting enforcement.\n**Proposal:** Add `.pre-commit-config.yaml` with:\n- ruff linting (with --fix) and ruff-format\n- trailing-whitespace, end-of-file-fixer\n- check-yaml, check-json, check-added-large-files (500KB limit)\n\nAdd pre-commit to dev dependencies. Contributors run `pre-commit install` once.\n\n**Benefits:** Consistent style, catches lint before PRs, prevents large binary commits, validates JSON configs.\n\n## Issue #80: Add bandit for security scanning\n**Problem:** Code handles OAuth tokens, credentials, and HTTP requests with no security scanning.\n**Proposal:** Add bandit with config skipping B101 (assert warnings), excluding tests.\n**Key areas to scan:** auth.py, user_auth.py (credentials), database.py (SQL), updater.py (downloads), client.py (HTTP requests).\n\nCatches hardcoded secrets, insecure subprocess/exec/eval, weak crypto, SQL injection.\n\n## Issue #81: Add Python logging\n**Problem:** Codebase uses `print()` everywhere\u2014invisible in GUI, not filterable, not configurable.\n**Locations:** analysis.py (6+ errors), client.py (rate limiting), database.py (migrations), consumes_analysis.py (status).\n**Proposal:** Replace `print()` with `logging.getLogger(__name__)` per module, configure root logger in cli.py and gui/app.py, add `--verbose`/`--debug` CLI flags.\n\n**Benefits:** GUI can display logs in status panel, severity filtering, configurable verbosity, consistent diagnostics.",
+          "alignment": 0.673
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "6e2ed656-5125-442d-8e22-03e9994be4c0",
+    "source_file": "data/D--code-warcraftlogs-project__agent-a1ca335d0d39e6a34.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

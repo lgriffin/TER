@@ -1,0 +1,548 @@
+{
+  "session_id": "2ae066d9-de51-4b6e-ac7b-8a48cf4f26ce",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 756,
+  "aligned_tokens": 756,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6091,
+    "token_weighted_confidence": 0.7705,
+    "low_confidence_tokens": 253,
+    "low_confidence_share": 0.3347,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 13,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "waste_patterns": [
+    {
+      "type": "bash_antipattern",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 2,
+      "tokens_wasted": 787,
+      "description": "2 Bash calls should use dedicated tools (787 tokens)"
+    },
+    {
+      "type": "failed_tool_retry",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 1,
+      "tokens_wasted": 70,
+      "description": "1 failed tool calls (70 wasted tokens)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.7259278893470764,
+      "intent_similarity": 0.7259278893470764,
+      "tokens": 29,
+      "text": "I'll help you investigate this ESI endpoint mismatch. Let me start by exploring the repository structure and checking the validation script and mining endpoint definitions.",
+      "source_message_uuid": "09a7881c-42b2-4277-b456-0bfa25bfc306",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.7259,
+          "repetition_score": 0.0,
+          "confidence": 0.7259
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.37412378191947937,
+      "tokens": 35,
+      "text": "Bash {\"command\":\"find /d -type f -name \\\"*.ts\\\" | grep -E \\\"(validate-esi|mining)\\\" | head -20\"}",
+      "source_message_uuid": "09a7881c-42b2-4277-b456-0bfa25bfc306",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3741,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.035691965371370316,
+      "tokens": 8,
+      "text": "Let me use a more targeted approach:",
+      "source_message_uuid": "de01e571-ddb1-45b5-ae72-6282e82bcd4f",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.0357,
+          "repetition_score": 0.0104,
+          "confidence": 0.5,
+          "semantic_similarity": 0.0079,
+          "lexical_similarity": 0.0714,
+          "entity_similarity": 0.0435,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9565
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll help you investigate this ESI endpoint mismatch. Let me start by exploring the repository structure and checking the validation script and mining endpoint definitions."
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5080190896987915,
+      "tokens": 24,
+      "text": "Glob {\"pattern\":\"**/validate-esi-endpoints.ts\",\"path\":\"D:\\\\code\\\\ESI.ts\"}",
+      "source_message_uuid": "de01e571-ddb1-45b5-ae72-6282e82bcd4f",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.508,
+          "repetition_score": 0.0382,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5383,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.125,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"find /d -type f -name \\\"*.ts\\\" | grep -E \\\"(validate-esi|mining)\\\" | head -20\"}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.48443689942359924,
+      "tokens": 22,
+      "text": "Glob {\"pattern\":\"**/mining*.ts\",\"path\":\"D:\\\\code\\\\ESI.ts\"}",
+      "source_message_uuid": "de01e571-ddb1-45b5-ae72-6282e82bcd4f",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4844,
+          "repetition_score": 0.6537,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8168,
+          "lexical_similarity": 0.6667,
+          "entity_similarity": 0.625,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Glob {\"pattern\":\"**/validate-esi-endpoints.ts\",\"path\":\"D:\\\\code\\\\ESI.ts\"}"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.43151959776878357,
+      "tokens": 21,
+      "text": "Glob {\"pattern\":\"**/*industry*.ts\",\"path\":\"D:\\\\code\\\\ESI.ts\"}",
+      "source_message_uuid": "de01e571-ddb1-45b5-ae72-6282e82bcd4f",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4315,
+          "repetition_score": 0.7004,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8919,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Glob {\"pattern\":\"**/mining*.ts\",\"path\":\"D:\\\\code\\\\ESI.ts\"}"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.4529178738594055,
+      "tokens": 13,
+      "text": "Now let me read the validation script and the industry endpoints file:",
+      "source_message_uuid": "5363a266-cd59-45db-8bef-80bed457533b",
+      "source_lines": [
+        13
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4529,
+          "repetition_score": 0.2661,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3907,
+          "lexical_similarity": 0.2143,
+          "entity_similarity": 0.2083,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.7917
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll help you investigate this ESI endpoint mismatch. Let me start by exploring the repository structure and checking the validation script and mining endpoint definitions."
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5412884950637817,
+      "tokens": 22,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\scripts\\\\validate-esi-endpoints.ts\"}",
+      "source_message_uuid": "5363a266-cd59-45db-8bef-80bed457533b",
+      "source_lines": [
+        14
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5413,
+          "repetition_score": 0.0662,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7581,
+          "lexical_similarity": 0.4,
+          "entity_similarity": 0.4,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Glob {\"pattern\":\"**/validate-esi-endpoints.ts\",\"path\":\"D:\\\\code\\\\ESI.ts\"}"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.484512060880661,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\industryEndpoints.ts\"}",
+      "source_message_uuid": "5363a266-cd59-45db-8bef-80bed457533b",
+      "source_lines": [
+        16
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4845,
+          "repetition_score": 0.6334,
+          "confidence": 0.6,
+          "semantic_similarity": 0.858,
+          "lexical_similarity": 0.4545,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\scripts\\\\validate-esi-endpoints.ts\"}"
+      }
+    },
+    {
+      "position": 9,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.517748236656189,
+      "intent_similarity": 0.517748236656189,
+      "tokens": 37,
+      "text": "Perfect! I can see the issue clearly now. Let me verify this by checking what the actual ESI spec says. Let me search for any other references to these endpoints to confirm:",
+      "source_message_uuid": "d3aa9913-78c1-42b4-814e-badefa13642d",
+      "source_lines": [
+        18
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5177,
+          "repetition_score": 0.413,
+          "confidence": 0.5177,
+          "semantic_similarity": 0.6541,
+          "lexical_similarity": 0.186,
+          "entity_similarity": 0.1316,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8684
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll help you investigate this ESI endpoint mismatch. Let me start by exploring the repository structure and checking the validation script and mining endpoint definitions."
+      }
+    },
+    {
+      "position": 10,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4329686164855957,
+      "tokens": 28,
+      "text": "Grep {\"pattern\":\"mining/(extractions|observers)\",\"type\":\"ts\",\"path\":\"D:\\\\code\\\\ESI.ts\"}",
+      "source_message_uuid": "d3aa9913-78c1-42b4-814e-badefa13642d",
+      "source_lines": [
+        19
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.433,
+          "repetition_score": 0.0638,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6796,
+          "lexical_similarity": 0.4615,
+          "entity_similarity": 0.5,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Glob {\"pattern\":\"**/mining*.ts\",\"path\":\"D:\\\\code\\\\ESI.ts\"}"
+      }
+    },
+    {
+      "position": 11,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.34675589203834534,
+      "tokens": 19,
+      "text": "Bash {\"command\":\"npm run validate:esi 2>&1 | head -100\"}",
+      "source_message_uuid": "d3aa9913-78c1-42b4-814e-badefa13642d",
+      "source_lines": [
+        20
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3468,
+          "repetition_score": 0.4813,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5621,
+          "lexical_similarity": 0.15,
+          "entity_similarity": 0.3571,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"find /d -type f -name \\\"*.ts\\\" | grep -E \\\"(validate-esi|mining)\\\" | head -20\"}"
+      }
+    },
+    {
+      "position": 12,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.8750827312469482,
+      "intent_similarity": 0.8750827312469482,
+      "tokens": 474,
+      "text": "Perfect! I've found the exact issue. Here's my analysis:\n\n## Finding: ESI Spec Path Mismatch Confirmed\n\n**The Problem:**\nThe codebase is using the **wrong path format** for the mining endpoints. \n\n**Codebase paths (INCORRECT):**\n- `corporations/{corporationId}/mining/extractions` (line 23 in industryEndpoints.ts)\n- `corporations/{corporationId}/mining/observers` (line 29)\n- `corporations/{corporationId}/mining/observers/{observerId}` (line 35)\n\n**ESI Spec paths (CORRECT - according to the validation script output):**\n- `/corporation/{corporation_id}/mining/extractions/`\n- `/corporation/{corporation_id}/mining/observers/`\n- `/corporation/{corporation_id}/mining/observers/{observer_id}/`\n\n**Key differences:**\n1. **Singular vs Plural**: The ESI spec uses `/corporation/` (singular) while the codebase uses `/corporations/` (plural)\n2. **Trailing slash**: The ESI spec includes a trailing slash after `extractions/` and `observers/`\n3. **Parameter naming**: The ESI spec uses `{corporation_id}` and `{observer_id}` (snake_case), while codebase uses `{corporationId}` and `{observerId}` (camelCase)\n\n**Which is correct?**\nThe **ESI spec is correct**. The validation script fetches the canonical ESI swagger spec from `https://esi.evetech.net/latest/swagger.json` (line 15 of validate-esi-endpoints.ts), which is the official source of truth. The script reports these three mining endpoints as \"IN ESI SPEC BUT NOT IN CODEBASE\" because the paths don't match.\n\n**File location:** `/D:\\code\\ESI.ts\\src\\core\\endpoints\\industryEndpoints.ts` (lines 23, 29, 35)\n\nThe codebase needs to be updated to use `/corporation/` (singular) instead of `/corporations/` (plural) for these three mining-related endpoints.",
+      "source_message_uuid": "31bf13ae-b6bc-4f9d-b1f1-5d3d8895d0b0",
+      "source_lines": [
+        23
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.8751,
+          "repetition_score": 0.4063,
+          "confidence": 0.8751,
+          "semantic_similarity": 0.6778,
+          "lexical_similarity": 0.056,
+          "entity_similarity": 0.068,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.932
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll help you investigate this ESI endpoint mismatch. Let me start by exploring the repository structure and checking the validation script and mining endpoint definitions."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "bash_antipattern",
+        "tokens_wasted": 787,
+        "description": "2 Bash calls should use dedicated tools (787 tokens)"
+      },
+      {
+        "type": "failed_tool_retry",
+        "tokens_wasted": 70,
+        "description": "1 failed tool calls (70 wasted tokens)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Bash Anti-Patterns",
+        "tokens": 787,
+        "percentage": 91.8,
+        "cost_usd": 0.002361,
+        "count": 1,
+        "pricing": "input"
+      },
+      {
+        "source": "Failed Tool Retries",
+        "tokens": 70,
+        "percentage": 8.2,
+        "cost_usd": 0.00021,
+        "count": 1,
+        "pricing": "input"
+      }
+    ],
+    "total_tokens": 857,
+    "total_cost_usd": 0.002571
+  },
+  "economics": {
+    "total_input_tokens": 30,
+    "total_output_tokens": 501,
+    "total_cache_creation_tokens": 22947,
+    "total_cache_read_tokens": 65440,
+    "input_output_ratio": 0.06,
+    "cache_hit_rate": 0.9995,
+    "estimated_cost_usd": 0.1133,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 4,
+      "mid_span_count": 4,
+      "late_span_count": 5
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        13704,
+        15728,
+        16143,
+        19889
+      ],
+      "growth_rate": 1.45,
+      "is_superlinear": true,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 211,
+      "user_result_tokens": 3574,
+      "model_reasoning_tokens": 0,
+      "model_tool_tokens": 195,
+      "model_generation_tokens": 561,
+      "total_user_tokens": 3785,
+      "total_model_tokens": 756,
+      "user_ratio": 0.8335
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.7644,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "In the repo at D:\\code\\ESI.ts, the ESI validation script reports a mismatch between:\n- ESI spec paths: `/corporation/{corporation_id}/mining/extractions/`, `/corporation/{corporation_id}/mining/observers/`, `/corporation/{corporation_id}/mining/observers/{observer_id}/`\n- Codebase paths using `corporations` (plural)\n\nPlease find the mining endpoint definitions in the codebase. Search for files containing \"mining\" endpoint definitions \u2014 likely in src/api/industry/ or similar. Read the endpoint definition files and report the exact paths used. Also check the actual ESI API spec by reading the validate-esi script (scripts/validate-esi-endpoints.ts) to see where it gets the spec from.\n\nI need to know: does the codebase use `/corporations/` (plural) while the ESI spec uses `/corporation/` (singular)? Which is correct?",
+          "response_text": "I'll help you investigate this ESI endpoint mismatch. Let me start by exploring the repository structure and checking the validation script and mining endpoint definitions. Let me use a more targeted approach: Now let me read the validation script and the industry endpoints file: Perfect! I can see the issue clearly now. Let me verify this by checking what the actual ESI spec says. Let me search for any other references to these endpoints to confirm: Perfect! I've found the exact issue. Here's my analysis:\n\n## Finding: ESI Spec Path Mismatch Confirmed\n\n**The Problem:**\nThe codebase is using the **wrong path format** for the mining endpoints. \n\n**Codebase paths (INCORRECT):**\n- `corporations/{corporationId}/mining/extractions` (line 23 in industryEndpoints.ts)\n- `corporations/{corporationId}/mining/observers` (line 29)\n- `corporations/{corporationId}/mining/observers/{observerId}` (line 35)\n\n**ESI Spec paths (CORRECT - according to the validation script output):**\n- `/corporation/{corporation_id}/mining/extractions/`\n- `/corporation/{corporation_id}/mining/observers/`\n- `/corporation/{corporation_id}/mining/observers/{observer_id}/`\n\n**Key differences:**\n1. **Singular vs Plural**: The ESI spec uses `/corporation/` (singular) while the codebase uses `/corporations/` (plural)\n2. **Trailing slash**: The ESI spec includes a trailing slash after `extractions/` and `observers/`\n3. **Parameter naming**: The ESI spec uses `{corporation_id}` and `{observer_id}` (snake_case), while codebase uses `{corporationId}` and `{observerId}` (camelCase)\n\n**Which is correct?**\nThe **ESI spec is correct**. The validation script fetches the canonical ESI swagger spec from `https://esi.evetech.net/latest/swagger.json` (line 15 of validate-esi-endpoints.ts), which is the official source of truth. The script reports these three mining endpoints as \"IN ESI SPEC BUT NOT IN CODEBASE\" because the paths don't match.\n\n**File location:** `/D:\\code\\ESI.ts\\src\\core\\endpoints\\industryEndpoints.ts` (lines 23, 29, 35)\n\nThe codebase needs to be updated to use `/corporation/` (singular) instead of `/corporations/` (plural) for these three mining-related endpoints.",
+          "alignment": 0.7644
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "2ae066d9-de51-4b6e-ac7b-8a48cf4f26ce",
+    "source_file": "data/D--code-ESI-ts__agent-acc89e7f39a068cf5.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

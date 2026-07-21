@@ -1,0 +1,281 @@
+{
+  "session_id": "73c597d0-ff67-43ff-88ac-23a48a528111",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 2612,
+  "aligned_tokens": 2612,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5855,
+    "token_weighted_confidence": 0.6247,
+    "low_confidence_tokens": 640,
+    "low_confidence_share": 0.245,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 6,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.4809091091156006,
+      "tokens": 13,
+      "text": "Let me start by fetching the open issues from the GitHub repo.",
+      "source_message_uuid": "2adc0dce-c76b-41ee-b2ad-62a9192b37fa",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4809,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6520383358001709,
+      "intent_similarity": 0.6520383358001709,
+      "tokens": 40,
+      "text": "Bash {\"command\":\"gh issue list --repo tutors-sdk/tutors --state open --limit 100 --json number,title,labels,createdAt,author,comments,body\",\"timeout\":30000}",
+      "source_message_uuid": "2adc0dce-c76b-41ee-b2ad-62a9192b37fa",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.652,
+          "repetition_score": 0.0,
+          "confidence": 0.652
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5194382667541504,
+      "tokens": 35,
+      "text": "Bash {\"command\":\"gh pr list --repo tutors-sdk/tutors --state open --json number,title,headRefName --limit 10\",\"timeout\":15000}",
+      "source_message_uuid": "2adc0dce-c76b-41ee-b2ad-62a9192b37fa",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5194,
+          "repetition_score": 0.6757,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9509,
+          "lexical_similarity": 0.52,
+          "entity_similarity": 0.5217,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"gh issue list --repo tutors-sdk/tutors --state open --limit 100 --json number,title,labels,createdAt,author,comments,body\",\"timeout\":30000}"
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.18100100755691528,
+      "tokens": 54,
+      "text": "Read {\"file_path\":\"C:\\\\Users\\\\leigh\\\\.claude\\\\projects\\\\D--code-tutors\\\\73c597d0-ff67-43ff-88ac-23a48a528111\\\\tool-results\\\\by01sq32i.txt\"}",
+      "source_message_uuid": "14607643-97f9-4c45-8dad-8d8ff94ae013",
+      "source_lines": [
+        8
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.181,
+          "repetition_score": 0.019,
+          "confidence": 0.6,
+          "semantic_similarity": 0.2808,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.0,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"gh issue list --repo tutors-sdk/tutors --state open --limit 100 --json number,title,labels,createdAt,author,comments,body\",\"timeout\":30000}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.4544003903865814,
+      "tokens": 538,
+      "text": "Now let me check which issues have 3+ comments and fetch those comments. Let me look at the data more carefully.\n\nFrom the data, let me identify issues with 3+ comments:\n- #779 (Themes don't work on homepage) - 3 comments\n- #702 (Tutors Version Management) - 2 comments\n- #685 (Text Search PDF content) - 3 comments\n- #672 (Accessibility Audit) - 2 comments\n- #670 (Reintegrate Theme Designer) - 1 comment\n- #682 (Security Audit for .env) - 1 comment\n- #689 (Encrypt tutors.json) - 1 comment\n- #829 (Course temporarily returns 404/502) - 2 comments\n\nWait, I need to look at the actual comments array in the JSON data. Let me recount by examining the comments field directly for each issue.\n\nContinuing through the rest of the issues, I'm seeing the comment counts across the full list - most have zero or one comment, with a few like #779 and #685 having three comments, and several with two.\n\nThe API already provided the comment bodies inline, so I don't need to make additional requests to fetch those. Now I'm organizing everything into a report and cross-referencing against the open PRs to see what's currently in flight.\n\nI'm categorizing the issues by type\u2014bugs like the course card visibility problem on Chrome/Mac, the unreliable sign-in redirects, and the theme issues on the homepage, alongside feature requests and other improvements that are queued up. There's also a dashboard redesign and illustrated reference manual to tackle, plus a bunch of infrastructure work around SvelteKit rendering, authentication strategy updates, environment variable security, and deployment support across different platforms. I'm also noting some refactoring needs like breaking out the analytics and live features into separate applications, upgrading dependencies, and doing accessibility and icon set reviews.\n\nNow I'm checking which of these issues are actually stale\u2014looking at anything older than January 2026 with no recent activity. Most of the issues in the #667-#836 range from 2024 are clearly stale with no recent engagement. The ones from early 2025 are also past the six-month mark, though a few from January 2026 are right at the boundary.\n\nNow I'm mapping the PRs to their related issues to understand what's being addressed. PR #987 handles the SvelteKit SSR problem, #1065 covers some security fixes and ghost session issues, while #1063 and #1064 are new features without existing issues. I should compile this into a report now.",
+      "source_message_uuid": "6582e7c9-ee1a-4e8a-bb59-a388961bfc82",
+      "source_lines": [
+        10
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4544,
+          "repetition_score": 0.1741,
+          "confidence": 0.5,
+          "semantic_similarity": 0.2848,
+          "lexical_similarity": 0.0294,
+          "entity_similarity": 0.0236,
+          "action_similarity": 0.2,
+          "parameter_novelty": 0.9764
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "Let me start by fetching the open issues from the GitHub repo."
+      }
+    },
+    {
+      "position": 5,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6608588099479675,
+      "intent_similarity": 0.6608588099479675,
+      "tokens": 1932,
+      "text": "Here is the analysis of all 35 open issues on tutors-sdk/tutors, organized by category.\n\n---\n\n## BUGS (8 issues)\n\n**#982 - Course card visibility** (May 2025, no labels) -- Cards not visible on Chrome/Mac but visible on tablet for same course. No PR addresses it. **Priority: High** -- affects content visibility.\n\n**#829 - Course temporarily returns 404/502** (Oct 2024, no labels) -- Stale courses return 502 on first load after extended idle; refresh fixes it. 2 comments (may relate to deployment invalidation). No PR addresses it. **Priority: High** -- user-facing error.\n\n**#779 - Themes don't work on homepage** (Jun 2024, no labels) -- Theme switcher has no effect on tutors.dev homepage. 3 comments with debugging by @lgriffin identifying `storeTheme` hardcoding. No PR addresses it. **Priority: Medium**.\n\n**#780 - Images only work in lightmode or darkmode** (Jun 2024, no labels) -- Some images illegible when mode changes. 1 comment with a proposed CSS approach. No PR addresses it. **Priority: Medium**.\n\n**#692 - Redirect on Sign in unreliable** (Jan 2024, no labels) -- Auth redirect sends users to tutors.dev instead of the course that prompted sign-in. No PR. **Priority: High** -- breaks auth flow.\n\n**#691 - Course Whitelist inoperable** (Jan 2024, no labels) -- Enrolment-based access control is broken. No PR. **Priority: High** -- security feature non-functional.\n\n**#1035 - Ghost Sessions in presence** (Jan 2026, no labels) -- Presence records persist after browser close, inflating online counts. Detailed fix proposed. PR #1065 partially addresses error handling but not this specific issue. **Priority: Medium**.\n\n**#938 - Broken link to tutors-holopin** (Jan 2025, no labels) -- README contains a dead image link. No PR. **Priority: Low**.\n\n---\n\n## FEATURE REQUESTS (10 issues)\n\n**#932 - GenAI augmentation (eli5 tutors)** (Jan 2025) -- AI-powered explanations, web search, and content-improvement suggestions. Ambitious scope. No PR. **Priority: Medium** -- high value but large effort.\n\n**#683 - Assignment Submission Service** (Jan 2024) -- Moodle-like submissions with rubrics and feedback. Assigned to @ianbl8 as a separate repo. No PR. **Priority: Medium**.\n\n**#685 - Text Search PDF content** (Jan 2024) -- Extend search to PDF/talk content via JSON extraction. 3 comments with a detailed roadmap from @edeleastar. No PR. **Priority: Medium**.\n\n**#684 - Search Text Summaries** (Jan 2024) -- Extend search to card summaries. No PR. **Priority: Low**.\n\n**#678 - Bookmarking learning objects** (Jan 2024) -- Let students bookmark labs/topics/videos. No PR. **Priority: Low**.\n\n**#675 - LabChat** (Jan 2024) -- Ephemeral IRC-style chat sidebar during labs via PartyKit. No PR. **Priority: Low**.\n\n**#674 - Internationalisation** (Jan 2024) -- i18n strategy using sveltekit-i18n. No PR. **Priority: Low**.\n\n**#673 - Lab Full Screen Mode** (Jan 2024) -- Hide chrome for focused lab work. No PR. **Priority: Low**.\n\n**#671 - Group Tutors Live Cards** (Jan 2024) -- Group presence cards by course/LO. No PR. **Priority: Low**.\n\n**#667 - Presence Status strings** (Jan 2024) -- Custom status like \"Stuck!\" on live cards. No PR. **Priority: Low**.\n\n---\n\n## ENHANCEMENTS (5 issues)\n\n**#1034 - Centralize route logic** (Jan 2026) -- Replace hardcoded string interpolation routes with a `route-utils.ts`. No PR. **Priority: Medium** -- reduces fragility.\n\n**#1033 - Consolidate Supabase Auth init** (Jan 2026) -- Single auth subscription point to prevent race conditions / UI flicker. No PR. **Priority: Medium**.\n\n**#1032 - Unified Lo type safety** (Jan 2026) -- Base interface for all Learning Objects plus type guards. No PR. **Priority: Medium** -- improves maintainability.\n\n**#831 - Questionnaires** (Oct 2024) -- Documents that `<details>` tag works for self-assessment quizzes. More documentation than enhancement. **Priority: Low**.\n\n**#677 - Redesign Dashboard** (Jan 2024) -- Card-based layout for recently accessed courses. No PR. **Priority: Low**.\n\n---\n\n## TECH DEBT / INFRA (12 issues)\n\n**#680 - Enable SSR** (Jan 2024) -- SSR disabled globally due to CSR-only markdown plugins. PR #987 directly addresses this. **Priority: High** -- affects performance and SEO.\n\n**#832 - Skeleton 3 Upgrade** (Oct 2024) -- UI framework upgrade. No PR. **Priority: High** -- framework debt.\n\n**#679 - Replace Supabase Auth** (Jan 2024) -- Abstract auth provider (Lucia/Auth.js). No PR. **Priority: Medium**.\n\n**#682 - Security Audit for .env / API keys** (Jan 2024) -- Review key exposure. PR #1065 adds security headers but does not address env management. **Priority: Medium**.\n\n**#702 - Version Management** (Feb 2024) -- Enforce semver and sync CLI/reader versions. 2 comments with strategy. No PR. **Priority: Medium**.\n\n**#689 - Encrypt tutors.json** (Jan 2024) -- Encrypt/compress course JSON. 1 comment with PR-in-progress. **Priority: Low**.\n\n**#700 - netlify.toml research** (Feb 2024) -- Add build config file. No PR. **Priority: Low**.\n\n**#698 - Support Vercel + GH Pages** (Feb 2024) -- Reduce Netlify dependency. No PR. **Priority: Low**.\n\n**#687 - Upgrade static HTML generator** (Jan 2024) -- Match reader style. No PR. **Priority: Low**.\n\n**#836 - Factor Live into separate app** (Oct 2024) -- Architectural separation. No PR. **Priority: Low**.\n\n**#815/814 - Factor out Analytics** (Oct 2024) -- Separate analytics UX and repackage as serverless. No PR. **Priority: Low**.\n\n**#672 - Accessibility Audit** (Jan 2024) -- Ongoing; initial violations fixed in PR #699 but recommendations remain. **Priority: Medium**.\n\nRemaining infra: #835 (rework getting started), #834 (review sample courses), #833 (icon sets), #676 (illustrated reference manual) -- all low priority docs/content tasks from Oct 2024/Jan 2024.\n\n---\n\n## STALE ISSUES (older than 6 months, no recent activity)\n\nAll 27 issues from 2024 (#667-#836) qualify as stale. The most notable are the 4 open bugs (#779, #780, #691, #692) and the SSR issue (#680) which has a corresponding PR. The Jan 2025 issues (#932, #938) are also stale.\n\n---\n\n## PR-TO-ISSUE MAPPING\n\n| PR | Addresses Issues |\n|----|-----------------|\n| #987 (SSR Fix) | #680 (SSR) directly |\n| #1062 (Testing) | No specific issue; general tech debt |\n| #1063 (Mermaid/Marp) | No issue filed |\n| #1064 (Jupyter Notebook) | No issue filed |\n| #1065 (Critical fixes) | Partially #682 (security); tangentially #1035 |\n| #1066 (Prettier) | No issue; general hygiene |\n| #1043 (Arch flow) | No clear match |\n\n---\n\n## KEY PATTERNS\n\n1. **January 2024 bulk filing**: 20 issues filed by @edeleastar in one sprint -- a roadmap dump. Most remain untouched. Consider triaging and closing aspirational ones.\n\n2. **January 2026 cluster by @codeCraft-Ritik**: Issues #1032-1035 are well-structured with code fixes included. These are ready to convert into PRs.\n\n3. **Auth/security cluster**: Issues #679, #682, #691, #692, #1033 all touch authentication and security -- worth addressing together.\n\n4. **Search cluster**: #684 and #685 form a natural pair for extending search.\n\n5. **Architecture separation cluster**: #814, #815, #836 all propose factoring out subsystems -- long-term architectural vision.\n\n6. **No labels on any issue** -- the repo does not use GitHub labels, making triage harder.",
+      "source_message_uuid": "6582e7c9-ee1a-4e8a-bb59-a388961bfc82",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6609,
+          "repetition_score": 0.0,
+          "confidence": 0.6609
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 5,
+    "total_output_tokens": 119,
+    "total_cache_creation_tokens": 21827,
+    "total_cache_read_tokens": 45780,
+    "input_output_ratio": 0.04,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.0974,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 2,
+      "mid_span_count": 2,
+      "late_span_count": 2
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        13028,
+        15445,
+        17312
+      ],
+      "growth_rate": 1.33,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 275,
+      "user_result_tokens": 15185,
+      "model_reasoning_tokens": 551,
+      "model_tool_tokens": 129,
+      "model_generation_tokens": 1932,
+      "total_user_tokens": 15460,
+      "total_model_tokens": 2612,
+      "user_ratio": 0.8555
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.6609,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "Analyze all open issues on the tutors-sdk/tutors GitHub repo. From D:\\code\\tutors, run:\n\n1. `gh issue list --repo tutors-sdk/tutors --state open --limit 100 --json number,title,labels,createdAt,author,comments,body`\n\n2. For any issues with significant discussion (3+ comments), fetch the comments too:\n   `gh api repos/tutors-sdk/tutors/issues/<number>/comments`\n\nFor your report, organize the issues into:\n- **Bugs** \u2014 reported defects\n- **Feature requests** \u2014 new functionality\n- **Enhancements** \u2014 improvements to existing features\n- **Tech debt / infra** \u2014 build, CI, testing, docs\n- **Stale** \u2014 issues older than 6 months with no recent activity\n\nFor each issue, note:\n- Number, title, age, labels\n- Brief summary of what it asks for\n- Whether any of the 7 open PRs (#987, #1043, #1062, #1063, #1064, #1065, #1066) address it\n- Priority assessment (critical/high/medium/low) based on impact\n\nAlso flag any patterns \u2014 e.g. clusters of related issues, repeatedly reported problems, issues that could be addressed together.\n\nReport in under 800 words, structured by category.",
+          "response_text": "Here is the analysis of all 35 open issues on tutors-sdk/tutors, organized by category.\n\n---\n\n## BUGS (8 issues)\n\n**#982 - Course card visibility** (May 2025, no labels) -- Cards not visible on Chrome/Mac but visible on tablet for same course. No PR addresses it. **Priority: High** -- affects content visibility.\n\n**#829 - Course temporarily returns 404/502** (Oct 2024, no labels) -- Stale courses return 502 on first load after extended idle; refresh fixes it. 2 comments (may relate to deployment invalidation). No PR addresses it. **Priority: High** -- user-facing error.\n\n**#779 - Themes don't work on homepage** (Jun 2024, no labels) -- Theme switcher has no effect on tutors.dev homepage. 3 comments with debugging by @lgriffin identifying `storeTheme` hardcoding. No PR addresses it. **Priority: Medium**.\n\n**#780 - Images only work in lightmode or darkmode** (Jun 2024, no labels) -- Some images illegible when mode changes. 1 comment with a proposed CSS approach. No PR addresses it. **Priority: Medium**.\n\n**#692 - Redirect on Sign in unreliable** (Jan 2024, no labels) -- Auth redirect sends users to tutors.dev instead of the course that prompted sign-in. No PR. **Priority: High** -- breaks auth flow.\n\n**#691 - Course Whitelist inoperable** (Jan 2024, no labels) -- Enrolment-based access control is broken. No PR. **Priority: High** -- security feature non-functional.\n\n**#1035 - Ghost Sessions in presence** (Jan 2026, no labels) -- Presence records persist after browser close, inflating online counts. Detailed fix proposed. PR #1065 partially addresses error handling but not this specific issue. **Priority: Medium**.\n\n**#938 - Broken link to tutors-holopin** (Jan 2025, no labels) -- README contains a dead image link. No PR. **Priority: Low**.\n\n---\n\n## FEATURE REQUESTS (10 issues)\n\n**#932 - GenAI augmentation (eli5 tutors)** (Jan 2025) -- AI-powered explanations, web search, and content-improvement suggestions. Ambitious scope. No PR. **Priority: Medium** -- high value but large effort.\n\n**#683 - Assignment Submission Service** (Jan 2024) -- Moodle-like submissions with rubrics and feedback. Assigned to @ianbl8 as a separate repo. No PR. **Priority: Medium**.\n\n**#685 - Text Search PDF content** (Jan 2024) -- Extend search to PDF/talk content via JSON extraction. 3 comments with a detailed roadmap from @edeleastar. No PR. **Priority: Medium**.\n\n**#684 - Search Text Summaries** (Jan 2024) -- Extend search to card summaries. No PR. **Priority: Low**.\n\n**#678 - Bookmarking learning objects** (Jan 2024) -- Let students bookmark labs/topics/videos. No PR. **Priority: Low**.\n\n**#675 - LabChat** (Jan 2024) -- Ephemeral IRC-style chat sidebar during labs via PartyKit. No PR. **Priority: Low**.\n\n**#674 - Internationalisation** (Jan 2024) -- i18n strategy using sveltekit-i18n. No PR. **Priority: Low**.\n\n**#673 - Lab Full Screen Mode** (Jan 2024) -- Hide chrome for focused lab work. No PR. **Priority: Low**.\n\n**#671 - Group Tutors Live Cards** (Jan 2024) -- Group presence cards by course/LO. No PR. **Priority: Low**.\n\n**#667 - Presence Status strings** (Jan 2024) -- Custom status like \"Stuck!\" on live cards. No PR. **Priority: Low**.\n\n---\n\n## ENHANCEMENTS (5 issues)\n\n**#1034 - Centralize route logic** (Jan 2026) -- Replace hardcoded string interpolation routes with a `route-utils.ts`. No PR. **Priority: Medium** -- reduces fragility.\n\n**#1033 - Consolidate Supabase Auth init** (Jan 2026) -- Single auth subscription point to prevent race conditions / UI flicker. No PR. **Priority: Medium**.\n\n**#1032 - Unified Lo type safety** (Jan 2026) -- Base interface for all Learning Objects plus type guards. No PR. **Priority: Medium** -- improves maintainability.\n\n**#831 - Questionnaires** (Oct 2024) -- Documents that `<details>` tag works for self-assessment quizzes. More documentation than enhancement. **Priority: Low**.\n\n**#677 - Redesign Dashboard** (Jan 2024) -- Card-based layout for recently accessed courses. No PR. **Priority: Low**.\n\n---\n\n## TECH DEBT / INFRA (12 issues)\n\n**#680 - Enable SSR** (Jan 2024) -- SSR disabled globally due to CSR-only markdown plugins. PR #987 directly addresses this. **Priority: High** -- affects performance and SEO.\n\n**#832 - Skeleton 3 Upgrade** (Oct 2024) -- UI framework upgrade. No PR. **Priority: High** -- framework debt.\n\n**#679 - Replace Supabase Auth** (Jan 2024) -- Abstract auth provider (Lucia/Auth.js). No PR. **Priority: Medium**.\n\n**#682 - Security Audit for .env / API keys** (Jan 2024) -- Review key exposure. PR #1065 adds security headers but does not address env management. **Priority: Medium**.\n\n**#702 - Version Management** (Feb 2024) -- Enforce semver and sync CLI/reader versions. 2 comments with strategy. No PR. **Priority: Medium**.\n\n**#689 - Encrypt tutors.json** (Jan 2024) -- Encrypt/compress course JSON. 1 comment with PR-in-progress. **Priority: Low**.\n\n**#700 - netlify.toml research** (Feb 2024) -- Add build config file. No PR. **Priority: Low**.\n\n**#698 - Support Vercel + GH Pages** (Feb 2024) -- Reduce Netlify dependency. No PR. **Priority: Low**.\n\n**#687 - Upgrade static HTML generator** (Jan 2024) -- Match reader style. No PR. **Priority: Low**.\n\n**#836 - Factor Live into separate app** (Oct 2024) -- Architectural separation. No PR. **Priority: Low**.\n\n**#815/814 - Factor out Analytics** (Oct 2024) -- Separate analytics UX and repackage as serverless. No PR. **Priority: Low**.\n\n**#672 - Accessibility Audit** (Jan 2024) -- Ongoing; initial violations fixed in PR #699 but recommendations remain. **Priority: Medium**.\n\nRemaining infra: #835 (rework getting started), #834 (review sample courses), #833 (icon sets), #676 (illustrated reference manual) -- all low priority docs/content tasks from Oct 2024/Jan 2024.\n\n---\n\n## STALE ISSUES (older than 6 months, no recent activity)\n\nAll 27 issues from 2024 (#667-#836) qualify as stale. The most notable are the 4 open bugs (#779, #780, #691, #692) and the SSR issue (#680) which has a corresponding PR. The Jan 2025 issues (#932, #938) are also stale.\n\n---\n\n## PR-TO-ISSUE MAPPING\n\n| PR | Addresses Issues |\n|----|-----------------|\n| #987 (SSR Fix) | #680 (SSR) directly |\n| #1062 (Testing) | No specific issue; general tech debt |\n| #1063 (Mermaid/Marp) | No issue filed |\n| #1064 (Jupyter Notebook) | No issue filed |\n| #1065 (Critical fixes) | Partially #682 (security); tangentially #1035 |\n| #1066 (Prettier) | No issue; general hygiene |\n| #1043 (Arch flow) | No clear match |\n\n---\n\n## KEY PATTERNS\n\n1. **January 2024 bulk filing**: 20 issues filed by @edeleastar in one sprint -- a roadmap dump. Most remain untouched. Consider triaging and closing aspirational ones.\n\n2. **January 2026 cluster by @codeCraft-Ritik**: Issues #1032-1035 are well-structured with code fixes included. These are ready to convert into PRs.\n\n3. **Auth/security cluster**: Issues #679, #682, #691, #692, #1033 all touch authentication and security -- worth addressing together.\n\n4. **Search cluster**: #684 and #685 form a natural pair for extending search.\n\n5. **Architecture separation cluster**: #814, #815, #836 all propose factoring out subsystems -- long-term architectural vision.\n\n6. **No labels on any issue** -- the repo does not use GitHub labels, making triage harder.",
+          "alignment": 0.6609
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "73c597d0-ff67-43ff-88ac-23a48a528111",
+    "source_file": "data/D--code-tutors__agent-a1530ec8b6fc293b4.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

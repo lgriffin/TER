@@ -1,0 +1,994 @@
+{
+  "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 2502,
+  "aligned_tokens": 2502,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.602,
+    "token_weighted_confidence": 0.7032,
+    "low_confidence_tokens": 1035,
+    "low_confidence_share": 0.4137,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 27,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "waste_patterns": [
+    {
+      "type": "bash_antipattern",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 7,
+      "tokens_wasted": 3485,
+      "description": "7 Bash calls should use dedicated tools (3,485 tokens)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6746166944503784,
+      "intent_similarity": 0.6746166944503784,
+      "tokens": 25,
+      "text": "\n\nI'll research the goesi-openapi library thoroughly by fetching the repository information, source code, and key implementation files.",
+      "source_message_uuid": "3ade310a-2433-401d-9110-1ca0617b7dd8",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6746,
+          "repetition_score": 0.0,
+          "confidence": 0.6746
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4576658606529236,
+      "tokens": 49,
+      "text": "WebFetch {\"url\":\"https://github.com/fnt-eve/goesi-openapi\",\"prompt\":\"Extract the full README content, repository description, stars, forks, last commit date, and any visible information about the project structure and files.\"}",
+      "source_message_uuid": "3ade310a-2433-401d-9110-1ca0617b7dd8",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4577,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3572693169116974,
+      "tokens": 58,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi --jq '{description, stargazers_count, forks_count, open_issues_count, created_at, updated_at, pushed_at, language, license: .license.spdx_id, default_branch, size}'\"}",
+      "source_message_uuid": "3ade310a-2433-401d-9110-1ca0617b7dd8",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3573,
+          "repetition_score": 0.0393,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5692,
+          "lexical_similarity": 0.0244,
+          "entity_similarity": 0.025,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "WebFetch {\"url\":\"https://github.com/fnt-eve/goesi-openapi\",\"prompt\":\"Extract the full README content, repository description, stars, forks, last commit date, and any visible information about the project structure and files.\"}"
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.25606074929237366,
+      "tokens": 49,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/commits?per_page=15 --jq '.[] | {date: .commit.author.date, message: .commit.message[0:120]}'\"}",
+      "source_message_uuid": "3ade310a-2433-401d-9110-1ca0617b7dd8",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2561,
+          "repetition_score": 0.549,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7929,
+          "lexical_similarity": 0.1852,
+          "entity_similarity": 0.125,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi --jq '{description, stargazers_count, forks_count, open_issues_count, created_at, updated_at, pushed_at, language, license: .license.spdx_id, default_branch, size}'\"}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.2960967421531677,
+      "tokens": 13,
+      "text": "Now let me dig into the actual source code for implementation details.",
+      "source_message_uuid": "e45a1719-290a-4817-a735-58e49d0f4871",
+      "source_lines": [
+        10
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2961,
+          "repetition_score": 0.3065,
+          "confidence": 0.5,
+          "semantic_similarity": 0.4676,
+          "lexical_similarity": 0.16,
+          "entity_similarity": 0.1818,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8182
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "\n\nI'll research the goesi-openapi library thoroughly by fetching the repository information, source code, and key implementation files."
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.32652154564857483,
+      "tokens": 31,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/go.mod --jq '.content' | base64 -d\"}",
+      "source_message_uuid": "e45a1719-290a-4817-a735-58e49d0f4871",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3265,
+          "repetition_score": 0.5636,
+          "confidence": 0.6,
+          "semantic_similarity": 0.813,
+          "lexical_similarity": 0.2273,
+          "entity_similarity": 0.1579,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi --jq '{description, stargazers_count, forks_count, open_issues_count, created_at, updated_at, pushed_at, language, license: .license.spdx_id, default_branch, size}'\"}"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.38052240014076233,
+      "tokens": 32,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/APIClient.go --jq '.content' | base64 -d\"}",
+      "source_message_uuid": "e45a1719-290a-4817-a735-58e49d0f4871",
+      "source_lines": [
+        13
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3805,
+          "repetition_score": 0.7283,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9631,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/go.mod --jq '.content' | base64 -d\"}"
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3929935693740845,
+      "tokens": 32,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/oauth2.go --jq '.content' | base64 -d\"}",
+      "source_message_uuid": "e45a1719-290a-4817-a735-58e49d0f4871",
+      "source_lines": [
+        15
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.393,
+          "repetition_score": 0.73,
+          "confidence": 0.6,
+          "semantic_similarity": 0.968,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/APIClient.go --jq '.content' | base64 -d\"}"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.34668582677841187,
+      "tokens": 31,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/esi --jq '.[].name' | head -40\"}",
+      "source_message_uuid": "e45a1719-290a-4817-a735-58e49d0f4871",
+      "source_lines": [
+        17
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3467,
+          "repetition_score": 0.6001,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8319,
+          "lexical_similarity": 0.3846,
+          "entity_similarity": 0.3,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/oauth2.go --jq '.content' | base64 -d\"}"
+      }
+    },
+    {
+      "position": 9,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3237377107143402,
+      "tokens": 38,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/esi/api_market.go --jq '.content' | base64 -d | head -120\"}",
+      "source_message_uuid": "a5843ef0-1e48-4dda-aabe-4ca9b9ca00a0",
+      "source_lines": [
+        19
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3237,
+          "repetition_score": 0.6972,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9549,
+          "lexical_similarity": 0.6667,
+          "entity_similarity": 0.5556,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/APIClient.go --jq '.content' | base64 -d\"}"
+      }
+    },
+    {
+      "position": 10,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.38128402829170227,
+      "tokens": 33,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/esi/configuration.go --jq '.content' | base64 -d\"}",
+      "source_message_uuid": "a5843ef0-1e48-4dda-aabe-4ca9b9ca00a0",
+      "source_lines": [
+        21
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3813,
+          "repetition_score": 0.7292,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9657,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/go.mod --jq '.content' | base64 -d\"}"
+      }
+    },
+    {
+      "position": 11,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2101377546787262,
+      "tokens": 91,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/esi --jq '[.[] | select(.name | startswith(\\\"model_\\\"))] | length' && echo \\\"---\\\" && gh api repos/fnt-eve/goesi-openapi/contents/esi --jq '[.[] | select(.name | startswith(\\\"model_\\\"))] | .[0:5] | .[].name'\"}",
+      "source_message_uuid": "a5843ef0-1e48-4dda-aabe-4ca9b9ca00a0",
+      "source_lines": [
+        23
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2101,
+          "repetition_score": 0.5917,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7646,
+          "lexical_similarity": 0.4375,
+          "entity_similarity": 0.4167,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/esi --jq '.[].name' | head -40\"}"
+      }
+    },
+    {
+      "position": 12,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.35593047738075256,
+      "tokens": 33,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/APIClient_test.go --jq '.content' | base64 -d\"}",
+      "source_message_uuid": "a5843ef0-1e48-4dda-aabe-4ca9b9ca00a0",
+      "source_lines": [
+        24
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3559,
+          "repetition_score": 0.7377,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9897,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/APIClient.go --jq '.content' | base64 -d\"}"
+      }
+    },
+    {
+      "position": 13,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.37848833203315735,
+      "tokens": 37,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/esi/client.go --jq '.content' | base64 -d | head -100\"}",
+      "source_message_uuid": "eb9e1074-6077-43eb-81db-8cc7d1bc9677",
+      "source_lines": [
+        27
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3785,
+          "repetition_score": 0.7077,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9663,
+          "lexical_similarity": 0.6923,
+          "entity_similarity": 0.6,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/esi/api_market.go --jq '.content' | base64 -d | head -120\"}"
+      }
+    },
+    {
+      "position": 14,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.33289963006973267,
+      "tokens": 34,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/openapi-generator-config.yaml --jq '.content' | base64 -d\"}",
+      "source_message_uuid": "eb9e1074-6077-43eb-81db-8cc7d1bc9677",
+      "source_lines": [
+        29
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3329,
+          "repetition_score": 0.7123,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9179,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/go.mod --jq '.content' | base64 -d\"}"
+      }
+    },
+    {
+      "position": 15,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2930714786052704,
+      "tokens": 32,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/Makefile --jq '.content' | base64 -d\"}",
+      "source_message_uuid": "eb9e1074-6077-43eb-81db-8cc7d1bc9677",
+      "source_lines": [
+        31
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2931,
+          "repetition_score": 0.7139,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9224,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 14,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/openapi-generator-config.yaml --jq '.content' | base64 -d\"}"
+      }
+    },
+    {
+      "position": 16,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2961980104446411,
+      "tokens": 45,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/issues?state=all --jq '.[] | {number, title, state, created_at: .created_at[0:10]}'\"}",
+      "source_message_uuid": "eb9e1074-6077-43eb-81db-8cc7d1bc9677",
+      "source_lines": [
+        33
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2962,
+          "repetition_score": 0.5759,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8182,
+          "lexical_similarity": 0.2778,
+          "entity_similarity": 0.2143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/esi --jq '.[].name' | head -40\"}"
+      }
+    },
+    {
+      "position": 17,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.36992910504341125,
+      "tokens": 26,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/examples --jq '.[].name'\"}",
+      "source_message_uuid": "c13018cc-81b8-4cc6-949d-359f80e2b70d",
+      "source_lines": [
+        35
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3699,
+          "repetition_score": 0.6771,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9328,
+          "lexical_similarity": 0.6,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/esi --jq '.[].name' | head -40\"}"
+      }
+    },
+    {
+      "position": 18,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.33665797114372253,
+      "tokens": 36,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/scopes.go --jq '.content' | base64 -d | head -40\"}",
+      "source_message_uuid": "c13018cc-81b8-4cc6-949d-359f80e2b70d",
+      "source_lines": [
+        37
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3367,
+          "repetition_score": 0.7086,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9687,
+          "lexical_similarity": 0.6923,
+          "entity_similarity": 0.6,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 13,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/esi/client.go --jq '.content' | base64 -d | head -100\"}"
+      }
+    },
+    {
+      "position": 19,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3114558756351471,
+      "tokens": 35,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/notification.go --jq '.content' | base64 -d | head -60\"}",
+      "source_message_uuid": "c13018cc-81b8-4cc6-949d-359f80e2b70d",
+      "source_lines": [
+        39
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3115,
+          "repetition_score": 0.6964,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9344,
+          "lexical_similarity": 0.6923,
+          "entity_similarity": 0.6,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 18,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/scopes.go --jq '.content' | base64 -d | head -40\"}"
+      }
+    },
+    {
+      "position": 20,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.24512173235416412,
+      "tokens": 47,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/releases --jq '.[0:5] | .[] | {tag_name, published_at: .published_at[0:10], name}'\"}",
+      "source_message_uuid": "c13018cc-81b8-4cc6-949d-359f80e2b70d",
+      "source_lines": [
+        41
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2451,
+          "repetition_score": 0.6176,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8345,
+          "lexical_similarity": 0.4286,
+          "entity_similarity": 0.4444,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 17,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/examples --jq '.[].name'\"}"
+      }
+    },
+    {
+      "position": 21,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.10166032612323761,
+      "tokens": 23,
+      "text": "Now let me check one more key file to see if there is any rate limiting, caching, or pagination logic.",
+      "source_message_uuid": "950dc85e-266f-4785-b04a-bf20df65b282",
+      "source_lines": [
+        43
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1017,
+          "repetition_score": 0.1589,
+          "confidence": 0.5,
+          "semantic_similarity": 0.2517,
+          "lexical_similarity": 0.1034,
+          "entity_similarity": 0.0833,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9167
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Now let me dig into the actual source code for implementation details."
+      }
+    },
+    {
+      "position": 22,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.27157461643218994,
+      "tokens": 109,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/esi/client.go --jq '.content' | base64 -d | wc -l && echo \\\"---searching for pagination/page/etag/cache/ratelimit---\\\" && gh api repos/fnt-eve/goesi-openapi/contents/esi/client.go --jq '.content' | base64 -d | grep -inE 'page|etag|cache|rate|limit|retry|backoff' || echo \\\"none found\\\"\"}",
+      "source_message_uuid": "950dc85e-266f-4785-b04a-bf20df65b282",
+      "source_lines": [
+        44
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2716,
+          "repetition_score": 0.5678,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7706,
+          "lexical_similarity": 0.3214,
+          "entity_similarity": 0.2609,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 13,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/esi/client.go --jq '.content' | base64 -d | head -100\"}"
+      }
+    },
+    {
+      "position": 23,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3362269401550293,
+      "tokens": 52,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/esi/api_market.go --jq '.content' | base64 -d | grep -inE 'page|etag|cache|x-pages' | head -20\"}",
+      "source_message_uuid": "950dc85e-266f-4785-b04a-bf20df65b282",
+      "source_lines": [
+        46
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3362,
+          "repetition_score": 0.6342,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8817,
+          "lexical_similarity": 0.4737,
+          "entity_similarity": 0.375,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 13,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/esi/client.go --jq '.content' | base64 -d | head -100\"}"
+      }
+    },
+    {
+      "position": 24,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.23416480422019958,
+      "tokens": 31,
+      "text": "Bash {\"command\":\"gh api \\\"repos/fnt-eve/goesi-openapi/contents/.github/workflows\\\" --jq '.[].name'\"}",
+      "source_message_uuid": "950dc85e-266f-4785-b04a-bf20df65b282",
+      "source_lines": [
+        47
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2342,
+          "repetition_score": 0.6954,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8976,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.6667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 17,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/examples --jq '.[].name'\"}"
+      }
+    },
+    {
+      "position": 25,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2908315062522888,
+      "tokens": 38,
+      "text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/.github/workflows/update-esi-spec.yml --jq '.content' | base64 -d\"}",
+      "source_message_uuid": "21ba1fa9-80b1-4e3a-a6de-be5a38ff3fc0",
+      "source_lines": [
+        50
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2908,
+          "repetition_score": 0.7037,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8937,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 14,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/fnt-eve/goesi-openapi/contents/openapi-generator-config.yaml --jq '.content' | base64 -d\"}"
+      }
+    },
+    {
+      "position": 26,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.7802044153213501,
+      "intent_similarity": 0.7802044153213501,
+      "tokens": 1442,
+      "text": "I now have a thorough picture of the library. Here is the structured technical evaluation:\n\n---\n\n## Technical Evaluation: fnt-eve/goesi-openapi\n\n### 1. Architecture & Design\n\n**Fully auto-generated** from the official ESI OpenAPI 3.0 spec using OpenAPI Generator v7.15.0 (Java). The `esi/` directory contains ~406 model files and ~36 API service files -- all generated, marked `DO NOT EDIT`. The hand-written layer is thin: `APIClient.go` (~75 lines), `oauth2.go` (~270 lines), `notification.go` (hand-crafted notification type structs), and `scopes.go` (generated by a shell script from the spec).\n\nAPI groups mirror ESI categories exactly (MarketAPI, CharacterAPI, AllianceAPI, etc.), exposed as interface types on `APIClient`. The generated code uses a builder pattern for requests: `client.MarketAPI.GetMarketsRegionIdOrders(ctx, regionId).Page(1).IfNoneMatch(etag).Execute()`.\n\n**Key design choice**: the generator config enables `generateInterfaces: true`, so every API group has an interface type -- critical for mocking in consumer tests.\n\n### 2. Authentication\n\nSolid OAuth2 with **PKCE** (S256 challenge), which is the current CCP-required flow. JWT validation uses `golang-jwt/jwt/v5` with JWKS key fetching via `MicahParks/keyfunc/v3` from `login.eveonline.com/oauth/jwks`. The `ESIJWTClaims` struct parses character ID, name, scopes, and owner from the JWT subject (`CHARACTER:EVE:<id>`).\n\nToken helpers: `TokenToJSON`/`TokenFromJSON` for persistence, `IsExpired` with a 30-second grace window, `TokenSource` for automatic refresh via `golang.org/x/oauth2`. **Multi-character** is supported implicitly -- create multiple `Config`/token pairs and construct separate clients or swap token sources on context.\n\n**Missing**: no built-in token store or multi-character manager. This is left to the consumer (with an example in `examples/token-persistence/`).\n\n### 3. Caching\n\n**Minimal**. The generated `client.go` includes a `CacheExpires()` helper that parses `Cache-Control: max-age` from HTTP responses. ETag support is present at the request level -- every endpoint accepts `.IfNoneMatch(etag)` -- but there is **no built-in cache store, no automatic ETag tracking, and no response caching layer**. Consumers must implement their own cache and manage ETags manually.\n\n### 4. Rate Limiting\n\n**Not implemented**. Open issues #1 and #2 explicitly track this gap (\"New rate limits\" and \"ratelimit transport\"). The README documents the limits (20 req/s authenticated, 10 req/s public) but provides no transport-level enforcement, no backoff, no queue. This is a significant gap -- consumers must bring their own `http.RoundTripper` or middleware.\n\n### 5. Error Handling\n\nStandard OpenAPI Generator pattern: every `Execute()` returns `(result, *http.Response, error)`. The raw HTTP response is always available for status code inspection. ESI-specific error bodies (error-limited, gateway timeout) are deserialized into `GenericOpenAPIError`. **No retry logic, no circuit breakers, no error-limit header parsing**. Errors are surfaced but not acted upon.\n\n### 6. Pagination\n\nPage parameters are generated as builder methods: `.Page(pageNum)`. However, there is **no automatic page aggregation**. No `X-Pages` header parsing for total page count, no helper to fetch all pages. Each page must be fetched manually. This contrasts with ESI.ts which provides automatic multi-page fetching.\n\n### 7. Type Safety\n\nGo's static type system provides strong guarantees. The 406 generated model structs have JSON marshal/unmarshal methods (`generateMarshalJSON: true`). Fields use Go's pointer types for nullable/optional fields. The `StringOrArray` custom type handles ESI's inconsistent `scp` claim format (sometimes string, sometimes array). No generics usage -- the library targets the generated code pattern rather than generic abstractions.\n\n### 8. Advanced Features\n\n**Notification types**: Hand-written `notification.go` contains ~100+ YAML-tagged structs for parsing ESI notification bodies (war declarations, sovereignty, citadel events, etc.) -- a genuinely useful addition not found in most ESI libraries.\n\n**Scope constants**: Auto-generated constants for all ESI scopes.\n\n**Compatibility date**: Baked into the configuration from the spec version, sent as a header for ESI's versioning system.\n\n**No**: batch requests, event-driven updates, WebSocket support, market data optimizations, or streaming.\n\n### 9. Testing\n\nTests cover the hand-written layer only: `APIClient_test.go` and `oauth2_test.go` using `stretchr/testify`. Tests verify client construction, configuration propagation, PKCE generation, JWT claim parsing, and token helpers. Generated code is **not directly tested** -- the assumption is that OpenAPI Generator output is correct. CI runs `go test -v -race ./...`.\n\n### 10. Developer Experience\n\nThree concrete examples (basic-oauth2, context-auth, token-persistence). The README is thorough with inline code samples. Getting started is straightforward: `go get`, create config, generate auth URL, exchange, call API. The builder-pattern API reads naturally. However, the lack of rate limiting and automatic pagination means consumers must solve non-trivial ESI challenges themselves.\n\n### 11. Maintenance & Community\n\n**Active automated maintenance**: a daily CI cron job downloads the latest ESI spec, regenerates the client, runs tests, auto-commits, creates a semantic version tag, and publishes a GitHub release. 34 releases since September 2025. Latest release: v0.0.34 (2026-06-10). One external contribution (mercenary den notifications). 9 stars, 1 fork, 2 open issues. Still pre-1.0 (`v0.0.x`).\n\n---\n\n### Summary Comparison Points for ESI.ts\n\n| Feature | goesi-openapi | Relevant for ESI.ts comparison |\n|---|---|---|\n| Code generation | Fully auto-generated (OpenAPI Generator) | ESI.ts is hand-written |\n| Auth | OAuth2 + PKCE + JWT validation | Similar scope |\n| Caching | ETag param only, no store | ESI.ts has richer caching |\n| Rate limiting | Not implemented | ESI.ts advantage |\n| Pagination | Manual only | ESI.ts has auto-pagination |\n| Error handling | Pass-through, no retry | ESI.ts advantage |\n| Notification parsing | Yes, hand-written | Unique feature |\n| Spec tracking | Automated daily | Strong maintenance story |\n| Maturity | Pre-1.0, 9 months old | ESI.ts is more mature |",
+      "source_message_uuid": "ca25fef6-3586-46f7-85ae-b71e054b415a",
+      "source_lines": [
+        52
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.7802,
+          "repetition_score": 0.4733,
+          "confidence": 0.7802,
+          "semantic_similarity": 0.8139,
+          "lexical_similarity": 0.0188,
+          "entity_similarity": 0.0213,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9787
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "\n\nI'll research the goesi-openapi library thoroughly by fetching the repository information, source code, and key implementation files."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "bash_antipattern",
+        "tokens_wasted": 3485,
+        "description": "7 Bash calls should use dedicated tools (3,485 tokens)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Bash Anti-Patterns",
+        "tokens": 3485,
+        "percentage": 100.0,
+        "cost_usd": 0.010455,
+        "count": 1,
+        "pricing": "input"
+      }
+    ],
+    "total_tokens": 3485,
+    "total_cost_usd": 0.010455
+  },
+  "economics": {
+    "total_input_tokens": 10,
+    "total_output_tokens": 1826,
+    "total_cache_creation_tokens": 22397,
+    "total_cache_read_tokens": 186400,
+    "input_output_ratio": 0.01,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.1673,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 9,
+      "mid_span_count": 9,
+      "late_span_count": 9
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        12765,
+        15072,
+        17477,
+        21923,
+        27201,
+        28701,
+        31064,
+        32207
+      ],
+      "growth_rate": 2.52,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 347,
+      "user_result_tokens": 13308,
+      "model_reasoning_tokens": 0,
+      "model_tool_tokens": 999,
+      "model_generation_tokens": 1503,
+      "total_user_tokens": 13655,
+      "total_model_tokens": 2502,
+      "user_ratio": 0.8451
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.6802,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "You are evaluating a Go ESI (EVE Online API) library at https://github.com/fnt-eve/goesi-openapi for a technical comparison. I need a thorough technical evaluation covering:\n\n1. **Architecture & Design**: How is the client structured? Code generation vs hand-written? How are API groups organized? What patterns are used?\n2. **Authentication**: How does it handle OAuth2/SSO? Token refresh? Multi-character support?\n3. **Caching**: ETag support? Cache strategies? Cache storage backends?\n4. **Rate Limiting**: Error limit handling? Backoff strategies? Queue management?\n5. **Error Handling**: How are ESI errors surfaced? Retry logic? Circuit breakers?\n6. **Pagination**: How is pagination handled? Automatic page fetching? Streaming?\n7. **Type Safety**: How are ESI response types modeled? Generics usage? Null handling?\n8. **Advanced Features**: Anything beyond basic API wrapping \u2014 batch requests, event-driven updates, websocket support, market data optimizations, etc.\n9. **Testing**: Test approach, coverage, mocking strategy\n10. **Developer Experience**: Documentation quality, example code, ease of getting started\n11. **Maintenance & Community**: Activity level, open issues, release cadence\n\nUse the GitHub URL to fetch the README, browse the source code structure, and examine key implementation files. Check go.mod for dependencies. Check recent commits and issues for activity level.\n\nReport your findings in a structured format with specific code examples or patterns where relevant. Be specific about version numbers, dependency choices, and implementation details. Keep your report under 800 words but make every word count \u2014 I want technical depth, not fluff.",
+          "response_text": "\n\nI'll research the goesi-openapi library thoroughly by fetching the repository information, source code, and key implementation files. Now let me dig into the actual source code for implementation details. Now let me check one more key file to see if there is any rate limiting, caching, or pagination logic. I now have a thorough picture of the library. Here is the structured technical evaluation:\n\n---\n\n## Technical Evaluation: fnt-eve/goesi-openapi\n\n### 1. Architecture & Design\n\n**Fully auto-generated** from the official ESI OpenAPI 3.0 spec using OpenAPI Generator v7.15.0 (Java). The `esi/` directory contains ~406 model files and ~36 API service files -- all generated, marked `DO NOT EDIT`. The hand-written layer is thin: `APIClient.go` (~75 lines), `oauth2.go` (~270 lines), `notification.go` (hand-crafted notification type structs), and `scopes.go` (generated by a shell script from the spec).\n\nAPI groups mirror ESI categories exactly (MarketAPI, CharacterAPI, AllianceAPI, etc.), exposed as interface types on `APIClient`. The generated code uses a builder pattern for requests: `client.MarketAPI.GetMarketsRegionIdOrders(ctx, regionId).Page(1).IfNoneMatch(etag).Execute()`.\n\n**Key design choice**: the generator config enables `generateInterfaces: true`, so every API group has an interface type -- critical for mocking in consumer tests.\n\n### 2. Authentication\n\nSolid OAuth2 with **PKCE** (S256 challenge), which is the current CCP-required flow. JWT validation uses `golang-jwt/jwt/v5` with JWKS key fetching via `MicahParks/keyfunc/v3` from `login.eveonline.com/oauth/jwks`. The `ESIJWTClaims` struct parses character ID, name, scopes, and owner from the JWT subject (`CHARACTER:EVE:<id>`).\n\nToken helpers: `TokenToJSON`/`TokenFromJSON` for persistence, `IsExpired` with a 30-second grace window, `TokenSource` for automatic refresh via `golang.org/x/oauth2`. **Multi-character** is supported implicitly -- create multiple `Config`/token pairs and construct separate clients or swap token sources on context.\n\n**Missing**: no built-in token store or multi-character manager. This is left to the consumer (with an example in `examples/token-persistence/`).\n\n### 3. Caching\n\n**Minimal**. The generated `client.go` includes a `CacheExpires()` helper that parses `Cache-Control: max-age` from HTTP responses. ETag support is present at the request level -- every endpoint accepts `.IfNoneMatch(etag)` -- but there is **no built-in cache store, no automatic ETag tracking, and no response caching layer**. Consumers must implement their own cache and manage ETags manually.\n\n### 4. Rate Limiting\n\n**Not implemented**. Open issues #1 and #2 explicitly track this gap (\"New rate limits\" and \"ratelimit transport\"). The README documents the limits (20 req/s authenticated, 10 req/s public) but provides no transport-level enforcement, no backoff, no queue. This is a significant gap -- consumers must bring their own `http.RoundTripper` or middleware.\n\n### 5. Error Handling\n\nStandard OpenAPI Generator pattern: every `Execute()` returns `(result, *http.Response, error)`. The raw HTTP response is always available for status code inspection. ESI-specific error bodies (error-limited, gateway timeout) are deserialized into `GenericOpenAPIError`. **No retry logic, no circuit breakers, no error-limit header parsing**. Errors are surfaced but not acted upon.\n\n### 6. Pagination\n\nPage parameters are generated as builder methods: `.Page(pageNum)`. However, there is **no automatic page aggregation**. No `X-Pages` header parsing for total page count, no helper to fetch all pages. Each page must be fetched manually. This contrasts with ESI.ts which provides automatic multi-page fetching.\n\n### 7. Type Safety\n\nGo's static type system provides strong guarantees. The 406 generated model structs have JSON marshal/unmarshal methods (`generateMarshalJSON: true`). Fields use Go's pointer types for nullable/optional fields. The `StringOrArray` custom type handles ESI's inconsistent `scp` claim format (sometimes string, sometimes array). No generics usage -- the library targets the generated code pattern rather than generic abstractions.\n\n### 8. Advanced Features\n\n**Notification types**: Hand-written `notification.go` contains ~100+ YAML-tagged structs for parsing ESI notification bodies (war declarations, sovereignty, citadel events, etc.) -- a genuinely useful addition not found in most ESI libraries.\n\n**Scope constants**: Auto-generated constants for all ESI scopes.\n\n**Compatibility date**: Baked into the configuration from the spec version, sent as a header for ESI's versioning system.\n\n**No**: batch requests, event-driven updates, WebSocket support, market data optimizations, or streaming.\n\n### 9. Testing\n\nTests cover the hand-written layer only: `APIClient_test.go` and `oauth2_test.go` using `stretchr/testify`. Tests verify client construction, configuration propagation, PKCE generation, JWT claim parsing, and token helpers. Generated code is **not directly tested** -- the assumption is that OpenAPI Generator output is correct. CI runs `go test -v -race ./...`.\n\n### 10. Developer Experience\n\nThree concrete examples (basic-oauth2, context-auth, token-persistence). The README is thorough with inline code samples. Getting started is straightforward: `go get`, create config, generate auth URL, exchange, call API. The builder-pattern API reads naturally. However, the lack of rate limiting and automatic pagination means consumers must solve non-trivial ESI challenges themselves.\n\n### 11. Maintenance & Community\n\n**Active automated maintenance**: a daily CI cron job downloads the latest ESI spec, regenerates the client, runs tests, auto-commits, creates a semantic version tag, and publishes a GitHub release. 34 releases since September 2025. Latest release: v0.0.34 (2026-06-10). One external contribution (mercenary den notifications). 9 stars, 1 fork, 2 open issues. Still pre-1.0 (`v0.0.x`).\n\n---\n\n### Summary Comparison Points for ESI.ts\n\n| Feature | goesi-openapi | Relevant for ESI.ts comparison |\n|---|---|---|\n| Code generation | Fully auto-generated (OpenAPI Generator) | ESI.ts is hand-written |\n| Auth | OAuth2 + PKCE + JWT validation | Similar scope |\n| Caching | ETag param only, no store | ESI.ts has richer caching |\n| Rate limiting | Not implemented | ESI.ts advantage |\n| Pagination | Manual only | ESI.ts has auto-pagination |\n| Error handling | Pass-through, no retry | ESI.ts advantage |\n| Notification parsing | Yes, hand-written | Unique feature |\n| Spec tracking | Automated daily | Strong maintenance story |\n| Maturity | Pre-1.0, 9 months old | ESI.ts is more mature |",
+          "alignment": 0.6802
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+    "source_file": "data/D--code-ESI-ts__agent-aa37c848e2df8eea3.jsonl",
+    "finding_count": 1,
+    "severity_counts": {
+      "medium": 1
+    },
+    "signal_counts": {
+      "repeated_failure": 1
+    },
+    "findings": [
+      {
+        "signal_type": "repeated_failure",
+        "title": "Repeated failure pattern",
+        "severity": "medium",
+        "confidence": 0.93,
+        "summary": "A similar failure appeared 3 times: /* eve spring inebriation (esi) - tranquility no description provided (generated by openapi generator https:/\u2026",
+        "recommendation": "Stop retrying mechanically; summarize the failure, inspect prerequisites, and produce a revised plan.",
+        "evidence": [
+          {
+            "message_index": 11,
+            "message_uuid": "fb4916e4-6e22-4282-bdd5-dd8d7d4b1f9b",
+            "block_index": 0,
+            "source_lines": [
+              20
+            ],
+            "excerpt": "/* EVE Spring Inebriation (ESI) - tranquility No description provided (generated by Openapi Generator https://github.com/openapitools/openapi-generator) API version: 2026-06-09 */ // Code generated by OpenAPI Generator \u2026"
+          },
+          {
+            "message_index": 12,
+            "message_uuid": "e7939d2d-5733-4706-9276-e9d640f96c22",
+            "block_index": 0,
+            "source_lines": [
+              22
+            ],
+            "excerpt": "/* EVE Spring Inebriation (ESI) - tranquility No description provided (generated by Openapi Generator https://github.com/openapitools/openapi-generator) API version: 2026-06-09 */ // Code generated by OpenAPI Generator \u2026"
+          },
+          {
+            "message_index": 16,
+            "message_uuid": "5b74e1f7-9ebf-46ab-96d1-7cdb6d68bfb3",
+            "block_index": 0,
+            "source_lines": [
+              28
+            ],
+            "excerpt": "/* EVE Spring Inebriation (ESI) - tranquility No description provided (generated by Openapi Generator https://github.com/openapitools/openapi-generator) API version: 2026-06-09 */ // Code generated by OpenAPI Generator \u2026"
+          }
+        ],
+        "occurrences": 3
+      }
+    ]
+  }
+}

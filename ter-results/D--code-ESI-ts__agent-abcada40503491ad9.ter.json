@@ -1,0 +1,1245 @@
+{
+  "session_id": "4d32fea7-03a4-4e63-ba12-aea9bb7a9e5d",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 2479,
+  "aligned_tokens": 2479,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5829,
+    "token_weighted_confidence": 0.7402,
+    "low_confidence_tokens": 889,
+    "low_confidence_share": 0.3586,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 36,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "waste_patterns": [
+    {
+      "type": "repetitive_read",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 3,
+      "tokens_wasted": 1166,
+      "description": "TestDataFactory.ts read 3x (1,166 redundant tokens)"
+    },
+    {
+      "type": "bash_antipattern",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 5,
+      "tokens_wasted": 2972,
+      "description": "5 Bash calls should use dedicated tools (2,972 tokens)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.8523297905921936,
+      "intent_similarity": 0.8523297905921936,
+      "tokens": 28,
+      "text": "I'll investigate the test coverage gaps in the ESI.ts project. Let me start by reading the coverage report and examining the source files.",
+      "source_message_uuid": "a1d1cc62-ddde-4768-aeb5-e01230dc5627",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.8523,
+          "repetition_score": 0.0,
+          "confidence": 0.8523
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.44030433893203735,
+      "tokens": 35,
+      "text": "Bash {\"command\":\"find /d/code/ESI.ts -name \\\"*coverage*\\\" -o -name \\\"*lcov*\\\" | head -20\"}",
+      "source_message_uuid": "a1d1cc62-ddde-4768-aeb5-e01230dc5627",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4403,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.47597095370292664,
+      "tokens": 14,
+      "text": "Now let me check the coverage summary and read the specific files mentioned:",
+      "source_message_uuid": "50f3b39b-cf24-470d-a6a4-55911138743b",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.476,
+          "repetition_score": 0.3731,
+          "confidence": 0.5,
+          "semantic_similarity": 0.5559,
+          "lexical_similarity": 0.1852,
+          "entity_similarity": 0.2381,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.7619
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll investigate the test coverage gaps in the ESI.ts project. Let me start by reading the coverage report and examining the source files."
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4122847318649292,
+      "tokens": 18,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/coverage/unit/lcov.info\"}",
+      "source_message_uuid": "50f3b39b-cf24-470d-a6a4-55911138743b",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4123,
+          "repetition_score": 0.0407,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6023,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.0,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts -name \\\"*coverage*\\\" -o -name \\\"*lcov*\\\" | head -20\"}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.1910766363143921,
+      "tokens": 14,
+      "text": "Let me now check the actual source files to understand the uncovered code:",
+      "source_message_uuid": "6d42cda2-7900-40bb-a620-32382914f3f7",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1911,
+          "repetition_score": 0.4034,
+          "confidence": 0.5,
+          "semantic_similarity": 0.5389,
+          "lexical_similarity": 0.3333,
+          "entity_similarity": 0.3125,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.6875
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Now let me check the coverage summary and read the specific files mentioned:"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.31958428025245667,
+      "tokens": 18,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/types/api-responses.ts\"}",
+      "source_message_uuid": "6d42cda2-7900-40bb-a620-32382914f3f7",
+      "source_lines": [
+        10
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3196,
+          "repetition_score": 0.5889,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7175,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/coverage/unit/lcov.info\"}"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3389533460140228,
+      "tokens": 27,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/rateLimiter/RateLimiter.ts\",\"limit\":60}",
+      "source_message_uuid": "6d42cda2-7900-40bb-a620-32382914f3f7",
+      "source_lines": [
+        12
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.339,
+          "repetition_score": 0.5395,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6707,
+          "lexical_similarity": 0.3333,
+          "entity_similarity": 0.3333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/types/api-responses.ts\"}"
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3750642240047455,
+      "tokens": 23,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/endpoints/createClient.ts\",\"limit\":50}",
+      "source_message_uuid": "6d42cda2-7900-40bb-a620-32382914f3f7",
+      "source_lines": [
+        14
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3751,
+          "repetition_score": 0.5982,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7832,
+          "lexical_similarity": 0.4286,
+          "entity_similarity": 0.4286,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/rateLimiter/RateLimiter.ts\",\"limit\":60}"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.26094916462898254,
+      "tokens": 12,
+      "text": "Let me continue reading the files to understand the uncovered areas:",
+      "source_message_uuid": "e3e83188-29a7-47c1-a9b7-920ed708b085",
+      "source_lines": [
+        16
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2609,
+          "repetition_score": 0.5135,
+          "confidence": 0.5,
+          "semantic_similarity": 0.6965,
+          "lexical_similarity": 0.4667,
+          "entity_similarity": 0.3846,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.6154
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Let me now check the actual source files to understand the uncovered code:"
+      }
+    },
+    {
+      "position": 9,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3942624628543854,
+      "tokens": 27,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/endpoints/createClient.ts\",\"limit\":100,\"offset\":100}",
+      "source_message_uuid": "e3e83188-29a7-47c1-a9b7-920ed708b085",
+      "source_lines": [
+        17
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3943,
+          "repetition_score": 0.6931,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9717,
+          "lexical_similarity": 0.5714,
+          "entity_similarity": 0.5714,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/endpoints/createClient.ts\",\"limit\":50}"
+      }
+    },
+    {
+      "position": 10,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.49262872338294983,
+      "tokens": 22,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/testing/TestDataFactory.ts\",\"limit\":50}",
+      "source_message_uuid": "e3e83188-29a7-47c1-a9b7-920ed708b085",
+      "source_lines": [
+        19
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4926,
+          "repetition_score": 0.6694,
+          "confidence": 0.6,
+          "semantic_similarity": 0.852,
+          "lexical_similarity": 0.6667,
+          "entity_similarity": 0.6667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/endpoints/createClient.ts\",\"limit\":50}"
+      }
+    },
+    {
+      "position": 11,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.335967093706131,
+      "tokens": 18,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/ApiClientBuilder.ts\"}",
+      "source_message_uuid": "e3e83188-29a7-47c1-a9b7-920ed708b085",
+      "source_lines": [
+        21
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.336,
+          "repetition_score": 0.6444,
+          "confidence": 0.6,
+          "semantic_similarity": 0.874,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/types/api-responses.ts\"}"
+      }
+    },
+    {
+      "position": 12,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.2143889218568802,
+      "tokens": 10,
+      "text": "Now let me read more of the uncovered areas:",
+      "source_message_uuid": "8c2320aa-f0d4-4a55-b848-eddf5387283f",
+      "source_lines": [
+        23
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2144,
+          "repetition_score": 0.5853,
+          "confidence": 0.5,
+          "semantic_similarity": 0.823,
+          "lexical_similarity": 0.3571,
+          "entity_similarity": 0.3636,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.6364
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Let me continue reading the files to understand the uncovered areas:"
+      }
+    },
+    {
+      "position": 13,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2717006206512451,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/endpoints/universeEndpoints.ts\"}",
+      "source_message_uuid": "8c2320aa-f0d4-4a55-b848-eddf5387283f",
+      "source_lines": [
+        24
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2717,
+          "repetition_score": 0.6323,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8397,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/types/api-responses.ts\"}"
+      }
+    },
+    {
+      "position": 14,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.31328949332237244,
+      "tokens": 27,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/circuitBreaker/CircuitBreaker.ts\",\"limit\":75}",
+      "source_message_uuid": "8c2320aa-f0d4-4a55-b848-eddf5387283f",
+      "source_lines": [
+        26
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3133,
+          "repetition_score": 0.609,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8137,
+          "lexical_similarity": 0.4286,
+          "entity_similarity": 0.4286,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/rateLimiter/RateLimiter.ts\",\"limit\":60}"
+      }
+    },
+    {
+      "position": 15,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.31471720337867737,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/cache/ETagCacheManager.ts\",\"limit\":125}",
+      "source_message_uuid": "8c2320aa-f0d4-4a55-b848-eddf5387283f",
+      "source_lines": [
+        28
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3147,
+          "repetition_score": 0.5782,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7268,
+          "lexical_similarity": 0.4286,
+          "entity_similarity": 0.4286,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/rateLimiter/RateLimiter.ts\",\"limit\":60}"
+      }
+    },
+    {
+      "position": 16,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.4257805645465851,
+      "tokens": 12,
+      "text": "Let me continue reading and check for files not in coverage:",
+      "source_message_uuid": "39e1d2a7-adae-4a9f-9073-bff78dbef252",
+      "source_lines": [
+        30
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4258,
+          "repetition_score": 0.5288,
+          "confidence": 0.5,
+          "semantic_similarity": 0.7292,
+          "lexical_similarity": 0.2778,
+          "entity_similarity": 0.3333,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.6667
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Now let me check the coverage summary and read the specific files mentioned:"
+      }
+    },
+    {
+      "position": 17,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3440322279930115,
+      "tokens": 31,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/circuitBreaker/CircuitBreaker.ts\",\"limit\":50,\"offset\":150}",
+      "source_message_uuid": "39e1d2a7-adae-4a9f-9073-bff78dbef252",
+      "source_lines": [
+        31
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.344,
+          "repetition_score": 0.6783,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9695,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 14,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/circuitBreaker/CircuitBreaker.ts\",\"limit\":75}"
+      }
+    },
+    {
+      "position": 18,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.31229832768440247,
+      "tokens": 19,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/middleware/Middleware.ts\"}",
+      "source_message_uuid": "39e1d2a7-adae-4a9f-9073-bff78dbef252",
+      "source_lines": [
+        33
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3123,
+          "repetition_score": 0.642,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8673,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 13,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/endpoints/universeEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 19,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2652248740196228,
+      "tokens": 18,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/logger/loggerUtil.ts\"}",
+      "source_message_uuid": "39e1d2a7-adae-4a9f-9073-bff78dbef252",
+      "source_lines": [
+        35
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2652,
+          "repetition_score": 0.6069,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7681,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 13,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/endpoints/universeEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 20,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.4475570619106293,
+      "tokens": 20,
+      "text": "Now let me check if there are any files in src/ that are NOT in the coverage report:",
+      "source_message_uuid": "6d6a096a-d1c6-42e1-a8e5-1447a11de88b",
+      "source_lines": [
+        37
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4476,
+          "repetition_score": 0.5736,
+          "confidence": 0.5,
+          "semantic_similarity": 0.785,
+          "lexical_similarity": 0.2857,
+          "entity_similarity": 0.2941,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.7059
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 16,
+        "matched_prior_text": "Let me continue reading and check for files not in coverage:"
+      }
+    },
+    {
+      "position": 21,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3188197910785675,
+      "tokens": 26,
+      "text": "Bash {\"command\":\"find /d/code/ESI.ts/src -name \\\"*.ts\\\" -type f | sort\"}",
+      "source_message_uuid": "6d6a096a-d1c6-42e1-a8e5-1447a11de88b",
+      "source_lines": [
+        38
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3188,
+          "repetition_score": 0.0336,
+          "confidence": 0.6,
+          "semantic_similarity": 0.4985,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.0,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 18,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/middleware/Middleware.ts\"}"
+      }
+    },
+    {
+      "position": 22,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5033865571022034,
+      "intent_similarity": 0.5033865571022034,
+      "tokens": 12,
+      "text": "Let me check which files are missing from the coverage report:",
+      "source_message_uuid": "6eb1cc7a-19a6-4f8c-8b46-2320f962ad37",
+      "source_lines": [
+        40
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5034,
+          "repetition_score": 0.6457,
+          "confidence": 0.5034,
+          "semantic_similarity": 0.822,
+          "lexical_similarity": 0.4211,
+          "entity_similarity": 0.4375,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.5625
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 20,
+        "matched_prior_text": "Now let me check if there are any files in src/ that are NOT in the coverage report:"
+      }
+    },
+    {
+      "position": 23,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3383110463619232,
+      "tokens": 114,
+      "text": "Bash {\"command\":\"grep \\\"^SF:\\\" /d/code/ESI.ts/coverage/unit/lcov.info | sed 's/^SF://' | sort | uniq > /tmp/coverage_files.txt && find /d/code/ESI.ts/src -name \\\"*.ts\\\" -type f | sed 's|/d/code/ESI.ts/||' | sed 's|\\\\\\\\|/|g' | sort > /tmp/src_files.txt && comm -23 /tmp/src_files.txt /tmp/coverage_files.txt | head -20\"}",
+      "source_message_uuid": "6eb1cc7a-19a6-4f8c-8b46-2320f962ad37",
+      "source_lines": [
+        41
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3383,
+          "repetition_score": 0.5646,
+          "confidence": 0.6,
+          "semantic_similarity": 0.72,
+          "lexical_similarity": 0.36,
+          "entity_similarity": 0.3889,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 21,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts/src -name \\\"*.ts\\\" -type f | sort\"}"
+      }
+    },
+    {
+      "position": 24,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.07331614941358566,
+      "tokens": 6,
+      "text": "Let me fix that command:",
+      "source_message_uuid": "d2b07918-0760-4f5d-8bc9-3fc880800953",
+      "source_lines": [
+        43
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.0733,
+          "repetition_score": 0.2023,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3207,
+          "lexical_similarity": 0.1429,
+          "entity_similarity": 0.0833,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9167
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 16,
+        "matched_prior_text": "Let me continue reading and check for files not in coverage:"
+      }
+    },
+    {
+      "position": 25,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3472958207130432,
+      "tokens": 110,
+      "text": "Bash {\"command\":\"grep \\\"^SF:\\\" /d/code/ESI.ts/coverage/unit/lcov.info | sed 's/^SF://' | sed 's/\\\\\\\\/\\\\//g' | sort | uniq > /tmp/coverage_files.txt && find /d/code/ESI.ts/src -name \\\"*.ts\\\" -type f | sed 's|/d/code/ESI.ts/||' | sort > /tmp/src_files.txt && comm -23 /tmp/src_files.txt /tmp/coverage_files.txt\"}",
+      "source_message_uuid": "d2b07918-0760-4f5d-8bc9-3fc880800953",
+      "source_lines": [
+        44
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3473,
+          "repetition_score": 0.7665,
+          "confidence": 0.6,
+          "semantic_similarity": 0.992,
+          "lexical_similarity": 0.92,
+          "entity_similarity": 0.8889,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 23,
+        "matched_prior_text": "Bash {\"command\":\"grep \\\"^SF:\\\" /d/code/ESI.ts/coverage/unit/lcov.info | sed 's/^SF://' | sort | uniq > /tmp/coverage_files.txt && find /d/code/ESI.ts/src -name \\\"*.ts\\\" -type f | sed 's|/d/code/ESI.ts/||' | sed 's|\\\\\\\\|/|g' | sort > /tmp/sr"
+      }
+    },
+    {
+      "position": 26,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.408602237701416,
+      "tokens": 23,
+      "text": "I see! The coverage report file path format is different. Let me check the path format in lcov.info:",
+      "source_message_uuid": "f7d8f582-6d5c-4b54-bf92-071f2735a7aa",
+      "source_lines": [
+        46
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4086,
+          "repetition_score": 0.4815,
+          "confidence": 0.5,
+          "semantic_similarity": 0.6746,
+          "lexical_similarity": 0.2381,
+          "entity_similarity": 0.2941,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.7059
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 22,
+        "matched_prior_text": "Let me check which files are missing from the coverage report:"
+      }
+    },
+    {
+      "position": 27,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.29568734765052795,
+      "tokens": 28,
+      "text": "Bash {\"command\":\"grep \\\"^SF:\\\" /d/code/ESI.ts/coverage/unit/lcov.info | head -5\"}",
+      "source_message_uuid": "f7d8f582-6d5c-4b54-bf92-071f2735a7aa",
+      "source_lines": [
+        47
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2957,
+          "repetition_score": 0.5556,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7624,
+          "lexical_similarity": 0.2308,
+          "entity_similarity": 0.2778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 23,
+        "matched_prior_text": "Bash {\"command\":\"grep \\\"^SF:\\\" /d/code/ESI.ts/coverage/unit/lcov.info | sed 's/^SF://' | sort | uniq > /tmp/coverage_files.txt && find /d/code/ESI.ts/src -name \\\"*.ts\\\" -type f | sed 's|/d/code/ESI.ts/||' | sed 's|\\\\\\\\|/|g' | sort > /tmp/sr"
+      }
+    },
+    {
+      "position": 28,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.12672995030879974,
+      "tokens": 29,
+      "text": "Perfect! They all match with backslashes. Let me read a few more uncovered files and get information about the rateLimiter more comprehensively:",
+      "source_message_uuid": "14a9e205-d8db-46c0-9ebd-948edb678bd1",
+      "source_lines": [
+        49
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1267,
+          "repetition_score": 0.26,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3547,
+          "lexical_similarity": 0.2222,
+          "entity_similarity": 0.2,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.8
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Now let me check the coverage summary and read the specific files mentioned:"
+      }
+    },
+    {
+      "position": 29,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3624202609062195,
+      "tokens": 31,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/rateLimiter/RateLimiter.ts\",\"limit\":150,\"offset\":150}",
+      "source_message_uuid": "14a9e205-d8db-46c0-9ebd-948edb678bd1",
+      "source_lines": [
+        50
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3624,
+          "repetition_score": 0.4737,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8167,
+          "lexical_similarity": 0.625,
+          "entity_similarity": 0.625,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.5
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 17,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/circuitBreaker/CircuitBreaker.ts\",\"limit\":50,\"offset\":150}"
+      }
+    },
+    {
+      "position": 30,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.43509089946746826,
+      "tokens": 18,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/util/testHelpers.ts\"}",
+      "source_message_uuid": "14a9e205-d8db-46c0-9ebd-948edb678bd1",
+      "source_lines": [
+        52
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4351,
+          "repetition_score": 0.6355,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8489,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 18,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/middleware/Middleware.ts\"}"
+      }
+    },
+    {
+      "position": 31,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.32876357436180115,
+      "tokens": 17,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/config/configManager.ts\"}",
+      "source_message_uuid": "14a9e205-d8db-46c0-9ebd-948edb678bd1",
+      "source_lines": [
+        54
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3288,
+          "repetition_score": 0.6343,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8455,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 30,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/util/testHelpers.ts\"}"
+      }
+    },
+    {
+      "position": 32,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.42604878544807434,
+      "tokens": 13,
+      "text": "Now let me look at the test factory uncovered sections more closely:",
+      "source_message_uuid": "ad674558-eac9-45ad-87bb-4d9715224cde",
+      "source_lines": [
+        56
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.426,
+          "repetition_score": 0.4585,
+          "confidence": 0.5,
+          "semantic_similarity": 0.6107,
+          "lexical_similarity": 0.4,
+          "entity_similarity": 0.4167,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.5833
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 12,
+        "matched_prior_text": "Now let me read more of the uncovered areas:"
+      }
+    },
+    {
+      "position": 33,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5036118626594543,
+      "tokens": 26,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/testing/TestDataFactory.ts\",\"limit\":80,\"offset\":600}",
+      "source_message_uuid": "ad674558-eac9-45ad-87bb-4d9715224cde",
+      "source_lines": [
+        57
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5036,
+          "repetition_score": 0.4519,
+          "confidence": 0.6,
+          "semantic_similarity": 0.833,
+          "lexical_similarity": 0.4444,
+          "entity_similarity": 0.4444,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.5
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 29,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/rateLimiter/RateLimiter.ts\",\"limit\":150,\"offset\":150}"
+      }
+    },
+    {
+      "position": 34,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.496995210647583,
+      "tokens": 26,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/testing/TestDataFactory.ts\",\"limit\":80,\"offset\":740}",
+      "source_message_uuid": "ad674558-eac9-45ad-87bb-4d9715224cde",
+      "source_lines": [
+        59
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.497,
+          "repetition_score": 0.7373,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9972,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.75,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 33,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/testing/TestDataFactory.ts\",\"limit\":80,\"offset\":600}"
+      }
+    },
+    {
+      "position": 35,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.8284874558448792,
+      "intent_similarity": 0.8284874558448792,
+      "tokens": 1562,
+      "text": "Perfect! Now I have enough information. Let me create a comprehensive analysis document:\n\n## Coverage Gap Analysis Report\n\nBased on my analysis of the ESI.ts project's coverage report, here's the detailed breakdown of the lowest-coverage files and their gaps:\n\n| File | Current % | Gap Category | Effort | Coverage Lift | Notes |\n|------|-----------|--------------|--------|---------------|-------|\n| **src/types/api-responses.ts** | 0% | Barrel re-export | XS | 5-10% | Pure re-export file (32 lines). No executable logic. Quick win with simple import test. |\n| **src/core/endpoints/universeEndpoints.ts** | 33.33% | Unused methods | M | 10-15% | Lines 73-85: `postBulkNamesToIds` and `postNamesAndCategories` endpoint methods never tested. Need functional tests for these two POST endpoints. |\n| **src/testing/TestDataFactory.ts** | 60.27% | Factory methods unused | M | 12-18% | Lines 623-718 & 746-926: Methods like `createSovereigntySystem`, `createSovereigntyHub`, `createOrbitalSkyhook`, `createRaidableSkyhook`, `createMercenaryDen`, `createAccessListEntry`, and `createTestScenarios` unused. These are utility factories\u2014use them in existing tests or add focused factory tests. |\n| **src/core/ApiClientBuilder.ts** | 65.38% | Unused setters | S | 8-12% | Lines 37-48: Three setter methods (`setCircuitBreaker`, `setCircuitBreaker`, `setTimeout`) called 0 times. Add tests that use these builder methods in composition. |\n| **src/core/rateLimiter/RateLimiter.ts** | 68.18% | Error handling + edge cases | L | 15-20% | Lines 53, 164-172, 180-187, 196-201, 206-222, 235-236: Error limit exhaustion, proactive deceleration, and minimum delay enforcement paths. These are critical rate limiting behaviors\u2014tests needed for: blocked state timeouts, legacy error limits, token bucket depletion, and deceleration slopes. |\n| **src/core/endpoints/createClient.ts** | 61.85% | Pagination + error paths | L | 18-25% | Lines 119-163, 212-236: Cursor pagination handling (before/after params, cursor result building) and `fetchAllCursorPages` helper. Need tests for cursor pagination flow, empty results, single-page results, and multi-page traversal. |\n| **src/core/circuitBreaker/CircuitBreaker.ts** | 82.95% | Half-open recovery | M | 10-15% | Lines 69-73, 163-183: Half-open state probe logic and `cleanup()` method for stale circuits. Test circuit state transitions, half-open timeout recovery, and cleanup of aged records. |\n| **src/core/cache/ETagCacheManager.ts** | 88.6% | Cache eviction | S | 6-10% | Lines 109-119: `deleteByPath()` and internal cache eviction when full. Add tests for: path-based cache invalidation, max entry enforcement, and LRU eviction behavior. |\n| **src/core/util/testHelpers.ts** | 71.42% | Async helpers | S | 5-8% | Lines 7-8: `getHeaders()` async helper barely used. These are utility test functions\u2014integrate into more helper tests. |\n| **src/core/middleware/Middleware.ts** | 90.9% | Removed interceptors | S | 3-5% | Lines 44-45: Unsubscribe return value path (removing interceptors). Edge case test for removing interceptors mid-chain. |\n| **src/core/logger/loggerUtil.ts** | 90% | Custom logger | XS | 2-3% | Line 9: `setLogger()` custom logger path. One test for swapping logger implementations. |\n| **src/config/configManager.ts** | 88.88% | Missing config file | S | 4-6% | Lines 20, 34: `loadConfig()` error when config file missing. Test file I/O error handling. |\n| **src/core/ApiRequestHandler.ts** | 89.84% | Error responses + edge cases | M | 8-12% | Lines 52, 93, 125, 192, 204-206, 268-272, 374-375, 437, 449, 530-535: Various error handling paths, early HTTP status returns, and retry logic. Scattered gaps across error handling. |\n\n### Files NOT in Coverage Report (All legitimate):\n- **Type-only files** (all 25+ src/types/*.ts): These contain only interface/type definitions\u2014no executable code.\n- **Jest config files** (src/config/jest/*.ts): Setup/teardown scripts\u2014typically excluded from coverage.\n- **Endpoint definition files**: Pure constant objects (accessListEndpoints.ts, etc.)\u2014coverage not applicable to data definitions.\n- **ILogger.ts, ICache.ts, IRateLimiter.ts**: Interface-only files.\n\n### Prioritized Quick Wins (Highest ROI):\n\n**Phase 1 (Easiest, 15-20% lift):**\n1. **src/types/api-responses.ts** (XS, 5-10%): Import and use re-exported types in a single test file\n2. **src/core/logger/loggerUtil.ts** (XS, 2-3%): One test for `setLogger()` \n3. **src/core/middleware/Middleware.ts** (S, 3-5%): Test interceptor unsubscribe\n4. **src/core/util/testHelpers.ts** (S, 5-8%): Use in helper tests\n5. **src/config/configManager.ts** (S, 4-6%): Mock file I/O for error case\n\n**Phase 2 (Medium effort, 20-30% additional lift):**\n6. **src/core/ApiClientBuilder.ts** (S, 8-12%): Builder pattern composition tests\n7. **src/core/cache/ETagCacheManager.ts** (S, 6-10%): Cache eviction and path-based invalidation\n8. **src/core/circuitBreaker/CircuitBreaker.ts** (M, 10-15%): State transitions and cleanup\n9. **src/core/endpoints/universeEndpoints.ts** (M, 10-15%): Test POST endpoints\n\n**Phase 3 (Higher effort, 25-35% additional lift):**\n10. **src/core/rateLimiter/RateLimiter.ts** (L, 15-20%): Rate limiting edge cases and deceleration curves\n11. **src/core/endpoints/createClient.ts** (L, 18-25%): Cursor pagination multi-page traversal\n12. **src/core/ApiRequestHandler.ts** (M, 8-12%): Scattered error handling coverage\n\n### Estimated Total Coverage Improvement:\n- **Phase 1**: ~20% \u2192 ~80%\n- **Phase 2**: ~80% \u2192 ~88%\n- **Phase 3**: ~88% \u2192 92%+\n\nAll three phases combined can achieve 90%+ coverage with focused test additions.",
+      "source_message_uuid": "6cf55fc9-a9d1-41e6-a593-06e9b4f3cb15",
+      "source_lines": [
+        61
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.8285,
+          "repetition_score": 0.3243,
+          "confidence": 0.8285,
+          "semantic_similarity": 0.5553,
+          "lexical_similarity": 0.0219,
+          "entity_similarity": 0.0248,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9752
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 22,
+        "matched_prior_text": "Let me check which files are missing from the coverage report:"
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "bash_antipattern",
+        "tokens_wasted": 2972,
+        "description": "5 Bash calls should use dedicated tools (2,972 tokens)"
+      },
+      {
+        "type": "repetitive_read",
+        "tokens_wasted": 1166,
+        "description": "TestDataFactory.ts read 3x (1,166 redundant tokens)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Bash Anti-Patterns",
+        "tokens": 2972,
+        "percentage": 71.8,
+        "cost_usd": 0.008916,
+        "count": 1,
+        "pricing": "input"
+      },
+      {
+        "source": "Repetitive Reads",
+        "tokens": 1166,
+        "percentage": 28.2,
+        "cost_usd": 0.003498,
+        "count": 1,
+        "pricing": "input"
+      }
+    ],
+    "total_tokens": 4138,
+    "total_cost_usd": 0.012414
+  },
+  "economics": {
+    "total_input_tokens": 75,
+    "total_output_tokens": 1889,
+    "total_cache_creation_tokens": 166939,
+    "total_cache_read_tokens": 719244,
+    "input_output_ratio": 0.04,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.8704,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 12,
+      "mid_span_count": 12,
+      "late_span_count": 12
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        15697,
+        16314,
+        66231,
+        68278,
+        71023,
+        75232,
+        77023,
+        80353,
+        82088,
+        82258,
+        84814
+      ],
+      "growth_rate": 5.4,
+      "is_superlinear": true,
+      "context_bloat_detected": true
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 703,
+      "user_result_tokens": 57987,
+      "model_reasoning_tokens": 0,
+      "model_tool_tokens": 724,
+      "model_generation_tokens": 1755,
+      "total_user_tokens": 58690,
+      "total_model_tokens": 2479,
+      "user_ratio": 0.9595
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.8896,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "I'm investigating test coverage gaps in the ESI.ts project at D:\\code\\ESI.ts. The goal is to raise coverage from ~75% to 90%+.\n\nHere are the files with the lowest coverage from the coverage report:\n\n1. **src/types/api-responses.ts** \u2014 0% statements (barrel re-export file, 32 lines)\n2. **src/testing/TestDataFactory.ts** \u2014 60.27% stmts, 12.96% branches, lines 623-718 and 746-926 uncovered\n3. **src/core/rateLimiter/RateLimiter.ts** \u2014 68.18% stmts, 65.85% lines, uncovered: lines 53, 164-172, 180-187, 196-201, 206-222, 235-236\n4. **src/core/endpoints/createClient.ts** \u2014 61.85% stmts, 49.05% branches, uncovered: lines 119-163, 212-236\n5. **src/core/endpoints/universeEndpoints.ts** \u2014 33.33% stmts, uncovered: lines 73-85\n6. **src/core/circuitBreaker/CircuitBreaker.ts** \u2014 82.95% stmts, 71.87% branches, uncovered: lines 69-73, 163-183\n7. **src/core/ApiClientBuilder.ts** \u2014 65.38% stmts, 40% branches, uncovered: lines 37-48\n8. **src/core/ApiRequestHandler.ts** \u2014 89.84% stmts, uncovered: lines 52, 93, 125, 192, 204-206, 268-272, 374-375, 437, 449, 530-535\n9. **src/core/cache/ETagCacheManager.ts** \u2014 88.6% stmts, uncovered: lines 109-119\n10. **src/core/middleware/Middleware.ts** \u2014 90.9% stmts, uncovered: lines 44-45\n11. **src/core/logger/loggerUtil.ts** \u2014 90% stmts, uncovered: line 9\n12. **src/core/util/testHelpers.ts** \u2014 71.42% stmts, uncovered: lines 7-8\n13. **src/config/configManager.ts** \u2014 88.88% stmts, uncovered: lines 20, 34\n\nFor each of these files, I need you to:\n1. Read the uncovered lines to understand what code paths aren't tested\n2. Categorize the gap (e.g. error handling, edge case, alternate config, unused method, etc.)\n3. Estimate how many new test lines would be needed to cover it\n4. Note if the file is a barrel/re-export (like api-responses.ts) where coverage can be trivially achieved\n\nAlso check: are there any source files NOT appearing in the coverage report at all? Look at `src/` for .ts files and compare against what the report covers. Focus on files that export real logic, not just types.\n\nReport back with a prioritized list: which files would give the biggest coverage lift with the least effort. Format as a table with columns: File, Current %, Gap Category, Effort (S/M/L), Coverage Lift estimate.",
+          "response_text": "I'll investigate the test coverage gaps in the ESI.ts project. Let me start by reading the coverage report and examining the source files. Now let me check the coverage summary and read the specific files mentioned: Let me now check the actual source files to understand the uncovered code: Let me continue reading the files to understand the uncovered areas: Now let me read more of the uncovered areas: Let me continue reading and check for files not in coverage: Now let me check if there are any files in src/ that are NOT in the coverage report: Let me check which files are missing from the coverage report: Let me fix that command: I see! The coverage report file path format is different. Let me check the path format in lcov.info: Perfect! They all match with backslashes. Let me read a few more uncovered files and get information about the rateLimiter more comprehensively: Now let me look at the test factory uncovered sections more closely: Perfect! Now I have enough information. Let me create a comprehensive analysis document:\n\n## Coverage Gap Analysis Report\n\nBased on my analysis of the ESI.ts project's coverage report, here's the detailed breakdown of the lowest-coverage files and their gaps:\n\n| File | Current % | Gap Category | Effort | Coverage Lift | Notes |\n|------|-----------|--------------|--------|---------------|-------|\n| **src/types/api-responses.ts** | 0% | Barrel re-export | XS | 5-10% | Pure re-export file (32 lines). No executable logic. Quick win with simple import test. |\n| **src/core/endpoints/universeEndpoints.ts** | 33.33% | Unused methods | M | 10-15% | Lines 73-85: `postBulkNamesToIds` and `postNamesAndCategories` endpoint methods never tested. Need functional tests for these two POST endpoints. |\n| **src/testing/TestDataFactory.ts** | 60.27% | Factory methods unused | M | 12-18% | Lines 623-718 & 746-926: Methods like `createSovereigntySystem`, `createSovereigntyHub`, `createOrbitalSkyhook`, `createRaidableSkyhook`, `createMercenaryDen`, `createAccessListEntry`, and `createTestScenarios` unused. These are utility factories\u2014use them in existing tests or add focused factory tests. |\n| **src/core/ApiClientBuilder.ts** | 65.38% | Unused setters | S | 8-12% | Lines 37-48: Three setter methods (`setCircuitBreaker`, `setCircuitBreaker`, `setTimeout`) called 0 times. Add tests that use these builder methods in composition. |\n| **src/core/rateLimiter/RateLimiter.ts** | 68.18% | Error handling + edge cases | L | 15-20% | Lines 53, 164-172, 180-187, 196-201, 206-222, 235-236: Error limit exhaustion, proactive deceleration, and minimum delay enforcement paths. These are critical rate limiting behaviors\u2014tests needed for: blocked state timeouts, legacy error limits, token bucket depletion, and deceleration slopes. |\n| **src/core/endpoints/createClient.ts** | 61.85% | Pagination + error paths | L | 18-25% | Lines 119-163, 212-236: Cursor pagination handling (before/after params, cursor result building) and `fetchAllCursorPages` helper. Need tests for cursor pagination flow, empty results, single-page results, and multi-page traversal. |\n| **src/core/circuitBreaker/CircuitBreaker.ts** | 82.95% | Half-open recovery | M | 10-15% | Lines 69-73, 163-183: Half-open state probe logic and `cleanup()` method for stale circuits. Test circuit state transitions, half-open timeout recovery, and cleanup of aged records. |\n| **src/core/cache/ETagCacheManager.ts** | 88.6% | Cache eviction | S | 6-10% | Lines 109-119: `deleteByPath()` and internal cache eviction when full. Add tests for: path-based cache invalidation, max entry enforcement, and LRU eviction behavior. |\n| **src/core/util/testHelpers.ts** | 71.42% | Async helpers | S | 5-8% | Lines 7-8: `getHeaders()` async helper barely used. These are utility test functions\u2014integrate into more helper tests. |\n| **src/core/middleware/Middleware.ts** | 90.9% | Removed interceptors | S | 3-5% | Lines 44-45: Unsubscribe return value path (removing interceptors). Edge case test for removing interceptors mid-chain. |\n| **src/core/logger/loggerUtil.ts** | 90% | Custom logger | XS | 2-3% | Line 9: `setLogger()` custom logger path. One test for swapping logger implementations. |\n| **src/config/configManager.ts** | 88.88% | Missing config file | S | 4-6% | Lines 20, 34: `loadConfig()` error when config file missing. Test file I/O error handling. |\n| **src/core/ApiRequestHandler.ts** | 89.84% | Error responses + edge cases | M | 8-12% | Lines 52, 93, 125, 192, 204-206, 268-272, 374-375, 437, 449, 530-535: Various error handling paths, early HTTP status returns, and retry logic. Scattered gaps across error handling. |\n\n### Files NOT in Coverage Report (All legitimate):\n- **Type-only files** (all 25+ src/types/*.ts): These contain only interface/type definitions\u2014no executable code.\n- **Jest config files** (src/config/jest/*.ts): Setup/teardown scripts\u2014typically excluded from coverage.\n- **Endpoint definition files**: Pure constant objects (accessListEndpoints.ts, etc.)\u2014coverage not applicable to data definitions.\n- **ILogger.ts, ICache.ts, IRateLimiter.ts**: Interface-only files.\n\n### Prioritized Quick Wins (Highest ROI):\n\n**Phase 1 (Easiest, 15-20% lift):**\n1. **src/types/api-responses.ts** (XS, 5-10%): Import and use re-exported types in a single test file\n2. **src/core/logger/loggerUtil.ts** (XS, 2-3%): One test for `setLogger()` \n3. **src/core/middleware/Middleware.ts** (S, 3-5%): Test interceptor unsubscribe\n4. **src/core/util/testHelpers.ts** (S, 5-8%): Use in helper tests\n5. **src/config/configManager.ts** (S, 4-6%): Mock file I/O for error case\n\n**Phase 2 (Medium effort, 20-30% additional lift):**\n6. **src/core/ApiClientBuilder.ts** (S, 8-12%): Builder pattern composition tests\n7. **src/core/cache/ETagCacheManager.ts** (S, 6-10%): Cache eviction and path-based invalidation\n8. **src/core/circuitBreaker/CircuitBreaker.ts** (M, 10-15%): State transitions and cleanup\n9. **src/core/endpoints/universeEndpoints.ts** (M, 10-15%): Test POST endpoints\n\n**Phase 3 (Higher effort, 25-35% additional lift):**\n10. **src/core/rateLimiter/RateLimiter.ts** (L, 15-20%): Rate limiting edge cases and deceleration curves\n11. **src/core/endpoints/createClient.ts** (L, 18-25%): Cursor pagination multi-page traversal\n12. **src/core/ApiRequestHandler.ts** (M, 8-12%): Scattered error handling coverage\n\n### Estimated Total Coverage Improvement:\n- **Phase 1**: ~20% \u2192 ~80%\n- **Phase 2**: ~80% \u2192 ~88%\n- **Phase 3**: ~88% \u2192 92%+\n\nAll three phases combined can achieve 90%+ coverage with focused test additions.",
+          "alignment": 0.8896
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "4d32fea7-03a4-4e63-ba12-aea9bb7a9e5d",
+    "source_file": "data/D--code-ESI-ts__agent-abcada40503491ad9.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

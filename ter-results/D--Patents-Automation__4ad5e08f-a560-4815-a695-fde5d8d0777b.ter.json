@@ -1,0 +1,164 @@
+{
+  "session_id": "4ad5e08f-a560-4815-a695-fde5d8d0777b",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 1013,
+  "aligned_tokens": 1013,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5974,
+    "token_weighted_confidence": 0.5069,
+    "low_confidence_tokens": 977,
+    "low_confidence_share": 0.9645,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 2,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.6948426961898804,
+      "intent_similarity": 0.6948426961898804,
+      "tokens": 36,
+      "text": "The user wants mermaid.js diagrams for the Zero-Trust Agent Fabric invention for mainframe environments. I need to create diagrams that accurately represent this specific invention's architecture and flow.",
+      "source_message_uuid": "ef09ccd1-9e8f-4579-8d0a-659e788cffbc",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6948,
+          "repetition_score": 0.0,
+          "confidence": 0.6948
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.36085647344589233,
+      "tokens": 977,
+      "text": "## System Architecture\n\n```mermaid\nflowchart TD\n    subgraph Agents[Agent Execution Domains]\n        A1[LPAR Agent]\n        A2[Container Agent]\n        A3[Address Space Agent]\n        A4[AI Accelerator Agent]\n    end\n\n    subgraph Fabric[Zero-Trust Agent Fabric]\n        GW[Communication Gateway]\n        TE[Trust Evaluator]\n        SC[Security Challenge Engine]\n        TS[Trust Score Calculator]\n        PE[Policy Enforcer]\n    end\n\n    subgraph Context[Security Context Sources]\n        RACF[RACF Permissions]\n        WC[Workload Classifications]\n        DSL[Data Sensitivity Labels]\n        RA[Runtime Attestations]\n    end\n\n    subgraph Actions[Enforcement Actions]\n        ALLOW[Allow Communication]\n        RESTRICT[Restrict Scope]\n        QUARANTINE[Quarantine Agent]\n        DENY[Deny Communication]\n    end\n\n    subgraph Audit[Audit Trail]\n        TDL[Trust Decision Log]\n        IL[Interaction Log]\n    end\n\n    A1 & A2 & A3 & A4 --> GW\n    GW --> TE\n    RACF & WC & DSL & RA --> TE\n    TE --> SC\n    SC --> TS\n    TS --> PE\n    PE --> ALLOW\n    PE --> RESTRICT\n    PE --> QUARANTINE\n    PE --> DENY\n    PE --> TDL\n    GW --> IL\n```\n\n## Sequence Diagram\n\n```mermaid\nsequenceDiagram\n    participant A1 as Requesting Agent\n    participant GW as Fabric Gateway\n    participant TE as Trust Evaluator\n    participant RACF as RACF / Context Sources\n    participant SC as Challenge Engine\n    participant PE as Policy Enforcer\n    participant A2 as Target Agent\n    participant AL as Audit Log\n\n    A1->>GW: Invoke Target Agent\n    GW->>TE: Evaluate Security Context\n    TE->>RACF: Query Permissions and Labels\n    RACF-->>TE: Identity, Workload, Sensitivity\n    TE->>SC: Issue Security Challenge\n    SC->>A1: Validate Identity and Environment\n    A1-->>SC: Challenge Response\n    SC->>TE: Attestation Result\n    TE->>PE: Submit Trust Score\n    alt Trust Score Sufficient\n        PE->>A2: Forward Invocation\n        A2-->>GW: Response\n        GW-->>A1: Deliver Response\n    else Trust Score Degraded\n        PE->>GW: Restrict or Deny\n        GW-->>A1: Communication Blocked\n    end\n    PE->>AL: Log Trust Decision\n    GW->>AL: Log Interaction Details\n```\n\n## Trust Evaluation Flow\n\n```mermaid\nflowchart LR\n    subgraph Collect[Context Collection]\n        R[RACF Permissions]\n        W[Workload Class]\n        D[Data Sensitivity]\n        A[Runtime Attestation]\n    end\n\n    subgraph Score[Trust Scoring]\n        ID[Identity Validation]\n        AZ[Authorization Check]\n        ENV[Environment Verification]\n        STATE[Operational State Check]\n    end\n\n    subgraph Decision[Trust Decision]\n        CALC[Composite Trust Score]\n        THRESH[Threshold Evaluation]\n    end\n\n    subgraph Outcome[Enforcement Outcome]\n        PASS[Allow Per-Interaction Trust]\n        LIMIT[Restrict Communication]\n        BLOCK[Quarantine or Deny]\n    end\n\n    R & W & D & A --> ID\n    R & W & D & A --> AZ\n    R & W & D & A --> ENV\n    R & W & D & A --> STATE\n    ID & AZ & ENV & STATE --> CALC\n    CALC --> THRESH\n    THRESH -->|High Trust| PASS\n    THRESH -->|Degraded Trust| LIMIT\n    THRESH -->|Anomalous| BLOCK\n```\n\n## Continuous Re-Evaluation Lifecycle\n\n```mermaid\nstateDiagram-v2\n    [*] --> RequestReceived\n    RequestReceived --> ContextGathering\n    ContextGathering --> ChallengeIssued\n    ChallengeIssued --> TrustScored\n    TrustScored --> Trusted: Score Above Threshold\n    TrustScored --> Restricted: Score Marginal\n    TrustScored --> Denied: Score Below Minimum\n    Trusted --> InteractionActive\n    Restricted --> InteractionLimited\n    InteractionActive --> ReEvaluation: Continuous Monitoring\n    InteractionLimited --> ReEvaluation\n    ReEvaluation --> TrustScored: New Attestation\n    Denied --> Quarantined\n    Quarantined --> [*]\n    ReEvaluation --> Denied: Anomaly Detected\n```",
+      "source_message_uuid": "ef09ccd1-9e8f-4579-8d0a-659e788cffbc",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3609,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 3,
+    "total_output_tokens": 1256,
+    "total_cache_creation_tokens": 662,
+    "total_cache_read_tokens": 5994,
+    "input_output_ratio": 0.0,
+    "cache_hit_rate": 0.9995,
+    "estimated_cost_usd": 0.0231,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 0
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        5997
+      ],
+      "growth_rate": 1.0,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 520,
+      "user_result_tokens": 0,
+      "model_reasoning_tokens": 36,
+      "model_tool_tokens": 0,
+      "model_generation_tokens": 977,
+      "total_user_tokens": 520,
+      "total_model_tokens": 1013,
+      "user_ratio": 0.3392
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.3609,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "TASK: Create mermaid.js diagrams for this invention.\r\n\r\nINSTRUCTION: Output ONLY mermaid code blocks. No explanations.\r\n\r\nMERMAID RULES (for PNG / mermaid-cli compatibility):\r\n- Do NOT use HTML line breaks in the diagram: no <br/>, <br>, or similar anywhere in the mermaid source (including inside node labels). They break many renderers and image export.\r\n- Use shorter labels, multiple nodes, or subgraphs instead of forcing line breaks inside one label.\r\n\r\nINVENTION:\r\n---\r\ninvention-id: invention-20260622-110511\r\ncompany: IBM\r\ncreated: 2026-06-22T11:05:17\r\n---\r\n\r\n# Invention Idea\r\n\r\nAs autonomous agents become deployed across mainframe environments, trust is often inherited from the surrounding infrastructure rather than continuously validated. We propose a Zero-Trust Agent Fabric that governs all agent-to-agent communication within the mainframe, regardless of whether agents execute in LPARs, containers, address spaces, or AI accelerator domains. Before an agent can invoke another agent, the fabric evaluates security context derived from RACF permissions, workload classifications, data sensitivity labels, and runtime attestations. Rather than relying solely on static credentials, the fabric dynamically issues security challenges that validate an agent's current identity, authorization, execution environment, and operational state. Trust is therefore established per interaction and continuously re-evaluated as agents perform work. The system can automatically restrict, quarantine, or deny communications when trust scores degrade or anomalous behavior is detected. This creates a mainframe-native zero-trust architecture for autonomous agents that reduces lateral movement risks while providing a complete audit trail of agent trust decisions and interactions.\r\n\r\n\r\nOUTPUT:\r\n\r\n## System Architecture\r\n\r\n`mermaid\r\nflowchart TD\r\n    subgraph Input[Data Sources]\r\n        A[Source A]\r\n        B[Source B]\r\n    end\r\n    subgraph Process[Processing]\r\n        C[Tracker]\r\n        D[Detector]\r\n    end\r\n    subgraph Output[Results]\r\n        E[Clean Data]\r\n        F[Alerts]\r\n    end\r\n    A --> C\r\n    B --> C\r\n    C --> D\r\n    D --> E\r\n    D --> F\r\n`\r\n\r\n## Sequence Diagram\r\n\r\n`mermaid\r\nsequenceDiagram\r\n    participant S as Source\r\n    participant T as Tracker\r\n    participant D as Detector\r\n    participant Sys as System\r\n    S->>T: Submit Data\r\n    T->>D: Validate\r\n    D->>Sys: Forward or Block\r\n`\r\n\r\nCreate diagrams specific to THIS invention.",
+          "response_text": "## System Architecture\n\n```mermaid\nflowchart TD\n    subgraph Agents[Agent Execution Domains]\n        A1[LPAR Agent]\n        A2[Container Agent]\n        A3[Address Space Agent]\n        A4[AI Accelerator Agent]\n    end\n\n    subgraph Fabric[Zero-Trust Agent Fabric]\n        GW[Communication Gateway]\n        TE[Trust Evaluator]\n        SC[Security Challenge Engine]\n        TS[Trust Score Calculator]\n        PE[Policy Enforcer]\n    end\n\n    subgraph Context[Security Context Sources]\n        RACF[RACF Permissions]\n        WC[Workload Classifications]\n        DSL[Data Sensitivity Labels]\n        RA[Runtime Attestations]\n    end\n\n    subgraph Actions[Enforcement Actions]\n        ALLOW[Allow Communication]\n        RESTRICT[Restrict Scope]\n        QUARANTINE[Quarantine Agent]\n        DENY[Deny Communication]\n    end\n\n    subgraph Audit[Audit Trail]\n        TDL[Trust Decision Log]\n        IL[Interaction Log]\n    end\n\n    A1 & A2 & A3 & A4 --> GW\n    GW --> TE\n    RACF & WC & DSL & RA --> TE\n    TE --> SC\n    SC --> TS\n    TS --> PE\n    PE --> ALLOW\n    PE --> RESTRICT\n    PE --> QUARANTINE\n    PE --> DENY\n    PE --> TDL\n    GW --> IL\n```\n\n## Sequence Diagram\n\n```mermaid\nsequenceDiagram\n    participant A1 as Requesting Agent\n    participant GW as Fabric Gateway\n    participant TE as Trust Evaluator\n    participant RACF as RACF / Context Sources\n    participant SC as Challenge Engine\n    participant PE as Policy Enforcer\n    participant A2 as Target Agent\n    participant AL as Audit Log\n\n    A1->>GW: Invoke Target Agent\n    GW->>TE: Evaluate Security Context\n    TE->>RACF: Query Permissions and Labels\n    RACF-->>TE: Identity, Workload, Sensitivity\n    TE->>SC: Issue Security Challenge\n    SC->>A1: Validate Identity and Environment\n    A1-->>SC: Challenge Response\n    SC->>TE: Attestation Result\n    TE->>PE: Submit Trust Score\n    alt Trust Score Sufficient\n        PE->>A2: Forward Invocation\n        A2-->>GW: Response\n        GW-->>A1: Deliver Response\n    else Trust Score Degraded\n        PE->>GW: Restrict or Deny\n        GW-->>A1: Communication Blocked\n    end\n    PE->>AL: Log Trust Decision\n    GW->>AL: Log Interaction Details\n```\n\n## Trust Evaluation Flow\n\n```mermaid\nflowchart LR\n    subgraph Collect[Context Collection]\n        R[RACF Permissions]\n        W[Workload Class]\n        D[Data Sensitivity]\n        A[Runtime Attestation]\n    end\n\n    subgraph Score[Trust Scoring]\n        ID[Identity Validation]\n        AZ[Authorization Check]\n        ENV[Environment Verification]\n        STATE[Operational State Check]\n    end\n\n    subgraph Decision[Trust Decision]\n        CALC[Composite Trust Score]\n        THRESH[Threshold Evaluation]\n    end\n\n    subgraph Outcome[Enforcement Outcome]\n        PASS[Allow Per-Interaction Trust]\n        LIMIT[Restrict Communication]\n        BLOCK[Quarantine or Deny]\n    end\n\n    R & W & D & A --> ID\n    R & W & D & A --> AZ\n    R & W & D & A --> ENV\n    R & W & D & A --> STATE\n    ID & AZ & ENV & STATE --> CALC\n    CALC --> THRESH\n    THRESH -->|High Trust| PASS\n    THRESH -->|Degraded Trust| LIMIT\n    THRESH -->|Anomalous| BLOCK\n```\n\n## Continuous Re-Evaluation Lifecycle\n\n```mermaid\nstateDiagram-v2\n    [*] --> RequestReceived\n    RequestReceived --> ContextGathering\n    ContextGathering --> ChallengeIssued\n    ChallengeIssued --> TrustScored\n    TrustScored --> Trusted: Score Above Threshold\n    TrustScored --> Restricted: Score Marginal\n    TrustScored --> Denied: Score Below Minimum\n    Trusted --> InteractionActive\n    Restricted --> InteractionLimited\n    InteractionActive --> ReEvaluation: Continuous Monitoring\n    InteractionLimited --> ReEvaluation\n    ReEvaluation --> TrustScored: New Attestation\n    Denied --> Quarantined\n    Quarantined --> [*]\n    ReEvaluation --> Denied: Anomaly Detected\n```",
+          "alignment": 0.3609
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "4ad5e08f-a560-4815-a695-fde5d8d0777b",
+    "source_file": "data/D--Patents-Automation__4ad5e08f-a560-4815-a695-fde5d8d0777b.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

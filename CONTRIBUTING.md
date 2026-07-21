@@ -10,23 +10,23 @@ git clone https://github.com/<your-username>/TER.git
 cd TER
 
 # Install in development mode
-pip install -e ".[dev]"
+python -m pip install -c constraints/dev.txt -e ".[dev,embeddings]"
 
 # Install pre-commit hooks
 pip install pre-commit
 pre-commit install
 ```
 
-Requires Python 3.11+.
+Supported Python versions: 3.11, 3.12, and 3.13.
 
 ## Development Workflow
 
 ### Running Tests
 
 ```bash
-pytest                                    # All tests
-pytest tests/unit/test_classifier.py -v   # Specific module
-pytest --cov=ter_calculator               # With coverage
+python -m pytest                                    # All tests
+python -m pytest tests/unit/test_classifier.py -v   # Specific module
+python -m pytest --cov=ter_calculator --cov-branch  # With coverage
 ```
 
 ### Linting and Type Checking

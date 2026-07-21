@@ -1,0 +1,742 @@
+{
+  "session_id": "d9883245-8956-4bdb-a766-9689ec76d1de",
+  "aggregate_ter": 0.9896,
+  "raw_ratio": 0.9883,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 0.9739,
+    "generation": 1.0
+  },
+  "total_tokens": 2134,
+  "aligned_tokens": 2109,
+  "waste_tokens": 25,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6027,
+    "token_weighted_confidence": 0.6148,
+    "low_confidence_tokens": 1784,
+    "low_confidence_share": 0.836,
+    "ter_interval": [
+      0.9432,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 19,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "waste_patterns": [
+    {
+      "type": "repetitive_read",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 3,
+      "tokens_wasted": 1587,
+      "description": "CalendarClient.test.ts read 3x (1,587 redundant tokens)"
+    },
+    {
+      "type": "edit_fragmentation",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 3,
+      "tokens_wasted": 0,
+      "description": "3 consecutive edits to CalendarClient.test.ts (0 fragmented tokens)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.38731905817985535,
+      "tokens": 16,
+      "text": "I'll start by reading both files to understand the schemas and current mock data.",
+      "source_message_uuid": "d4c10f77-5f83-4f65-9eb1-46bd0148f131",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3873,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4542081952095032,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\calendar.ts\"}",
+      "source_message_uuid": "d4c10f77-5f83-4f65-9eb1-46bd0148f131",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4542,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.43645140528678894,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\calendar\\\\CalendarClient.test.ts\"}",
+      "source_message_uuid": "d4c10f77-5f83-4f65-9eb1-46bd0148f131",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4365,
+          "repetition_score": 0.6455,
+          "confidence": 0.6,
+          "semantic_similarity": 0.915,
+          "lexical_similarity": 0.4167,
+          "entity_similarity": 0.4545,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\calendar.ts\"}"
+      }
+    },
+    {
+      "position": 3,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5730192065238953,
+      "intent_similarity": 0.5730192065238953,
+      "tokens": 465,
+      "text": "Now I need to compare the mock data against the schemas and identify missing fields.\n\n**Schema 1: CalendarEventSchema** (used by `getCalendarEvents`)\nRequired fields:\n- `event_id`: z.number()\n- `event_date`: z.string()\n- `title`: z.string()\n- `importance`: z.number()\n- `event_response`: z.enum(['declined', 'not_responded', 'accepted', 'tentative'])\n\nCurrent mock (line 24-35):\n- `event_id`: 1 \u2713\n- `event_date`: '2024-07-01T12:00:00Z' \u2713\n- `title`: 'Event Title' \u2713\n- `importance`: 1 \u2713\n- `event_response`: MISSING \u2717\n\n**Schema 2: CalendarEventDetailSchema** (used by `getCalendarEventById`)\nRequired fields:\n- `event_id`: z.number()\n- `date`: z.string()\n- `title`: z.string()\n- `text`: z.string()\n- `owner_id`: z.number()\n- `owner_name`: z.string()\n- `owner_type`: z.enum(...)\n- `duration`: z.number()\n- `importance`: (appears to be cut off)\n\nLooking at the mock data for this schema, I see several mismatches. The mock uses `event_date` instead of `date`, and `description` instead of `text`. While the schema allows extra fields with `.passthrough()`, it's missing the required `date` and `text` fields entirely. Beyond that, `owner_id`, `owner_name`, `owner_type`, `duration`, and `importance` are all absent from the mock.\n\nFor the attendee schema, the mock has `response` but the schema expects `event_response`. I need to fix these mocks by adding all required fields and correcting the field names to match what the schema actually expects. The required schema fields need to be present in the mock data for validation to pass, so I'll add those missing fields while keeping the existing ones that the test assertions depend on. For `getEventAttendees`, I need to include `event_response` in the mock to satisfy the schema while preserving `response` for the test checks. Let me apply these changes now.",
+      "source_message_uuid": "9bfb0ceb-9ae4-4654-bed7-d5724052797d",
+      "source_lines": [
+        8
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.573,
+          "repetition_score": 0.0,
+          "confidence": 0.573
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 4,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.602944552898407,
+      "intent_similarity": 0.602944552898407,
+      "tokens": 187,
+      "text": "Now I can see the gaps clearly. Let me compare each mock against its schema:\n\n**Test 1 - `getCalendarEvents`** uses `CalendarEventSchema`:\n- Missing: `event_response` (required enum)\n\n**Test 2 - `getCalendarEventById`** uses `CalendarEventDetailSchema`:\n- Missing: `date`, `text`, `owner_id`, `owner_name`, `owner_type`, `duration`, `importance`, `response` (all required)\n- Has `event_date` and `description` which aren't schema fields but are fine due to `.passthrough()`\n\n**Test 3 - `getEventAttendees`** uses `CalendarEventAttendeeSchema`:\n- Missing: `event_response` (required enum)\n- Has `response` which isn't the schema field name but fine due to `.passthrough()`\n\nLet me fix all three mocks now.",
+      "source_message_uuid": "9bfb0ceb-9ae4-4654-bed7-d5724052797d",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6029,
+          "repetition_score": 0.3142,
+          "confidence": 0.6029,
+          "semantic_similarity": 0.5257,
+          "lexical_similarity": 0.0704,
+          "entity_similarity": 0.05,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.95
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll start by reading both files to understand the schemas and current mock data."
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5424850583076477,
+      "tokens": 240,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\calendar\\\\CalendarClient.test.ts\",\"old_string\":\"    const mockResponse: {\\n      event_id: number;\\n      event_date: string;\\n      title: string;\\n      importance: number;\\n    }[] = [\\n      {\\n        event_id: 1,\\n        event_date: '2024-07-01T12:00:00Z',\\n        title: 'Event Title',\\n        importance: 1,\\n      },\\n    ];\",\"new_string\":\"    const mockResponse: {\\n      event_id: number;\\n      event_date: string;\\n      title: string;\\n      importance: number;\\n      event_response: string;\\n    }[] = [\\n      {\\n        event_id: 1,\\n        event_date: '2024-07-01T12:00:00Z',\\n        title: 'Event Title',\\n        importance: 1,\\n        event_response: 'accepted',\\n      },\\n    ];\"}",
+      "source_message_uuid": "9bfb0ceb-9ae4-4654-bed7-d5724052797d",
+      "source_lines": [
+        10
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5425,
+          "repetition_score": 0.0524,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6293,
+          "lexical_similarity": 0.25,
+          "entity_similarity": 0.2857,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\calendar\\\\CalendarClient.test.ts\"}"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5624709129333496,
+      "tokens": 345,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\calendar\\\\CalendarClient.test.ts\",\"old_string\":\"    const mockResponse: {\\n      event_id: number;\\n      event_date: string;\\n      title: string;\\n      description: string;\\n    } = {\\n      event_id: 1,\\n      event_date: '2024-07-01T12:00:00Z',\\n      title: 'Event Title',\\n      description: 'Event Description',\\n    };\",\"new_string\":\"    const mockResponse: {\\n      event_id: number;\\n      event_date: string;\\n      date: string;\\n      title: string;\\n      description: string;\\n      text: string;\\n      owner_id: number;\\n      owner_name: string;\\n      owner_type: string;\\n      duration: number;\\n      importance: number;\\n      response: string;\\n    } = {\\n      event_id: 1,\\n      event_date: '2024-07-01T12:00:00Z',\\n      date: '2024-07-01T12:00:00Z',\\n      title: 'Event Title',\\n      description: 'Event Description',\\n      text: 'Event Description',\\n      owner_id: 987654321,\\n      owner_name: 'Test Corporation',\\n      owner_type: 'corporation',\\n      duration: 60,\\n      importance: 1,\\n      response: 'accepted',\\n    };\"}",
+      "source_message_uuid": "4b3f3fba-6fa3-4e7c-913d-170eae612a7f",
+      "source_lines": [
+        12
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5625,
+          "repetition_score": 0.7166,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9762,
+          "lexical_similarity": 0.6818,
+          "entity_similarity": 0.6842,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\calendar\\\\CalendarClient.test.ts\",\"old_string\":\"    const mockResponse: {\\n      event_id: number;\\n      event_date: string;\\n      title: string;\\n      importance: numb"
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5685950517654419,
+      "tokens": 140,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\calendar\\\\CalendarClient.test.ts\",\"old_string\":\"    const mockResponse: { character_id: number; response: string }[] = [\\n      {\\n        character_id: 123,\\n        response: 'accepted',\\n      },\\n    ];\",\"new_string\":\"    const mockResponse: { character_id: number; event_response: string; response: string }[] = [\\n      {\\n        character_id: 123,\\n        event_response: 'accepted',\\n        response: 'accepted',\\n      },\\n    ];\"}",
+      "source_message_uuid": "09dbf85f-7952-4727-b820-71b2832b98fc",
+      "source_lines": [
+        14
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5686,
+          "repetition_score": 0.6759,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9038,
+          "lexical_similarity": 0.5882,
+          "entity_similarity": 0.6333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\calendar\\\\CalendarClient.test.ts\",\"old_string\":\"    const mockResponse: {\\n      event_id: number;\\n      event_date: string;\\n      title: string;\\n      importance: numb"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5122465491294861,
+      "intent_similarity": 0.5122465491294861,
+      "tokens": 51,
+      "text": "Now I also need to update the type annotation in the `result as` cast for `getCalendarEventById` to match the expanded mock, since the assertions reference `event_date` and `description`. Let me check the current state of the cast.",
+      "source_message_uuid": "f7a041cb-c9aa-465a-aaa1-a0e94dafd467",
+      "source_lines": [
+        16
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5122,
+          "repetition_score": 0.4141,
+          "confidence": 0.5122,
+          "semantic_similarity": 0.6657,
+          "lexical_similarity": 0.1358,
+          "entity_similarity": 0.1176,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8824
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Now I can see the gaps clearly. Let me compare each mock against its schema:\n\n**Test 1 - `getCalendarEvents`** uses `CalendarEventSchema`:\n- Missing: `event_response` (required enum)\n\n**Test 2 - `getCalendarEventById`** uses `CalendarEventD"
+      }
+    },
+    {
+      "position": 9,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.43623387813568115,
+      "tokens": 33,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\calendar\\\\CalendarClient.test.ts\",\"offset\":80,\"limit\":30}",
+      "source_message_uuid": "f7a041cb-c9aa-465a-aaa1-a0e94dafd467",
+      "source_lines": [
+        17
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4362,
+          "repetition_score": 0.6983,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9193,
+          "lexical_similarity": 0.6923,
+          "entity_similarity": 0.6923,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\calendar\\\\CalendarClient.test.ts\"}"
+      }
+    },
+    {
+      "position": 10,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.2768862247467041,
+      "tokens": 72,
+      "text": "The `result as` cast on lines 102-107 is fine -- it's part of the test assertions and only needs to cover the properties being asserted on. The assertions themselves aren't changing, so this is okay.\n\nNow let me also check there's a `getBody` helper function defined somewhere, since it's used but not defined in this file.",
+      "source_message_uuid": "09ec0378-e796-4fc2-b80c-a0b50a18de03",
+      "source_lines": [
+        19
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2769,
+          "repetition_score": 0.3439,
+          "confidence": 0.5,
+          "semantic_similarity": 0.4991,
+          "lexical_similarity": 0.2273,
+          "entity_similarity": 0.1961,
+          "action_similarity": 0.3333,
+          "parameter_novelty": 0.8039
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Now I also need to update the type annotation in the `result as` cast for `getCalendarEventById` to match the expanded mock, since the assertions reference `event_date` and `description`. Let me check the current state of the cast."
+      }
+    },
+    {
+      "position": 11,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.20717135071754456,
+      "tokens": 36,
+      "text": "Grep {\"pattern\":\"function getBody|const getBody|export.*getBody\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\tests\",\"output_mode\":\"files_with_matches\"}",
+      "source_message_uuid": "09ec0378-e796-4fc2-b80c-a0b50a18de03",
+      "source_lines": [
+        20
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2072,
+          "repetition_score": 0.0361,
+          "confidence": 0.6,
+          "semantic_similarity": 0.424,
+          "lexical_similarity": 0.2222,
+          "entity_similarity": 0.1667,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\calendar\\\\CalendarClient.test.ts\"}"
+      }
+    },
+    {
+      "position": 12,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.19887126982212067,
+      "tokens": 29,
+      "text": "Grep {\"pattern\":\"getBody\",\"path\":\"D:\\\\code\\\\ESI.ts\",\"output_mode\":\"files_with_matches\",\"head_limit\":20}",
+      "source_message_uuid": "e90711b2-30c2-41b3-a70a-55cfe455ee54",
+      "source_lines": [
+        22
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1989,
+          "repetition_score": 0.4814,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8667,
+          "lexical_similarity": 0.6,
+          "entity_similarity": 0.5714,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.5
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 11,
+        "matched_prior_text": "Grep {\"pattern\":\"function getBody|const getBody|export.*getBody\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\tests\",\"output_mode\":\"files_with_matches\"}"
+      }
+    },
+    {
+      "position": 13,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.19469594955444336,
+      "tokens": 39,
+      "text": "Grep {\"pattern\":\"getBody\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\assets\\\\AssetsClient.test.ts\",\"output_mode\":\"content\",\"head_limit\":5}",
+      "source_message_uuid": "3e274410-b09e-4740-9750-36e64b7dae33",
+      "source_lines": [
+        24
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1947,
+          "repetition_score": 0.652,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8857,
+          "lexical_similarity": 0.5294,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 12,
+        "matched_prior_text": "Grep {\"pattern\":\"getBody\",\"path\":\"D:\\\\code\\\\ESI.ts\",\"output_mode\":\"files_with_matches\",\"head_limit\":20}"
+      }
+    },
+    {
+      "position": 14,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.20852398872375488,
+      "tokens": 30,
+      "text": "It seems `getBody` is used everywhere but never explicitly imported or defined. It's likely a global test helper. Let me check the jest setup.",
+      "source_message_uuid": "008a4d34-05e8-47c0-a2dc-edbef5e1ac64",
+      "source_lines": [
+        26
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2085,
+          "repetition_score": 0.4102,
+          "confidence": 0.5,
+          "semantic_similarity": 0.5725,
+          "lexical_similarity": 0.1935,
+          "entity_similarity": 0.1957,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.8043
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 10,
+        "matched_prior_text": "The `result as` cast on lines 102-107 is fine -- it's part of the test assertions and only needs to cover the properties being asserted on. The assertions themselves aren't changing, so this is okay.\n\nNow let me also check there's a `getBod"
+      }
+    },
+    {
+      "position": 15,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.18767300248146057,
+      "tokens": 26,
+      "text": "Grep {\"pattern\":\"getBody\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\",\"output_mode\":\"files_with_matches\"}",
+      "source_message_uuid": "008a4d34-05e8-47c0-a2dc-edbef5e1ac64",
+      "source_lines": [
+        27
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1877,
+          "repetition_score": 0.7163,
+          "confidence": 0.6,
+          "semantic_similarity": 0.943,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.7273,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 12,
+        "matched_prior_text": "Grep {\"pattern\":\"getBody\",\"path\":\"D:\\\\code\\\\ESI.ts\",\"output_mode\":\"files_with_matches\",\"head_limit\":20}"
+      }
+    },
+    {
+      "position": 16,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.19938920438289642,
+      "tokens": 30,
+      "text": "Good, it's defined in jest setup -- it's a global. No issue there.\n\nLet me verify the final state of the file is correct.",
+      "source_message_uuid": "fac742e0-9201-4cd1-8404-20e36bc58a7d",
+      "source_lines": [
+        29
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1994,
+          "repetition_score": 0.4247,
+          "confidence": 0.5,
+          "semantic_similarity": 0.6373,
+          "lexical_similarity": 0.2105,
+          "entity_similarity": 0.2308,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.7692
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 14,
+        "matched_prior_text": "It seems `getBody` is used everywhere but never explicitly imported or defined. It's likely a global test helper. Let me check the jest setup."
+      }
+    },
+    {
+      "position": 17,
+      "phase": "tool_use",
+      "label": "unnecessary_tool_call",
+      "confidence": 1.0,
+      "intent_similarity": 0.43645140528678894,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\calendar\\\\CalendarClient.test.ts\"}",
+      "source_message_uuid": "fac742e0-9201-4cd1-8404-20e36bc58a7d",
+      "source_lines": [
+        30
+      ],
+      "explanation": {
+        "reason_code": "repetition",
+        "summary": "Strong repetition evidence matched an earlier span in the same phase.",
+        "signals": {
+          "intent_similarity": 0.4365,
+          "repetition_score": 1.0,
+          "confidence": 1.0,
+          "semantic_similarity": 1.0,
+          "lexical_similarity": 1.0,
+          "entity_similarity": 1.0,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\calendar\\\\CalendarClient.test.ts\"}"
+      }
+    },
+    {
+      "position": 18,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.7624574303627014,
+      "intent_similarity": 0.7624574303627014,
+      "tokens": 325,
+      "text": "The file looks correct. All three mocks have been updated. Here is a summary of the changes made to `D:\\code\\ESI.ts\\tests\\tdd\\calendar\\CalendarClient.test.ts`:\n\n**Test: `getCalendarEvents`** (validated against `CalendarEventSchema`)\n- Added `event_response: 'accepted'` -- the schema requires this enum field\n\n**Test: `getCalendarEventById`** (validated against `CalendarEventDetailSchema`)\n- Added `date: '2024-07-01T12:00:00Z'` -- schema requires `date` (distinct from the existing `event_date`)\n- Added `text: 'Event Description'` -- schema requires `text` (distinct from the existing `description`)\n- Added `owner_id: 987654321`\n- Added `owner_name: 'Test Corporation'`\n- Added `owner_type: 'corporation'`\n- Added `duration: 60`\n- Added `importance: 1`\n- Added `response: 'accepted'`\n- Kept existing `event_date` and `description` fields (used by test assertions; allowed through `.passthrough()`)\n\n**Test: `getEventAttendees`** (validated against `CalendarEventAttendeeSchema`)\n- Added `event_response: 'accepted'` -- schema requires this enum field\n- Kept existing `response` field (used by test assertions; allowed through `.passthrough()`)\n\nNo test assertions were changed. The `respondToCalendarEvent` test (204 empty response) needed no mock data changes.",
+      "source_message_uuid": "04637e94-8fa6-4cd9-905f-ecf2fa0c80fb",
+      "source_lines": [
+        32
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.7625,
+          "repetition_score": 0.5186,
+          "confidence": 0.7625,
+          "semantic_similarity": 0.7356,
+          "lexical_similarity": 0.2131,
+          "entity_similarity": 0.3158,
+          "action_similarity": 0.3333,
+          "parameter_novelty": 0.6842
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Now I can see the gaps clearly. Let me compare each mock against its schema:\n\n**Test 1 - `getCalendarEvents`** uses `CalendarEventSchema`:\n- Missing: `event_response` (required enum)\n\n**Test 2 - `getCalendarEventById`** uses `CalendarEventD"
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 25,
+    "waste_by_category": {
+      "Unnecessary Tool Calls": 25
+    },
+    "waste_by_phase": {
+      "tool_use": 25
+    },
+    "top_patterns": [
+      {
+        "type": "repetitive_read",
+        "tokens_wasted": 1587,
+        "description": "CalendarClient.test.ts read 3x (1,587 redundant tokens)"
+      },
+      {
+        "type": "edit_fragmentation",
+        "tokens_wasted": 0,
+        "description": "3 consecutive edits to CalendarClient.test.ts (0 fragmented tokens)"
+      }
+    ],
+    "explanation": "25 of 2,134 tokens (1.2%) were identified as waste. The largest waste category is Unnecessary Tool Calls (25 tokens). The most impactful pattern: CalendarClient.test.ts read 3x (1,587 redundant tokens) (1,587 tokens)."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Repetitive Reads",
+        "tokens": 1587,
+        "percentage": 98.4,
+        "cost_usd": 0.004761,
+        "count": 1,
+        "pricing": "input"
+      },
+      {
+        "source": "Unnecessary Tool Calls",
+        "tokens": 25,
+        "percentage": 1.6,
+        "cost_usd": 0.000375,
+        "count": 1,
+        "pricing": "output"
+      },
+      {
+        "source": "Edit Fragmentation",
+        "tokens": 0,
+        "percentage": 0.0,
+        "cost_usd": 0.0,
+        "count": 1,
+        "pricing": "output"
+      }
+    ],
+    "total_tokens": 1612,
+    "total_cost_usd": 0.005136
+  },
+  "economics": {
+    "total_input_tokens": 13,
+    "total_output_tokens": 1317,
+    "total_cache_creation_tokens": 11221,
+    "total_cache_read_tokens": 214993,
+    "input_output_ratio": 0.01,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.1264,
+    "estimated_waste_cost_usd": 0.0004,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 0.9504,
+      "early_span_count": 6,
+      "mid_span_count": 6,
+      "late_span_count": 7
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        12881,
+        15332,
+        18109,
+        19771,
+        20274,
+        20567,
+        21060,
+        21264,
+        21715,
+        21929,
+        22104
+      ],
+      "growth_rate": 1.72,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 188,
+      "user_result_tokens": 3460,
+      "model_reasoning_tokens": 465,
+      "model_tool_tokens": 958,
+      "model_generation_tokens": 711,
+      "total_user_tokens": 3648,
+      "total_model_tokens": 2134,
+      "user_ratio": 0.6309
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.595,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "You're working on ESI.ts at D:\\code\\ESI.ts. We've added Zod runtime validation and now tests fail because mock data is incomplete.\n\nYour task: Fix `tests/tdd/calendar/CalendarClient.test.ts` so its mock data includes all required fields from the Zod schemas.\n\nSteps:\n1. Read `src/schemas/calendar.ts` to see all required fields for every schema exported\n2. Read `tests/tdd/calendar/CalendarClient.test.ts` to see the current mock data\n3. Compare each mock object against the corresponding schema and add any missing required fields with realistic values\n4. Do NOT change test assertions \u2014 only fix the mock response data\n\nThe key pattern: if a schema field uses `z.string()` (not `.optional()`), the mock data MUST include that field. If `.optional()`, it can be omitted.\n\nBe thorough \u2014 check every mock object in the file.",
+          "response_text": "I'll start by reading both files to understand the schemas and current mock data. Now I can see the gaps clearly. Let me compare each mock against its schema:\n\n**Test 1 - `getCalendarEvents`** uses `CalendarEventSchema`:\n- Missing: `event_response` (required enum)\n\n**Test 2 - `getCalendarEventById`** uses `CalendarEventDetailSchema`:\n- Missing: `date`, `text`, `owner_id`, `owner_name`, `owner_type`, `duration`, `importance`, `response` (all required)\n- Has `event_date` and `description` which aren't schema fields but are fine due to `.passthrough()`\n\n**Test 3 - `getEventAttendees`** uses `CalendarEventAttendeeSchema`:\n- Missing: `event_response` (required enum)\n- Has `response` which isn't the schema field name but fine due to `.passthrough()`\n\nLet me fix all three mocks now. Now I also need to update the type annotation in the `result as` cast for `getCalendarEventById` to match the expanded mock, since the assertions reference `event_date` and `description`. Let me check the current state of the cast. The `result as` cast on lines 102-107 is fine -- it's part of the test assertions and only needs to cover the properties being asserted on. The assertions themselves aren't changing, so this is okay.\n\nNow let me also check there's a `getBody` helper function defined somewhere, since it's used but not defined in this file. It seems `getBody` is used everywhere but never explicitly imported or defined. It's likely a global test helper. Let me check the jest setup. Good, it's defined in jest setup -- it's a global. No issue there.\n\nLet me verify the final state of the file is correct. The file looks correct. All three mocks have been updated. Here is a summary of the changes made to `D:\\code\\ESI.ts\\tests\\tdd\\calendar\\CalendarClient.test.ts`:\n\n**Test: `getCalendarEvents`** (validated against `CalendarEventSchema`)\n- Added `event_response: 'accepted'` -- the schema requires this enum field\n\n**Test: `getCalendarEventById`** (validated against `CalendarEventDetailSchema`)\n- Added `date: '2024-07-01T12:00:00Z'` -- schema requires `date` (distinct from the existing `event_date`)\n- Added `text: 'Event Description'` -- schema requires `text` (distinct from the existing `description`)\n- Added `owner_id: 987654321`\n- Added `owner_name: 'Test Corporation'`\n- Added `owner_type: 'corporation'`\n- Added `duration: 60`\n- Added `importance: 1`\n- Added `response: 'accepted'`\n- Kept existing `event_date` and `description` fields (used by test assertions; allowed through `.passthrough()`)\n\n**Test: `getEventAttendees`** (validated against `CalendarEventAttendeeSchema`)\n- Added `event_response: 'accepted'` -- schema requires this enum field\n- Kept existing `response` field (used by test assertions; allowed through `.passthrough()`)\n\nNo test assertions were changed. The `respondToCalendarEvent` test (204 empty response) needed no mock data changes.",
+          "alignment": 0.595
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "d9883245-8956-4bdb-a766-9689ec76d1de",
+    "source_file": "data/D--code-ESI-ts__agent-a4ecdb77a7dd8f6f0.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

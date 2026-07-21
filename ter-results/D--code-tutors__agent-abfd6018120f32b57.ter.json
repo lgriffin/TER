@@ -1,0 +1,612 @@
+{
+  "session_id": "9a3720bc-543a-4a7f-8902-dec553aafbf9",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 1351,
+  "aligned_tokens": 1351,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5974,
+    "token_weighted_confidence": 0.6175,
+    "low_confidence_tokens": 898,
+    "low_confidence_share": 0.6647,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 16,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "waste_patterns": [
+    {
+      "type": "bash_antipattern",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 10,
+      "tokens_wasted": 1404,
+      "description": "10 Bash calls should use dedicated tools (1,404 tokens)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.4988943934440613,
+      "tokens": 25,
+      "text": "Let me survey the codebase to identify high-impact improvements. I'll run several searches in parallel to gather information quickly.",
+      "source_message_uuid": "a45319d1-db05-43b1-bf7c-73578879a0e4",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4989,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.1702715903520584,
+      "tokens": 26,
+      "text": "Bash {\"command\":\"cat \\\"D:/code/tutors/architecture.md\\\" 2>/dev/null | head -100\"}",
+      "source_message_uuid": "a45319d1-db05-43b1-bf7c-73578879a0e4",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.1703,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2508018910884857,
+      "tokens": 42,
+      "text": "Bash {\"command\":\"find \\\"D:/code/tutors\\\" -type f -name \\\"*.test.*\\\" -o -name \\\"*.spec.*\\\" 2>/dev/null | head -30\"}",
+      "source_message_uuid": "a45319d1-db05-43b1-bf7c-73578879a0e4",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2508,
+          "repetition_score": 0.5466,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7142,
+          "lexical_similarity": 0.2941,
+          "entity_similarity": 0.2857,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"cat \\\"D:/code/tutors/architecture.md\\\" 2>/dev/null | head -100\"}"
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.14036208391189575,
+      "tokens": 48,
+      "text": "Bash {\"command\":\"ls \\\"D:/code/tutors/src/lib/services/models/\\\" 2>/dev/null; echo \\\"---\\\"; ls \\\"D:/code/tutors/src/lib/services/types/\\\" 2>/dev/null\"}",
+      "source_message_uuid": "a45319d1-db05-43b1-bf7c-73578879a0e4",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1404,
+          "repetition_score": 0.5451,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6937,
+          "lexical_similarity": 0.3333,
+          "entity_similarity": 0.3,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"cat \\\"D:/code/tutors/architecture.md\\\" 2>/dev/null | head -100\"}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.27620622515678406,
+      "tokens": 81,
+      "text": "Bash {\"command\":\"find \\\"D:/code/tutors/src\\\" -type f -name \\\"*.svelte\\\" | head -5 | xargs grep -l \\\"aria-\\\\|role=\\\" 2>/dev/null; echo \\\"--- total svelte files ---\\\"; find \\\"D:/code/tutors/src\\\" -type f -name \\\"*.svelte\\\" | wc -l\"}",
+      "source_message_uuid": "a45319d1-db05-43b1-bf7c-73578879a0e4",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2762,
+          "repetition_score": 0.5264,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6255,
+          "lexical_similarity": 0.3462,
+          "entity_similarity": 0.35,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Bash {\"command\":\"find \\\"D:/code/tutors\\\" -type f -name \\\"*.test.*\\\" -o -name \\\"*.spec.*\\\" 2>/dev/null | head -30\"}"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.21828043460845947,
+      "tokens": 87,
+      "text": "Bash {\"command\":\"grep -r \\\"loading=\\\" \\\"D:/code/tutors/src\\\" --include=\\\"*.svelte\\\" -l 2>/dev/null | head -5; echo \\\"--- lazy/dynamic imports ---\\\"; grep -r \\\"import(\\\" \\\"D:/code/tutors/src\\\" --include=\\\"*.ts\\\" --include=\\\"*.svelte\\\" -l 2>/dev/null | head -10\"}",
+      "source_message_uuid": "a45319d1-db05-43b1-bf7c-73578879a0e4",
+      "source_lines": [
+        10
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2183,
+          "repetition_score": 0.5583,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7014,
+          "lexical_similarity": 0.3793,
+          "entity_similarity": 0.3636,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Bash {\"command\":\"find \\\"D:/code/tutors/src\\\" -type f -name \\\"*.svelte\\\" | head -5 | xargs grep -l \\\"aria-\\\\|role=\\\" 2>/dev/null; echo \\\"--- total svelte files ---\\\"; find \\\"D:/code/tutors/src\\\" -type f -name \\\"*.svelte\\\" | wc -l\"}"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2188853621482849,
+      "tokens": 128,
+      "text": "Bash {\"command\":\"grep -r \\\"aria-\\\" \\\"D:/code/tutors/src\\\" --include=\\\"*.svelte\\\" -l 2>/dev/null | wc -l; echo \\\"--- alt= usage ---\\\"; grep -r 'alt=' \\\"D:/code/tutors/src\\\" --include=\\\"*.svelte\\\" -l 2>/dev/null | wc -l; echo \\\"--- img without alt ---\\\"; grep -rn '<img ' \\\"D:/code/tutors/src\\\" --include=\\\"*.svelte\\\" 2>/dev/null | grep -v 'alt=' | head -10\"}",
+      "source_message_uuid": "8698d4c9-29a2-4b72-b30a-18664064e414",
+      "source_lines": [
+        14
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2189,
+          "repetition_score": 0.6067,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7678,
+          "lexical_similarity": 0.4815,
+          "entity_similarity": 0.5263,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Bash {\"command\":\"grep -r \\\"loading=\\\" \\\"D:/code/tutors/src\\\" --include=\\\"*.svelte\\\" -l 2>/dev/null | head -5; echo \\\"--- lazy/dynamic imports ---\\\"; grep -r \\\"import(\\\" \\\"D:/code/tutors/src\\\" --include=\\\"*.ts\\\" --include=\\\"*.svelte\\\" -l 2>/"
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.1701744645833969,
+      "tokens": 28,
+      "text": "Bash {\"command\":\"ls \\\"D:/code/tutors/src/lib/ui/learning-objects/content/\\\" 2>/dev/null\"}",
+      "source_message_uuid": "8698d4c9-29a2-4b72-b30a-18664064e414",
+      "source_lines": [
+        16
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1702,
+          "repetition_score": 0.6022,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7522,
+          "lexical_similarity": 0.5556,
+          "entity_similarity": 0.4286,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Bash {\"command\":\"ls \\\"D:/code/tutors/src/lib/services/models/\\\" 2>/dev/null; echo \\\"---\\\"; ls \\\"D:/code/tutors/src/lib/services/types/\\\" 2>/dev/null\"}"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.21764004230499268,
+      "tokens": 48,
+      "text": "Bash {\"command\":\"cat \\\"D:/code/tutors/package.json\\\" 2>/dev/null | grep -E '\\\"test\\\"|\\\"vitest\\\"|\\\"jest\\\"|\\\"playwright\\\"|\\\"cypress\\\"'\"}",
+      "source_message_uuid": "8698d4c9-29a2-4b72-b30a-18664064e414",
+      "source_lines": [
+        18
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2176,
+          "repetition_score": 0.5231,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6419,
+          "lexical_similarity": 0.3125,
+          "entity_similarity": 0.2857,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"cat \\\"D:/code/tutors/architecture.md\\\" 2>/dev/null | head -100\"}"
+      }
+    },
+    {
+      "position": 9,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2774508595466614,
+      "tokens": 98,
+      "text": "Bash {\"command\":\"find \\\"D:/code/tutors/src\\\" -name \\\"*.svelte\\\" -exec grep -l \\\"on:error\\\\|onerror\\\\|fallback\\\\|{#if error\\\" {} \\\\; 2>/dev/null | head -10; echo \\\"--- error boundaries ---\\\"; grep -rn \\\"error\\\" \\\"D:/code/tutors/src/routes\\\" --include=\\\"*.svelte\\\" -l 2>/dev/null | head -10\"}",
+      "source_message_uuid": "8698d4c9-29a2-4b72-b30a-18664064e414",
+      "source_lines": [
+        20
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2775,
+          "repetition_score": 0.5819,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7578,
+          "lexical_similarity": 0.375,
+          "entity_similarity": 0.4167,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Bash {\"command\":\"find \\\"D:/code/tutors/src\\\" -type f -name \\\"*.svelte\\\" | head -5 | xargs grep -l \\\"aria-\\\\|role=\\\" 2>/dev/null; echo \\\"--- total svelte files ---\\\"; find \\\"D:/code/tutors/src\\\" -type f -name \\\"*.svelte\\\" | wc -l\"}"
+      }
+    },
+    {
+      "position": 10,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.17868058383464813,
+      "tokens": 117,
+      "text": "Bash {\"command\":\"grep -rn \\\"loading=\\\\\\\"lazy\\\\\\\"\\\\|loading=.lazy\\\" \\\"D:/code/tutors/src\\\" --include=\\\"*.svelte\\\" 2>/dev/null | wc -l; echo \\\"--- service worker ---\\\"; ls \\\"D:/code/tutors/src/service-worker\\\"* 2>/dev/null; echo \\\"--- caching ---\\\"; grep -rn \\\"cache\\\\|Cache\\\" \\\"D:/code/tutors/src/lib/services\\\" --include=\\\"*.ts\\\" -l 2>/dev/null | head -5\"}",
+      "source_message_uuid": "f4cddc2c-75b4-4a33-b37e-27afd2df40a9",
+      "source_lines": [
+        22
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1787,
+          "repetition_score": 0.5999,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7594,
+          "lexical_similarity": 0.4828,
+          "entity_similarity": 0.4762,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Bash {\"command\":\"grep -r \\\"loading=\\\" \\\"D:/code/tutors/src\\\" --include=\\\"*.svelte\\\" -l 2>/dev/null | head -5; echo \\\"--- lazy/dynamic imports ---\\\"; grep -r \\\"import(\\\" \\\"D:/code/tutors/src\\\" --include=\\\"*.ts\\\" --include=\\\"*.svelte\\\" -l 2>/"
+      }
+    },
+    {
+      "position": 11,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2234588861465454,
+      "tokens": 46,
+      "text": "Bash {\"command\":\"cat \\\"D:/code/tutors/package.json\\\" 2>/dev/null | grep -E '\\\"vitest\\\"|\\\"test\\\"|\\\"check\\\"|\\\"lint\\\"' | head -10\"}",
+      "source_message_uuid": "f4cddc2c-75b4-4a33-b37e-27afd2df40a9",
+      "source_lines": [
+        24
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2235,
+          "repetition_score": 0.6649,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8949,
+          "lexical_similarity": 0.5882,
+          "entity_similarity": 0.5333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Bash {\"command\":\"cat \\\"D:/code/tutors/package.json\\\" 2>/dev/null | grep -E '\\\"test\\\"|\\\"vitest\\\"|\\\"jest\\\"|\\\"playwright\\\"|\\\"cypress\\\"'\"}"
+      }
+    },
+    {
+      "position": 12,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3363654315471649,
+      "tokens": 27,
+      "text": "Grep {\"pattern\":\"Notebook|notebook|jupyter|ipynb\",\"path\":\"D:/code/tutors/src\"}",
+      "source_message_uuid": "f4cddc2c-75b4-4a33-b37e-27afd2df40a9",
+      "source_lines": [
+        26
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3364,
+          "repetition_score": 0.0422,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5818,
+          "lexical_similarity": 0.0714,
+          "entity_similarity": 0.087,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Bash {\"command\":\"find \\\"D:/code/tutors/src\\\" -name \\\"*.svelte\\\" -exec grep -l \\\"on:error\\\\|onerror\\\\|fallback\\\\|{#if error\\\" {} \\\\; 2>/dev/null | head -10; echo \\\"--- error boundaries ---\\\"; grep -rn \\\"error\\\" \\\"D:/code/tutors/src/routes\\\" "
+      }
+    },
+    {
+      "position": 13,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2712194621562958,
+      "tokens": 40,
+      "text": "Grep {\"pattern\":\"notebook|Notebook|jupyter|ipynb\",\"path\":\"D:/code/tutors/src/lib/services/themes/icons/fluent-icons.ts\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "51ff6abf-1ed1-4744-ad2b-8e03be462f5d",
+      "source_lines": [
+        28
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2712,
+          "repetition_score": 0.4747,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8345,
+          "lexical_similarity": 0.6,
+          "entity_similarity": 0.6,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.5
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 12,
+        "matched_prior_text": "Grep {\"pattern\":\"Notebook|notebook|jupyter|ipynb\",\"path\":\"D:/code/tutors/src\"}"
+      }
+    },
+    {
+      "position": 14,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.38179823756217957,
+      "tokens": 57,
+      "text": "Bash {\"command\":\"find \\\"D:/code/tutors/src\\\" -type f -name \\\"*.svelte\\\" -o -name \\\"*.ts\\\" | xargs grep -li \\\"notebook\\\\|jupyter\\\\|ipynb\\\" 2>/dev/null\"}",
+      "source_message_uuid": "51ff6abf-1ed1-4744-ad2b-8e03be462f5d",
+      "source_lines": [
+        30
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3818,
+          "repetition_score": 0.5969,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7526,
+          "lexical_similarity": 0.4444,
+          "entity_similarity": 0.5263,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Bash {\"command\":\"find \\\"D:/code/tutors/src\\\" -type f -name \\\"*.svelte\\\" | head -5 | xargs grep -l \\\"aria-\\\\|role=\\\" 2>/dev/null; echo \\\"--- total svelte files ---\\\"; find \\\"D:/code/tutors/src\\\" -type f -name \\\"*.svelte\\\" | wc -l\"}"
+      }
+    },
+    {
+      "position": 15,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6578057408332825,
+      "intent_similarity": 0.6578057408332825,
+      "tokens": 453,
+      "text": "Here is the ranked list based on the survey:\n\n**Top 5 High-Impact Improvements for Tutors**\n\n**1. Add a Test Suite (Critical)**\nZero application tests exist -- no vitest, no playwright, no test scripts in `package.json`. The 95 Svelte components and the entire service layer (`course/`, `markdown/`, `community/`) have no automated coverage. A test foundation (unit tests for services, component tests for key renderers, one E2E smoke test) would catch regressions like the splice-during-iteration and property-name bugs that were just fixed.\n\n**2. Accessibility (a11y) Audit and Fixes (High)**\nOnly 4 of 95 Svelte files use any `aria-*` attributes. No evidence of skip-nav links, focus management on route changes, or keyboard navigation testing. The architecture doc claims \"accessible design patterns\" but the implementation is minimal. A focused pass on landmark roles, focus trapping in modals, and ARIA labels on interactive elements would have outsized impact for an educational platform.\n\n**3. Performance: Lazy Loading and Code Splitting (Medium-High)**\nOnly 1 instance of `loading=\"lazy\"` across the entire app. No service worker. Only 3 files use dynamic `import()`. Content renderers (Lab, Video, Talk, PDF) load eagerly. Lazy-loading images/iframes and dynamically importing heavy dependencies (Shiki, PDF.js, calendar heatmap) would materially improve initial load time.\n\n**4. Complete Jupyter Notebook Support (Medium)**\nThe notebook feature is referenced only as an icon mapping in `fluent-icons.ts` -- no renderer component exists in `src/lib/ui/learning-objects/content/`, no model type, no route handling. It needs a `Notebook.svelte` renderer and service-layer integration to be functional.\n\n**5. Error Boundaries and Resilience (Medium)**\nOnly 2 route files reference error handling. No component-level error boundaries exist for the content renderers. A failed PDF load or broken markdown silently breaks the page. Adding `{#snippet}` error boundaries around each content type would prevent one broken learning object from taking down the whole view.",
+      "source_message_uuid": "e1ed0303-75e3-409c-a546-270b561ba34e",
+      "source_lines": [
+        32
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6578,
+          "repetition_score": 0.0,
+          "confidence": 0.6578
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "bash_antipattern",
+        "tokens_wasted": 1404,
+        "description": "10 Bash calls should use dedicated tools (1,404 tokens)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Bash Anti-Patterns",
+        "tokens": 1404,
+        "percentage": 100.0,
+        "cost_usd": 0.004212,
+        "count": 1,
+        "pricing": "input"
+      }
+    ],
+    "total_tokens": 1404,
+    "total_cost_usd": 0.004212
+  },
+  "economics": {
+    "total_input_tokens": 7,
+    "total_output_tokens": 584,
+    "total_cache_creation_tokens": 24074,
+    "total_cache_read_tokens": 89060,
+    "input_output_ratio": 0.01,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.1258,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 5,
+      "mid_span_count": 5,
+      "late_span_count": 6
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        19692,
+        22459,
+        23149,
+        23764
+      ],
+      "growth_rate": 1.21,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 236,
+      "user_result_tokens": 1492,
+      "model_reasoning_tokens": 25,
+      "model_tool_tokens": 873,
+      "model_generation_tokens": 453,
+      "total_user_tokens": 1728,
+      "total_model_tokens": 1351,
+      "user_ratio": 0.5612
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.6578,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "I'm looking at the Tutors platform \u2014 a SvelteKit reader app at D:\\code\\tutors (branch: fix/critical-issues based on development) and a Deno generator at D:\\code\\tutors-generator.\n\nWe just fixed 6 critical issues (XSS sanitization, error pages, property name bugs, splice-during-iteration, Map.get null safety, security headers). We also recently added Jupyter Notebook support as a new content type.\n\nI need you to do a quick survey of the codebase to identify the top 3-5 high-impact improvements or features that could be proposed next. Focus on:\n\n1. Look at the architecture doc at D:\\code\\tutors\\architecture.md if it exists\n2. Check what content types exist and if any are incomplete\n3. Look at the test situation (are there tests? what coverage?)\n4. Check for accessibility gaps (a11y)\n5. Look at performance opportunities (lazy loading, code splitting, caching)\n6. Check the state of documentation\n7. Any other quality-of-life improvements\n\nGive me a concise ranked list with brief justifications. Under 300 words.",
+          "response_text": "Here is the ranked list based on the survey:\n\n**Top 5 High-Impact Improvements for Tutors**\n\n**1. Add a Test Suite (Critical)**\nZero application tests exist -- no vitest, no playwright, no test scripts in `package.json`. The 95 Svelte components and the entire service layer (`course/`, `markdown/`, `community/`) have no automated coverage. A test foundation (unit tests for services, component tests for key renderers, one E2E smoke test) would catch regressions like the splice-during-iteration and property-name bugs that were just fixed.\n\n**2. Accessibility (a11y) Audit and Fixes (High)**\nOnly 4 of 95 Svelte files use any `aria-*` attributes. No evidence of skip-nav links, focus management on route changes, or keyboard navigation testing. The architecture doc claims \"accessible design patterns\" but the implementation is minimal. A focused pass on landmark roles, focus trapping in modals, and ARIA labels on interactive elements would have outsized impact for an educational platform.\n\n**3. Performance: Lazy Loading and Code Splitting (Medium-High)**\nOnly 1 instance of `loading=\"lazy\"` across the entire app. No service worker. Only 3 files use dynamic `import()`. Content renderers (Lab, Video, Talk, PDF) load eagerly. Lazy-loading images/iframes and dynamically importing heavy dependencies (Shiki, PDF.js, calendar heatmap) would materially improve initial load time.\n\n**4. Complete Jupyter Notebook Support (Medium)**\nThe notebook feature is referenced only as an icon mapping in `fluent-icons.ts` -- no renderer component exists in `src/lib/ui/learning-objects/content/`, no model type, no route handling. It needs a `Notebook.svelte` renderer and service-layer integration to be functional.\n\n**5. Error Boundaries and Resilience (Medium)**\nOnly 2 route files reference error handling. No component-level error boundaries exist for the content renderers. A failed PDF load or broken markdown silently breaks the page. Adding `{#snippet}` error boundaries around each content type would prevent one broken learning object from taking down the whole view.",
+          "alignment": 0.6578
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "9a3720bc-543a-4a7f-8902-dec553aafbf9",
+    "source_file": "data/D--code-tutors__agent-abfd6018120f32b57.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

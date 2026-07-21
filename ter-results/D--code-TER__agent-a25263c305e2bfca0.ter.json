@@ -1,0 +1,195 @@
+{
+  "session_id": "e0cd3457-3774-47bf-ade8-372891f95dec",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 1580,
+  "aligned_tokens": 1580,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6336,
+    "token_weighted_confidence": 0.6765,
+    "low_confidence_tokens": 73,
+    "low_confidence_share": 0.0462,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 3,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5768299698829651,
+      "intent_similarity": 0.5768299698829651,
+      "tokens": 16,
+      "text": "I'll fetch the PR patch data and examine the benchmark files for sensitive content.",
+      "source_message_uuid": "ac85b980-7ce0-49f0-84a8-540ca8bfe6e5",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.5768,
+          "repetition_score": 0.0,
+          "confidence": 0.5768
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6452571153640747,
+      "intent_similarity": 0.6452571153640747,
+      "tokens": 57,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename | test(\\\"^benchmarks/\\\")) | \\\"\\\\n--- \\\" + .filename + \\\" ---\\\\n\\\" + .patch'\"}",
+      "source_message_uuid": "ac85b980-7ce0-49f0-84a8-540ca8bfe6e5",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6453,
+          "repetition_score": 0.0,
+          "confidence": 0.6453
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6787914037704468,
+      "intent_similarity": 0.6787914037704468,
+      "tokens": 1507,
+      "text": "I now have all the patch data. Let me analyze each file systematically.\n\nHere are the findings for all benchmark files in PR #27:\n\n---\n\n## benchmarks/annotations/mock_annotations.csv (5 lines)\n\n| # | Severity | Description |\n|---|----------|-------------|\n| 1 | **info** | All data is clearly synthetic/mock. Session ID is `mock-session`, annotator is `tester`. No real content. |\n| 2 | **info** | Well-structured CSV with consistent columns across all rows. |\n\n**Verdict: Clean.** Entirely fabricated test fixtures.\n\n---\n\n## benchmarks/annotations/session-001.csv (14 lines)\n\n| # | Severity | Description |\n|---|----------|-------------|\n| 1 | **info** | Data is synthetic. Session ID `session-test-001`, annotator `synthetic-pilot-review`, message UUIDs are generic (`msg-001` through `msg-010`). |\n| 2 | **info** | File paths in tool call text (`src/login.py`, `templates/login.html`) are generic example paths, not real infrastructure. |\n| 3 | **info** | The `ls -la` output uses generic `user user` ownership -- no real username leaked. |\n| 4 | **info** | Well-structured CSV. All 13 data rows share consistent columns matching the header. |\n| 5 | **warning** | Row `session-test-001-0012` is an exact duplicate of row `session-test-001-0011` (same text, same token count). This appears intentional -- the notes say \"Exact duplicate of the preceding long completion summary\" and the gold label is `over_explanation` -- but worth confirming this is by design for testing duplicate detection. |\n\n**Verdict: Clean.** Synthetic data designed to illustrate waste categories (redundant reasoning, over-explanation, duplicates).\n\n---\n\n## benchmarks/example_annotations.jsonl (6 lines)\n\n| # | Severity | Description |\n|---|----------|-------------|\n| 1 | **info** | All data is synthetic. Session IDs are `s1`, `s2`. No annotator field, no PII. |\n| 2 | **info** | Well-structured JSONL with consistent schema across lines. |\n| 3 | **info** | Two lines include a `text` field with generic content (\"Inspect the parser before changing it\", \"Repeat the same conclusion without new evidence\"). Remaining lines omit `text`. The schema is slightly inconsistent (some lines have `text`+`category`, some only `category`), but this is acceptable for example data. |\n\n**Verdict: Clean.**\n\n---\n\n## benchmarks/example_annotations_candidate.jsonl (6 lines)\n\n| # | Severity | Description |\n|---|----------|-------------|\n| 1 | **info** | Identical to `example_annotations.jsonl` except line `s2-001`: `predicted_label` is `unnecessary_tool_call` instead of `aligned_tool_call`. This is clearly the \"candidate\" variant for benchmark comparison testing. |\n| 2 | **info** | No PII, secrets, or real data. |\n\n**Verdict: Clean.** Intentional near-duplicate of the base annotations file for testing comparison logic.\n\n---\n\n## benchmarks/mock_benchmark.jsonl (4 lines)\n\n| # | Severity | Description |\n|---|----------|-------------|\n| 1 | **info** | Same mock data as `mock_annotations.csv` but in JSONL format. Session ID `mock-session`, annotator `tester`. |\n| 2 | **info** | Well-structured, consistent schema across all 4 lines. |\n\n**Verdict: Clean.** Minimal mock fixture.\n\n---\n\n## benchmarks/pilot_annotations.jsonl (13 lines)\n\n| # | Severity | Description |\n|---|----------|-------------|\n| 1 | **info** | Same data as `session-001.csv` but in JSONL format. All synthetic with `synthetic-pilot-review` annotator. |\n| 2 | **info** | File paths are generic (`src/login.py`, `templates/login.html`). No real infrastructure paths. |\n| 3 | **info** | `ls -la` output uses `user user` -- no real usernames. |\n| 4 | **warning** | Intentional duplicate rows (IDs `session-test-001-0011` and `session-test-001-0012`) present, same as in the CSV version. Confirmed intentional for waste-detection testing. |\n| 5 | **info** | Note the `predicted_label` vs `gold_label` disagreements on rows 0005, 0008, and 0011 -- these are intentional to test classifier accuracy metrics (precision/recall). |\n\n**Verdict: Clean.** Synthetic pilot data in JSONL format.\n\n---\n\n## benchmarks/tool_call_adversarial.jsonl (7 lines)\n\n| # | Severity | Description |\n|---|----------|-------------|\n| 1 | **info** | All synthetic. Session IDs are `synthetic-tool-1`, `synthetic-tool-2`, `synthetic-tool-3`. |\n| 2 | **info** | File paths (`src/app.py`) and test paths (`tests/unit/test_a.py`, `tests/unit/test_b.py`) are generic placeholders. |\n| 3 | **info** | Well-structured JSONL. Schema is slightly leaner than the pilot annotations (no `annotator`, `source_message_uuid`, or `block_type` fields), but this is fine for a focused adversarial test set. |\n| 4 | **info** | Good adversarial design: tests boundary cases like same-file-different-range (tool-001 vs tool-003), exact duplicate reads (tool-002), and changed search queries (tool-004 vs tool-005). |\n\n**Verdict: Clean.** Purpose-built adversarial test cases for tool call waste detection.\n\n---\n\n## Summary\n\n| Category | Count | Details |\n|----------|-------|---------|\n| **Critical (secrets/keys/tokens)** | 0 | No API keys, tokens, or secrets found in any file. |\n| **Critical (PII)** | 0 | No real usernames, emails, or personally identifiable information. All annotators are `tester` or `synthetic-pilot-review`. |\n| **Critical (infrastructure paths)** | 0 | All file paths are generic examples (`src/login.py`, `src/app.py`, `templates/login.html`). |\n| **Critical (real conversations)** | 0 | All conversation content is clearly synthetic/fabricated for testing purposes. |\n| **Warning (intentional duplicates)** | 2 | `session-001.csv` and `pilot_annotations.jsonl` both contain an intentional duplicate row pair for testing over-explanation/duplicate detection. This is by design. |\n| **Info (structure/consistency)** | Multiple | Data is well-structured overall. Minor schema variations across files (some include `category`, some include `annotator`), but each file is internally consistent. |\n\n**Overall assessment: All 7 benchmark files are clean.** The data is entirely synthetic, contains no sensitive content, and is well-suited for its purpose as benchmark/test fixtures. No changes needed.",
+      "source_message_uuid": "311654dd-107d-4d50-8991-ddd3427f7c7b",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6788,
+          "repetition_score": 0.353,
+          "confidence": 0.6788,
+          "semantic_similarity": 0.5994,
+          "lexical_similarity": 0.0368,
+          "entity_similarity": 0.0367,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9633
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll fetch the PR patch data and examine the benchmark files for sensitive content."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 4,
+    "total_output_tokens": 1744,
+    "total_cache_creation_tokens": 9107,
+    "total_cache_read_tokens": 28769,
+    "input_output_ratio": 0.0,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.069,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 1
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        13121,
+        15652
+      ],
+      "growth_rate": 1.19,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 248,
+      "user_result_tokens": 5135,
+      "model_reasoning_tokens": 0,
+      "model_tool_tokens": 57,
+      "model_generation_tokens": 1523,
+      "total_user_tokens": 5383,
+      "total_model_tokens": 1580,
+      "user_ratio": 0.7731
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.6872,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "I'm reviewing PR #27 on the lgriffin/TER repository. I need to examine the benchmark/sample data files for sensitive content.\n\nRun these commands to get patches:\n```bash\ngh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename | test(\"^benchmarks/\")) | .patch'\n```\n\nAnalyze all benchmark files:\n- benchmarks/annotations/mock_annotations.csv (5 lines added)\n- benchmarks/annotations/session-001.csv (14 lines added)\n- benchmarks/example_annotations.jsonl (6 lines added)\n- benchmarks/example_annotations_candidate.jsonl (6 lines added)\n- benchmarks/mock_benchmark.jsonl (4 lines added)\n- benchmarks/pilot_annotations.jsonl (13 lines added)\n- benchmarks/tool_call_adversarial.jsonl (7 lines added)\n\nCheck for:\n1. Any real API keys, tokens, or secrets\n2. Any real usernames, email addresses, or PII\n3. Any real file paths that could reveal infrastructure details\n4. Any real conversation content that should be anonymized\n5. Is the data well-structured and consistent?\n\nReport findings as a structured list with file, severity (critical/warning/info), and description.",
+          "response_text": "I'll fetch the PR patch data and examine the benchmark files for sensitive content. I now have all the patch data. Let me analyze each file systematically.\n\nHere are the findings for all benchmark files in PR #27:\n\n---\n\n## benchmarks/annotations/mock_annotations.csv (5 lines)\n\n| # | Severity | Description |\n|---|----------|-------------|\n| 1 | **info** | All data is clearly synthetic/mock. Session ID is `mock-session`, annotator is `tester`. No real content. |\n| 2 | **info** | Well-structured CSV with consistent columns across all rows. |\n\n**Verdict: Clean.** Entirely fabricated test fixtures.\n\n---\n\n## benchmarks/annotations/session-001.csv (14 lines)\n\n| # | Severity | Description |\n|---|----------|-------------|\n| 1 | **info** | Data is synthetic. Session ID `session-test-001`, annotator `synthetic-pilot-review`, message UUIDs are generic (`msg-001` through `msg-010`). |\n| 2 | **info** | File paths in tool call text (`src/login.py`, `templates/login.html`) are generic example paths, not real infrastructure. |\n| 3 | **info** | The `ls -la` output uses generic `user user` ownership -- no real username leaked. |\n| 4 | **info** | Well-structured CSV. All 13 data rows share consistent columns matching the header. |\n| 5 | **warning** | Row `session-test-001-0012` is an exact duplicate of row `session-test-001-0011` (same text, same token count). This appears intentional -- the notes say \"Exact duplicate of the preceding long completion summary\" and the gold label is `over_explanation` -- but worth confirming this is by design for testing duplicate detection. |\n\n**Verdict: Clean.** Synthetic data designed to illustrate waste categories (redundant reasoning, over-explanation, duplicates).\n\n---\n\n## benchmarks/example_annotations.jsonl (6 lines)\n\n| # | Severity | Description |\n|---|----------|-------------|\n| 1 | **info** | All data is synthetic. Session IDs are `s1`, `s2`. No annotator field, no PII. |\n| 2 | **info** | Well-structured JSONL with consistent schema across lines. |\n| 3 | **info** | Two lines include a `text` field with generic content (\"Inspect the parser before changing it\", \"Repeat the same conclusion without new evidence\"). Remaining lines omit `text`. The schema is slightly inconsistent (some lines have `text`+`category`, some only `category`), but this is acceptable for example data. |\n\n**Verdict: Clean.**\n\n---\n\n## benchmarks/example_annotations_candidate.jsonl (6 lines)\n\n| # | Severity | Description |\n|---|----------|-------------|\n| 1 | **info** | Identical to `example_annotations.jsonl` except line `s2-001`: `predicted_label` is `unnecessary_tool_call` instead of `aligned_tool_call`. This is clearly the \"candidate\" variant for benchmark comparison testing. |\n| 2 | **info** | No PII, secrets, or real data. |\n\n**Verdict: Clean.** Intentional near-duplicate of the base annotations file for testing comparison logic.\n\n---\n\n## benchmarks/mock_benchmark.jsonl (4 lines)\n\n| # | Severity | Description |\n|---|----------|-------------|\n| 1 | **info** | Same mock data as `mock_annotations.csv` but in JSONL format. Session ID `mock-session`, annotator `tester`. |\n| 2 | **info** | Well-structured, consistent schema across all 4 lines. |\n\n**Verdict: Clean.** Minimal mock fixture.\n\n---\n\n## benchmarks/pilot_annotations.jsonl (13 lines)\n\n| # | Severity | Description |\n|---|----------|-------------|\n| 1 | **info** | Same data as `session-001.csv` but in JSONL format. All synthetic with `synthetic-pilot-review` annotator. |\n| 2 | **info** | File paths are generic (`src/login.py`, `templates/login.html`). No real infrastructure paths. |\n| 3 | **info** | `ls -la` output uses `user user` -- no real usernames. |\n| 4 | **warning** | Intentional duplicate rows (IDs `session-test-001-0011` and `session-test-001-0012`) present, same as in the CSV version. Confirmed intentional for waste-detection testing. |\n| 5 | **info** | Note the `predicted_label` vs `gold_label` disagreements on rows 0005, 0008, and 0011 -- these are intentional to test classifier accuracy metrics (precision/recall). |\n\n**Verdict: Clean.** Synthetic pilot data in JSONL format.\n\n---\n\n## benchmarks/tool_call_adversarial.jsonl (7 lines)\n\n| # | Severity | Description |\n|---|----------|-------------|\n| 1 | **info** | All synthetic. Session IDs are `synthetic-tool-1`, `synthetic-tool-2`, `synthetic-tool-3`. |\n| 2 | **info** | File paths (`src/app.py`) and test paths (`tests/unit/test_a.py`, `tests/unit/test_b.py`) are generic placeholders. |\n| 3 | **info** | Well-structured JSONL. Schema is slightly leaner than the pilot annotations (no `annotator`, `source_message_uuid`, or `block_type` fields), but this is fine for a focused adversarial test set. |\n| 4 | **info** | Good adversarial design: tests boundary cases like same-file-different-range (tool-001 vs tool-003), exact duplicate reads (tool-002), and changed search queries (tool-004 vs tool-005). |\n\n**Verdict: Clean.** Purpose-built adversarial test cases for tool call waste detection.\n\n---\n\n## Summary\n\n| Category | Count | Details |\n|----------|-------|---------|\n| **Critical (secrets/keys/tokens)** | 0 | No API keys, tokens, or secrets found in any file. |\n| **Critical (PII)** | 0 | No real usernames, emails, or personally identifiable information. All annotators are `tester` or `synthetic-pilot-review`. |\n| **Critical (infrastructure paths)** | 0 | All file paths are generic examples (`src/login.py`, `src/app.py`, `templates/login.html`). |\n| **Critical (real conversations)** | 0 | All conversation content is clearly synthetic/fabricated for testing purposes. |\n| **Warning (intentional duplicates)** | 2 | `session-001.csv` and `pilot_annotations.jsonl` both contain an intentional duplicate row pair for testing over-explanation/duplicate detection. This is by design. |\n| **Info (structure/consistency)** | Multiple | Data is well-structured overall. Minor schema variations across files (some include `category`, some include `annotator`), but each file is internally consistent. |\n\n**Overall assessment: All 7 benchmark files are clean.** The data is entirely synthetic, contains no sensitive content, and is well-suited for its purpose as benchmark/test fixtures. No changes needed.",
+          "alignment": 0.6872
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "e0cd3457-3774-47bf-ade8-372891f95dec",
+    "source_file": "data/D--code-TER__agent-a25263c305e2bfca0.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

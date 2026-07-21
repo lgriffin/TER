@@ -26,6 +26,7 @@ from ter_calculator.hook_monitor import (
 # check_bash_antipattern
 # -----------------------------------------------------------------------
 
+
 class TestCheckBashAntipattern:
     def test_detects_cat(self):
         alert = check_bash_antipattern("Bash", {"command": "cat foo.py"})
@@ -92,6 +93,7 @@ class TestCheckBashAntipattern:
 # check_repetitive_read
 # -----------------------------------------------------------------------
 
+
 class TestCheckRepetitiveRead:
     def test_no_alert_below_threshold(self):
         state = HookSessionState(session_id="s1")
@@ -148,6 +150,7 @@ class TestCheckRepetitiveRead:
 # check_edit_fragmentation
 # -----------------------------------------------------------------------
 
+
 class TestCheckEditFragmentation:
     def test_no_alert_for_single_edit(self):
         state = HookSessionState(session_id="s1")
@@ -196,6 +199,7 @@ class TestCheckEditFragmentation:
 # check_duplicate_tool_call
 # -----------------------------------------------------------------------
 
+
 class TestCheckDuplicateToolCall:
     def test_no_alert_on_first_call(self):
         state = HookSessionState(session_id="s1")
@@ -225,9 +229,13 @@ class TestCheckDuplicateToolCall:
     def test_higher_threshold(self):
         state = HookSessionState(session_id="s1")
         check_duplicate_tool_call("Read", {"file_path": "a.py"}, state, threshold=3)
-        alert = check_duplicate_tool_call("Read", {"file_path": "a.py"}, state, threshold=3)
+        alert = check_duplicate_tool_call(
+            "Read", {"file_path": "a.py"}, state, threshold=3
+        )
         assert alert is None
-        alert = check_duplicate_tool_call("Read", {"file_path": "a.py"}, state, threshold=3)
+        alert = check_duplicate_tool_call(
+            "Read", {"file_path": "a.py"}, state, threshold=3
+        )
         assert alert is not None
 
     def test_tool_call_counts_capped(self):
@@ -240,6 +248,7 @@ class TestCheckDuplicateToolCall:
 # -----------------------------------------------------------------------
 # check_repeated_command
 # -----------------------------------------------------------------------
+
 
 class TestCheckRepeatedCommand:
     def test_alerts_at_threshold(self):
@@ -294,6 +303,7 @@ class TestCheckRepeatedCommand:
 # -----------------------------------------------------------------------
 # process_tool_event
 # -----------------------------------------------------------------------
+
 
 class TestProcessToolEvent:
     def test_bash_antipattern_detected(self):
@@ -367,6 +377,7 @@ class TestProcessToolEvent:
 # State persistence
 # -----------------------------------------------------------------------
 
+
 class TestStatePersistence:
     def test_save_and_load_roundtrip(self, tmp_path):
         config = HookConfig(state_dir=str(tmp_path))
@@ -410,6 +421,7 @@ class TestStatePersistence:
 # format_guidance
 # -----------------------------------------------------------------------
 
+
 class TestFormatGuidance:
     def test_single_alert(self):
         alerts = [WasteAlert("bash_antipattern", "info", "Use Read instead")]
@@ -435,6 +447,7 @@ class TestFormatGuidance:
 # -----------------------------------------------------------------------
 # format_notification
 # -----------------------------------------------------------------------
+
 
 class TestFormatNotification:
     def test_single_info_alert(self):
@@ -466,16 +479,19 @@ class TestFormatNotification:
 # CLI integration (ter hook monitor)
 # -----------------------------------------------------------------------
 
+
 class TestHookMonitorCLI:
     def test_monitor_bash_antipattern(self, monkeypatch, capsys, tmp_path):
         import io
         from ter_calculator.cli import main
 
-        event = json.dumps({
-            "session_id": "test-cli",
-            "tool_name": "Bash",
-            "tool_input": {"command": "cat foo.py"},
-        })
+        event = json.dumps(
+            {
+                "session_id": "test-cli",
+                "tool_name": "Bash",
+                "tool_input": {"command": "cat foo.py"},
+            }
+        )
         monkeypatch.setattr("sys.stdin", io.StringIO(event))
         result = main(["hook", "monitor", "--state-dir", str(tmp_path)])
         assert result == 0
@@ -489,11 +505,13 @@ class TestHookMonitorCLI:
         import io
         from ter_calculator.cli import main
 
-        event = json.dumps({
-            "session_id": "test-cli",
-            "tool_name": "Bash",
-            "tool_input": {"command": "git status"},
-        })
+        event = json.dumps(
+            {
+                "session_id": "test-cli",
+                "tool_name": "Bash",
+                "tool_input": {"command": "git status"},
+            }
+        )
         monkeypatch.setattr("sys.stdin", io.StringIO(event))
         result = main(["hook", "monitor", "--state-dir", str(tmp_path)])
         assert result == 0
@@ -514,3 +532,76 @@ class TestHookMonitorCLI:
         result = main(["hook"])
         assert result == 1
         assert "Usage" in capsys.readouterr().err
+
+# -----------------------------------------------------------------------
+# Phase 2.1 live intervention
+# -----------------------------------------------------------------------
+
+
+class TestLiveEfficiencyIntervention:
+    def test_repeated_failed_action_requests_replan(self):
+        state = HookSessionState(session_id="phase2")
+        cfg = HookConfig(enable_live_efficiency=False, min_repeated_failures=2)
+        event = {
+            "tool_name": "Bash",
+            "tool_input": {"command": "pytest tests/unit/test_missing.py"},
+            "tool_response": "Error: file not found; exit code 1",
+        }
+        alerts, _ = process_tool_event(event, state, cfg)
+        assert not any(a.pattern_type == "repeated_failure" for a in alerts)
+        alerts, _ = process_tool_event(event, state, cfg)
+        failure = next(a for a in alerts if a.pattern_type == "repeated_failure")
+        assert failure.severity == "warning"
+        assert "revised plan" in failure.message
+
+    def test_degrading_rolling_score_triggers_refresh(self):
+        state = HookSessionState(session_id="phase2")
+        cfg = HookConfig(
+            rolling_window=6,
+            min_events_for_efficiency=4,
+            efficiency_threshold=0.90,
+            drift_threshold=0.05,
+            acceleration_threshold=0.05,
+            intervention_cooldown=1,
+            min_duplicate_calls=2,
+        )
+        # Two clean events establish the early baseline; repeated duplicate
+        # calls then lower the rolling proxy and accelerate waste.
+        events = [
+            {"tool_name": "Bash", "tool_input": {"command": "git status"}},
+            {"tool_name": "Read", "tool_input": {"file_path": "a.py"}},
+            {"tool_name": "Glob", "tool_input": {"pattern": "**/*.py"}},
+            {"tool_name": "Glob", "tool_input": {"pattern": "**/*.py"}},
+            {"tool_name": "Glob", "tool_input": {"pattern": "**/*.py"}},
+            {"tool_name": "Glob", "tool_input": {"pattern": "**/*.py"}},
+        ]
+        all_alerts = []
+        for event in events:
+            alerts, state = process_tool_event(event, state, cfg)
+            all_alerts.extend(alerts)
+        intervention = next(
+            a for a in all_alerts if a.pattern_type == "efficiency_degradation"
+        )
+        assert intervention.details["action"] == "mandatory_replan"
+        assert "refresh" in intervention.message
+
+    def test_live_efficiency_can_be_disabled(self):
+        state = HookSessionState(session_id="phase2")
+        cfg = HookConfig(enable_live_efficiency=False, min_duplicate_calls=1)
+        alerts, state = process_tool_event(
+            {"tool_name": "Read", "tool_input": {"file_path": "a.py"}},
+            state,
+            cfg,
+        )
+        assert not any(a.pattern_type == "efficiency_degradation" for a in alerts)
+        assert state.recent_efficiency == []
+
+    def test_old_state_ignores_unknown_fields(self, tmp_path):
+        config = HookConfig(state_dir=str(tmp_path))
+        (tmp_path / "legacy.json").write_text(
+            json.dumps({"session_id": "legacy", "total_events": 3, "obsolete": 1}),
+            encoding="utf-8",
+        )
+        state = load_state("legacy", config)
+        assert state.total_events == 3
+        assert state.recent_efficiency == []

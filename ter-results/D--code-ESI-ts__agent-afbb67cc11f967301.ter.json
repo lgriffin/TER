@@ -1,0 +1,219 @@
+{
+  "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 649,
+  "aligned_tokens": 649,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.575,
+    "token_weighted_confidence": 0.5978,
+    "low_confidence_tokens": 649,
+    "low_confidence_share": 1.0,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 4,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.38192373514175415,
+      "tokens": 14,
+      "text": "Let me fetch the content from the GitHub URL for API Extractor.",
+      "source_message_uuid": "7690605b-e54e-4930-9220-11d5f502878f",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3819,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5233073830604553,
+      "tokens": 131,
+      "text": "WebFetch {\"url\":\"https://github.com/microsoft/rushstack/tree/main/apps/api-extractor\",\"prompt\":\"Extract all key information about API Extractor's features, capabilities, and purpose. Focus on: 1) What API Extractor does for TypeScript libraries (API surface management, .d.ts rollup, API review files), 2) How it helps with API surface linting and tracking, 3) Integration with build pipelines and CI, 4) How it generates API documentation, 5) Any claims about best practices for TypeScript SDK/library development, 6) Version information and maintenance status. Extract direct quotes where possible.\"}",
+      "source_message_uuid": "7690605b-e54e-4930-9220-11d5f502878f",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.5233,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.46891140937805176,
+      "tokens": 71,
+      "text": "WebFetch {\"url\":\"https://api-extractor.com/\",\"prompt\":\"Extract details about API Extractor's three main capabilities, how it integrates into CI/CD workflows, and what specific problems it solves for TypeScript library authors. Look for specific claims about API review files, .d.ts rollups, and API documentation generation. Get direct quotes.\"}",
+      "source_message_uuid": "970df4b2-8924-4de1-841f-1599d7614712",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4689,
+          "repetition_score": 0.616,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9155,
+          "lexical_similarity": 0.2692,
+          "entity_similarity": 0.2985,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "WebFetch {\"url\":\"https://github.com/microsoft/rushstack/tree/main/apps/api-extractor\",\"prompt\":\"Extract all key information about API Extractor's features, capabilities, and purpose. Focus on: 1) What API Extractor does for TypeScript libra"
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.45979228615760803,
+      "tokens": 433,
+      "text": "StructuredOutput {\"claims\":[{\"claim\":\"API Extractor is a build-time TypeScript tool that can detect a project's exported API surface, capture contracts in a concise report for review, and flag PRs that change API contracts -- enabling CI workflows where only API-affecting changes require senior review rather than every PR.\",\"quote\":\"Detect a project's exported API surface... Capture the contracts in a concise report designed to facilitate review... detect PRs that change API contracts, and flag them for review\",\"importance\":\"central\"},{\"claim\":\"API Extractor catches missing exports (e.g., a public function requiring an unexported enum parameter type), accidental exports of internal classes, and release-tier scoping errors such as a public function returning a beta result -- all at build time using the TypeScript compiler engine.\",\"quote\":\"Warn about common mistakes (e.g. missing exports, inconsistent visibility, etc.)... A public function should never return a beta result.\",\"importance\":\"central\"},{\"claim\":\"API Extractor generates consolidated .d.ts rollup files with trimming according to release type (internal, beta, public), replacing the default scattered lib/*.d.ts tree and preventing internal/beta members from appearing in consumer IntelliSense.\",\"quote\":\"Generate *.d.ts rollups with trimming according to release type... a messy tree of lib/*.d.ts files full of private definitions\",\"importance\":\"supporting\"},{\"claim\":\"API Extractor integrates with TSDoc annotations and outputs API documentation in a portable format suitable for content pipelines, supporting professional API reference generation like Microsoft's own API reference pages.\",\"quote\":\"Output API documentation in a portable format that's easy to integrate with your content pipeline\",\"importance\":\"tangential\"},{\"claim\":\"API Extractor is actively maintained as part of Microsoft's Rush Stack monorepo (microsoft/rushstack) with approximately 6.5k GitHub stars and is published as @microsoft/api-extractor on NPM, positioning it as an industry-standard tool for TypeScript library API surface management.\",\"quote\":\"an integrated, professional-quality solution... free and open source\",\"importance\":\"supporting\"}],\"sourceQuality\":\"primary\",\"publishDate\":\"2024\"}",
+      "source_message_uuid": "a57ba56e-a60a-4551-bd9f-bd3128754e2e",
+      "source_lines": [
+        8
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4598,
+          "repetition_score": 0.0356,
+          "confidence": 0.6,
+          "semantic_similarity": 0.4806,
+          "lexical_similarity": 0.0854,
+          "entity_similarity": 0.0847,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "WebFetch {\"url\":\"https://api-extractor.com/\",\"prompt\":\"Extract details about API Extractor's three main capabilities, how it integrates into CI/CD workflows, and what specific problems it solves for TypeScript library authors. Look for spec"
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 5,
+    "total_output_tokens": 688,
+    "total_cache_creation_tokens": 5708,
+    "total_cache_read_tokens": 55727,
+    "input_output_ratio": 0.01,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.0485,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 2
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        15648,
+        19468,
+        20616
+      ],
+      "growth_rate": 1.32,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 495,
+      "user_result_tokens": 1347,
+      "model_reasoning_tokens": 14,
+      "model_tool_tokens": 635,
+      "model_generation_tokens": 0,
+      "total_user_tokens": 1842,
+      "total_model_tokens": 649,
+      "user_ratio": 0.7395
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.0,
+      "low_alignment_count": 0,
+      "pairs": []
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+    "source_file": "data/D--code-ESI-ts__agent-afbb67cc11f967301.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

@@ -1,0 +1,403 @@
+{
+  "session_id": "d9883245-8956-4bdb-a766-9689ec76d1de",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 970,
+  "aligned_tokens": 970,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5938,
+    "token_weighted_confidence": 0.6281,
+    "low_confidence_tokens": 747,
+    "low_confidence_share": 0.7701,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 10,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.4072483479976654,
+      "tokens": 16,
+      "text": "Let me start by reading both files to understand the schemas and current mock data.",
+      "source_message_uuid": "528c23fd-f936-4eeb-adf0-02302334c487",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4072,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.43301263451576233,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\freelance-jobs.ts\"}",
+      "source_message_uuid": "528c23fd-f936-4eeb-adf0-02302334c487",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.433,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4331638813018799,
+      "tokens": 28,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\clients\\\\FreelanceJobsClient.test.ts\"}",
+      "source_message_uuid": "528c23fd-f936-4eeb-adf0-02302334c487",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4332,
+          "repetition_score": 0.6206,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8774,
+          "lexical_similarity": 0.4167,
+          "entity_similarity": 0.3077,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\freelance-jobs.ts\"}"
+      }
+    },
+    {
+      "position": 3,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5689160823822021,
+      "intent_similarity": 0.5689160823822021,
+      "tokens": 224,
+      "text": "Now I can see the issues. Let me compare the schemas with the mock data:\n\n1. **`MOCK_LISTING`** - uses `FreelanceJobsListingSchema` which requires `cursor` (with `before` and `after`) and `freelance_jobs` array of `FreelanceJobSummarySchema`. The `FreelanceJobSummarySchema` requires: `id`, `name`, `state`, `last_modified`, `progress` ({current, desired}), and optional `reward`. This looks complete.\n\n2. **`MOCK_DETAIL`** - uses `FreelanceJobDetailSchema`. This looks complete too.\n3. **`mockParticipation`** is missing `job_id` and `character_id` \u2014 it only has `status` and `contributions` when the schema requires those identifier fields.\n4. **`mockParticipants`** also has gaps in its required fields, with `character_id` and `corporation_id` needed but not fully populated in the mock data.\n\nI need to update both of these to include all required fields.",
+      "source_message_uuid": "66bbccea-b812-4016-8413-5048754706d8",
+      "source_lines": [
+        8
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5689,
+          "repetition_score": 0.3255,
+          "confidence": 0.5689,
+          "semantic_similarity": 0.5223,
+          "lexical_similarity": 0.1136,
+          "entity_similarity": 0.1127,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8873
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "Let me start by reading both files to understand the schemas and current mock data."
+      }
+    },
+    {
+      "position": 4,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6296484470367432,
+      "intent_similarity": 0.6296484470367432,
+      "tokens": 194,
+      "text": "Now I can see the issues. Let me compare schemas to mock data:\n\n1. **`mockParticipation`** (line 206): `FreelanceJobParticipationSchema` requires `job_id` (string), `character_id` (number), `status` (string), `contributions` (number). The mock only has `status` and `contributions` -- missing `job_id` and `character_id`.\n\n2. **`mockParticipants`** (line 260): `FreelanceJobParticipantSchema` requires `character_id` (number), `corporation_id` (number), `status` (string), `contributions` (number). Each mock entry only has `character_id` -- missing `corporation_id`, `status`, and `contributions`.\n\nThe top-level `MOCK_LISTING` and `MOCK_DETAIL` already have all required fields. Let me fix the two incomplete mocks.",
+      "source_message_uuid": "66bbccea-b812-4016-8413-5048754706d8",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6296,
+          "repetition_score": 0.0,
+          "confidence": 0.6296
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5937544703483582,
+      "tokens": 90,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\clients\\\\FreelanceJobsClient.test.ts\",\"old_string\":\"      const mockParticipation = { status: 'committed', contributions: 5 };\",\"new_string\":\"      const mockParticipation = { job_id: 'job-1', character_id: 12345, status: 'committed', contributions: 5 };\"}",
+      "source_message_uuid": "66bbccea-b812-4016-8413-5048754706d8",
+      "source_lines": [
+        10
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5938,
+          "repetition_score": 0.0573,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6608,
+          "lexical_similarity": 0.3333,
+          "entity_similarity": 0.3478,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\clients\\\\FreelanceJobsClient.test.ts\"}"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5408628582954407,
+      "tokens": 126,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\clients\\\\FreelanceJobsClient.test.ts\",\"old_string\":\"      const mockParticipants = [{ character_id: 111 }, { character_id: 222 }];\",\"new_string\":\"      const mockParticipants = [\\n        { character_id: 111, corporation_id: 98574078, status: 'committed', contributions: 10 },\\n        { character_id: 222, corporation_id: 98574078, status: 'committed', contributions: 3 },\\n      ];\"}",
+      "source_message_uuid": "4fb95f9e-f0ed-478e-b1e5-c303ddb716e2",
+      "source_lines": [
+        12
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5409,
+          "repetition_score": 0.6933,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9532,
+          "lexical_similarity": 0.5806,
+          "entity_similarity": 0.6429,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\clients\\\\FreelanceJobsClient.test.ts\",\"old_string\":\"      const mockParticipation = { status: 'committed', contributions: 5 };\",\"new_string\":\"      const mockParticipation"
+      }
+    },
+    {
+      "position": 7,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.29370981454849243,
+      "tokens": 9,
+      "text": "Now let me run the tests to verify.",
+      "source_message_uuid": "f30567b4-3323-412f-a759-8aa80ef2e07a",
+      "source_lines": [
+        14
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2937,
+          "repetition_score": 0.1892,
+          "confidence": 0.5,
+          "semantic_similarity": 0.307,
+          "lexical_similarity": 0.098,
+          "entity_similarity": 0.0638,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9362
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Now I can see the issues. Let me compare schemas to mock data:\n\n1. **`mockParticipation`** (line 206): `FreelanceJobParticipationSchema` requires `job_id` (string), `character_id` (number), `status` (string), `contributions` (number). The m"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.35323673486709595,
+      "tokens": 36,
+      "text": "Bash {\"command\":\"npx jest --config jest.unit.config.cjs tests/tdd/clients/FreelanceJobsClient 2>&1\",\"timeout\":60000}",
+      "source_message_uuid": "f30567b4-3323-412f-a759-8aa80ef2e07a",
+      "source_lines": [
+        15
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3532,
+          "repetition_score": 0.0309,
+          "confidence": 0.6,
+          "semantic_similarity": 0.4579,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.0,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\clients\\\\FreelanceJobsClient.test.ts\",\"old_string\":\"      const mockParticipants = [{ character_id: 111 }, { character_id: 222 }];\",\"new_string\":\"      const mockParticipa"
+      }
+    },
+    {
+      "position": 9,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.7390618324279785,
+      "intent_similarity": 0.7390618324279785,
+      "tokens": 223,
+      "text": "All 10 tests pass. Here is a summary of the fixes:\n\n**Two mock data objects were missing required Zod schema fields:**\n\n1. **`mockParticipation`** (line 206) -- `FreelanceJobParticipationSchema` requires `job_id` and `character_id` in addition to `status` and `contributions`. Added `job_id: 'job-1'` and `character_id: 12345`.\n\n2. **`mockParticipants`** (line 260) -- `FreelanceJobParticipantSchema` requires `corporation_id`, `status`, and `contributions` in addition to `character_id`. Added `corporation_id: 98574078`, `status: 'committed'`, and `contributions` values to both array entries.\n\nThe `MOCK_LISTING` and `MOCK_DETAIL` constants already contained all required fields and needed no changes. No test assertions were modified.\n\nFile changed: `D:\\code\\ESI.ts\\tests\\tdd\\clients\\FreelanceJobsClient.test.ts`",
+      "source_message_uuid": "50c485b5-9cff-44e5-bfaf-ce78ae413af9",
+      "source_lines": [
+        17
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.7391,
+          "repetition_score": 0.5741,
+          "confidence": 0.7391,
+          "semantic_similarity": 0.8313,
+          "lexical_similarity": 0.2737,
+          "entity_similarity": 0.3205,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.6795
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Now I can see the issues. Let me compare schemas to mock data:\n\n1. **`mockParticipation`** (line 206): `FreelanceJobParticipationSchema` requires `job_id` (string), `character_id` (number), `status` (string), `contributions` (number). The m"
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 7,
+    "total_output_tokens": 511,
+    "total_cache_creation_tokens": 9249,
+    "total_cache_read_tokens": 92449,
+    "input_output_ratio": 0.01,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.0701,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 3,
+      "mid_span_count": 3,
+      "late_span_count": 4
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        12881,
+        15367,
+        20737,
+        21588,
+        21883
+      ],
+      "growth_rate": 1.7,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 222,
+      "user_result_tokens": 3504,
+      "model_reasoning_tokens": 240,
+      "model_tool_tokens": 304,
+      "model_generation_tokens": 426,
+      "total_user_tokens": 3726,
+      "total_model_tokens": 970,
+      "user_ratio": 0.7934
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.6296,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "You're working on ESI.ts at D:\\code\\ESI.ts. Zod runtime validation was added and now tests fail because mock data is missing required fields.\n\nFix `tests/tdd/clients/FreelanceJobsClient.test.ts` so its mock data includes all required fields from the Zod schemas in `src/schemas/freelance-jobs.ts`.\n\nSteps:\n1. Read `src/schemas/freelance-jobs.ts` to understand all required fields\n2. Read `tests/tdd/clients/FreelanceJobsClient.test.ts` to see current mock data\n3. Update mock data to include all required fields with realistic EVE Online values\n4. Do NOT change test assertions - only fix the mock response data\n5. Run `npx jest --config jest.unit.config.cjs tests/tdd/clients/FreelanceJobsClient` to verify the fix works\n\nThe key pattern: if a schema has `z.string()` (not `.optional()`), the mock data MUST include that field. Same for z.number(), z.array(), etc.",
+          "response_text": "Now I can see the issues. Let me compare schemas to mock data:\n\n1. **`mockParticipation`** (line 206): `FreelanceJobParticipationSchema` requires `job_id` (string), `character_id` (number), `status` (string), `contributions` (number). The mock only has `status` and `contributions` -- missing `job_id` and `character_id`.\n\n2. **`mockParticipants`** (line 260): `FreelanceJobParticipantSchema` requires `character_id` (number), `corporation_id` (number), `status` (string), `contributions` (number). Each mock entry only has `character_id` -- missing `corporation_id`, `status`, and `contributions`.\n\nThe top-level `MOCK_LISTING` and `MOCK_DETAIL` already have all required fields. Let me fix the two incomplete mocks. Now let me run the tests to verify. All 10 tests pass. Here is a summary of the fixes:\n\n**Two mock data objects were missing required Zod schema fields:**\n\n1. **`mockParticipation`** (line 206) -- `FreelanceJobParticipationSchema` requires `job_id` and `character_id` in addition to `status` and `contributions`. Added `job_id: 'job-1'` and `character_id: 12345`.\n\n2. **`mockParticipants`** (line 260) -- `FreelanceJobParticipantSchema` requires `corporation_id`, `status`, and `contributions` in addition to `character_id`. Added `corporation_id: 98574078`, `status: 'committed'`, and `contributions` values to both array entries.\n\nThe `MOCK_LISTING` and `MOCK_DETAIL` constants already contained all required fields and needed no changes. No test assertions were modified.\n\nFile changed: `D:\\code\\ESI.ts\\tests\\tdd\\clients\\FreelanceJobsClient.test.ts`",
+          "alignment": 0.6296
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "d9883245-8956-4bdb-a766-9689ec76d1de",
+    "source_file": "data/D--code-ESI-ts__agent-a5bf9ab91b7a6928e.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

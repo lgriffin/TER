@@ -1,0 +1,205 @@
+{
+  "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+  "aggregate_ter": 0.7,
+  "raw_ratio": 0.972,
+  "phase_scores": {
+    "reasoning": 0.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 535,
+  "aligned_tokens": 520,
+  "waste_tokens": 15,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6,
+    "token_weighted_confidence": 0.6,
+    "low_confidence_tokens": 535,
+    "low_confidence_share": 1.0,
+    "ter_interval": [
+      0.7,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 3,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "redundant_reasoning",
+      "confidence": 0.6,
+      "intent_similarity": 0.32035741209983826,
+      "tokens": 15,
+      "text": "Let me fetch the content from the provided URL about Stripe's TypeScript support.",
+      "source_message_uuid": "620e1595-37b4-42ba-abbb-73a4fe8ce19e",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "low_information_reasoning",
+        "summary": "The reasoning span is short and weakly aligned with the active intent.",
+        "signals": {
+          "intent_similarity": 0.3204,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.40106627345085144,
+      "tokens": 95,
+      "text": "WebFetch {\"url\":\"https://deepwiki.com/stripe/stripe-node/3.3-typescript-support\",\"prompt\":\"Extract all information about TypeScript support patterns in the Stripe Node SDK, including: type generation, branded types, discriminated unions, generic type parameters, resource types, error handling types, type-safe API client patterns, how types are generated from the OpenAPI spec, type inference patterns, and any compile-time safety mechanisms. Include direct quotes where possible.\"}",
+      "source_message_uuid": "620e1595-37b4-42ba-abbb-73a4fe8ce19e",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4011,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4246104955673218,
+      "tokens": 425,
+      "text": "StructuredOutput {\"claims\":[{\"claim\":\"Stripe SDK auto-generates all TypeScript type definitions from the OpenAPI spec, with a central types/index.d.ts file containing all resource types and every API method having associated Params and Response types following the naming convention Stripe.{Resource}{Action}Params.\",\"quote\":\"automatically generated type definitions... The central namespace containing all resource types... Every API method has associated Params and Response types. Parameter types typically follow the pattern Stripe.{Resource}{Action}Params.\",\"importance\":\"central\"},{\"claim\":\"Stripe SDK represents expandable fields as TypeScript union types (e.g., string | Stripe.Customer), requiring developers to use type guards or assertions to narrow and access expanded properties at compile time.\",\"quote\":\"Expandable fields are represented as unions (e.g., string | Stripe.Customer). Developers must use type guards or assertions to access expanded properties.\",\"importance\":\"central\"},{\"claim\":\"Stripe SDK V2 API uses a branded/coerced type pattern for int64 values where the wire format (string) differs from the TypeScript-facing type (bigint), with automatic runtime coercion driven by schema annotations (requestSchema and responseSchema).\",\"quote\":\"Numeric bigint or number values in fields marked as int64_string... are converted to strings before transmission. Strings received from the API in fields marked as int64_string... are converted to bigint before being returned.\",\"importance\":\"central\"},{\"claim\":\"Stripe SDK provides type-safe auto-pagination via a generic ApiListPromise type that acts as both a Promise for the first page and an AsyncIterableIterator for all pages, preserving element types through pagination.\",\"quote\":\"List methods return an ApiListPromise, which acts as both a Promise for the first page and an AsyncIterableIterator for all pages.\",\"importance\":\"supporting\"},{\"claim\":\"Stripe SDK provides typed error handling via a Stripe.errors namespace with typed error classes, enabling compile-time safe access to error-specific properties like decline_code through instanceof narrowing.\",\"quote\":\"Errors are strictly typed via the Stripe.errors namespace... safe access to error-specific properties like decline_code.\",\"importance\":\"supporting\"}],\"sourceQuality\":\"secondary\",\"publishDate\":\"2025\"}",
+      "source_message_uuid": "5bc4c8f5-c5bc-41f9-9381-622ea2729649",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4246,
+          "repetition_score": 0.0476,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6302,
+          "lexical_similarity": 0.1278,
+          "entity_similarity": 0.1447,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "WebFetch {\"url\":\"https://deepwiki.com/stripe/stripe-node/3.3-typescript-support\",\"prompt\":\"Extract all information about TypeScript support patterns in the Stripe Node SDK, including: type generation, branded types, discriminated unions, ge"
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 15,
+    "waste_by_category": {
+      "Redundant Reasoning": 15
+    },
+    "waste_by_phase": {
+      "reasoning": 15
+    },
+    "top_patterns": [],
+    "explanation": "15 of 535 tokens (2.8%) were identified as waste. The largest waste category is Redundant Reasoning (15 tokens)."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Redundant Reasoning",
+        "tokens": 15,
+        "percentage": 100.0,
+        "cost_usd": 0.000225,
+        "count": 1,
+        "pricing": "output"
+      }
+    ],
+    "total_tokens": 15,
+    "total_cost_usd": 0.000225
+  },
+  "economics": {
+    "total_input_tokens": 4,
+    "total_output_tokens": 575,
+    "total_cache_creation_tokens": 20790,
+    "total_cache_read_tokens": 19449,
+    "input_output_ratio": 0.01,
+    "cache_hit_rate": 0.9998,
+    "estimated_cost_usd": 0.0924,
+    "estimated_waste_cost_usd": 0.0002,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 0.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 1
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        19450
+      ],
+      "growth_rate": 1.0,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 481,
+      "user_result_tokens": 997,
+      "model_reasoning_tokens": 15,
+      "model_tool_tokens": 520,
+      "model_generation_tokens": 0,
+      "total_user_tokens": 1478,
+      "total_model_tokens": 535,
+      "user_ratio": 0.7342
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.0,
+      "low_alignment_count": 0,
+      "pairs": []
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+    "source_file": "data/D--code-ESI-ts__agent-ab811f05713f11906.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

@@ -1,0 +1,2388 @@
+{
+  "session_id": "d9883245-8956-4bdb-a766-9689ec76d1de",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 10466,
+  "aligned_tokens": 10466,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5919,
+    "token_weighted_confidence": 0.6221,
+    "low_confidence_tokens": 9248,
+    "low_confidence_share": 0.8836,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 76,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "high"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.4381698966026306,
+      "tokens": 26,
+      "text": "I'll tackle this systematically. Let me start by understanding the existing patterns and available schemas, then update all 20 endpoint files.",
+      "source_message_uuid": "5129ea08-6833-46e9-8992-e3c0ccca734d",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4382,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.46425414085388184,
+      "tokens": 1102,
+      "text": "Agent {\"description\":\"Research schemas and endpoint patterns\",\"prompt\":\"I need to understand the codebase structure for wiring Zod schemas into endpoint definitions in D:\\\\code\\\\ESI.ts.\\n\\nPlease do the following research:\\n\\n1. Read the EndpointDefinition type to understand the responseSchema field - look in `D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\` for a types file or shared definitions file.\\n\\n2. Find an example endpoint file that ALREADY has responseSchema wired in, so I can see the exact pattern being used. Check files like `characterEndpoints.ts`, `allianceEndpoints.ts`, `corporationEndpoints.ts`, `marketEndpoints.ts`, `contractEndpoints.ts`, or `assetEndpoints.ts` in `D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\`.\\n\\n3. List all schema files available:\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\calendar\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\clones\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\dogma\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\fittings\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\fleet\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\faction-warfare\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\freelance-jobs\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\incursions\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\industry\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\insurance\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\killmails\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\location\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\loyalty\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\mail\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\mercenary\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\pi\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\skyhooks\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\sovereignty\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\wars\\\\\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\access-lists\\\\\\n\\nFor each schema directory, list the files and read the index.ts (or main export file) to see what schema names are exported.\\n\\n4. Read each of these 20 endpoint files to see the current endpoint definitions:\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\calendarEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\cloneEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\dogmaEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\fittingEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\fleetEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\factionEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\freelanceJobsEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\incursionEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\industryEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\insuranceEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\killmailEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\locationEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\loyaltyEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\mailEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\mercenaryEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\piEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\skyhookEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\sovereigntyEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\warEndpoints.ts\\n   - D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\accessListEndpoints.ts\\n\\nReport back:\\n- The exact EndpointDefinition type (especially the responseSchema field)\\n- The exact pattern used in an already-wired file (imports, field placement)\\n- For each schema directory: the exported schema names\\n- For each endpoint file: the full file content so I can see every endpoint key and its current fields\\n\",\"run_in_background\":false}",
+      "source_message_uuid": "5129ea08-6833-46e9-8992-e3c0ccca734d",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4643,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.280973345041275,
+      "tokens": 119,
+      "text": "Now I have comprehensive research on all the schemas and endpoints. Let me now read each endpoint file and make the edits. I'll batch the work into parallel agents to speed things up.\n\nLet me organize the work. I have 20 files to update. Let me batch them into groups and handle them with agents.\n\nActually, since I have all the information I need from the research, I can just read each file and edit it directly. Let me batch the reads first, then do the edits.\n\nLet me start by reading the files I need to edit. I'll batch them in groups.",
+      "source_message_uuid": "94ba4918-d771-4831-b864-28b8c320d142",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.281,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 3,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.302365243434906,
+      "tokens": 28,
+      "text": "Now I have all the mapping information. Let me read and edit all 20 endpoint files. I'll batch the reads in parallel groups.",
+      "source_message_uuid": "94ba4918-d771-4831-b864-28b8c320d142",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3024,
+          "repetition_score": 0.4946,
+          "confidence": 0.5,
+          "semantic_similarity": 0.7319,
+          "lexical_similarity": 0.303,
+          "entity_similarity": 0.25,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.75
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll tackle this systematically. Let me start by understanding the existing patterns and available schemas, then update all 20 endpoint files."
+      }
+    },
+    {
+      "position": 4,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6109265685081482,
+      "intent_similarity": 0.6109265685081482,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\calendarEndpoints.ts\"}",
+      "source_message_uuid": "94ba4918-d771-4831-b864-28b8c320d142",
+      "source_lines": [
+        8
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6109,
+          "repetition_score": 0.0219,
+          "confidence": 0.6109,
+          "semantic_similarity": 0.2953,
+          "lexical_similarity": 0.053,
+          "entity_similarity": 0.0547,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Agent {\"description\":\"Research schemas and endpoint patterns\",\"prompt\":\"I need to understand the codebase structure for wiring Zod schemas into endpoint definitions in D:\\\\code\\\\ESI.ts.\\n\\nPlease do the following research:\\n\\n1. Read the En"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5905069708824158,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\cloneEndpoints.ts\"}",
+      "source_message_uuid": "94ba4918-d771-4831-b864-28b8c320d142",
+      "source_lines": [
+        10
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5905,
+          "repetition_score": 0.6815,
+          "confidence": 0.6,
+          "semantic_similarity": 0.817,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\calendarEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4629863202571869,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\dogmaEndpoints.ts\"}",
+      "source_message_uuid": "94ba4918-d771-4831-b864-28b8c320d142",
+      "source_lines": [
+        12
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.463,
+          "repetition_score": 0.6909,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8436,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\calendarEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5396349430084229,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\fittingEndpoints.ts\"}",
+      "source_message_uuid": "94ba4918-d771-4831-b864-28b8c320d142",
+      "source_lines": [
+        14
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5396,
+          "repetition_score": 0.7127,
+          "confidence": 0.6,
+          "semantic_similarity": 0.905,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\dogmaEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5052666664123535,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\fleetEndpoints.ts\"}",
+      "source_message_uuid": "94ba4918-d771-4831-b864-28b8c320d142",
+      "source_lines": [
+        16
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5053,
+          "repetition_score": 0.7148,
+          "confidence": 0.6,
+          "semantic_similarity": 0.911,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\fittingEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 9,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5322022438049316,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\factionEndpoints.ts\"}",
+      "source_message_uuid": "94ba4918-d771-4831-b864-28b8c320d142",
+      "source_lines": [
+        18
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5322,
+          "repetition_score": 0.7259,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9422,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\fleetEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 10,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5129812359809875,
+      "tokens": 27,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\freelanceJobsEndpoints.ts\"}",
+      "source_message_uuid": "94ba4918-d771-4831-b864-28b8c320d142",
+      "source_lines": [
+        20
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.513,
+          "repetition_score": 0.715,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9114,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\fleetEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 11,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5021416544914246,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\incursionEndpoints.ts\"}",
+      "source_message_uuid": "94ba4918-d771-4831-b864-28b8c320d142",
+      "source_lines": [
+        22
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5021,
+          "repetition_score": 0.7201,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9259,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\fittingEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 12,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5291285514831543,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\industryEndpoints.ts\"}",
+      "source_message_uuid": "94ba4918-d771-4831-b864-28b8c320d142",
+      "source_lines": [
+        24
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5291,
+          "repetition_score": 0.7239,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9367,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\factionEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 13,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5066556334495544,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\insuranceEndpoints.ts\"}",
+      "source_message_uuid": "94ba4918-d771-4831-b864-28b8c320d142",
+      "source_lines": [
+        26
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5067,
+          "repetition_score": 0.7259,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9424,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 12,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\industryEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 14,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4866694509983063,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\killmailEndpoints.ts\"}",
+      "source_message_uuid": "6cbafdca-d2cf-4472-8568-94413d964571",
+      "source_lines": [
+        28
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4867,
+          "repetition_score": 0.6833,
+          "confidence": 0.6,
+          "semantic_similarity": 0.822,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\factionEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 15,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5263047218322754,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\locationEndpoints.ts\"}",
+      "source_message_uuid": "6cbafdca-d2cf-4472-8568-94413d964571",
+      "source_lines": [
+        30
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5263,
+          "repetition_score": 0.7291,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9511,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 12,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\industryEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 16,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5269792079925537,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\loyaltyEndpoints.ts\"}",
+      "source_message_uuid": "6cbafdca-d2cf-4472-8568-94413d964571",
+      "source_lines": [
+        32
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.527,
+          "repetition_score": 0.7261,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9427,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\factionEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 17,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5107735991477966,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\mailEndpoints.ts\"}",
+      "source_message_uuid": "6cbafdca-d2cf-4472-8568-94413d964571",
+      "source_lines": [
+        34
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5108,
+          "repetition_score": 0.7201,
+          "confidence": 0.6,
+          "semantic_similarity": 0.926,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 14,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\killmailEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 18,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.48065441846847534,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\mercenaryEndpoints.ts\"}",
+      "source_message_uuid": "6cbafdca-d2cf-4472-8568-94413d964571",
+      "source_lines": [
+        36
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4807,
+          "repetition_score": 0.7252,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9403,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\factionEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 19,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4984571933746338,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\piEndpoints.ts\"}",
+      "source_message_uuid": "6cbafdca-d2cf-4472-8568-94413d964571",
+      "source_lines": [
+        38
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4985,
+          "repetition_score": 0.7337,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9641,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 15,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\locationEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 20,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4603322744369507,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\skyhookEndpoints.ts\"}",
+      "source_message_uuid": "6cbafdca-d2cf-4472-8568-94413d964571",
+      "source_lines": [
+        40
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4603,
+          "repetition_score": 0.7224,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9324,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 19,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\piEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 21,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.49615371227264404,
+      "tokens": 26,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\sovereigntyEndpoints.ts\"}",
+      "source_message_uuid": "6cbafdca-d2cf-4472-8568-94413d964571",
+      "source_lines": [
+        42
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4962,
+          "repetition_score": 0.73,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9538,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 15,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\locationEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 22,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.47752803564071655,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\warEndpoints.ts\"}",
+      "source_message_uuid": "6cbafdca-d2cf-4472-8568-94413d964571",
+      "source_lines": [
+        44
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4775,
+          "repetition_score": 0.7351,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9682,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 19,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\piEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 23,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5097177028656006,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\accessListEndpoints.ts\"}",
+      "source_message_uuid": "6cbafdca-d2cf-4472-8568-94413d964571",
+      "source_lines": [
+        46
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5097,
+          "repetition_score": 0.7335,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9637,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 15,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\locationEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 24,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.37897515296936035,
+      "tokens": 28,
+      "text": "Now let me also quickly verify the actual schema exports from the schema files. Let me read the schema files to confirm the exact export names.",
+      "source_message_uuid": "f4d621ec-e85d-4a7f-bf47-ed1e7f07d1fd",
+      "source_lines": [
+        48
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.379,
+          "repetition_score": 0.1765,
+          "confidence": 0.5,
+          "semantic_similarity": 0.257,
+          "lexical_similarity": 0.1143,
+          "entity_similarity": 0.1091,
+          "action_similarity": 0.3333,
+          "parameter_novelty": 0.8909
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Now I have comprehensive research on all the schemas and endpoints. Let me now read each endpoint file and make the edits. I'll batch the work into parallel agents to speed things up.\n\nLet me organize the work. I have 20 files to update. Le"
+      }
+    },
+    {
+      "position": 25,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.31064507365226746,
+      "tokens": 26,
+      "text": "Now let me verify the schema exports for the ones that need special attention (mail, war/killmails, and pi).",
+      "source_message_uuid": "f4d621ec-e85d-4a7f-bf47-ed1e7f07d1fd",
+      "source_lines": [
+        49
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3106,
+          "repetition_score": 0.254,
+          "confidence": 0.5,
+          "semantic_similarity": 0.4064,
+          "lexical_similarity": 0.1143,
+          "entity_similarity": 0.1,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll tackle this systematically. Let me start by understanding the existing patterns and available schemas, then update all 20 endpoint files."
+      }
+    },
+    {
+      "position": 26,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.47779208421707153,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\mail.ts\"}",
+      "source_message_uuid": "f4d621ec-e85d-4a7f-bf47-ed1e7f07d1fd",
+      "source_lines": [
+        50
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4778,
+          "repetition_score": 0.6591,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9003,
+          "lexical_similarity": 0.5455,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 17,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\mailEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 27,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4541928768157959,
+      "tokens": 22,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\killmails.ts\"}",
+      "source_message_uuid": "f4d621ec-e85d-4a7f-bf47-ed1e7f07d1fd",
+      "source_lines": [
+        52
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4542,
+          "repetition_score": 0.7162,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9283,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.75,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 26,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\mail.ts\"}"
+      }
+    },
+    {
+      "position": 28,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.48019441962242126,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\pi.ts\"}",
+      "source_message_uuid": "f4d621ec-e85d-4a7f-bf47-ed1e7f07d1fd",
+      "source_lines": [
+        53
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4802,
+          "repetition_score": 0.7123,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8937,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.8571,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 26,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\mail.ts\"}"
+      }
+    },
+    {
+      "position": 29,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4391525983810425,
+      "tokens": 21,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\wars.ts\"}",
+      "source_message_uuid": "f4d621ec-e85d-4a7f-bf47-ed1e7f07d1fd",
+      "source_lines": [
+        56
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4392,
+          "repetition_score": 0.7238,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9261,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.8571,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 28,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\pi.ts\"}"
+      }
+    },
+    {
+      "position": 30,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4479461908340454,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\freelance-jobs.ts\"}",
+      "source_message_uuid": "f4d621ec-e85d-4a7f-bf47-ed1e7f07d1fd",
+      "source_lines": [
+        58
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4479,
+          "repetition_score": 0.6951,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8689,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.75,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 28,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\pi.ts\"}"
+      }
+    },
+    {
+      "position": 31,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.43827083706855774,
+      "tokens": 22,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\faction-warfare.ts\"}",
+      "source_message_uuid": "f4d621ec-e85d-4a7f-bf47-ed1e7f07d1fd",
+      "source_lines": [
+        60
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4383,
+          "repetition_score": 0.7111,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9325,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.6667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 29,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\wars.ts\"}"
+      }
+    },
+    {
+      "position": 32,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.37977227568626404,
+      "tokens": 13,
+      "text": "Now let me also read the remaining schema files to confirm exports:",
+      "source_message_uuid": "577a2358-89c2-486a-a44d-fba96d65ebad",
+      "source_lines": [
+        62
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3798,
+          "repetition_score": 0.6922,
+          "confidence": 0.5,
+          "semantic_similarity": 0.8736,
+          "lexical_similarity": 0.4762,
+          "entity_similarity": 0.5294,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.4706
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 24,
+        "matched_prior_text": "Now let me also quickly verify the actual schema exports from the schema files. Let me read the schema files to confirm the exact export names."
+      }
+    },
+    {
+      "position": 33,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.29921838641166687,
+      "tokens": 9,
+      "text": "Let me also verify the remaining schema files.",
+      "source_message_uuid": "577a2358-89c2-486a-a44d-fba96d65ebad",
+      "source_lines": [
+        63
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2992,
+          "repetition_score": 0.4364,
+          "confidence": 0.5,
+          "semantic_similarity": 0.5999,
+          "lexical_similarity": 0.25,
+          "entity_similarity": 0.2222,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.7778
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 25,
+        "matched_prior_text": "Now let me verify the schema exports for the ones that need special attention (mail, war/killmails, and pi)."
+      }
+    },
+    {
+      "position": 34,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5770222544670105,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\calendar.ts\"}",
+      "source_message_uuid": "577a2358-89c2-486a-a44d-fba96d65ebad",
+      "source_lines": [
+        64
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.577,
+          "repetition_score": 0.7055,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8744,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.8571,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 28,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\pi.ts\"}"
+      }
+    },
+    {
+      "position": 35,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5259088277816772,
+      "tokens": 21,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\clones.ts\"}",
+      "source_message_uuid": "577a2358-89c2-486a-a44d-fba96d65ebad",
+      "source_lines": [
+        66
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5259,
+          "repetition_score": 0.7239,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9263,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.8571,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 28,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\pi.ts\"}"
+      }
+    },
+    {
+      "position": 36,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4329371154308319,
+      "tokens": 21,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\dogma.ts\"}",
+      "source_message_uuid": "577a2358-89c2-486a-a44d-fba96d65ebad",
+      "source_lines": [
+        68
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4329,
+          "repetition_score": 0.7222,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9216,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.8571,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 28,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\pi.ts\"}"
+      }
+    },
+    {
+      "position": 37,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5016567707061768,
+      "tokens": 21,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\fittings.ts\"}",
+      "source_message_uuid": "577a2358-89c2-486a-a44d-fba96d65ebad",
+      "source_lines": [
+        70
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5017,
+          "repetition_score": 0.7253,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9304,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.8571,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 28,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\pi.ts\"}"
+      }
+    },
+    {
+      "position": 38,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4425355792045593,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\fleet.ts\"}",
+      "source_message_uuid": "577a2358-89c2-486a-a44d-fba96d65ebad",
+      "source_lines": [
+        72
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4425,
+          "repetition_score": 0.717,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9068,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.8571,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 28,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\pi.ts\"}"
+      }
+    },
+    {
+      "position": 39,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4647091329097748,
+      "tokens": 21,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\incursions.ts\"}",
+      "source_message_uuid": "577a2358-89c2-486a-a44d-fba96d65ebad",
+      "source_lines": [
+        74
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4647,
+          "repetition_score": 0.7246,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9283,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.8571,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 28,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\pi.ts\"}"
+      }
+    },
+    {
+      "position": 40,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.48608309030532837,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\industry.ts\"}",
+      "source_message_uuid": "577a2358-89c2-486a-a44d-fba96d65ebad",
+      "source_lines": [
+        76
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4861,
+          "repetition_score": 0.7218,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9203,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.8571,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 28,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\pi.ts\"}"
+      }
+    },
+    {
+      "position": 41,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.46390143036842346,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\insurance.ts\"}",
+      "source_message_uuid": "577a2358-89c2-486a-a44d-fba96d65ebad",
+      "source_lines": [
+        78
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4639,
+          "repetition_score": 0.7092,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9086,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.75,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 40,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\industry.ts\"}"
+      }
+    },
+    {
+      "position": 42,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.49830466508865356,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\location.ts\"}",
+      "source_message_uuid": "577a2358-89c2-486a-a44d-fba96d65ebad",
+      "source_lines": [
+        80
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4983,
+          "repetition_score": 0.7137,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9214,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.75,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 37,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\fittings.ts\"}"
+      }
+    },
+    {
+      "position": 43,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.47735655307769775,
+      "tokens": 21,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\loyalty.ts\"}",
+      "source_message_uuid": "577a2358-89c2-486a-a44d-fba96d65ebad",
+      "source_lines": [
+        82
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4774,
+          "repetition_score": 0.7135,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9207,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.75,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 42,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\location.ts\"}"
+      }
+    },
+    {
+      "position": 44,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4376165270805359,
+      "tokens": 21,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\mercenary.ts\"}",
+      "source_message_uuid": "577a2358-89c2-486a-a44d-fba96d65ebad",
+      "source_lines": [
+        84
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4376,
+          "repetition_score": 0.7128,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9188,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.75,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 43,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\loyalty.ts\"}"
+      }
+    },
+    {
+      "position": 45,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.45024216175079346,
+      "tokens": 21,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\skyhooks.ts\"}",
+      "source_message_uuid": "577a2358-89c2-486a-a44d-fba96d65ebad",
+      "source_lines": [
+        86
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4502,
+          "repetition_score": 0.7054,
+          "confidence": 0.6,
+          "semantic_similarity": 0.898,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.75,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 42,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\location.ts\"}"
+      }
+    },
+    {
+      "position": 46,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4588547646999359,
+      "tokens": 22,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\sovereignty.ts\"}",
+      "source_message_uuid": "577a2358-89c2-486a-a44d-fba96d65ebad",
+      "source_lines": [
+        88
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4589,
+          "repetition_score": 0.716,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9279,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.75,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 42,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\location.ts\"}"
+      }
+    },
+    {
+      "position": 47,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4704996943473816,
+      "tokens": 22,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\access-lists.ts\"}",
+      "source_message_uuid": "577a2358-89c2-486a-a44d-fba96d65ebad",
+      "source_lines": [
+        90
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4705,
+          "repetition_score": 0.707,
+          "confidence": 0.6,
+          "semantic_similarity": 0.921,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.6667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 42,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\location.ts\"}"
+      }
+    },
+    {
+      "position": 48,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5340650081634521,
+      "intent_similarity": 0.5340650081634521,
+      "tokens": 46,
+      "text": "Now I have all the information I need. Let me also check an existing wired endpoint to confirm the exact pattern. Let me look at how `contractEndpoints.ts` is structured since it was mentioned as an already-wired example.",
+      "source_message_uuid": "5a2ba050-873b-410b-b795-c68c26475e82",
+      "source_lines": [
+        92
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5341,
+          "repetition_score": 0.1785,
+          "confidence": 0.5341,
+          "semantic_similarity": 0.2592,
+          "lexical_similarity": 0.186,
+          "entity_similarity": 0.1765,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8235
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 24,
+        "matched_prior_text": "Now let me also quickly verify the actual schema exports from the schema files. Let me read the schema files to confirm the exact export names."
+      }
+    },
+    {
+      "position": 49,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.11112825572490692,
+      "tokens": 15,
+      "text": "Let me also check an already-wired example to confirm the exact pattern.",
+      "source_message_uuid": "5a2ba050-873b-410b-b795-c68c26475e82",
+      "source_lines": [
+        93
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1111,
+          "repetition_score": 0.2137,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3022,
+          "lexical_similarity": 0.25,
+          "entity_similarity": 0.2143,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.7857
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 33,
+        "matched_prior_text": "Let me also verify the remaining schema files."
+      }
+    },
+    {
+      "position": 50,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5371854901313782,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\contractEndpoints.ts\"}",
+      "source_message_uuid": "5a2ba050-873b-410b-b795-c68c26475e82",
+      "source_lines": [
+        94
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5372,
+          "repetition_score": 0.6421,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8525,
+          "lexical_similarity": 0.5455,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 42,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\location.ts\"}"
+      }
+    },
+    {
+      "position": 51,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5025550723075867,
+      "intent_similarity": 0.5025550723075867,
+      "tokens": 67,
+      "text": "Now I have the complete picture. The pattern is clear: `import { z } from 'zod';` at the top, schema imports from `../../schemas/<module>`, and `responseSchema` as the last field in each endpoint object. Let me now apply all the edits. I'll batch them in parallel groups.",
+      "source_message_uuid": "249bb0ab-165d-4fd0-ad00-5a9838b53da9",
+      "source_lines": [
+        96
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5026,
+          "repetition_score": 0.409,
+          "confidence": 0.5026,
+          "semantic_similarity": 0.59,
+          "lexical_similarity": 0.3111,
+          "entity_similarity": 0.2703,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.7297
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Now I have all the mapping information. Let me read and edit all 20 endpoint files. I'll batch the reads in parallel groups."
+      }
+    },
+    {
+      "position": 52,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.7380485534667969,
+      "intent_similarity": 0.7380485534667969,
+      "tokens": 368,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\calendarEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  CalendarEventSchema,\\n  CalendarEventDetailSchema,\\n  CalendarEventAttendeeSchema,\\n} from '../../schemas/calendar';\\n\\nexport const calendarEndpoints = {\\n  getCalendarEvents: {\\n    path: 'characters/{characterId}/calendar/',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    responseSchema: z.array(CalendarEventSchema),\\n  },\\n  getCalendarEventById: {\\n    path: 'characters/{characterId}/calendar/{eventId}/',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId', 'eventId'],\\n    responseSchema: CalendarEventDetailSchema,\\n  },\\n  getEventAttendees: {\\n    path: 'characters/{characterId}/calendar/{eventId}/attendees/',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId', 'eventId'],\\n    responseSchema: z.array(CalendarEventAttendeeSchema),\\n  },\\n  respondToCalendarEvent: {\\n    path: 'characters/{characterId}/calendar/{eventId}/',\\n    method: 'PUT',\\n    requiresAuth: true,\\n    pathParams: ['characterId', 'eventId'],\\n    bodyBuilder: (response: string) => ({ response }),\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "249bb0ab-165d-4fd0-ad00-5a9838b53da9",
+      "source_lines": [
+        97
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.738,
+          "repetition_score": 0.0514,
+          "confidence": 0.738,
+          "semantic_similarity": 0.6865,
+          "lexical_similarity": 0.1373,
+          "entity_similarity": 0.1333,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 50,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\contractEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 53,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6243506669998169,
+      "intent_similarity": 0.6243506669998169,
+      "tokens": 178,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\cloneEndpoints.ts\",\"content\":\"import { EndpointMap } from './EndpointDefinition';\\nimport { CloneInfoSchema } from '../../schemas/clones';\\n\\nexport const cloneEndpoints = {\\n  getClones: {\\n    path: 'characters/{characterId}/clones',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    responseSchema: CloneInfoSchema,\\n  },\\n  getImplants: {\\n    path: 'characters/{characterId}/implants',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "249bb0ab-165d-4fd0-ad00-5a9838b53da9",
+      "source_lines": [
+        99
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6244,
+          "repetition_score": 0.5672,
+          "confidence": 0.6244,
+          "semantic_similarity": 0.659,
+          "lexical_similarity": 0.4912,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 52,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\calendarEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  CalendarEventSchema,\\n  CalendarEventDetailSchema,\\n  Ca"
+      }
+    },
+    {
+      "position": 54,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5536714792251587,
+      "tokens": 350,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\dogmaEndpoints.ts\",\"content\":\"import { EndpointMap } from './EndpointDefinition';\\nimport {\\n  DogmaAttributeSchema,\\n  DogmaEffectSchema,\\n  DogmaDynamicItemSchema,\\n} from '../../schemas/dogma';\\n\\nexport const dogmaEndpoints = {\\n  getAttributes: {\\n    path: 'dogma/attributes',\\n    method: 'GET',\\n    requiresAuth: false,\\n  },\\n  getAttributeById: {\\n    path: 'dogma/attributes/{attributeId}',\\n    method: 'GET',\\n    requiresAuth: false,\\n    pathParams: ['attributeId'],\\n    responseSchema: DogmaAttributeSchema,\\n  },\\n  getEffects: {\\n    path: 'dogma/effects',\\n    method: 'GET',\\n    requiresAuth: false,\\n  },\\n  getEffectById: {\\n    path: 'dogma/effects/{effectId}',\\n    method: 'GET',\\n    requiresAuth: false,\\n    pathParams: ['effectId'],\\n    responseSchema: DogmaEffectSchema,\\n  },\\n  getDynamicItemInfo: {\\n    path: 'dogma/dynamic/items/{typeId}/{itemId}',\\n    method: 'GET',\\n    requiresAuth: false,\\n    pathParams: ['typeId', 'itemId'],\\n    responseSchema: DogmaDynamicItemSchema,\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "249bb0ab-165d-4fd0-ad00-5a9838b53da9",
+      "source_lines": [
+        101
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5537,
+          "repetition_score": 0.5609,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7194,
+          "lexical_similarity": 0.3571,
+          "entity_similarity": 0.3492,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 52,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\calendarEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  CalendarEventSchema,\\n  CalendarEventDetailSchema,\\n  Ca"
+      }
+    },
+    {
+      "position": 55,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6463160514831543,
+      "intent_similarity": 0.6463160514831543,
+      "tokens": 259,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\fittingEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport { FittingSchema } from '../../schemas/fittings';\\n\\nexport const fittingEndpoints = {\\n  getFittings: {\\n    path: 'characters/{characterId}/fittings',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    responseSchema: z.array(FittingSchema),\\n  },\\n  createFitting: {\\n    path: 'characters/{characterId}/fittings',\\n    method: 'POST',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    hasBody: true,\\n  },\\n  deleteFitting: {\\n    path: 'characters/{characterId}/fittings/{fittingId}',\\n    method: 'DELETE',\\n    requiresAuth: true,\\n    pathParams: ['characterId', 'fittingId'],\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "249bb0ab-165d-4fd0-ad00-5a9838b53da9",
+      "source_lines": [
+        103
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6463,
+          "repetition_score": 0.6055,
+          "confidence": 0.6463,
+          "semantic_similarity": 0.739,
+          "lexical_similarity": 0.5385,
+          "entity_similarity": 0.5556,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 53,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\cloneEndpoints.ts\",\"content\":\"import { EndpointMap } from './EndpointDefinition';\\nimport { CloneInfoSchema } from '../../schemas/clones';\\n\\nexport const cloneEndpoints = {\\n  get"
+      }
+    },
+    {
+      "position": 56,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6154500842094421,
+      "intent_similarity": 0.6154500842094421,
+      "tokens": 1009,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\fleetEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  FleetInfoSchema,\\n  FleetMemberSchema,\\n  FleetWingSchema,\\n  CharacterFleetInfoSchema,\\n} from '../../schemas/fleet';\\n\\nexport const fleetEndpoints = {\\n  getCharacterFleetInfo: {\\n    path: 'characters/{characterId}/fleet',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    responseSchema: CharacterFleetInfoSchema,\\n  },\\n  getFleetInfo: {\\n    path: 'fleets/{fleetId}',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['fleetId'],\\n    responseSchema: FleetInfoSchema,\\n  },\\n  updateFleet: {\\n    path: 'fleets/{fleetId}',\\n    method: 'PUT',\\n    requiresAuth: true,\\n    pathParams: ['fleetId'],\\n    hasBody: true,\\n  },\\n  getFleetMembers: {\\n    path: 'fleets/{fleetId}/members',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['fleetId'],\\n    responseSchema: z.array(FleetMemberSchema),\\n  },\\n  createFleetInvitation: {\\n    path: 'fleets/{fleetId}/members/',\\n    method: 'POST',\\n    requiresAuth: true,\\n    pathParams: ['fleetId'],\\n    hasBody: true,\\n  },\\n  kickFleetMember: {\\n    path: 'fleets/{fleetId}/members/{memberId}/',\\n    method: 'DELETE',\\n    requiresAuth: true,\\n    pathParams: ['fleetId', 'memberId'],\\n  },\\n  moveFleetMember: {\\n    path: 'fleets/{fleetId}/members/{memberId}/',\\n    method: 'PUT',\\n    requiresAuth: true,\\n    pathParams: ['fleetId', 'memberId'],\\n    hasBody: true,\\n  },\\n  deleteFleetSquad: {\\n    path: 'fleets/{fleetId}/squads/{squadId}/',\\n    method: 'DELETE',\\n    requiresAuth: true,\\n    pathParams: ['fleetId', 'squadId'],\\n  },\\n  renameFleetSquad: {\\n    path: 'fleets/{fleetId}/squads/{squadId}/',\\n    method: 'PUT',\\n    requiresAuth: true,\\n    pathParams: ['fleetId', 'squadId'],\\n    bodyBuilder: (name: string) => ({ name }),\\n  },\\n  getFleetWings: {\\n    path: 'fleets/{fleetId}/wings/',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['fleetId'],\\n    responseSchema: z.array(FleetWingSchema),\\n  },\\n  createFleetWing: {\\n    path: 'fleets/{fleetId}/wings/',\\n    method: 'POST',\\n    requiresAuth: true,\\n    pathParams: ['fleetId'],\\n    hasBody: true,\\n  },\\n  deleteFleetWing: {\\n    path: 'fleets/{fleetId}/wings/{wingId}/',\\n    method: 'DELETE',\\n    requiresAuth: true,\\n    pathParams: ['fleetId', 'wingId'],\\n  },\\n  renameFleetWing: {\\n    path: 'fleets/{fleetId}/wings/{wingId}/',\\n    method: 'PUT',\\n    requiresAuth: true,\\n    pathParams: ['fleetId', 'wingId'],\\n    bodyBuilder: (name: string) => ({ name }),\\n  },\\n  createFleetSquad: {\\n    path: 'fleets/{fleetId}/wings/{wingId}/squads/',\\n    method: 'POST',\\n    requiresAuth: true,\\n    pathParams: ['fleetId', 'wingId'],\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "249bb0ab-165d-4fd0-ad00-5a9838b53da9",
+      "source_lines": [
+        105
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6155,
+          "repetition_score": 0.6049,
+          "confidence": 0.6155,
+          "semantic_similarity": 0.8048,
+          "lexical_similarity": 0.425,
+          "entity_similarity": 0.4225,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 55,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\fittingEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport { FittingSchema } from '../../schemas/fittings';\\n\\nexport con"
+      }
+    },
+    {
+      "position": 57,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5757495760917664,
+      "tokens": 567,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\factionEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  FactionWarfareStatsSchema,\\n  FactionWarfareCharacterStatsSchema,\\n  FactionWarfareSystemSchema,\\n  FactionWarfareWarSchema,\\n  FactionWarfareLeaderboardSchema,\\n  FactionWarfareCorporationStatsSchema,\\n} from '../../schemas/faction-warfare';\\n\\nexport const factionEndpoints = {\\n  getCharacterStats: {\\n    path: 'characters/{characterId}/fw/stats',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    responseSchema: FactionWarfareCharacterStatsSchema,\\n  },\\n  getCorporationStats: {\\n    path: 'corporations/{corporationId}/fw/stats',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['corporationId'],\\n    responseSchema: FactionWarfareCorporationStatsSchema,\\n  },\\n  getOverall: {\\n    path: 'fw/leaderboards',\\n    method: 'GET',\\n    requiresAuth: false,\\n    responseSchema: FactionWarfareLeaderboardSchema,\\n  },\\n  getCharacters: {\\n    path: 'fw/leaderboards/characters',\\n    method: 'GET',\\n    requiresAuth: false,\\n    responseSchema: FactionWarfareLeaderboardSchema,\\n  },\\n  getCorporations: {\\n    path: 'fw/leaderboards/corporations',\\n    method: 'GET',\\n    requiresAuth: false,\\n    responseSchema: FactionWarfareLeaderboardSchema,\\n  },\\n  getStats: {\\n    path: 'fw/stats',\\n    method: 'GET',\\n    requiresAuth: false,\\n    responseSchema: z.array(FactionWarfareStatsSchema),\\n  },\\n  getSystems: {\\n    path: 'fw/systems',\\n    method: 'GET',\\n    requiresAuth: false,\\n    responseSchema: z.array(FactionWarfareSystemSchema),\\n  },\\n  getWars: {\\n    path: 'fw/wars',\\n    method: 'GET',\\n    requiresAuth: false,\\n    responseSchema: z.array(FactionWarfareWarSchema),\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "249bb0ab-165d-4fd0-ad00-5a9838b53da9",
+      "source_lines": [
+        107
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5757,
+          "repetition_score": 0.6071,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8706,
+          "lexical_similarity": 0.3229,
+          "entity_similarity": 0.3068,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 56,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\fleetEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  FleetInfoSchema,\\n  FleetMemberSchema,\\n  FleetWingSchema,\\"
+      }
+    },
+    {
+      "position": 58,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5309333205223083,
+      "tokens": 622,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\freelanceJobsEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  FreelanceJobsListingSchema,\\n  FreelanceJobDetailSchema,\\n  CharacterFreelanceJobsListingSchema,\\n  FreelanceJobParticipationSchema,\\n  CorporationFreelanceJobsListingSchema,\\n  FreelanceJobParticipantSchema,\\n} from '../../schemas/freelance-jobs';\\n\\nexport const freelanceJobsEndpoints = {\\n  getFreelanceJobs: {\\n    path: 'freelance-jobs',\\n    method: 'GET',\\n    requiresAuth: false,\\n    queryParams: { before: 'before', after: 'after' },\\n    responseSchema: FreelanceJobsListingSchema,\\n  },\\n  getFreelanceJobById: {\\n    path: 'freelance-jobs/{jobId}',\\n    method: 'GET',\\n    requiresAuth: false,\\n    pathParams: ['jobId'],\\n    responseSchema: FreelanceJobDetailSchema,\\n  },\\n  getCharacterFreelanceJobs: {\\n    path: 'characters/{characterId}/freelance-jobs',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    queryParams: { before: 'before', after: 'after' },\\n    responseSchema: CharacterFreelanceJobsListingSchema,\\n  },\\n  getCharacterFreelanceJobParticipation: {\\n    path: 'characters/{characterId}/freelance-jobs/{jobId}/participation',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId', 'jobId'],\\n    responseSchema: FreelanceJobParticipationSchema,\\n  },\\n  getCorporationFreelanceJobs: {\\n    path: 'corporations/{corporationId}/freelance-jobs',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['corporationId'],\\n    queryParams: { before: 'before', after: 'after' },\\n    responseSchema: CorporationFreelanceJobsListingSchema,\\n  },\\n  getCorporationFreelanceJobParticipants: {\\n    path: 'corporations/{corporationId}/freelance-jobs/{jobId}/participants',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['corporationId', 'jobId'],\\n    responseSchema: z.array(FreelanceJobParticipantSchema),\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "249bb0ab-165d-4fd0-ad00-5a9838b53da9",
+      "source_lines": [
+        109
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5309,
+          "repetition_score": 0.6152,
+          "confidence": 0.6,
+          "semantic_similarity": 0.841,
+          "lexical_similarity": 0.4146,
+          "entity_similarity": 0.4054,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 57,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\factionEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  FactionWarfareStatsSchema,\\n  FactionWarfareCharacterStat"
+      }
+    },
+    {
+      "position": 59,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5802997350692749,
+      "tokens": 130,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\incursionEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport { IncursionSchema } from '../../schemas/incursions';\\n\\nexport const incursionEndpoints = {\\n  getIncursions: {\\n    path: 'incursions',\\n    method: 'GET',\\n    requiresAuth: false,\\n    responseSchema: z.array(IncursionSchema),\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "249bb0ab-165d-4fd0-ad00-5a9838b53da9",
+      "source_lines": [
+        111
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5803,
+          "repetition_score": 0.6518,
+          "confidence": 0.6,
+          "semantic_similarity": 0.88,
+          "lexical_similarity": 0.5294,
+          "entity_similarity": 0.5227,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 55,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\fittingEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport { FittingSchema } from '../../schemas/fittings';\\n\\nexport con"
+      }
+    },
+    {
+      "position": 60,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.584587812423706,
+      "tokens": 667,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\industryEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  IndustryJobSchema,\\n  MiningLedgerEntrySchema,\\n  IndustryFacilitySchema,\\n  IndustrySystemSchema,\\n  MoonExtractionTimerSchema,\\n  MiningObserverSchema,\\n  MiningObserverEntrySchema,\\n} from '../../schemas/industry';\\n\\nexport const industryEndpoints = {\\n  getCharacterIndustryJobs: {\\n    path: 'characters/{characterId}/industry/jobs',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    responseSchema: z.array(IndustryJobSchema),\\n  },\\n  getCharacterMiningLedger: {\\n    path: 'characters/{characterId}/mining',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    responseSchema: z.array(MiningLedgerEntrySchema),\\n  },\\n  getCorporationIndustryJobs: {\\n    path: 'corporations/{corporationId}/industry/jobs',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['corporationId'],\\n    responseSchema: z.array(IndustryJobSchema),\\n  },\\n  getMoonExtractionTimers: {\\n    path: 'corporations/{corporationId}/mining/extractions',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['corporationId'],\\n    responseSchema: z.array(MoonExtractionTimerSchema),\\n  },\\n  getCorporationMiningObservers: {\\n    path: 'corporations/{corporationId}/mining/observers',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['corporationId'],\\n    responseSchema: z.array(MiningObserverSchema),\\n  },\\n  getCorporationMiningObserver: {\\n    path: 'corporations/{corporationId}/mining/observers/{observerId}',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['corporationId', 'observerId'],\\n    responseSchema: z.array(MiningObserverEntrySchema),\\n  },\\n  getIndustryFacilities: {\\n    path: 'industry/facilities',\\n    method: 'GET',\\n    requiresAuth: false,\\n    responseSchema: z.array(IndustryFacilitySchema),\\n  },\\n  getIndustrySystems: {\\n    path: 'industry/systems',\\n    method: 'GET',\\n    requiresAuth: false,\\n    responseSchema: z.array(IndustrySystemSchema),\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "249bb0ab-165d-4fd0-ad00-5a9838b53da9",
+      "source_lines": [
+        113
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5846,
+          "repetition_score": 0.6351,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9056,
+          "lexical_similarity": 0.4,
+          "entity_similarity": 0.3896,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 58,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\freelanceJobsEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  FreelanceJobsListingSchema,\\n  FreelanceJobDetailSc"
+      }
+    },
+    {
+      "position": 61,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5930410027503967,
+      "tokens": 129,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\insuranceEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport { InsurancePriceSchema } from '../../schemas/insurance';\\n\\nexport const insuranceEndpoints = {\\n  getInsurancePrices: {\\n    path: 'insurance/prices',\\n    method: 'GET',\\n    requiresAuth: false,\\n    responseSchema: z.array(InsurancePriceSchema),\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "249bb0ab-165d-4fd0-ad00-5a9838b53da9",
+      "source_lines": [
+        115
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.593,
+          "repetition_score": 0.6738,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8445,
+          "lexical_similarity": 0.7,
+          "entity_similarity": 0.7059,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 59,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\incursionEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport { IncursionSchema } from '../../schemas/incursions';\\n\\nexpo"
+      }
+    },
+    {
+      "position": 62,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.04585978016257286,
+      "tokens": 7,
+      "text": "Now the remaining 10 files.",
+      "source_message_uuid": "41589897-65d3-4df0-b1d4-29a3475fcc1e",
+      "source_lines": [
+        117
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.0459,
+          "repetition_score": 0.281,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3768,
+          "lexical_similarity": 0.3,
+          "entity_similarity": 0.3333,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.6667
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 33,
+        "matched_prior_text": "Let me also verify the remaining schema files."
+      }
+    },
+    {
+      "position": 63,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5175695419311523,
+      "tokens": 312,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\killmailEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  KillmailSummarySchema,\\n  KillmailSchema,\\n} from '../../schemas/killmails';\\n\\nexport const killmailEndpoints = {\\n  getCharacterRecentKillmails: {\\n    path: 'characters/{characterId}/killmails/recent',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    responseSchema: z.array(KillmailSummarySchema),\\n  },\\n  getCorporationRecentKillmails: {\\n    path: 'corporations/{corporationId}/killmails/recent',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['corporationId'],\\n    responseSchema: z.array(KillmailSummarySchema),\\n  },\\n  getKillmail: {\\n    path: 'killmails/{killmailId}/{killmailHash}',\\n    method: 'GET',\\n    requiresAuth: false,\\n    pathParams: ['killmailId', 'killmailHash'],\\n    responseSchema: KillmailSchema,\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "41589897-65d3-4df0-b1d4-29a3475fcc1e",
+      "source_lines": [
+        118
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5176,
+          "repetition_score": 0.5932,
+          "confidence": 0.6,
+          "semantic_similarity": 0.749,
+          "lexical_similarity": 0.4722,
+          "entity_similarity": 0.4545,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 60,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\industryEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  IndustryJobSchema,\\n  MiningLedgerEntrySchema,\\n  Indust"
+      }
+    },
+    {
+      "position": 64,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6360783576965332,
+      "intent_similarity": 0.6360783576965332,
+      "tokens": 258,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\locationEndpoints.ts\",\"content\":\"import { EndpointMap } from './EndpointDefinition';\\nimport {\\n  CharacterLocationSchema,\\n  CharacterOnlineSchema,\\n  CharacterShipSchema,\\n} from '../../schemas/location';\\n\\nexport const locationEndpoints = {\\n  getCharacterLocation: {\\n    path: 'characters/{characterId}/location',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    responseSchema: CharacterLocationSchema,\\n  },\\n  getCharacterOnline: {\\n    path: 'characters/{characterId}/online',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    responseSchema: CharacterOnlineSchema,\\n  },\\n  getCharacterShip: {\\n    path: 'characters/{characterId}/ship',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    responseSchema: CharacterShipSchema,\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "41589897-65d3-4df0-b1d4-29a3475fcc1e",
+      "source_lines": [
+        120
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6361,
+          "repetition_score": 0.6376,
+          "confidence": 0.6361,
+          "semantic_similarity": 0.8664,
+          "lexical_similarity": 0.48,
+          "entity_similarity": 0.4773,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 59,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\incursionEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport { IncursionSchema } from '../../schemas/incursions';\\n\\nexpo"
+      }
+    },
+    {
+      "position": 65,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6437591910362244,
+      "intent_similarity": 0.6437591910362244,
+      "tokens": 237,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\loyaltyEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  LoyaltyPointsSchema,\\n  LoyaltyStoreOfferSchema,\\n} from '../../schemas/loyalty';\\n\\nexport const loyaltyEndpoints = {\\n  getLoyaltyPoints: {\\n    path: 'characters/{characterId}/loyalty/points',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    responseSchema: z.array(LoyaltyPointsSchema),\\n  },\\n  getLoyaltyStoreOffers: {\\n    path: 'loyalty/stores/{corporationId}/offers',\\n    method: 'GET',\\n    requiresAuth: false,\\n    pathParams: ['corporationId'],\\n    responseSchema: z.array(LoyaltyStoreOfferSchema),\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "41589897-65d3-4df0-b1d4-29a3475fcc1e",
+      "source_lines": [
+        122
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6438,
+          "repetition_score": 0.6497,
+          "confidence": 0.6438,
+          "semantic_similarity": 0.8523,
+          "lexical_similarity": 0.5714,
+          "entity_similarity": 0.5581,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 59,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\incursionEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport { IncursionSchema } from '../../schemas/incursions';\\n\\nexpo"
+      }
+    },
+    {
+      "position": 66,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5597279667854309,
+      "tokens": 611,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\mailEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  MailMessageSchema,\\n  MailLabelSchema,\\n} from '../../schemas/mail';\\n\\nexport const mailEndpoints = {\\n  getCharacterMailHeaders: {\\n    path: 'characters/{characterId}/mail/',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    responseSchema: z.array(MailMessageSchema),\\n  },\\n  sendMail: {\\n    path: 'characters/{characterId}/mail/',\\n    method: 'POST',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    hasBody: true,\\n  },\\n  getMail: {\\n    path: 'characters/{characterId}/mail/{mailId}/',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId', 'mailId'],\\n    responseSchema: MailMessageSchema,\\n  },\\n  deleteMail: {\\n    path: 'characters/{characterId}/mail/{mailId}/',\\n    method: 'DELETE',\\n    requiresAuth: true,\\n    pathParams: ['characterId', 'mailId'],\\n  },\\n  updateMailMetadata: {\\n    path: 'characters/{characterId}/mail/{mailId}/',\\n    method: 'PUT',\\n    requiresAuth: true,\\n    pathParams: ['characterId', 'mailId'],\\n    hasBody: true,\\n  },\\n  getMailLabels: {\\n    path: 'characters/{characterId}/mail/labels/',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n  },\\n  createMailLabel: {\\n    path: 'characters/{characterId}/mail/labels/',\\n    method: 'POST',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    hasBody: true,\\n  },\\n  deleteMailLabel: {\\n    path: 'characters/{characterId}/mail/labels/{labelId}/',\\n    method: 'DELETE',\\n    requiresAuth: true,\\n    pathParams: ['characterId', 'labelId'],\\n  },\\n  getMailingLists: {\\n    path: 'characters/{characterId}/mail/lists/',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "41589897-65d3-4df0-b1d4-29a3475fcc1e",
+      "source_lines": [
+        124
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5597,
+          "repetition_score": 0.6375,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8873,
+          "lexical_similarity": 0.4493,
+          "entity_similarity": 0.4286,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 63,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\killmailEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  KillmailSummarySchema,\\n  KillmailSchema,\\n} from '../.."
+      }
+    },
+    {
+      "position": 67,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5668150186538696,
+      "tokens": 206,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\mercenaryEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  MercenaryDenSchema,\\n  MercenaryTacticalOperationSchema,\\n} from '../../schemas/mercenary';\\n\\nexport const mercenaryEndpoints = {\\n  getMercenaryDens: {\\n    path: 'mercenary/dens',\\n    method: 'GET',\\n    requiresAuth: false,\\n    responseSchema: z.array(MercenaryDenSchema),\\n  },\\n  getMercenaryTacticalOperations: {\\n    path: 'mercenary/operations',\\n    method: 'GET',\\n    requiresAuth: false,\\n    responseSchema: z.array(MercenaryTacticalOperationSchema),\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "41589897-65d3-4df0-b1d4-29a3475fcc1e",
+      "source_lines": [
+        126
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5668,
+          "repetition_score": 0.661,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8373,
+          "lexical_similarity": 0.6512,
+          "entity_similarity": 0.6486,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 61,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\insuranceEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport { InsurancePriceSchema } from '../../schemas/insurance';\\n\\n"
+      }
+    },
+    {
+      "position": 68,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6309694647789001,
+      "intent_similarity": 0.6309694647789001,
+      "tokens": 359,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\piEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  PlanetaryColonySchema,\\n  CustomsOfficeSchema,\\n  ColonyLayoutSchema,\\n} from '../../schemas/pi';\\n\\nexport const piEndpoints = {\\n  getColonies: {\\n    path: 'characters/{characterId}/planets',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId'],\\n    responseSchema: z.array(PlanetaryColonySchema),\\n  },\\n  getColonyLayout: {\\n    path: 'characters/{characterId}/planets/{planetId}',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['characterId', 'planetId'],\\n    responseSchema: ColonyLayoutSchema,\\n  },\\n  getCorporationCustomsOffices: {\\n    path: 'corporations/{corporationId}/customs_offices',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['corporationId'],\\n    responseSchema: z.array(CustomsOfficeSchema),\\n  },\\n  getSchematicInformation: {\\n    path: 'universe/schematics/{schematicId}',\\n    method: 'GET',\\n    requiresAuth: false,\\n    pathParams: ['schematicId'],\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "41589897-65d3-4df0-b1d4-29a3475fcc1e",
+      "source_lines": [
+        128
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.631,
+          "repetition_score": 0.657,
+          "confidence": 0.631,
+          "semantic_similarity": 0.8823,
+          "lexical_similarity": 0.55,
+          "entity_similarity": 0.5472,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 65,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\loyaltyEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  LoyaltyPointsSchema,\\n  LoyaltyStoreOfferSchema,\\n} from "
+      }
+    },
+    {
+      "position": 69,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5621077418327332,
+      "tokens": 276,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\skyhookEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  SovereigntyHubSchema,\\n  OrbitalSkyhookSchema,\\n  RaidableSkyhookSchema,\\n} from '../../schemas/skyhooks';\\n\\nexport const skyhookEndpoints = {\\n  getSovereigntyHubs: {\\n    path: 'sovereignty/hubs',\\n    method: 'GET',\\n    requiresAuth: false,\\n    responseSchema: z.array(SovereigntyHubSchema),\\n  },\\n  getOrbitalSkyhooks: {\\n    path: 'sovereignty/skyhooks',\\n    method: 'GET',\\n    requiresAuth: false,\\n    responseSchema: z.array(OrbitalSkyhookSchema),\\n  },\\n  getRaidableSkyhooks: {\\n    path: 'sovereignty/skyhooks/raidable',\\n    method: 'GET',\\n    requiresAuth: false,\\n    responseSchema: z.array(RaidableSkyhookSchema),\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "41589897-65d3-4df0-b1d4-29a3475fcc1e",
+      "source_lines": [
+        130
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5621,
+          "repetition_score": 0.6406,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8936,
+          "lexical_similarity": 0.4516,
+          "entity_similarity": 0.4364,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 68,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\piEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  PlanetaryColonySchema,\\n  CustomsOfficeSchema,\\n  ColonyLayout"
+      }
+    },
+    {
+      "position": 70,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5820598602294922,
+      "tokens": 204,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\sovereigntyEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  SovereigntyCampaignSchema,\\n  SovereigntySystemSchema,\\n} from '../../schemas/sovereignty';\\n\\nexport const sovereigntyEndpoints = {\\n  getSovereigntyCampaigns: {\\n    path: 'sovereignty/campaigns',\\n    method: 'GET',\\n    requiresAuth: false,\\n    responseSchema: z.array(SovereigntyCampaignSchema),\\n  },\\n  getSovereigntySystems: {\\n    path: 'sovereignty/systems',\\n    method: 'GET',\\n    requiresAuth: false,\\n    responseSchema: z.array(SovereigntySystemSchema),\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "41589897-65d3-4df0-b1d4-29a3475fcc1e",
+      "source_lines": [
+        132
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5821,
+          "repetition_score": 0.6645,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8472,
+          "lexical_similarity": 0.6512,
+          "entity_similarity": 0.6486,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 59,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\incursionEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport { IncursionSchema } from '../../schemas/incursions';\\n\\nexpo"
+      }
+    },
+    {
+      "position": 71,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6286839246749878,
+      "intent_similarity": 0.6286839246749878,
+      "tokens": 254,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\warEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport { WarSchema } from '../../schemas/wars';\\nimport { KillmailSummarySchema } from '../../schemas/killmails';\\n\\nexport const warEndpoints = {\\n  getWars: {\\n    path: 'wars',\\n    method: 'GET',\\n    requiresAuth: false,\\n  },\\n  getWarById: {\\n    path: 'wars/{warId}',\\n    method: 'GET',\\n    requiresAuth: false,\\n    pathParams: ['warId'],\\n    responseSchema: WarSchema,\\n  },\\n  getWarKillmails: {\\n    path: 'wars/{warId}/killmails',\\n    method: 'GET',\\n    requiresAuth: false,\\n    pathParams: ['warId'],\\n    responseSchema: z.array(KillmailSummarySchema),\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "41589897-65d3-4df0-b1d4-29a3475fcc1e",
+      "source_lines": [
+        134
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6287,
+          "repetition_score": 0.6496,
+          "confidence": 0.6287,
+          "semantic_similarity": 0.8582,
+          "lexical_similarity": 0.5439,
+          "entity_similarity": 0.5714,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 63,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\killmailEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  KillmailSummarySchema,\\n  KillmailSchema,\\n} from '../.."
+      }
+    },
+    {
+      "position": 72,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5824185609817505,
+      "tokens": 132,
+      "text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\accessListEndpoints.ts\",\"content\":\"import { EndpointMap } from './EndpointDefinition';\\nimport { AccessListSchema } from '../../schemas/access-lists';\\n\\nexport const accessListEndpoints = {\\n  getAccessList: {\\n    path: 'access-lists/{accessListId}',\\n    method: 'GET',\\n    requiresAuth: true,\\n    pathParams: ['accessListId'],\\n    responseSchema: AccessListSchema,\\n  },\\n} as const satisfies EndpointMap;\\n\"}",
+      "source_message_uuid": "41589897-65d3-4df0-b1d4-29a3475fcc1e",
+      "source_lines": [
+        136
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5824,
+          "repetition_score": 0.639,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8331,
+          "lexical_similarity": 0.5532,
+          "entity_similarity": 0.5349,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 64,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\locationEndpoints.ts\",\"content\":\"import { EndpointMap } from './EndpointDefinition';\\nimport {\\n  CharacterLocationSchema,\\n  CharacterOnlineSchema,\\n  CharacterShipSchema,\\n} from"
+      }
+    },
+    {
+      "position": 73,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.2863229811191559,
+      "tokens": 19,
+      "text": "All 20 files are updated. Now let me run the TypeScript compiler to verify clean compilation.",
+      "source_message_uuid": "226f7cea-6738-4088-a711-12d9666b83c5",
+      "source_lines": [
+        138
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2863,
+          "repetition_score": 0.2974,
+          "confidence": 0.5,
+          "semantic_similarity": 0.4079,
+          "lexical_similarity": 0.2,
+          "entity_similarity": 0.2353,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.7647
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 33,
+        "matched_prior_text": "Let me also verify the remaining schema files."
+      }
+    },
+    {
+      "position": 74,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.25079676508903503,
+      "tokens": 46,
+      "text": "Bash {\"command\":\"cd D:/code/ESI.ts && npx tsc --noEmit 2>&1\",\"description\":\"Type-check all files with tsc --noEmit\",\"timeout\":120000}",
+      "source_message_uuid": "226f7cea-6738-4088-a711-12d9666b83c5",
+      "source_lines": [
+        139
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2508,
+          "repetition_score": 0.0328,
+          "confidence": 0.6,
+          "semantic_similarity": 0.4862,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.0,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 70,
+        "matched_prior_text": "Write {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\sovereigntyEndpoints.ts\",\"content\":\"import { z } from 'zod';\\nimport { EndpointMap } from './EndpointDefinition';\\nimport {\\n  SovereigntyCampaignSchema,\\n  SovereigntySystemSchema"
+      }
+    },
+    {
+      "position": 75,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.7745490074157715,
+      "intent_similarity": 0.7745490074157715,
+      "tokens": 850,
+      "text": "Clean compilation with no errors. All 20 endpoint files have been successfully updated with `responseSchema` fields wired to the appropriate Zod schemas. Here is a summary of what was done:\n\n**All 20 endpoint files updated:**\n\n| File | Schemas wired | Endpoints with responseSchema | Skipped endpoints (reason) |\n|---|---|---|---|\n| `calendarEndpoints.ts` | CalendarEventSchema, CalendarEventDetailSchema, CalendarEventAttendeeSchema | 3 | respondToCalendarEvent (PUT write op) |\n| `cloneEndpoints.ts` | CloneInfoSchema | 1 (getClones) | getImplants (returns number[]) |\n| `dogmaEndpoints.ts` | DogmaAttributeSchema, DogmaEffectSchema, DogmaDynamicItemSchema | 3 | getAttributes, getEffects (return number[]) |\n| `fittingEndpoints.ts` | FittingSchema | 1 | createFitting (POST), deleteFitting (DELETE) |\n| `fleetEndpoints.ts` | FleetInfoSchema, FleetMemberSchema, FleetWingSchema, CharacterFleetInfoSchema | 4 | 10 write operations (POST/PUT/DELETE) |\n| `factionEndpoints.ts` | All 6 FW schemas | 8 (all endpoints) | none |\n| `freelanceJobsEndpoints.ts` | 6 schemas | 6 (all endpoints) | none |\n| `incursionEndpoints.ts` | IncursionSchema | 1 | none |\n| `industryEndpoints.ts` | All 7 industry schemas | 8 (all endpoints) | none |\n| `insuranceEndpoints.ts` | InsurancePriceSchema | 1 | none |\n| `killmailEndpoints.ts` | KillmailSummarySchema, KillmailSchema | 3 (all) | none |\n| `locationEndpoints.ts` | CharacterLocationSchema, CharacterOnlineSchema, CharacterShipSchema | 3 (all) | none |\n| `loyaltyEndpoints.ts` | LoyaltyPointsSchema, LoyaltyStoreOfferSchema | 2 (all) | none |\n| `mailEndpoints.ts` | MailMessageSchema, MailLabelSchema | 2 (headers + getMail) | sendMail (POST), deleteMail (DELETE), updateMailMetadata (PUT), createMailLabel (POST), deleteMailLabel (DELETE), getMailLabels (returns wrapper object with no dedicated schema), getMailingLists (no schema) |\n| `mercenaryEndpoints.ts` | MercenaryDenSchema, MercenaryTacticalOperationSchema | 2 (all) | none |\n| `piEndpoints.ts` | PlanetaryColonySchema, CustomsOfficeSchema, ColonyLayoutSchema | 3 | getSchematicInformation (no matching schema) |\n| `skyhookEndpoints.ts` | SovereigntyHubSchema, OrbitalSkyhookSchema, RaidableSkyhookSchema | 3 (all) | none |\n| `sovereigntyEndpoints.ts` | SovereigntyCampaignSchema, SovereigntySystemSchema | 2 (all) | none |\n| `warEndpoints.ts` | WarSchema + KillmailSummarySchema (cross-module import) | 2 | getWars (returns number[]) |\n| `accessListEndpoints.ts` | AccessListSchema | 1 (all) | none |\n\n**Key decisions:**\n- Write operations (POST/PUT/DELETE) were skipped -- they don't return data to validate\n- Endpoints returning primitive arrays (number[], string[]) were skipped per instructions\n- `getMailLabels` and `getMailingLists` skipped -- no matching schema for those response shapes\n- `getSchematicInformation` skipped -- no PI schematic schema exists\n- `warEndpoints.ts` imports `KillmailSummarySchema` from `../../schemas/killmails` (cross-module) for `getWarKillmails`\n- `locationEndpoints.ts`, `cloneEndpoints.ts`, `dogmaEndpoints.ts`, and `accessListEndpoints.ts` don't need `import { z } from 'zod'` since they only use schemas directly (no `z.array()` wrapping needed)\n\n`npx tsc --noEmit` passes cleanly with zero errors.",
+      "source_message_uuid": "05310722-2640-4613-a3ea-30c3f1f55315",
+      "source_lines": [
+        141
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.7745,
+          "repetition_score": 0.3336,
+          "confidence": 0.7745,
+          "semantic_similarity": 0.5521,
+          "lexical_similarity": 0.0644,
+          "entity_similarity": 0.0739,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9261
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 51,
+        "matched_prior_text": "Now I have the complete picture. The pattern is clear: `import { z } from 'zod';` at the top, schema imports from `../../schemas/<module>`, and `responseSchema` as the last field in each endpoint object. Let me now apply all the edits. I'll"
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 14,
+    "total_output_tokens": 1144,
+    "total_cache_creation_tokens": 60204,
+    "total_cache_read_tokens": 299707,
+    "input_output_ratio": 0.01,
+    "cache_hit_rate": 1.0,
+    "estimated_cost_usd": 0.3329,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 25,
+      "mid_span_count": 25,
+      "late_span_count": 26
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        12881,
+        15900,
+        21727,
+        26660,
+        29967,
+        12879,
+        40219,
+        41257,
+        47025,
+        51206
+      ],
+      "growth_rate": 3.98,
+      "is_superlinear": true,
+      "context_bloat_detected": true
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 643,
+      "user_result_tokens": 15521,
+      "model_reasoning_tokens": 206,
+      "model_tool_tokens": 9213,
+      "model_generation_tokens": 1047,
+      "total_user_tokens": 16164,
+      "total_model_tokens": 10466,
+      "user_ratio": 0.607
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.4346,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "You're working on ESI.ts at D:\\code\\ESI.ts. We've added a `responseSchema` field to `EndpointDefinition` and need to wire schemas into endpoint definition files.\n\nFor EACH of these endpoint files, add the appropriate `responseSchema` import and field:\n\n1. `src/core/endpoints/calendarEndpoints.ts` \u2014 schemas from `../../schemas/calendar`\n2. `src/core/endpoints/cloneEndpoints.ts` \u2014 schemas from `../../schemas/clones`\n3. `src/core/endpoints/dogmaEndpoints.ts` \u2014 schemas from `../../schemas/dogma`\n4. `src/core/endpoints/fittingEndpoints.ts` \u2014 schemas from `../../schemas/fittings`\n5. `src/core/endpoints/fleetEndpoints.ts` \u2014 schemas from `../../schemas/fleet`\n6. `src/core/endpoints/factionEndpoints.ts` \u2014 schemas from `../../schemas/faction-warfare`\n7. `src/core/endpoints/freelanceJobsEndpoints.ts` \u2014 schemas from `../../schemas/freelance-jobs`\n8. `src/core/endpoints/incursionEndpoints.ts` \u2014 schemas from `../../schemas/incursions`\n9. `src/core/endpoints/industryEndpoints.ts` \u2014 schemas from `../../schemas/industry`\n10. `src/core/endpoints/insuranceEndpoints.ts` \u2014 schemas from `../../schemas/insurance`\n11. `src/core/endpoints/killmailEndpoints.ts` \u2014 schemas from `../../schemas/killmails`\n12. `src/core/endpoints/locationEndpoints.ts` \u2014 schemas from `../../schemas/location`\n13. `src/core/endpoints/loyaltyEndpoints.ts` \u2014 schemas from `../../schemas/loyalty`\n14. `src/core/endpoints/mailEndpoints.ts` \u2014 schemas from `../../schemas/mail`\n15. `src/core/endpoints/mercenaryEndpoints.ts` \u2014 schemas from `../../schemas/mercenary`\n16. `src/core/endpoints/piEndpoints.ts` \u2014 schemas from `../../schemas/pi`\n17. `src/core/endpoints/skyhookEndpoints.ts` \u2014 schemas from `../../schemas/skyhooks`\n18. `src/core/endpoints/sovereigntyEndpoints.ts` \u2014 schemas from `../../schemas/sovereignty`\n19. `src/core/endpoints/warEndpoints.ts` \u2014 schemas from `../../schemas/wars`\n20. `src/core/endpoints/accessListEndpoints.ts` \u2014 schemas from `../../schemas/access-lists`\n\n**Pattern:**\n```ts\nimport { z } from 'zod';\nimport { SomeSchema } from '../../schemas/moduleName';\n\n// For single-object responses:\nresponseSchema: SomeSchema,\n\n// For array responses:\nresponseSchema: z.array(SomeSchema),\n```\n\nRead each endpoint file first to see what endpoints exist and their return patterns. Match them to the schema names. Only add responseSchema where we have a matching Zod schema. Skip endpoints returning primitive types (number[], string[], void/undefined).\n\nIMPORTANT: `as const satisfies EndpointMap` must still compile. The responseSchema field is optional in EndpointDefinition. After updating all files, run `npx tsc --noEmit` to verify clean compilation.",
+          "response_text": "I'll tackle this systematically. Let me start by understanding the existing patterns and available schemas, then update all 20 endpoint files. Now I have all the mapping information. Let me read and edit all 20 endpoint files. I'll batch the reads in parallel groups. Now let me verify the schema exports for the ones that need special attention (mail, war/killmails, and pi). Let me also verify the remaining schema files. Let me also check an already-wired example to confirm the exact pattern. Now I have the complete picture. The pattern is clear: `import { z } from 'zod';` at the top, schema imports from `../../schemas/<module>`, and `responseSchema` as the last field in each endpoint object. Let me now apply all the edits. I'll batch them in parallel groups. Now the remaining 10 files. All 20 files are updated. Now let me run the TypeScript compiler to verify clean compilation. Clean compilation with no errors. All 20 endpoint files have been successfully updated with `responseSchema` fields wired to the appropriate Zod schemas. Here is a summary of what was done:\n\n**All 20 endpoint files updated:**\n\n| File | Schemas wired | Endpoints with responseSchema | Skipped endpoints (reason) |\n|---|---|---|---|\n| `calendarEndpoints.ts` | CalendarEventSchema, CalendarEventDetailSchema, CalendarEventAttendeeSchema | 3 | respondToCalendarEvent (PUT write op) |\n| `cloneEndpoints.ts` | CloneInfoSchema | 1 (getClones) | getImplants (returns number[]) |\n| `dogmaEndpoints.ts` | DogmaAttributeSchema, DogmaEffectSchema, DogmaDynamicItemSchema | 3 | getAttributes, getEffects (return number[]) |\n| `fittingEndpoints.ts` | FittingSchema | 1 | createFitting (POST), deleteFitting (DELETE) |\n| `fleetEndpoints.ts` | FleetInfoSchema, FleetMemberSchema, FleetWingSchema, CharacterFleetInfoSchema | 4 | 10 write operations (POST/PUT/DELETE) |\n| `factionEndpoints.ts` | All 6 FW schemas | 8 (all endpoints) | none |\n| `freelanceJobsEndpoints.ts` | 6 schemas | 6 (all endpoints) | none |\n| `incursionEndpoints.ts` | IncursionSchema | 1 | none |\n| `industryEndpoints.ts` | All 7 industry schemas | 8 (all endpoints) | none |\n| `insuranceEndpoints.ts` | InsurancePriceSchema | 1 | none |\n| `killmailEndpoints.ts` | KillmailSummarySchema, KillmailSchema | 3 (all) | none |\n| `locationEndpoints.ts` | CharacterLocationSchema, CharacterOnlineSchema, CharacterShipSchema | 3 (all) | none |\n| `loyaltyEndpoints.ts` | LoyaltyPointsSchema, LoyaltyStoreOfferSchema | 2 (all) | none |\n| `mailEndpoints.ts` | MailMessageSchema, MailLabelSchema | 2 (headers + getMail) | sendMail (POST), deleteMail (DELETE), updateMailMetadata (PUT), createMailLabel (POST), deleteMailLabel (DELETE), getMailLabels (returns wrapper object with no dedicated schema), getMailingLists (no schema) |\n| `mercenaryEndpoints.ts` | MercenaryDenSchema, MercenaryTacticalOperationSchema | 2 (all) | none |\n| `piEndpoints.ts` | PlanetaryColonySchema, CustomsOfficeSchema, ColonyLayoutSchema | 3 | getSchematicInformation (no matching schema) |\n| `skyhookEndpoints.ts` | SovereigntyHubSchema, OrbitalSkyhookSchema, RaidableSkyhookSchema | 3 (all) | none |\n| `sovereigntyEndpoints.ts` | SovereigntyCampaignSchema, SovereigntySystemSchema | 2 (all) | none |\n| `warEndpoints.ts` | WarSchema + KillmailSummarySchema (cross-module import) | 2 | getWars (returns number[]) |\n| `accessListEndpoints.ts` | AccessListSchema | 1 (all) | none |\n\n**Key decisions:**\n- Write operations (POST/PUT/DELETE) were skipped -- they don't return data to validate\n- Endpoints returning primitive arrays (number[], string[]) were skipped per instructions\n- `getMailLabels` and `getMailingLists` skipped -- no matching schema for those response shapes\n- `getSchematicInformation` skipped -- no PI schematic schema exists\n- `warEndpoints.ts` imports `KillmailSummarySchema` from `../../schemas/killmails` (cross-module) for `getWarKillmails`\n- `locationEndpoints.ts`, `cloneEndpoints.ts`, `dogmaEndpoints.ts`, and `accessListEndpoints.ts` don't need `import { z } from 'zod'` since they only use schemas directly (no `z.array()` wrapping needed)\n\n`npx tsc --noEmit` passes cleanly with zero errors.",
+          "alignment": 0.4346
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "d9883245-8956-4bdb-a766-9689ec76d1de",
+    "source_file": "data/D--code-ESI-ts__agent-aa2c79a9cd8d6e5b4.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

@@ -8,7 +8,6 @@ token budget, and prunes redundant fragments using the context graph.
 
 from __future__ import annotations
 
-from typing import Sequence
 
 import numpy as np
 
@@ -22,7 +21,6 @@ from .models import (
     PHASE_WEIGHTS_DEFAULT,
     ScoredFragment,
     Session,
-    SpanPhase,
 )
 
 _DP_FRAGMENT_LIMIT = 500
@@ -43,12 +41,14 @@ def score_fragments(
         phase_weight = PHASE_WEIGHTS_DEFAULT.get(frag.phase, 0.3)
         relevance = sim * phase_weight
 
-        scored.append(ScoredFragment(
-            fragment_id=frag.id,
-            relevance_score=relevance,
-            token_cost=frag.token_count,
-            phase=frag.phase,
-        ))
+        scored.append(
+            ScoredFragment(
+                fragment_id=frag.id,
+                relevance_score=relevance,
+                token_cost=frag.token_count,
+                phase=frag.phase,
+            )
+        )
     return scored
 
 
@@ -92,9 +92,7 @@ def _prune_redundant(
     return pruned, len(removed)
 
 
-def _dp_knapsack(
-    items: list[ScoredFragment], capacity: int
-) -> list[ScoredFragment]:
+def _dp_knapsack(items: list[ScoredFragment], capacity: int) -> list[ScoredFragment]:
     if not items or capacity <= 0:
         return []
 

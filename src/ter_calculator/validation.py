@@ -272,7 +272,9 @@ def validate_jsonl_line(raw_line: str, *, line_number: int = 0) -> ValidationRes
     if not isinstance(data, dict):
         return ValidationResult(
             valid=False,
-            errors=[f"Line {line_number}: Expected a JSON object, got {type(data).__name__}"],
+            errors=[
+                f"Line {line_number}: Expected a JSON object, got {type(data).__name__}"
+            ],
             warnings=[],
             line_number=line_number,
         )
@@ -344,9 +346,7 @@ def validate_jsonl_line(raw_line: str, *, line_number: int = 0) -> ValidationRes
     elif isinstance(content, list):
         for idx, block in enumerate(content):
             if not isinstance(block, dict):
-                warnings.append(
-                    f"Line {line_number}: content[{idx}] is not a dict"
-                )
+                warnings.append(f"Line {line_number}: content[{idx}] is not a dict")
                 continue
 
             btype = block.get("type")
@@ -363,9 +363,7 @@ def validate_jsonl_line(raw_line: str, *, line_number: int = 0) -> ValidationRes
                 continue
 
             # Type-specific checks.
-            _validate_content_block(
-                block, btype, idx, line_number, errors, warnings
-            )
+            _validate_content_block(block, btype, idx, line_number, errors, warnings)
     else:
         errors.append(
             f"Line {line_number}: 'content' must be a string or list, "
@@ -395,9 +393,7 @@ def _validate_content_block(
                 f"Line {line_number}: content[{idx}] (text) missing 'text' field"
             )
         elif not isinstance(block["text"], str):
-            errors.append(
-                f"Line {line_number}: content[{idx}] 'text' must be a string"
-            )
+            errors.append(f"Line {line_number}: content[{idx}] 'text' must be a string")
     elif btype == "thinking":
         # Thinking blocks may carry an empty string (v2.1.72+), so we
         # only require the key to exist.
@@ -539,14 +535,14 @@ def validate_session(
     unmatched_results = tool_result_ids - tool_use_ids
     if unmatched_results:
         errors.append(
-            f"tool_result references non-existent tool_use ids: "
+            "tool_result references non-existent tool_use ids: "
             + ", ".join(sorted(unmatched_results))
         )
 
     orphaned_uses = tool_use_ids - tool_result_ids
     if orphaned_uses:
         warnings.append(
-            f"tool_use blocks without matching tool_result: "
+            "tool_use blocks without matching tool_result: "
             + ", ".join(sorted(orphaned_uses))
         )
 
@@ -729,7 +725,6 @@ def assess_completeness(
 
     # Gather message-level data in order.
     last_assistant_msg: dict[str, Any] | None = None
-    last_entry_type: str = ""
     tool_use_ids: set[str] = set()
     tool_result_ids: set[str] = set()
 
@@ -748,7 +743,6 @@ def assess_completeness(
         role = message.get("role", "")
         if role == "assistant":
             last_assistant_msg = message
-            last_entry_type = entry_type
 
         content = message.get("content")
         if isinstance(content, list):

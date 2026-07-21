@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import json
 import logging
-import math
 import re
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -31,7 +30,6 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-import numpy as np
 
 __all__ = [
     "BudgetRecommendation",
@@ -121,30 +119,62 @@ class HistoryEntry:
 
 
 _MULTI_FILE_CUES = (
-    "refactor", "rename across", "update all", "find and replace",
-    "migration", "across the codebase", "every file",
+    "refactor",
+    "rename across",
+    "update all",
+    "find and replace",
+    "migration",
+    "across the codebase",
+    "every file",
 )
 
 _ARCHITECTURE_CUES = (
-    "architect", "design", "system", "infrastructure",
-    "microservice", "database schema", "api design",
-    "scalab", "distributed",
+    "architect",
+    "design",
+    "system",
+    "infrastructure",
+    "microservice",
+    "database schema",
+    "api design",
+    "scalab",
+    "distributed",
 )
 
 _SIMPLE_CUES = (
-    "fix typo", "rename", "add comment", "update readme",
-    "change color", "update version", "bump", "lint",
-    "format", "simple", "quick", "trivial",
+    "fix typo",
+    "rename",
+    "add comment",
+    "update readme",
+    "change color",
+    "update version",
+    "bump",
+    "lint",
+    "format",
+    "simple",
+    "quick",
+    "trivial",
 )
 
 _BUG_CUES = (
-    "bug", "fix", "broken", "error", "crash", "fail",
-    "doesn't work", "not working", "regression",
+    "bug",
+    "fix",
+    "broken",
+    "error",
+    "crash",
+    "fail",
+    "doesn't work",
+    "not working",
+    "regression",
 )
 
 _FEATURE_CUES = (
-    "implement", "add feature", "build", "create",
-    "new endpoint", "new component", "integrate",
+    "implement",
+    "add feature",
+    "build",
+    "create",
+    "new endpoint",
+    "new component",
+    "integrate",
 )
 
 
@@ -182,7 +212,9 @@ class ComplexityEstimator:
             "question_count": float(question_marks),
         }
 
-    def estimate(self, intent_text: str) -> tuple[ComplexityTier, float, dict[str, float]]:
+    def estimate(
+        self, intent_text: str
+    ) -> tuple[ComplexityTier, float, dict[str, float]]:
         """Classify complexity and return (tier, confidence, features)."""
         features = self.extract_features(intent_text)
 
@@ -247,7 +279,9 @@ _TIER_TO_TOTAL_ESTIMATE: dict[ComplexityTier, int] = {
 }
 
 
-def estimate_complexity(intent_text: str) -> tuple[ComplexityTier, float, dict[str, float]]:
+def estimate_complexity(
+    intent_text: str,
+) -> tuple[ComplexityTier, float, dict[str, float]]:
     """Convenience wrapper around ComplexityEstimator."""
     return ComplexityEstimator().estimate(intent_text)
 
@@ -376,9 +410,7 @@ class HistoricalBudgetAnalyzer:
 
     def get_adjustment(self, complexity: ComplexityTier) -> BudgetAdjustment:
         """Compute adjustment factors for a complexity tier."""
-        tier_entries = [
-            e for e in self._entries if e.complexity == complexity.value
-        ]
+        tier_entries = [e for e in self._entries if e.complexity == complexity.value]
 
         if len(tier_entries) < 5:
             return BudgetAdjustment(
@@ -391,7 +423,9 @@ class HistoricalBudgetAnalyzer:
         default_thinking = _TIER_TO_THINKING[complexity]
         default_total = _TIER_TO_TOTAL_ESTIMATE[complexity]
 
-        avg_thinking = sum(e.actual_thinking_tokens for e in tier_entries) / len(tier_entries)
+        avg_thinking = sum(e.actual_thinking_tokens for e in tier_entries) / len(
+            tier_entries
+        )
         avg_total = sum(e.actual_total_tokens for e in tier_entries) / len(tier_entries)
         avg_ter = sum(e.actual_ter for e in tier_entries) / len(tier_entries)
 

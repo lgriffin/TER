@@ -1,0 +1,311 @@
+{
+  "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 827,
+  "aligned_tokens": 827,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5571,
+    "token_weighted_confidence": 0.544,
+    "low_confidence_tokens": 827,
+    "low_confidence_share": 1.0,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 7,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.3705558180809021,
+      "tokens": 48,
+      "text": "Let me verify the claim about Octokit's conditional utility types. I need to check if `GetResponseTypeFromEndpointMethod` and `GetResponseDataTypeFromEndpointMethod` actually exist in the Octokit types.ts repository and work as described.",
+      "source_message_uuid": "e03f148a-6a68-4e3c-a710-69e7855f8287",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3706,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.24149037897586823,
+      "tokens": 21,
+      "text": "WebSearch {\"query\":\"Octokit types.ts GetResponseTypeFromEndpointMethod GetResponseDataTypeFromEndpointMethod\"}",
+      "source_message_uuid": "e03f148a-6a68-4e3c-a710-69e7855f8287",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.2415,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2333204597234726,
+      "tokens": 30,
+      "text": "WebSearch {\"query\":\"octokit/types.ts \\\"GetResponseTypeFromEndpointMethod\\\" OR \\\"GetResponseDataTypeFromEndpointMethod\\\" site:github.com\"}",
+      "source_message_uuid": "e03f148a-6a68-4e3c-a710-69e7855f8287",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2333,
+          "repetition_score": 0.6371,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8942,
+          "lexical_similarity": 0.4444,
+          "entity_similarity": 0.4,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "WebSearch {\"query\":\"Octokit types.ts GetResponseTypeFromEndpointMethod GetResponseDataTypeFromEndpointMethod\"}"
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.35662147402763367,
+      "tokens": 62,
+      "text": "WebFetch {\"url\":\"https://github.com/octokit/types.ts/blob/main/src/GetResponseTypeFromEndpointMethod.ts\",\"prompt\":\"Show me the exact source code of GetResponseTypeFromEndpointMethod.ts - the type definitions, including Unwrap, GetResponseTypeFromEndpointMethod, and GetResponseDataTypeFromEndpointMethod\"}",
+      "source_message_uuid": "363b7256-1568-432e-8b56-f65704fb87d0",
+      "source_lines": [
+        8
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3566,
+          "repetition_score": 0.0461,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6326,
+          "lexical_similarity": 0.087,
+          "entity_similarity": 0.0952,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "WebSearch {\"query\":\"Octokit types.ts GetResponseTypeFromEndpointMethod GetResponseDataTypeFromEndpointMethod\"}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.4898752272129059,
+      "tokens": 161,
+      "text": "Now I have the actual source code. Let me verify the claim against what I found:\n\nThe claim states:\n1. \"Octokit provides conditional utility types (GetResponseTypeFromEndpointMethod, GetResponseDataTypeFromEndpointMethod)\" - TRUE, confirmed by the source code\n2. \"that use TypeScript's infer keyword and ReturnType to extract response types directly from endpoint method signatures\" - TRUE, the code uses `infer` in the `Unwrap` type and `ReturnType<T>`\n3. \"enabling type-safe response handling without manual type annotations\" - TRUE, this is the purpose of these utility types\n4. The supporting quote about how `Unwrap` strips away Promise wrappers and `GetResponseTypeFromEndpointMethod` applies `ReturnType` matches the actual implementation exactly, so the claim is accurate.",
+      "source_message_uuid": "ad8fb43a-9403-4d54-8b27-ca5f188528a1",
+      "source_lines": [
+        10
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4899,
+          "repetition_score": 0.534,
+          "confidence": 0.5,
+          "semantic_similarity": 0.8077,
+          "lexical_similarity": 0.1839,
+          "entity_similarity": 0.1765,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.8235
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "Let me verify the claim about Octokit's conditional utility types. I need to check if `GetResponseTypeFromEndpointMethod` and `GetResponseDataTypeFromEndpointMethod` actually exist in the Octokit types.ts repository and work as described."
+      }
+    },
+    {
+      "position": 5,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.47348636388778687,
+      "tokens": 254,
+      "text": "I have now verified the claim against the actual source code in the Octokit repository. Let me assess each checklist item.\n\n**1. Is the claim supported by the quote?**\nThe supporting quote matches the actual source code almost verbatim. The real source code is:\n```typescript\ntype Unwrap<T> = T extends Promise<infer U> ? U : T;\ntype AnyFunction = (...args: any[]) => any;\nexport type GetResponseTypeFromEndpointMethod<T extends AnyFunction> = Unwrap<ReturnType<T>>;\nexport type GetResponseDataTypeFromEndpointMethod<T extends AnyFunction> = Unwrap<ReturnType<T>>[\"data\"];\n```\nThis exactly matches what the claim and quote describe.\n\n**2. Contradicting evidence?** None found. Multiple sources (npm documentation, Electron Forge migration, GitHub issues) all confirm these types exist and are used as described.\n\n**3. Source quality?** The source is the actual GitHub repository -- a primary source. The code was directly verified.\n\n**4. Currency?** The types are still present in the `main` branch and the package has 27M+ weekly downloads, indicating active use.\n\n**5. Marketing claim?** No, this is a factual description of actual source code.",
+      "source_message_uuid": "ad8fb43a-9403-4d54-8b27-ca5f188528a1",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4735,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.44200828671455383,
+      "tokens": 251,
+      "text": "StructuredOutput {\"refuted\":false,\"evidence\":\"Verified against actual source code at https://github.com/octokit/types.ts/blob/main/src/GetResponseTypeFromEndpointMethod.ts. The file contains exactly: `type Unwrap<T> = T extends Promise<infer U> ? U : T;` and `export type GetResponseTypeFromEndpointMethod<T extends AnyFunction> = Unwrap<ReturnType<T>>;` and `export type GetResponseDataTypeFromEndpointMethod<T extends AnyFunction> = Unwrap<ReturnType<T>>[\\\"data\\\"];`. This confirms: (1) both named utility types exist, (2) they use `infer` in the `Unwrap` conditional type and `ReturnType` built-in, (3) they extract response types from endpoint method signatures. Real-world usage is confirmed by the official README examples, the Electron Forge project migration (commit 600f4618), and multiple GitHub issues (e.g., #40, #338, #544) discussing these types. The package has 27M+ weekly npm downloads, confirming active production use.\",\"confidence\":\"high\",\"counterSource\":\"No contradicting sources found. All evidence from the primary repository, npm registry, and downstream consumers confirms the claim.\"}",
+      "source_message_uuid": "ad8fb43a-9403-4d54-8b27-ca5f188528a1",
+      "source_lines": [
+        12
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.442,
+          "repetition_score": 0.0382,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5202,
+          "lexical_similarity": 0.0714,
+          "entity_similarity": 0.0968,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "WebFetch {\"url\":\"https://github.com/octokit/types.ts/blob/main/src/GetResponseTypeFromEndpointMethod.ts\",\"prompt\":\"Show me the exact source code of GetResponseTypeFromEndpointMethod.ts - the type definitions, including Unwrap, GetResponseTy"
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 5,
+    "total_output_tokens": 163,
+    "total_cache_creation_tokens": 6912,
+    "total_cache_read_tokens": 57204,
+    "input_output_ratio": 0.03,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.0455,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 2,
+      "mid_span_count": 2,
+      "late_span_count": 3
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        15581,
+        19564,
+        22064
+      ],
+      "growth_rate": 1.42,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 625,
+      "user_result_tokens": 1938,
+      "model_reasoning_tokens": 209,
+      "model_tool_tokens": 364,
+      "model_generation_tokens": 254,
+      "total_user_tokens": 2563,
+      "total_model_tokens": 827,
+      "user_ratio": 0.756
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.4735,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "## Adversarial Claim Verifier (voter 3/3)\n\nBe SKEPTICAL. Try to REFUTE this claim. \u22652/3 refutations kill it.\n\n## Research question\nWhat TypeScript static analysis, type-level safety, and compile-time protection mechanisms should an OpenAPI SDK wrapper use? Research the state of the art in 2025-2026 for: (1) Type-safe API client patterns - branded types, phantom types, tagged unions for API responses, template literal types for URL path construction, conditional types for auth-gated endpoints; (2) OpenAPI-to-TypeScript code generation best practices - openapi-typescript, openapi-fetch, zodios, fets, feTS, ts-rest, orval, hey-api; (3) Static analysis beyond ESLint - TypeScript compiler plugins, ts-morph for custom checks, API surface linting with api-extractor, knip for dead exports; (4) Zod and runtime validation integration with static types - zod inference, ensuring schema-type alignment at compile time; (5) Type-level testing approaches - tsd, expect-type, @type-challenges patterns; (6) Contract testing at the type level - ensuring SDK types match OpenAPI spec at build time; (7) Dependency injection and configuration type safety patterns; (8) Error handling type safety - discriminated unions, Result/Either patterns, typed error codes. Focus on what leading TypeScript SDK projects (Stripe SDK, Octokit, AWS SDK v3, Cloudflare Workers types) do for compile-time safety.\n\n## Claim under review\n\"Octokit provides conditional utility types (GetResponseTypeFromEndpointMethod, GetResponseDataTypeFromEndpointMethod) that use TypeScript's infer keyword and ReturnType to extract response types directly from endpoint method signatures, enabling type-safe response handling without manual type annotations.\"\n\n**Source:** https://github.com/octokit/types.ts (primary)\n**Supporting quote:** \"type Unwrap<T> = T extends Promise<infer U> ? U : T; ... GetResponseTypeFromEndpointMethod<T> \u2014 Takes a function type T (constrained to AnyFunction), applies ReturnType<T> to get whatever the function returns, then passes that through Unwrap to strip away any Promise wrapper.\"\n\n## Checklist\n1. Is the claim actually supported by the quote, or is it an overreach/misread?\n2. WebSearch for contradicting evidence \u2014 does any credible source dispute or heavily qualify this?\n3. Is the source quality sufficient for the claim's strength? (extraordinary claims need primary sources)\n4. Is the claim outdated? (check dates \u2014 old claims about fast-moving fields are suspect)\n5. Is this a marketing claim / press release / cherry-picked benchmark / forum speculation?\n\n**refuted=true** if: unsupported by quote / contradicted / low-quality source for strong claim / outdated / marketing fluff.\n**refuted=false** ONLY if: claim is well-supported, current, and source quality matches claim strength.\nDefault to refuted=true if uncertain.\n\nStructured output only. Evidence MUST be specific.",
+          "response_text": "I have now verified the claim against the actual source code in the Octokit repository. Let me assess each checklist item.\n\n**1. Is the claim supported by the quote?**\nThe supporting quote matches the actual source code almost verbatim. The real source code is:\n```typescript\ntype Unwrap<T> = T extends Promise<infer U> ? U : T;\ntype AnyFunction = (...args: any[]) => any;\nexport type GetResponseTypeFromEndpointMethod<T extends AnyFunction> = Unwrap<ReturnType<T>>;\nexport type GetResponseDataTypeFromEndpointMethod<T extends AnyFunction> = Unwrap<ReturnType<T>>[\"data\"];\n```\nThis exactly matches what the claim and quote describe.\n\n**2. Contradicting evidence?** None found. Multiple sources (npm documentation, Electron Forge migration, GitHub issues) all confirm these types exist and are used as described.\n\n**3. Source quality?** The source is the actual GitHub repository -- a primary source. The code was directly verified.\n\n**4. Currency?** The types are still present in the `main` branch and the package has 27M+ weekly downloads, indicating active use.\n\n**5. Marketing claim?** No, this is a factual description of actual source code.",
+          "alignment": 0.4735
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+    "source_file": "data/D--code-ESI-ts__agent-a4eb55a0f80efcfeb.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "session_id": "788a8587-7975-48be-9e4c-44ec1f238d7a",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 1830,
+  "aligned_tokens": 1830,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6788,
+    "token_weighted_confidence": 0.5154,
+    "low_confidence_tokens": 1751,
+    "low_confidence_share": 0.9568,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 2,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.8576571345329285,
+      "intent_similarity": 0.8576571345329285,
+      "tokens": 79,
+      "text": "The user wants me to generate a technical implementation document for a Red Hat patent invention. Let me carefully craft this following the writing style guidelines (no em dashes, no en dashes, natural engineering tone) and the output format specified.\n\nThe invention is about an autonomous optimization engine that continuously discovers, evaluates, and evolves the complete software stack underpinning an AI agent.\n\nLet me write this up.",
+      "source_message_uuid": "42a62dd3-c51c-401a-8351-5ef65d897929",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.8577,
+          "repetition_score": 0.0,
+          "confidence": 0.8577
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.4076274335384369,
+      "tokens": 1751,
+      "text": "## Novel Step\n\nExisting AI agent platforms treat the underlying stack (model provider, prompt templates, tool integrations, runtime configuration) as a set of static choices made at design time and updated only through manual engineering effort. The proposed system introduces an autonomous optimization loop that continuously discovers newly available stack components, assembles them into candidate configurations, evaluates those candidates against organization-specific multi-objective benchmarks, and promotes superior stacks through a policy engine while maintaining full provenance and rollback capability. This closes the gap between the rapid pace of AI ecosystem evolution and the slow, manual process of adopting improvements, turning stack management from a periodic engineering project into a continuously self-improving control system.\n\n## How It Works\n\nThe system is anchored by a **Component Discovery Service** that periodically polls external registries, internal artifact repositories, and vendor APIs to detect newly available models, tool connectors, prompt libraries, and runtime versions. Each discovered component is normalized into a standardized descriptor that captures its interface contract, resource requirements, licensing constraints, and compatibility metadata. The discovery service publishes these descriptors to a **Component Catalog**, which acts as the system's single source of truth for all available building blocks. Staleness detection runs on a configurable cadence so that deprecated or withdrawn components are flagged and excluded from future candidate generation.\n\nA **Stack Assembler** consumes the catalog and produces candidate execution stacks by combining components according to compatibility rules encoded in a constraint solver. Rather than evaluating every possible permutation, the assembler uses a guided search strategy informed by historical performance data and organizational policy hints. For example, if an organization has expressed a preference for open-weight models or has cost ceilings on inference spending, the assembler prunes the search space before generating candidates. Each candidate stack is expressed as an immutable manifest that pins every component version, configuration parameter, and dependency, making it fully reproducible.\n\nCandidate stacks are handed to an **Evaluation Orchestrator** that provisions isolated execution environments and runs them against a benchmark suite defined by the organization. The benchmark suite is itself a versioned artifact, containing representative tasks, golden-answer datasets, latency budgets, and cost accounting rules. The orchestrator collects metrics across multiple objectives: task accuracy, end-to-end latency, token consumption, infrastructure cost, and any custom signals the organization defines such as compliance audit pass rates or fairness scores. All evaluation results are stored in a **Performance Ledger**, an append-only data store that preserves the complete history of every candidate evaluation along with the benchmark version used, ensuring that comparisons remain valid even as benchmarks evolve.\n\nA **Policy Engine** sits atop the performance ledger and makes promotion decisions. Operators author policies as declarative rules, for example \"promote a candidate only if it improves accuracy by at least two percent without increasing p99 latency beyond 300 milliseconds.\" The policy engine supports multi-objective Pareto analysis so that trade-offs between competing metrics are surfaced explicitly rather than collapsed into a single score. When a candidate satisfies the promotion criteria, the policy engine initiates a staged rollout through a **Deployment Controller** that shifts traffic gradually, monitors live signals, and automatically rolls back if regression thresholds are breached. The deployment controller integrates with the organization's existing service mesh or gateway infrastructure so that the optimization loop operates within established operational boundaries rather than bypassing them.\n\nThroughout the entire lifecycle, a **Provenance Tracker** records every decision: why a candidate was assembled, which benchmark version evaluated it, what policy rule promoted it, and what deployment strategy was used. This provenance chain is cryptographically signed and immutable, giving operators a complete audit trail from any production stack configuration back to the raw discovery event that introduced its components. The provenance tracker also powers the rollback mechanism; because every prior stack manifest and its evaluation data are preserved, the system can revert to any previously validated configuration within seconds rather than requiring a manual rebuild.\n\n## Enablement Example\n\n```yaml\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: stack-optimizer-config\n  namespace: ai-platform\ndata:\n  discovery.yaml: |\n    sources:\n      - type: huggingface-hub\n        poll_interval: 6h\n        filters:\n          task: text-generation\n          min_downloads: 10000\n      - type: internal-registry\n        endpoint: https://models.internal.corp/v2\n        poll_interval: 1h\n      - type: tool-catalog\n        endpoint: https://tools.internal.corp/v1\n        poll_interval: 12h\n    staleness_threshold: 30d\n\n  assembly.yaml: |\n    constraints:\n      max_candidates_per_cycle: 20\n      compatibility_mode: strict\n    policy_hints:\n      prefer_open_weights: true\n      max_monthly_inference_cost_usd: 5000\n      excluded_licenses:\n        - SSPL\n        - BSL\n\n  benchmarks.yaml: |\n    suite_version: \"3.1\"\n    tasks:\n      - name: contract-extraction\n        dataset: s3://benchmarks/contract-extraction-v3\n        metrics:\n          - accuracy\n          - f1_score\n        golden_answers: s3://benchmarks/contract-extraction-golden-v3\n      - name: summarization-latency\n        dataset: s3://benchmarks/summarization-stress\n        metrics:\n          - p50_latency_ms\n          - p99_latency_ms\n          - tokens_consumed\n    cost_accounting:\n      provider_rate_card: s3://config/provider-rates-current.json\n\n  policy.yaml: |\n    promotion_rules:\n      - name: accuracy-gate\n        condition: \"candidate.accuracy >= current.accuracy * 1.02\"\n      - name: latency-ceiling\n        condition: \"candidate.p99_latency_ms <= 300\"\n      - name: cost-cap\n        condition: \"candidate.monthly_cost_usd <= 5000\"\n    rollout:\n      strategy: canary\n      initial_traffic_pct: 5\n      step_increase_pct: 15\n      observation_window: 30m\n      rollback_trigger:\n        error_rate_threshold: 0.02\n        latency_regression_pct: 20\n\n  provenance.yaml: |\n    storage:\n      backend: s3\n      bucket: stack-provenance-audit\n      signing_key_ref: vault://keys/provenance-signer\n    retention_days: 730\n    immutable: true\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: stack-optimizer-controller\n  namespace: ai-platform\nspec:\n  replicas: 1\n  selector:\n    matchLabels:\n      app: stack-optimizer\n  template:\n    metadata:\n      labels:\n        app: stack-optimizer\n    spec:\n      serviceAccountName: stack-optimizer-sa\n      containers:\n        - name: controller\n          image: registry.internal.corp/ai-platform/stack-optimizer:0.9.2\n          volumeMounts:\n            - name: config\n              mountPath: /etc/stack-optimizer\n          env:\n            - name: LEDGER_DSN\n              valueFrom:\n                secretKeyRef:\n                  name: stack-optimizer-secrets\n                  key: ledger-dsn\n            - name: VAULT_ADDR\n              value: \"https://vault.internal.corp\"\n      volumes:\n        - name: config\n          configMap:\n            name: stack-optimizer-config\n```\n\nThe ConfigMap bundles the five configuration surfaces that drive the optimization loop. The `discovery.yaml` section tells the Component Discovery Service where to look for new models, tools, and runtimes, how frequently to poll each source, and when to consider a component stale. The `assembly.yaml` section constrains the Stack Assembler's search space by capping the number of candidates per cycle, enforcing license exclusions, and expressing organizational preferences such as favoring open-weight models. The `benchmarks.yaml` section defines the evaluation suite, pointing the Evaluation Orchestrator at versioned datasets and golden answers stored in object storage alongside the provider rate card used for cost accounting. The `policy.yaml` section encodes the promotion rules and canary rollout parameters that the Policy Engine and Deployment Controller follow, including the regression thresholds that trigger automatic rollback. Finally, `provenance.yaml` configures the Provenance Tracker's append-only storage backend and cryptographic signing key. The Deployment manifest runs the controller as a single replica with access to the config volume and the performance ledger database, allowing the entire optimization loop to operate as a standard Kubernetes workload integrated with the organization's existing secrets management and storage infrastructure.",
+      "source_message_uuid": "42a62dd3-c51c-401a-8351-5ef65d897929",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4076,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 3,
+    "total_output_tokens": 2084,
+    "total_cache_creation_tokens": 779,
+    "total_cache_read_tokens": 6263,
+    "input_output_ratio": 0.0,
+    "cache_hit_rate": 0.9995,
+    "estimated_cost_usd": 0.0361,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 0
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        6266
+      ],
+      "growth_rate": 1.0,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 409,
+      "user_result_tokens": 0,
+      "model_reasoning_tokens": 79,
+      "model_tool_tokens": 0,
+      "model_generation_tokens": 1751,
+      "total_user_tokens": 409,
+      "total_model_tokens": 1830,
+      "user_ratio": 0.1827
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.4076,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "TASK: Generate Technical Implementation for a Red Hat patent.\r\n\r\nWRITING STYLE: Write naturally like a human engineer. Do NOT use em dashes or en dashes. Use commas, semicolons, colons, or separate sentences instead. Avoid hyphenated compound modifiers unless they are established technical terms. Never use the long dash character.\r\n\r\nINVENTION:\r\n---\r\ninvention-id: invention-20260716-153029\r\ncompany: RedHat\r\ncreated: 2026-07-16T15:30:42\r\n---\r\n\r\n# Invention Idea\r\n\r\nWe propose an autonomous optimization engine that continuously discovers, evaluates, and evolves the complete software stack underpinning an AI agent rather than treating models, prompts, tools, and runtimes as static infrastructure. The system periodically identifies newly available components, automatically assembles compatible execution stacks, evaluates them against organization-specific benchmarks, and compares their performance across multiple objectives such as accuracy, latency, token consumption, and cost. Based on these evaluations, a policy engine promotes superior configurations while maintaining complete provenance explaining every architectural decision and enabling rapid rollback if regressions occur. This creates a self-improving agent platform capable of continuously adapting to the rapidly evolving AI ecosystem without requiring manual engineering intervention.\r\n\r\n\r\nOUTPUT FORMAT:\r\n\r\n## Novel Step\r\n[2-3 sentences describing what is new and why it matters technically]\r\n\r\n## How It Works\r\n[Write a flowing narrative (3-5 paragraphs) that explains the system architecture end to end. Introduce the key components naturally as you describe how the system operates, rather than listing them as separate bullet points. Cover the data and control flow within the narrative instead of as a separate numbered list. The reader should come away understanding what the components are, how they interact, and what happens at each stage of processing.]\r\n\r\n## Enablement Example\r\n```yaml\r\n# Kubernetes config\r\napiVersion: v1\r\nkind: ConfigMap\r\nmetadata:\r\n  name: example\r\n```\r\n\r\n[Explain what the configuration does and how it ties into the architecture above]",
+          "response_text": "## Novel Step\n\nExisting AI agent platforms treat the underlying stack (model provider, prompt templates, tool integrations, runtime configuration) as a set of static choices made at design time and updated only through manual engineering effort. The proposed system introduces an autonomous optimization loop that continuously discovers newly available stack components, assembles them into candidate configurations, evaluates those candidates against organization-specific multi-objective benchmarks, and promotes superior stacks through a policy engine while maintaining full provenance and rollback capability. This closes the gap between the rapid pace of AI ecosystem evolution and the slow, manual process of adopting improvements, turning stack management from a periodic engineering project into a continuously self-improving control system.\n\n## How It Works\n\nThe system is anchored by a **Component Discovery Service** that periodically polls external registries, internal artifact repositories, and vendor APIs to detect newly available models, tool connectors, prompt libraries, and runtime versions. Each discovered component is normalized into a standardized descriptor that captures its interface contract, resource requirements, licensing constraints, and compatibility metadata. The discovery service publishes these descriptors to a **Component Catalog**, which acts as the system's single source of truth for all available building blocks. Staleness detection runs on a configurable cadence so that deprecated or withdrawn components are flagged and excluded from future candidate generation.\n\nA **Stack Assembler** consumes the catalog and produces candidate execution stacks by combining components according to compatibility rules encoded in a constraint solver. Rather than evaluating every possible permutation, the assembler uses a guided search strategy informed by historical performance data and organizational policy hints. For example, if an organization has expressed a preference for open-weight models or has cost ceilings on inference spending, the assembler prunes the search space before generating candidates. Each candidate stack is expressed as an immutable manifest that pins every component version, configuration parameter, and dependency, making it fully reproducible.\n\nCandidate stacks are handed to an **Evaluation Orchestrator** that provisions isolated execution environments and runs them against a benchmark suite defined by the organization. The benchmark suite is itself a versioned artifact, containing representative tasks, golden-answer datasets, latency budgets, and cost accounting rules. The orchestrator collects metrics across multiple objectives: task accuracy, end-to-end latency, token consumption, infrastructure cost, and any custom signals the organization defines such as compliance audit pass rates or fairness scores. All evaluation results are stored in a **Performance Ledger**, an append-only data store that preserves the complete history of every candidate evaluation along with the benchmark version used, ensuring that comparisons remain valid even as benchmarks evolve.\n\nA **Policy Engine** sits atop the performance ledger and makes promotion decisions. Operators author policies as declarative rules, for example \"promote a candidate only if it improves accuracy by at least two percent without increasing p99 latency beyond 300 milliseconds.\" The policy engine supports multi-objective Pareto analysis so that trade-offs between competing metrics are surfaced explicitly rather than collapsed into a single score. When a candidate satisfies the promotion criteria, the policy engine initiates a staged rollout through a **Deployment Controller** that shifts traffic gradually, monitors live signals, and automatically rolls back if regression thresholds are breached. The deployment controller integrates with the organization's existing service mesh or gateway infrastructure so that the optimization loop operates within established operational boundaries rather than bypassing them.\n\nThroughout the entire lifecycle, a **Provenance Tracker** records every decision: why a candidate was assembled, which benchmark version evaluated it, what policy rule promoted it, and what deployment strategy was used. This provenance chain is cryptographically signed and immutable, giving operators a complete audit trail from any production stack configuration back to the raw discovery event that introduced its components. The provenance tracker also powers the rollback mechanism; because every prior stack manifest and its evaluation data are preserved, the system can revert to any previously validated configuration within seconds rather than requiring a manual rebuild.\n\n## Enablement Example\n\n```yaml\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: stack-optimizer-config\n  namespace: ai-platform\ndata:\n  discovery.yaml: |\n    sources:\n      - type: huggingface-hub\n        poll_interval: 6h\n        filters:\n          task: text-generation\n          min_downloads: 10000\n      - type: internal-registry\n        endpoint: https://models.internal.corp/v2\n        poll_interval: 1h\n      - type: tool-catalog\n        endpoint: https://tools.internal.corp/v1\n        poll_interval: 12h\n    staleness_threshold: 30d\n\n  assembly.yaml: |\n    constraints:\n      max_candidates_per_cycle: 20\n      compatibility_mode: strict\n    policy_hints:\n      prefer_open_weights: true\n      max_monthly_inference_cost_usd: 5000\n      excluded_licenses:\n        - SSPL\n        - BSL\n\n  benchmarks.yaml: |\n    suite_version: \"3.1\"\n    tasks:\n      - name: contract-extraction\n        dataset: s3://benchmarks/contract-extraction-v3\n        metrics:\n          - accuracy\n          - f1_score\n        golden_answers: s3://benchmarks/contract-extraction-golden-v3\n      - name: summarization-latency\n        dataset: s3://benchmarks/summarization-stress\n        metrics:\n          - p50_latency_ms\n          - p99_latency_ms\n          - tokens_consumed\n    cost_accounting:\n      provider_rate_card: s3://config/provider-rates-current.json\n\n  policy.yaml: |\n    promotion_rules:\n      - name: accuracy-gate\n        condition: \"candidate.accuracy >= current.accuracy * 1.02\"\n      - name: latency-ceiling\n        condition: \"candidate.p99_latency_ms <= 300\"\n      - name: cost-cap\n        condition: \"candidate.monthly_cost_usd <= 5000\"\n    rollout:\n      strategy: canary\n      initial_traffic_pct: 5\n      step_increase_pct: 15\n      observation_window: 30m\n      rollback_trigger:\n        error_rate_threshold: 0.02\n        latency_regression_pct: 20\n\n  provenance.yaml: |\n    storage:\n      backend: s3\n      bucket: stack-provenance-audit\n      signing_key_ref: vault://keys/provenance-signer\n    retention_days: 730\n    immutable: true\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: stack-optimizer-controller\n  namespace: ai-platform\nspec:\n  replicas: 1\n  selector:\n    matchLabels:\n      app: stack-optimizer\n  template:\n    metadata:\n      labels:\n        app: stack-optimizer\n    spec:\n      serviceAccountName: stack-optimizer-sa\n      containers:\n        - name: controller\n          image: registry.internal.corp/ai-platform/stack-optimizer:0.9.2\n          volumeMounts:\n            - name: config\n              mountPath: /etc/stack-optimizer\n          env:\n            - name: LEDGER_DSN\n              valueFrom:\n                secretKeyRef:\n                  name: stack-optimizer-secrets\n                  key: ledger-dsn\n            - name: VAULT_ADDR\n              value: \"https://vault.internal.corp\"\n      volumes:\n        - name: config\n          configMap:\n            name: stack-optimizer-config\n```\n\nThe ConfigMap bundles the five configuration surfaces that drive the optimization loop. The `discovery.yaml` section tells the Component Discovery Service where to look for new models, tools, and runtimes, how frequently to poll each source, and when to consider a component stale. The `assembly.yaml` section constrains the Stack Assembler's search space by capping the number of candidates per cycle, enforcing license exclusions, and expressing organizational preferences such as favoring open-weight models. The `benchmarks.yaml` section defines the evaluation suite, pointing the Evaluation Orchestrator at versioned datasets and golden answers stored in object storage alongside the provider rate card used for cost accounting. The `policy.yaml` section encodes the promotion rules and canary rollout parameters that the Policy Engine and Deployment Controller follow, including the regression thresholds that trigger automatic rollback. Finally, `provenance.yaml` configures the Provenance Tracker's append-only storage backend and cryptographic signing key. The Deployment manifest runs the controller as a single replica with access to the config volume and the performance ledger database, allowing the entire optimization loop to operate as a standard Kubernetes workload integrated with the organization's existing secrets management and storage infrastructure.",
+          "alignment": 0.4076
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "788a8587-7975-48be-9e4c-44ec1f238d7a",
+    "source_file": "data/D--Patents-Automation__788a8587-7975-48be-9e4c-44ec1f238d7a.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

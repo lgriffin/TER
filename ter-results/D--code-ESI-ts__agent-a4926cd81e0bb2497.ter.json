@@ -1,0 +1,466 @@
+{
+  "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 1025,
+  "aligned_tokens": 1025,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5925,
+    "token_weighted_confidence": 0.5994,
+    "low_confidence_tokens": 1025,
+    "low_confidence_share": 1.0,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 11,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "waste_patterns": [
+    {
+      "type": "bash_antipattern",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 4,
+      "tokens_wasted": 1299,
+      "description": "4 Bash calls should use dedicated tools (1,299 tokens)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.6172447800636292,
+      "intent_similarity": 0.6172447800636292,
+      "tokens": 23,
+      "text": "Let me fetch the content from the ts-morph GitHub repository to extract relevant claims about TypeScript static analysis tooling.",
+      "source_message_uuid": "9cf5024a-60ab-4edb-8dd0-18cad6cfff75",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6172,
+          "repetition_score": 0.0,
+          "confidence": 0.6172
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.45541369915008545,
+      "tokens": 96,
+      "text": "WebFetch {\"url\":\"https://github.com/dsherret/ts-morph\",\"prompt\":\"Extract all key information about ts-morph: what it does, its API, how it wraps the TypeScript compiler API, what static analysis and programmatic code transformation capabilities it provides, any mentions of AST manipulation, type checking, code generation, refactoring, and integration patterns. Include version info, usage examples, and any claims about its advantages over using the raw TypeScript compiler API directly.\"}",
+      "source_message_uuid": "9cf5024a-60ab-4edb-8dd0-18cad6cfff75",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4554,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.49981868267059326,
+      "tokens": 112,
+      "text": "WebFetch {\"url\":\"https://github.com/dsherret/ts-morph/blob/latest/packages/ts-morph/README.md\",\"prompt\":\"Extract all details about ts-morph's capabilities: how it wraps the TypeScript compiler API, what operations it supports (AST navigation, type checking, code manipulation, refactoring), usage examples showing how to analyze or transform TypeScript code programmatically, any claims about advantages over raw compiler API, and any mentions of use cases like custom lint rules, type-level checking, code generation, or static analysis beyond what ESLint provides.\"}",
+      "source_message_uuid": "9108794a-e909-46c4-bf63-81abd413e9ab",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4998,
+          "repetition_score": 0.6747,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9726,
+          "lexical_similarity": 0.4459,
+          "entity_similarity": 0.5224,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "WebFetch {\"url\":\"https://github.com/dsherret/ts-morph\",\"prompt\":\"Extract all key information about ts-morph: what it does, its API, how it wraps the TypeScript compiler API, what static analysis and programmatic code transformation capabili"
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2987785041332245,
+      "tokens": 47,
+      "text": "Bash {\"command\":\"gh api repos/dsherret/ts-morph/readme --jq '.content' | base64 -d 2>/dev/null | head -200\",\"description\":\"Fetch ts-morph README via GitHub API\"}",
+      "source_message_uuid": "1b3003d1-1fb6-48ad-9f52-b22a6f28095c",
+      "source_lines": [
+        8
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2988,
+          "repetition_score": 0.0369,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5306,
+          "lexical_similarity": 0.027,
+          "entity_similarity": 0.0303,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "WebFetch {\"url\":\"https://github.com/dsherret/ts-morph/blob/latest/packages/ts-morph/README.md\",\"prompt\":\"Extract all details about ts-morph's capabilities: how it wraps the TypeScript compiler API, what operations it supports (AST navigatio"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4928085505962372,
+      "tokens": 92,
+      "text": "WebFetch {\"url\":\"https://ts-morph.com\",\"prompt\":\"Extract all key information about ts-morph: its capabilities for TypeScript static analysis, AST manipulation, programmatic code changes, type checking, code generation. Look for usage examples, API descriptions, feature lists, and any claims about how it compares to the raw TypeScript compiler API. Also note any use cases relevant to building SDK wrappers, custom static analysis tools, or type-level safety mechanisms.\"}",
+      "source_message_uuid": "1b3003d1-1fb6-48ad-9f52-b22a6f28095c",
+      "source_lines": [
+        10
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4928,
+          "repetition_score": 0.664,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9676,
+          "lexical_similarity": 0.4133,
+          "entity_similarity": 0.4571,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "WebFetch {\"url\":\"https://github.com/dsherret/ts-morph\",\"prompt\":\"Extract all key information about ts-morph: what it does, its API, how it wraps the TypeScript compiler API, what static analysis and programmatic code transformation capabili"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2969806492328644,
+      "tokens": 55,
+      "text": "Bash {\"command\":\"gh api repos/dsherret/ts-morph/contents/packages/ts-morph/README.md --jq '.content' | base64 -d 2>/dev/null | head -300\",\"description\":\"Fetch ts-morph package README via GitHub API\"}",
+      "source_message_uuid": "06b99fe2-278f-46c1-aaeb-a304d082a0c0",
+      "source_lines": [
+        12
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.297,
+          "repetition_score": 0.7319,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9806,
+          "lexical_similarity": 0.7727,
+          "entity_similarity": 0.7222,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/dsherret/ts-morph/readme --jq '.content' | base64 -d 2>/dev/null | head -200\",\"description\":\"Fetch ts-morph README via GitHub API\"}"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.23440635204315186,
+      "tokens": 46,
+      "text": "Bash {\"command\":\"gh api repos/dsherret/ts-morph/contents/packages/ts-morph --jq '.[].name' 2>/dev/null | head -20\",\"description\":\"List ts-morph package directory contents\"}",
+      "source_message_uuid": "90a7e279-21db-4eb6-b964-4adb1e7c5f24",
+      "source_lines": [
+        14
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2344,
+          "repetition_score": 0.6265,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8795,
+          "lexical_similarity": 0.4231,
+          "entity_similarity": 0.3636,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/dsherret/ts-morph/contents/packages/ts-morph/README.md --jq '.content' | base64 -d 2>/dev/null | head -300\",\"description\":\"Fetch ts-morph package README via GitHub API\"}"
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.273088663816452,
+      "tokens": 53,
+      "text": "Bash {\"command\":\"gh api repos/dsherret/ts-morph/contents/packages/ts-morph/readme.md --jq '.content' | base64 -d 2>/dev/null | head -300\",\"description\":\"Fetch ts-morph package readme.md\"}",
+      "source_message_uuid": "97c8ccf0-9476-4b0a-b761-cbe8342f277b",
+      "source_lines": [
+        16
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2731,
+          "repetition_score": 0.7491,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9828,
+          "lexical_similarity": 0.8095,
+          "entity_similarity": 0.875,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/dsherret/ts-morph/contents/packages/ts-morph/README.md --jq '.content' | base64 -d 2>/dev/null | head -300\",\"description\":\"Fetch ts-morph package README via GitHub API\"}"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2394140660762787,
+      "tokens": 79,
+      "text": "Bash {\"command\":\"gh api repos/dsherret/ts-morph --jq '{stars: .stargazers_count, forks: .forks_count, language: .language, license: .license.spdx_id, created: .created_at, updated: .updated_at, pushed: .pushed_at, topics: .topics}'\",\"description\":\"Get ts-morph repo metadata\"}",
+      "source_message_uuid": "821a6e1f-ce7d-4a20-ad83-94dea911c62b",
+      "source_lines": [
+        18
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2394,
+          "repetition_score": 0.5759,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8623,
+          "lexical_similarity": 0.1842,
+          "entity_similarity": 0.1562,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/dsherret/ts-morph/contents/packages/ts-morph/readme.md --jq '.content' | base64 -d 2>/dev/null | head -300\",\"description\":\"Fetch ts-morph package readme.md\"}"
+      }
+    },
+    {
+      "position": 9,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.09419997036457062,
+      "tokens": 10,
+      "text": "Now I have enough information to produce structured output.",
+      "source_message_uuid": "c5dc236a-bb79-4b25-8503-0497ac2a8935",
+      "source_lines": [
+        20
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.0942,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 10,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.42884400486946106,
+      "tokens": 412,
+      "text": "StructuredOutput {\"claims\":[{\"claim\":\"ts-morph wraps the TypeScript Compiler API to simplify AST setup, navigation, and manipulation, providing helper methods on top of compiler objects while allowing fallback to raw compiler API when needed\",\"quote\":\"Wraps the compiler API objects to provide helper methods for getting information and programmatically changing files. Allows falling back to the compiler API objects if necessary (ex. classDeclaration.compilerNode or typeChecker.compilerObject).\",\"importance\":\"central\"},{\"claim\":\"ts-morph keeps all code changes in memory (including file and directory moves) until explicitly saved, enabling transactional-style programmatic code transformations\",\"quote\":\"All changes are kept in memory (including file and directory moves) until specifying to save to the underlying file system.\",\"importance\":\"supporting\"},{\"claim\":\"ts-morph enables programmatic AST navigation and manipulation for TypeScript/JavaScript code with operations like renaming classes, adding interfaces, adding properties, and deleting files through a high-level API\",\"quote\":\"myClass.rename(\\\"NewName\\\"); myClass.addImplements(myInterface.getName()); myClass.addProperty({ name: \\\"myProp\\\", initializer: \\\"5\\\" });\",\"importance\":\"central\"},{\"claim\":\"ts-morph supports wrapping existing TypeScript compiler nodes via createWrappedNode, allowing integration with code that already uses the raw TypeScript compiler API directly\",\"quote\":\"Or navigate existing compiler nodes created with the TypeScript compiler... const classDec = createWrappedNode(classNode) as ClassDeclaration; const firstProperty = classDec.getProperties()[0];\",\"importance\":\"supporting\"},{\"claim\":\"ts-morph is a mature, widely-adopted library with over 6100 GitHub stars, 2344 commits, and 28 major releases (v28.0.0 as of April 2026), covering static analysis, AST manipulation, and code generation use cases\",\"quote\":\"TypeScript Compiler API wrapper. Provides an easier way to programmatically navigate and manipulate TypeScript and JavaScript code.\",\"importance\":\"supporting\"}],\"sourceQuality\":\"primary\",\"publishDate\":\"2026-04-12\"}",
+      "source_message_uuid": "c5dc236a-bb79-4b25-8503-0497ac2a8935",
+      "source_lines": [
+        21
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4288,
+          "repetition_score": 0.0446,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5774,
+          "lexical_similarity": 0.1475,
+          "entity_similarity": 0.1529,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "WebFetch {\"url\":\"https://github.com/dsherret/ts-morph/blob/latest/packages/ts-morph/README.md\",\"prompt\":\"Extract all details about ts-morph's capabilities: how it wraps the TypeScript compiler API, what operations it supports (AST navigatio"
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "bash_antipattern",
+        "tokens_wasted": 1299,
+        "description": "4 Bash calls should use dedicated tools (1,299 tokens)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Bash Anti-Patterns",
+        "tokens": 1299,
+        "percentage": 100.0,
+        "cost_usd": 0.003897,
+        "count": 1,
+        "pricing": "input"
+      }
+    ],
+    "total_tokens": 1299,
+    "total_cost_usd": 0.003897
+  },
+  "economics": {
+    "total_input_tokens": 10,
+    "total_output_tokens": 444,
+    "total_cache_creation_tokens": 7884,
+    "total_cache_read_tokens": 164162,
+    "input_output_ratio": 0.02,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.0855,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 3,
+      "mid_span_count": 3,
+      "late_span_count": 5
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        15648,
+        19453,
+        20245,
+        20499,
+        21518,
+        21663,
+        21864,
+        23282
+      ],
+      "growth_rate": 1.49,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 483,
+      "user_result_tokens": 2356,
+      "model_reasoning_tokens": 23,
+      "model_tool_tokens": 992,
+      "model_generation_tokens": 10,
+      "total_user_tokens": 2839,
+      "total_model_tokens": 1025,
+      "user_ratio": 0.7347
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.0942,
+      "low_alignment_count": 1,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "## Source Extractor\n\nResearch question: \"What TypeScript static analysis, type-level safety, and compile-time protection mechanisms should an OpenAPI SDK wrapper use? Research the state of the art in 2025-2026 for: (1) Type-safe API client patterns - branded types, phantom types, tagged unions for API responses, template literal types for URL path construction, conditional types for auth-gated endpoints; (2) OpenAPI-to-TypeScript code generation best practices - openapi-typescript, openapi-fetch, zodios, fets, feTS, ts-rest, orval, hey-api; (3) Static analysis beyond ESLint - TypeScript compiler plugins, ts-morph for custom checks, API surface linting with api-extractor, knip for dead exports; (4) Zod and runtime validation integration with static types - zod inference, ensuring schema-type alignment at compile time; (5) Type-level testing approaches - tsd, expect-type, @type-challenges patterns; (6) Contract testing at the type level - ensuring SDK types match OpenAPI spec at build time; (7) Dependency injection and configuration type safety patterns; (8) Error handling type safety - discriminated unions, Result/Either patterns, typed error codes. Focus on what leading TypeScript SDK projects (Stripe SDK, Octokit, AWS SDK v3, Cloudflare Workers types) do for compile-time safety.\"\n\nFetch and extract key claims from this source:\n**URL:** https://github.com/dsherret/ts-morph\n**Title:** ts-morph: TypeScript Compiler API wrapper for static analysis and programmatic code changes\n**Found via:** TypeScript static analysis tooling beyond ESLint search\n\n## Task\n1. Use WebFetch to retrieve the page content.\n2. Assess source quality: primary research/institution? secondary reporting? blog/opinion? forum? unreliable?\n3. Extract 2-5 FALSIFIABLE claims that bear on the research question. Each claim must:\n   - be a concrete, checkable statement (not vague generalities)\n   - include a direct quote from the source as support\n   - be rated central/supporting/tangential to the research question\n4. Note publish date if available.\n\nIf the fetch fails or the page is irrelevant/paywalled, return claims: [] and sourceQuality: \"unreliable\".\n\nStructured output only.",
+          "response_text": "Now I have enough information to produce structured output.",
+          "alignment": 0.0942
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+    "source_file": "data/D--code-ESI-ts__agent-a4926cd81e0bb2497.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

@@ -38,7 +38,9 @@ def sample_jsonl_file(tmp_path: Path) -> Path:
             "sessionId": "test-session",
             "message": {
                 "role": "user",
-                "content": [{"type": "text", "text": "Add a login page with email and password"}],
+                "content": [
+                    {"type": "text", "text": "Add a login page with email and password"}
+                ],
             },
         },
         {
@@ -50,8 +52,18 @@ def sample_jsonl_file(tmp_path: Path) -> Path:
                 "requestId": "req-1",
                 "usage": {"input_tokens": 100, "output_tokens": 200},
                 "content": [
-                    {"type": "thinking", "text": "I need to create a login page component with email and password fields."},
-                    {"type": "tool_use", "name": "Write", "input": {"file_path": "/app/login.py", "content": "def login(): pass"}},
+                    {
+                        "type": "thinking",
+                        "text": "I need to create a login page component with email and password fields.",
+                    },
+                    {
+                        "type": "tool_use",
+                        "name": "Write",
+                        "input": {
+                            "file_path": "/app/login.py",
+                            "content": "def login(): pass",
+                        },
+                    },
                 ],
                 "stop_reason": "tool_use",
             },
@@ -63,7 +75,11 @@ def sample_jsonl_file(tmp_path: Path) -> Path:
             "message": {
                 "role": "user",
                 "content": [
-                    {"type": "tool_result", "tool_use_id": "tu1", "content": "File written successfully"},
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": "tu1",
+                        "content": "File written successfully",
+                    },
                 ],
             },
         },
@@ -76,7 +92,10 @@ def sample_jsonl_file(tmp_path: Path) -> Path:
                 "requestId": "req-2",
                 "usage": {"input_tokens": 300, "output_tokens": 150},
                 "content": [
-                    {"type": "text", "text": "I have created the login page with email and password fields."},
+                    {
+                        "type": "text",
+                        "text": "I have created the login page with email and password fields.",
+                    },
                 ],
                 "stop_reason": "end_turn",
             },

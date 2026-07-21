@@ -1,0 +1,219 @@
+{
+  "session_id": "eae197d4-7e5c-4e7f-82c2-79b84baa77f6",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 646,
+  "aligned_tokens": 646,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6575,
+    "token_weighted_confidence": 0.7113,
+    "low_confidence_tokens": 44,
+    "low_confidence_share": 0.0681,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 4,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.6787024140357971,
+      "intent_similarity": 0.6787024140357971,
+      "tokens": 27,
+      "text": "The user wants me to find the SQLite database path and identify tables that store cast/ability data. Let me read the relevant files.",
+      "source_message_uuid": "b1a3e66b-51d4-4ddb-9840-d396989d01c5",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6787,
+          "repetition_score": 0.0,
+          "confidence": 0.6787
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6311479210853577,
+      "intent_similarity": 0.6311479210853577,
+      "tokens": 22,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\warcraftlogs_project\\\\warcraftlogs_client\\\\database.py\"}",
+      "source_message_uuid": "b1a3e66b-51d4-4ddb-9840-d396989d01c5",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6311,
+          "repetition_score": 0.0,
+          "confidence": 0.6311
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5159500241279602,
+      "tokens": 22,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\warcraftlogs_project\\\\warcraftlogs_client\\\\paths.py\"}",
+      "source_message_uuid": "b1a3e66b-51d4-4ddb-9840-d396989d01c5",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.516,
+          "repetition_score": 0.7127,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9357,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\warcraftlogs_project\\\\warcraftlogs_client\\\\database.py\"}"
+      }
+    },
+    {
+      "position": 3,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.7201892733573914,
+      "intent_similarity": 0.7201892733573914,
+      "tokens": 575,
+      "text": "Here are the findings:\n\n## Database Path\n\nThe database path is determined by `get_db_path()` in `D:\\code\\warcraftlogs_project\\warcraftlogs_client\\paths.py` (line 50-51):\n\n```python\ndef get_db_path() -> Path:\n    return get_user_data_dir() / \"warcraftlogs_history.db\"\n```\n\nIn **development** (non-frozen/non-PyInstaller), `get_user_data_dir()` returns `get_app_dir()`, which resolves to the project root (parent of `warcraftlogs_client/`). So the default database file path is:\n\n**`D:\\code\\warcraftlogs_project\\warcraftlogs_history.db`**\n\nIn a **frozen/packaged** build, it would be at `%APPDATA%\\WarcraftLogsAnalyzer\\warcraftlogs_history.db`.\n\nThe `PerformanceDB.__init__` (database.py line 210-213) accepts an optional `db_path` override, falling back to `paths.get_db_path()`.\n\n## Tables Storing Spell/Ability/Cast Data\n\nThere are **six** tables that store spell or ability information, all keyed by `spell_id` and `spell_name`:\n\n1. **`healer_spells`** (line 85-92) -- Healer spell casts and healing amounts. Columns: `spell_id`, `spell_name`, `casts`, `total_healing`. FK to `healer_performance`.\n\n2. **`tank_damage_taken`** (line 104-110) -- Spells that hit a tank. Columns: `spell_id`, `spell_name`, `hits`. FK to `tank_performance`.\n\n3. **`tank_abilities`** (line 112-118) -- Abilities a tank used. Columns: `spell_id`, `spell_name`, `casts`. FK to `tank_performance`.\n\n4. **`dps_abilities`** (line 129-136) -- DPS abilities used. Columns: `spell_id`, `spell_name`, `casts`, `total_damage`. FK to `dps_performance`.\n\n5. **`interrupt_usage`** (created in migration, line 314-327) -- Interrupt spells used per character per raid. Columns: `spell_id`, `spell_name`, `count`, `timestamps`. FK to `characters` and `raids`.\n\n6. **`aura_uptime`** (created in migration, line 329-343) -- Aura/buff uptime per encounter. Columns: `spell_id`, `spell_name`, `uptime_percent`, `bands_json`. FK to `raids` and `encounters`.\n\nAdditionally, `consumable_usage` (line 138-146) tracks consumable items by name (not spell_id), with columns `consumable_name`, `count`, and `timestamps`.",
+      "source_message_uuid": "b29d69e4-7734-422b-a687-0d682228dae6",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.7202,
+          "repetition_score": 0.0,
+          "confidence": 0.7202
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 1294,
+    "total_output_tokens": 714,
+    "total_cache_creation_tokens": 49991,
+    "total_cache_read_tokens": 19964,
+    "input_output_ratio": 1.81,
+    "cache_hit_rate": 0.9391,
+    "estimated_cost_usd": 0.208,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 2
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        21255
+      ],
+      "growth_rate": 1.0,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 87,
+      "user_result_tokens": 22691,
+      "model_reasoning_tokens": 27,
+      "model_tool_tokens": 44,
+      "model_generation_tokens": 575,
+      "total_user_tokens": 22778,
+      "total_model_tokens": 646,
+      "user_ratio": 0.9724
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.7202,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "In the project at D:\\code\\warcraftlogs_project, find how the SQLite database path is determined (check warcraftlogs_client/database.py and warcraftlogs_client/paths.py). I need to know the default database file path so I can query it. Also check what tables exist that store cast/ability data - look at the schema in database.py. Report the DB path and any tables that store spell/ability information.",
+          "response_text": "Here are the findings:\n\n## Database Path\n\nThe database path is determined by `get_db_path()` in `D:\\code\\warcraftlogs_project\\warcraftlogs_client\\paths.py` (line 50-51):\n\n```python\ndef get_db_path() -> Path:\n    return get_user_data_dir() / \"warcraftlogs_history.db\"\n```\n\nIn **development** (non-frozen/non-PyInstaller), `get_user_data_dir()` returns `get_app_dir()`, which resolves to the project root (parent of `warcraftlogs_client/`). So the default database file path is:\n\n**`D:\\code\\warcraftlogs_project\\warcraftlogs_history.db`**\n\nIn a **frozen/packaged** build, it would be at `%APPDATA%\\WarcraftLogsAnalyzer\\warcraftlogs_history.db`.\n\nThe `PerformanceDB.__init__` (database.py line 210-213) accepts an optional `db_path` override, falling back to `paths.get_db_path()`.\n\n## Tables Storing Spell/Ability/Cast Data\n\nThere are **six** tables that store spell or ability information, all keyed by `spell_id` and `spell_name`:\n\n1. **`healer_spells`** (line 85-92) -- Healer spell casts and healing amounts. Columns: `spell_id`, `spell_name`, `casts`, `total_healing`. FK to `healer_performance`.\n\n2. **`tank_damage_taken`** (line 104-110) -- Spells that hit a tank. Columns: `spell_id`, `spell_name`, `hits`. FK to `tank_performance`.\n\n3. **`tank_abilities`** (line 112-118) -- Abilities a tank used. Columns: `spell_id`, `spell_name`, `casts`. FK to `tank_performance`.\n\n4. **`dps_abilities`** (line 129-136) -- DPS abilities used. Columns: `spell_id`, `spell_name`, `casts`, `total_damage`. FK to `dps_performance`.\n\n5. **`interrupt_usage`** (created in migration, line 314-327) -- Interrupt spells used per character per raid. Columns: `spell_id`, `spell_name`, `count`, `timestamps`. FK to `characters` and `raids`.\n\n6. **`aura_uptime`** (created in migration, line 329-343) -- Aura/buff uptime per encounter. Columns: `spell_id`, `spell_name`, `uptime_percent`, `bands_json`. FK to `raids` and `encounters`.\n\nAdditionally, `consumable_usage` (line 138-146) tracks consumable items by name (not spell_id), with columns `consumable_name`, `count`, and `timestamps`.",
+          "alignment": 0.7202
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "eae197d4-7e5c-4e7f-82c2-79b84baa77f6",
+    "source_file": "data/D--code-warcraftlogs-project__agent-a4342221a2e3b529f.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

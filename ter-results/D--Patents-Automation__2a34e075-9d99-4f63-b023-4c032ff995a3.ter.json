@@ -1,0 +1,164 @@
+{
+  "session_id": "2a34e075-9d99-4f63-b023-4c032ff995a3",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 1528,
+  "aligned_tokens": 1528,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6757,
+    "token_weighted_confidence": 0.5149,
+    "low_confidence_tokens": 1463,
+    "low_confidence_share": 0.9575,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 2,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.8513111472129822,
+      "intent_similarity": 0.8513111472129822,
+      "tokens": 65,
+      "text": "The user wants me to generate a technical implementation document for a Red Hat patent about a polymorphic unikernel architecture. Let me carefully follow the writing style guidelines: no em dashes, no en dashes, avoid hyphenated compound modifiers unless established technical terms, write naturally like a human engineer.\n\nLet me craft this carefully.",
+      "source_message_uuid": "bb791e77-f646-43ef-a9e5-91bacff8c620",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.8513,
+          "repetition_score": 0.0,
+          "confidence": 0.8513
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.41618648171424866,
+      "tokens": 1463,
+      "text": "## Novel Step\n\nCurrent unikernel deployments require building and distributing separate images for each target platform, tenant configuration, or protocol environment, resulting in sprawl that undermines the minimalism unikernel architectures are meant to provide. This invention introduces an adaptation layer embedded within a single canonical unikernel image that, at initialization time, consumes a declarative adaptation profile and dynamically reshapes the unikernel's exposed APIs, communication protocols, resource models, and runtime behaviors to match the target environment. The result is one image that presents distinct external personalities to different consumers while preserving a unified internal execution core, a single security boundary, and a single codebase to maintain.\n\n## How It Works\n\nThe system begins with a canonical unikernel image that contains a superset of capabilities: multiple protocol handlers, API surface variants, configuration schema interpreters, and resource model adapters. These capabilities are compiled into the image but remain dormant until activated. The image also embeds an adaptation engine, a lightweight initialization subsystem responsible for reading an externally supplied adaptation profile and using it to configure which capabilities become active for a given deployment instance.\n\nThe adaptation profile is a declarative document, supplied at boot time through a platform mechanism such as a mounted volume, cloud metadata service, or injected environment block. It describes the tenant's expected interfaces (REST, gRPC, or a proprietary RPC format), protocol conventions (mTLS settings, header propagation rules, authentication token formats), resource models (memory accounting style, CPU share semantics, storage abstractions), and operational behaviors (health check endpoints, metrics emission format, log structure). The profile does not contain code; it is purely declarative, selecting and parameterizing capabilities already present in the canonical image.\n\nDuring initialization, the adaptation engine processes the profile in a defined sequence. First, it activates the appropriate protocol listeners and binds them to the network stack, tearing down any listeners that the profile does not reference. Second, it wires the selected API surface into the unikernel's internal service layer, which itself remains unchanged regardless of which external personality is active. Third, it configures the resource model adapter so that the unikernel accounts for and reports resource usage in the format the surrounding orchestrator expects. Finally, it activates the operational personality: the correct health probe endpoints, the expected metrics format (Prometheus, OpenTelemetry, or a vendor format), and the structured logging schema. Once initialization completes, the adaptation engine itself becomes inert, consuming no further cycles. The unikernel then runs with the exact footprint and attack surface required by the target environment and nothing more.\n\nA profile registry service sits outside the unikernel and manages the lifecycle of adaptation profiles. Platform operators author profiles for each deployment context, store them in the registry, and associate them with scheduling metadata so that when an orchestrator launches a unikernel instance, the correct profile is injected automatically. The registry supports versioning and validation, ensuring that a profile references only capabilities that exist in the canonical image version being deployed. This prevents mismatches between profile expectations and image capabilities, which would otherwise surface as silent failures at boot time.\n\nThe security model benefits directly from this architecture. Because every deployment runs the same compiled image, vulnerability scanning, binary attestation, and supply chain verification happen once rather than per variant. The adaptation engine only activates code paths already present and already audited. No dynamic code loading, JIT compilation, or plugin injection occurs. The profile itself is validated against a schema before the engine acts on it, and any unrecognized or unauthorized capability request causes the unikernel to fail closed rather than fall back to a default personality.\n\n## Enablement Example\n\n```yaml\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: polymorphic-unikernel-profile\n  namespace: tenant-acme\ndata:\n  adaptation-profile.yaml: |\n    profileVersion: \"1.0\"\n    tenant: acme-corp\n    interfaces:\n      api:\n        style: grpc\n        protoDescriptor: /profiles/acme/service.desc\n        reflectionEnabled: false\n      management:\n        style: rest\n        basePath: /admin/v2\n        authScheme: oidc\n        oidcIssuer: https://idp.acme.corp/realms/infra\n    protocols:\n      tls:\n        mode: mutual\n        certSource: vault\n        vaultPath: secret/data/acme/certs\n      tracing:\n        format: opentelemetry\n        collectorEndpoint: otel-collector.acme.svc:4317\n    resourceModel:\n      memoryAccounting: cgroup-v2\n      cpuShares: kubernetes-millicore\n      storageDriver: virtio-blk\n    operations:\n      healthCheck:\n        path: /healthz\n        protocol: http\n        intervalSeconds: 5\n      metrics:\n        format: prometheus\n        port: 9102\n      logging:\n        format: json\n        fields: [\"timestamp\", \"level\", \"traceId\", \"message\"]\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: polymorphic-unikernel\n  namespace: tenant-acme\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: poly-unikernel\n  template:\n    metadata:\n      labels:\n        app: poly-unikernel\n    spec:\n      containers:\n        - name: unikernel\n          image: registry.redhat.io/unikernel/canonical:4.2.0\n          volumeMounts:\n            - name: profile\n              mountPath: /etc/adaptation\n              readOnly: true\n          env:\n            - name: ADAPTATION_PROFILE\n              value: /etc/adaptation/adaptation-profile.yaml\n          ports:\n            - containerPort: 8443\n              name: grpc\n            - containerPort: 9102\n              name: metrics\n          livenessProbe:\n            httpGet:\n              path: /healthz\n              port: 8080\n            periodSeconds: 5\n      volumes:\n        - name: profile\n          configMap:\n            name: polymorphic-unikernel-profile\n```\n\nThis configuration demonstrates a concrete deployment for a tenant called \"acme-corp.\" The ConfigMap carries the adaptation profile as embedded YAML, describing that this tenant expects a gRPC primary interface with OIDC authenticated REST management, mutual TLS with certificates sourced from Vault, OpenTelemetry tracing, Prometheus metrics on port 9102, and cgroup v2 memory accounting. The Deployment mounts this profile into the canonical unikernel container at a well known path and sets the `ADAPTATION_PROFILE` environment variable so the adaptation engine locates it at boot. The same `canonical:4.2.0` image could be deployed in a different namespace with a completely different profile, one specifying REST instead of gRPC, bearer token auth instead of OIDC, and JSON metrics instead of Prometheus, and it would present an entirely different external personality without any change to the underlying image. The liveness probe points at `/healthz` as declared in the profile, ensuring the orchestrator and the unikernel agree on operational conventions.",
+      "source_message_uuid": "bb791e77-f646-43ef-a9e5-91bacff8c620",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4162,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 3,
+    "total_output_tokens": 1726,
+    "total_cache_creation_tokens": 789,
+    "total_cache_read_tokens": 6016,
+    "input_output_ratio": 0.0,
+    "cache_hit_rate": 0.9995,
+    "estimated_cost_usd": 0.0307,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 0
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        6019
+      ],
+      "growth_rate": 1.0,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 416,
+      "user_result_tokens": 0,
+      "model_reasoning_tokens": 65,
+      "model_tool_tokens": 0,
+      "model_generation_tokens": 1463,
+      "total_user_tokens": 416,
+      "total_model_tokens": 1528,
+      "user_ratio": 0.214
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.4162,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "TASK: Generate Technical Implementation for a Red Hat patent.\r\n\r\nWRITING STYLE: Write naturally like a human engineer. Do NOT use em dashes or en dashes. Use commas, semicolons, colons, or separate sentences instead. Avoid hyphenated compound modifiers unless they are established technical terms. Never use the long dash character.\r\n\r\nINVENTION:\r\n---\r\ninvention-id: invention-20260623-163539\r\ncompany: RedHat\r\ncreated: 2026-06-23T16:35:45\r\n---\r\n\r\n# Invention Idea\r\n\r\nWe propose a polymorphic unikernel architecture in which a single canonical unikernel image serves multiple tenants, platforms, or deployment environments. Rather than distributing architecture-specific or customer-specific variants, clients provide an adaptation profile describing their expected interfaces, protocols, resource models, and operational conventions. Upon initialization, an adaptation layer dynamically reshapes exposed APIs, communication mechanisms, configuration models, and runtime behaviors to match the client's environment while preserving a common internal execution core. The unikernel therefore presents different external personalities to different consumers while maintaining a single maintainable codebase and security posture. This enables large-scale deployment of a unified unikernel that automatically conforms to customer-specific requirements without requiring separate builds or bespoke implementations.\r\n\r\n\r\nOUTPUT FORMAT:\r\n\r\n## Novel Step\r\n[2-3 sentences describing what is new and why it matters technically]\r\n\r\n## How It Works\r\n[Write a flowing narrative (3-5 paragraphs) that explains the system architecture end to end. Introduce the key components naturally as you describe how the system operates, rather than listing them as separate bullet points. Cover the data and control flow within the narrative instead of as a separate numbered list. The reader should come away understanding what the components are, how they interact, and what happens at each stage of processing.]\r\n\r\n## Enablement Example\r\n```yaml\r\n# Kubernetes config\r\napiVersion: v1\r\nkind: ConfigMap\r\nmetadata:\r\n  name: example\r\n```\r\n\r\n[Explain what the configuration does and how it ties into the architecture above]",
+          "response_text": "## Novel Step\n\nCurrent unikernel deployments require building and distributing separate images for each target platform, tenant configuration, or protocol environment, resulting in sprawl that undermines the minimalism unikernel architectures are meant to provide. This invention introduces an adaptation layer embedded within a single canonical unikernel image that, at initialization time, consumes a declarative adaptation profile and dynamically reshapes the unikernel's exposed APIs, communication protocols, resource models, and runtime behaviors to match the target environment. The result is one image that presents distinct external personalities to different consumers while preserving a unified internal execution core, a single security boundary, and a single codebase to maintain.\n\n## How It Works\n\nThe system begins with a canonical unikernel image that contains a superset of capabilities: multiple protocol handlers, API surface variants, configuration schema interpreters, and resource model adapters. These capabilities are compiled into the image but remain dormant until activated. The image also embeds an adaptation engine, a lightweight initialization subsystem responsible for reading an externally supplied adaptation profile and using it to configure which capabilities become active for a given deployment instance.\n\nThe adaptation profile is a declarative document, supplied at boot time through a platform mechanism such as a mounted volume, cloud metadata service, or injected environment block. It describes the tenant's expected interfaces (REST, gRPC, or a proprietary RPC format), protocol conventions (mTLS settings, header propagation rules, authentication token formats), resource models (memory accounting style, CPU share semantics, storage abstractions), and operational behaviors (health check endpoints, metrics emission format, log structure). The profile does not contain code; it is purely declarative, selecting and parameterizing capabilities already present in the canonical image.\n\nDuring initialization, the adaptation engine processes the profile in a defined sequence. First, it activates the appropriate protocol listeners and binds them to the network stack, tearing down any listeners that the profile does not reference. Second, it wires the selected API surface into the unikernel's internal service layer, which itself remains unchanged regardless of which external personality is active. Third, it configures the resource model adapter so that the unikernel accounts for and reports resource usage in the format the surrounding orchestrator expects. Finally, it activates the operational personality: the correct health probe endpoints, the expected metrics format (Prometheus, OpenTelemetry, or a vendor format), and the structured logging schema. Once initialization completes, the adaptation engine itself becomes inert, consuming no further cycles. The unikernel then runs with the exact footprint and attack surface required by the target environment and nothing more.\n\nA profile registry service sits outside the unikernel and manages the lifecycle of adaptation profiles. Platform operators author profiles for each deployment context, store them in the registry, and associate them with scheduling metadata so that when an orchestrator launches a unikernel instance, the correct profile is injected automatically. The registry supports versioning and validation, ensuring that a profile references only capabilities that exist in the canonical image version being deployed. This prevents mismatches between profile expectations and image capabilities, which would otherwise surface as silent failures at boot time.\n\nThe security model benefits directly from this architecture. Because every deployment runs the same compiled image, vulnerability scanning, binary attestation, and supply chain verification happen once rather than per variant. The adaptation engine only activates code paths already present and already audited. No dynamic code loading, JIT compilation, or plugin injection occurs. The profile itself is validated against a schema before the engine acts on it, and any unrecognized or unauthorized capability request causes the unikernel to fail closed rather than fall back to a default personality.\n\n## Enablement Example\n\n```yaml\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: polymorphic-unikernel-profile\n  namespace: tenant-acme\ndata:\n  adaptation-profile.yaml: |\n    profileVersion: \"1.0\"\n    tenant: acme-corp\n    interfaces:\n      api:\n        style: grpc\n        protoDescriptor: /profiles/acme/service.desc\n        reflectionEnabled: false\n      management:\n        style: rest\n        basePath: /admin/v2\n        authScheme: oidc\n        oidcIssuer: https://idp.acme.corp/realms/infra\n    protocols:\n      tls:\n        mode: mutual\n        certSource: vault\n        vaultPath: secret/data/acme/certs\n      tracing:\n        format: opentelemetry\n        collectorEndpoint: otel-collector.acme.svc:4317\n    resourceModel:\n      memoryAccounting: cgroup-v2\n      cpuShares: kubernetes-millicore\n      storageDriver: virtio-blk\n    operations:\n      healthCheck:\n        path: /healthz\n        protocol: http\n        intervalSeconds: 5\n      metrics:\n        format: prometheus\n        port: 9102\n      logging:\n        format: json\n        fields: [\"timestamp\", \"level\", \"traceId\", \"message\"]\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: polymorphic-unikernel\n  namespace: tenant-acme\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: poly-unikernel\n  template:\n    metadata:\n      labels:\n        app: poly-unikernel\n    spec:\n      containers:\n        - name: unikernel\n          image: registry.redhat.io/unikernel/canonical:4.2.0\n          volumeMounts:\n            - name: profile\n              mountPath: /etc/adaptation\n              readOnly: true\n          env:\n            - name: ADAPTATION_PROFILE\n              value: /etc/adaptation/adaptation-profile.yaml\n          ports:\n            - containerPort: 8443\n              name: grpc\n            - containerPort: 9102\n              name: metrics\n          livenessProbe:\n            httpGet:\n              path: /healthz\n              port: 8080\n            periodSeconds: 5\n      volumes:\n        - name: profile\n          configMap:\n            name: polymorphic-unikernel-profile\n```\n\nThis configuration demonstrates a concrete deployment for a tenant called \"acme-corp.\" The ConfigMap carries the adaptation profile as embedded YAML, describing that this tenant expects a gRPC primary interface with OIDC authenticated REST management, mutual TLS with certificates sourced from Vault, OpenTelemetry tracing, Prometheus metrics on port 9102, and cgroup v2 memory accounting. The Deployment mounts this profile into the canonical unikernel container at a well known path and sets the `ADAPTATION_PROFILE` environment variable so the adaptation engine locates it at boot. The same `canonical:4.2.0` image could be deployed in a different namespace with a completely different profile, one specifying REST instead of gRPC, bearer token auth instead of OIDC, and JSON metrics instead of Prometheus, and it would present an entirely different external personality without any change to the underlying image. The liveness probe points at `/healthz` as declared in the profile, ensuring the orchestrator and the unikernel agree on operational conventions.",
+          "alignment": 0.4162
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "2a34e075-9d99-4f63-b023-4c032ff995a3",
+    "source_file": "data/D--Patents-Automation__2a34e075-9d99-4f63-b023-4c032ff995a3.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

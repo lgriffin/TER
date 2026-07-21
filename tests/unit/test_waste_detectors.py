@@ -373,12 +373,8 @@ class TestDetectErrorRetrySpirals:
             _tool_use('Bash {"command":"python test.py --flag=d"}', position=6),
         ]
         # With a very strict threshold these may not chain; with relaxed they will
-        patterns_strict = detect_error_retry_spirals(
-            spans, similarity_threshold=0.99
-        )
-        patterns_relaxed = detect_error_retry_spirals(
-            spans, similarity_threshold=0.50
-        )
+        patterns_strict = detect_error_retry_spirals(spans, similarity_threshold=0.99)
+        patterns_relaxed = detect_error_retry_spirals(spans, similarity_threshold=0.50)
         # Relaxed should find at least as many patterns as strict
         assert len(patterns_relaxed) >= len(patterns_strict)
 
@@ -851,15 +847,9 @@ class TestDetectAllExtended:
             _tool_result("permission denied", position=3),
             _tool_use('Bash {"command":"rm /root"}', position=4, token_count=30),
             # Over-reading: same file read 3 times
-            _tool_use(
-                'Read {"file_path":"config.yaml"}', position=10, token_count=40
-            ),
-            _tool_use(
-                'Read {"file_path":"config.yaml"}', position=11, token_count=40
-            ),
-            _tool_use(
-                'Read {"file_path":"config.yaml"}', position=12, token_count=40
-            ),
+            _tool_use('Read {"file_path":"config.yaml"}', position=10, token_count=40),
+            _tool_use('Read {"file_path":"config.yaml"}', position=11, token_count=40),
+            _tool_use('Read {"file_path":"config.yaml"}', position=12, token_count=40),
             # Verbose thinking
             _reasoning("Lots of thinking...", position=20, token_count=5000),
             _tool_use('Bash {"command":"echo hi"}', position=21, token_count=10),
@@ -925,9 +915,7 @@ class TestDetectAllExtended:
         )
 
         # Lower min_thinking_tokens to 100
-        patterns_low_min = detect_all_extended(
-            spans, verbose_min_thinking_tokens=100
-        )
+        patterns_low_min = detect_all_extended(spans, verbose_min_thinking_tokens=100)
         assert any(
             p.pattern_type == ExtendedWasteType.VERBOSE_THINKING.value
             for p in patterns_low_min
@@ -949,6 +937,5 @@ class TestDetectAllExtended:
         # Lower to min_reads=1 -> 2 reads total qualifies
         patterns_low = detect_all_extended(spans, over_reading_min_reads=1)
         assert any(
-            p.pattern_type == ExtendedWasteType.OVER_READING.value
-            for p in patterns_low
+            p.pattern_type == ExtendedWasteType.OVER_READING.value for p in patterns_low
         )

@@ -1,0 +1,1172 @@
+{
+  "session_id": "d9883245-8956-4bdb-a766-9689ec76d1de",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 6796,
+  "aligned_tokens": 6796,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5879,
+    "token_weighted_confidence": 0.6058,
+    "low_confidence_tokens": 6097,
+    "low_confidence_share": 0.8971,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 34,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "waste_patterns": [
+    {
+      "type": "edit_fragmentation",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 18,
+      "tokens_wasted": 0,
+      "description": "18 consecutive edits to UniverseClient.test.ts (0 fragmented tokens)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.39705345034599304,
+      "tokens": 16,
+      "text": "I'll start by reading both files to understand the schemas and current mock data.",
+      "source_message_uuid": "5bdc8773-5919-4462-8d2c-e06ad7445cde",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3971,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4191141128540039,
+      "tokens": 21,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\universe.ts\"}",
+      "source_message_uuid": "5bdc8773-5919-4462-8d2c-e06ad7445cde",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4191,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4339311718940735,
+      "tokens": 27,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\"}",
+      "source_message_uuid": "5bdc8773-5919-4462-8d2c-e06ad7445cde",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4339,
+          "repetition_score": 0.6319,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8765,
+          "lexical_similarity": 0.4167,
+          "entity_similarity": 0.4545,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\universe.ts\"}"
+      }
+    },
+    {
+      "position": 3,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5715393424034119,
+      "intent_similarity": 0.5715393424034119,
+      "tokens": 500,
+      "text": "Now I have a clear picture. Let me systematically compare each mock response against its corresponding Zod schema and identify what's missing.\n\nLet me go through each test case:\n\n1. **Ancestries** - Mock uses `ancestry_id` but schema uses `id`. Schema: `{ id, name, bloodline_id, description }` (all required). Mock has `{ ancestry_id, name, bloodline_id, description, short_description }`. Wait, let me re-check...\n\nThe schema is `AncestrySchema`:\n```\nid: z.number(),\nname: z.string(),\nbloodline_id: z.number(),\ndescription: z.string(),\nshort_description: z.string().optional(),\nicon_id: z.number().optional(),\n```\n\nBut the mock uses `ancestry_id: 1` - the schema field is `id`, not `ancestry_id`. The test assertions check for `ancestry_id` - but we're told NOT to change test assertions. However, the mock data needs to pass Zod validation. So the schemas must actually be using `ancestry_id` as the field name, not `id`. Let me reconsider what the actual schema definitions are.\n\nThe schemas use `.passthrough()` which allows extra fields, but the required field `id` must still be present. So the mock needs both `id` (to pass Zod validation) and `ancestry_id` (to pass the test assertions). Since `.passthrough()` allows extra fields, having both is fine - I just need to add `id` to the ancestry mock while keeping `ancestry_id` for the test assertions.\n\nNow I'm going through each test systematically to check what fields are required versus what the mocks currently have. For ancestries, the schema requires `id`, `name`, `bloodline_id`, and `description`, but the mock is missing `id` and has extra fields like `ancestry_id` and `short_description`.\n\nFor asteroid belt info, the mock is missing the `position` object with x, y, z coordinates. Bloodlines are missing several required fields including `corporation_id`, `ship_type_id`, and all the stat attributes like charisma and intelligence. I'm continuing through the remaining schemas to identify all the gaps. The mock returns full constellation objects, but the actual ESI endpoint just returns a list of IDs, so I need to check the UniverseClient to see which schema validation is actually applied to each endpoint.",
+      "source_message_uuid": "31fe8993-f377-4fea-b7bf-563eb5251a03",
+      "source_lines": [
+        8
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.5715,
+          "repetition_score": 0.0,
+          "confidence": 0.5715
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 4,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.290361225605011,
+      "tokens": 17,
+      "text": "I need to check the UniverseClient implementation to see which schemas map to which endpoints.",
+      "source_message_uuid": "31fe8993-f377-4fea-b7bf-563eb5251a03",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2904,
+          "repetition_score": 0.2403,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3764,
+          "lexical_similarity": 0.1739,
+          "entity_similarity": 0.1053,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8947
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll start by reading both files to understand the schemas and current mock data."
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3613736033439636,
+      "tokens": 22,
+      "text": "Glob {\"pattern\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\clients\\\\UniverseClient.ts\"}",
+      "source_message_uuid": "31fe8993-f377-4fea-b7bf-563eb5251a03",
+      "source_lines": [
+        10
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3614,
+          "repetition_score": 0.0547,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6387,
+          "lexical_similarity": 0.3333,
+          "entity_similarity": 0.2727,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\universe.ts\"}"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.38290920853614807,
+      "tokens": 22,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\clients\\\\UniverseClient.ts\"}",
+      "source_message_uuid": "31c7ea2e-ae8a-4588-8d32-20bd4d779d49",
+      "source_lines": [
+        12
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3829,
+          "repetition_score": 0.6594,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8705,
+          "lexical_similarity": 0.6,
+          "entity_similarity": 0.5556,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\universe.ts\"}"
+      }
+    },
+    {
+      "position": 7,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.38090595602989197,
+      "tokens": 37,
+      "text": "Now I need to check how the BaseEsiClient works and where the Zod validation is applied. Let me check the endpoint definitions to understand which schemas get applied to which endpoints.",
+      "source_message_uuid": "d31ce9fb-d049-4960-886f-6a7c7b43c8fb",
+      "source_lines": [
+        14
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3809,
+          "repetition_score": 0.2719,
+          "confidence": 0.5,
+          "semantic_similarity": 0.4239,
+          "lexical_similarity": 0.1097,
+          "entity_similarity": 0.1074,
+          "action_similarity": 0.2,
+          "parameter_novelty": 0.8926
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Now I have a clear picture. Let me systematically compare each mock response against its corresponding Zod schema and identify what's missing.\n\nLet me go through each test case:\n\n1. **Ancestries** - Mock uses `ancestry_id` but schema uses `"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.2248094528913498,
+      "tokens": 23,
+      "text": "Now I need to understand how validation is wired up. Let me check the endpoints and the BaseEsiClient.",
+      "source_message_uuid": "d31ce9fb-d049-4960-886f-6a7c7b43c8fb",
+      "source_lines": [
+        15
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2248,
+          "repetition_score": 0.3108,
+          "confidence": 0.5,
+          "semantic_similarity": 0.4043,
+          "lexical_similarity": 0.2083,
+          "entity_similarity": 0.2222,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.7778
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 4,
+        "matched_prior_text": "I need to check the UniverseClient implementation to see which schemas map to which endpoints."
+      }
+    },
+    {
+      "position": 9,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.33204174041748047,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\universeEndpoints.ts\"}",
+      "source_message_uuid": "d31ce9fb-d049-4960-886f-6a7c7b43c8fb",
+      "source_lines": [
+        16
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.332,
+          "repetition_score": 0.6505,
+          "confidence": 0.6,
+          "semantic_similarity": 0.876,
+          "lexical_similarity": 0.5455,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\clients\\\\UniverseClient.ts\"}"
+      }
+    },
+    {
+      "position": 10,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3183962106704712,
+      "tokens": 23,
+      "text": "Glob {\"pattern\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\clients\\\\BaseEsiClient.ts\"}",
+      "source_message_uuid": "d31ce9fb-d049-4960-886f-6a7c7b43c8fb",
+      "source_lines": [
+        18
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3184,
+          "repetition_score": 0.717,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9307,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.75,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Glob {\"pattern\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\clients\\\\UniverseClient.ts\"}"
+      }
+    },
+    {
+      "position": 11,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5656507015228271,
+      "intent_similarity": 0.5656507015228271,
+      "tokens": 1916,
+      "text": "Now I can see which endpoints have Zod schemas applied. Let me map out each test case to its schema:\n\n**Tests with schemas that need checking:**\n\n1. `getAncestries()` -> `z.array(AncestrySchema)` - Schema requires: `id`, `name`, `bloodline_id`, `description`\n   - Mock has: `ancestry_id`, `name`, `bloodline_id`, `description`, `short_description`\n   - Missing: `id` (required)\n\n2. `getAsteroidBeltInfo(1)` -> `AsteroidBeltInfoSchema` - Schema requires: `name`, `position` (x,y,z), `system_id`\n   - Mock has: `asteroid_belt_id`, `name`, `system_id`\n   - Missing: `position` (required)\n\n3. `getBloodlines()` -> `z.array(BloodlineSchema)` - Schema requires: `bloodline_id`, `name`, `description`, `race_id`, `corporation_id`, `ship_type_id`, `charisma`, `intelligence`, `memory`, `perception`, `willpower`\n   - Mock has: `bloodline_id`, `name`, `description`, `race_id`\n   - Missing: `corporation_id`, `ship_type_id`, and all the stat fields\n\n4. `getConstellationById(1)` -> `ConstellationInfoSchema` - Schema requires: `constellation_id`, `name`, `region_id`, `systems`, `position` (x,y,z)\n   - Mock has: `constellation_id`, `name`, `region_id`, `systems`\n   - Missing: `position`\n\n5. `getConstellations()` -> No schema validation needed since the endpoint doesn't define a response schema\n\n6. `getFactions()` -> `z.array(FactionSchema)` - Schema requires: `faction_id`, `name`, `description`, `size_factor`, `station_count`, `station_system_count`, `is_unique`\n   - Mock has: `faction_id`, `name`\n   - Missing: `description`, `size_factor`, `station_count`, `station_system_count`, `is_unique`\n\n7. `getGraphics()` -> No schema validation needed\n\n8. `getGraphicById(1)` -> `GraphicInfoSchema` - Schema requires: `graphic_id`\n   - Mock has all required fields plus extra fields which are allowed\n\n9. `getSchematicById(1)` -> `SchematicInfoSchema` - Schema requires: `schematic_name`, `cycle_time`\n   - Mock has: `schematic_id`, `name`, `description`, `cycle_time`, `materials`, `products`\n   - Missing: `schematic_name` (required field)\n   - Has `name` instead of `schematic_name`\n\n10. `getRegions()` -> No schema. OK.\n\n11. `getItemCategories()` -> No schema. OK.\n\n12. `getItemCategoryById(6)` -> `ItemCategorySchema` - Schema requires: `category_id`, `name`, `groups`, `published`\n    - Mock has: `category_id`, `name`, `groups`\n    - Missing: `published`\n\n13. `getItemGroupById(25)` -> `ItemGroupSchema` - Schema requires: `group_id`, `name`, `category_id`, `types`, `published`\n    - Mock has: `group_id`, `name`, `types`\n    - Missing: `category_id`, `published`\n\n14. `getItemGroups()` -> No schema. OK.\n\n15\n\n. `getMoonById(40000001)` -> `MoonInfoSchema` - Schema requires: `moon_id`, `name`, `system_id`, `position` (x,y,z)\n    - Mock has: `moon_id`, `name`, `system_id`\n    - Missing: `position`\n\n16. `getPlanetById(40000002)` -> `PlanetInfoSchema` - Schema requires: `planet_id`, `name`, `system_id`, `type_id`, `position` (x,y,z)\n    - Mock has: `planet_id`, `name`, `system_id`\n    - Missing: `type_id`, `position`\n\n17. `getRaces()` -> `z.array(RaceSchema)` - Schema requires: `race_id`, `name`, `description`, `alliance_id`\n    - Mock has: `race_id`, `name`\n    - Missing: `description`, `alliance_id`\n\n18. `getRegionById(10000002)` -> `RegionInfoSchema` - Schema requires: `region_id`, `name`, `constellations`\n    - Mock has: `region_id`, `name`, `constellations`\n    - All required fields present. OK!\n\n19. `getStarById(40000099)` -> `StarInfoSchema` - Schema requires: `star_id`, `solar_system_id`, `name`, `type_id`, `age`, `luminosity`, `radius`, `spectral_class`, `temperature`\n    - Mock has: `star_id`, `name`, `spectral_class`\n    - Missing: `solar_system_id`, `type_id`, `age`, `luminosity`, `radius`, `temperature`\n\n20. `getStargateById(50000001)` -> `StargateInfoSchema` - Schema requires: `stargate_id`, `name`, `system_id`, `type_id`, `position` (x,y,z), `destination` (system_id, star_id)\n    - Mock has: `stargate_id`, `name`\n    - Missing: `system_id`, `type_id`, `position`, `destination`\n\n21. `getStationById(60003760)` -> `StationInfoSchema` - Schema requires: `station_id`, `name`, `system_id`, `type_id`, `reprocessing_efficiency`, `reprocessing_stations_take`, `max_dockable_ship_volume`, `office_rental_cost`, `services`, `position` (x,y,z)\n    - Mock has: `station_id`, `name`, `system_id`\n    - Missing: `type_id`, `reprocessing_efficiency`, `reprocessing_stations_take`, `max_dockable_ship_volume`, `office_rental_cost`, `services`, `position`\n\n22. `getStructureById(1000000001)` -> `StructureInfoSchema` - Schema requires: `structure_id`, `name`, `owner_id`, `solar_system_id`\n    - Mock has: `structure_id`, `name`, `solar_system_id`\n    - Missing: `owner_id`\n\n23. `getStructures()` -> No schema. OK.\n\n24. `getSystemById(30000142)` -> `SolarSystemInfoSchema` - Schema requires: `system_id`, `name`, `constellation_id`, `security_status`\n    - Mock has: `system_id`, `name`, `security_status`\n    - Missing: `constellation_id`\n\n25. `getSystemJumps()` -> `z.array(SystemJumpSchema)` - Schema requires: `system_id`, `ship_jumps`\n    - Mock has: `system_id`, `ship_jumps` - looks complete\n\n.\n\n26. `getSystemKills()` -> `z.array(SystemKillSchema)` - Schema requires: `system_id`, `npc_kills`, `pod_kills`, `ship_kills`\n    - Mock has: `system_id`, `ship_kills`, `npc_kills`\n    - Missing: `pod_kills`\n\n27. `getSystems()` -> No schema. OK.\n\n28. `getTypeById(587)` -> `TypeInfoSchema` - Schema requires: `type_id`, `name`, `description`, `published`, `group_id`\n    - Mock has: `type_id`, `name`, `description`\n    - Missing: `published`, `group_id`\n\n29. `getTypes()` -> No schema. OK.\n\n30. `postB` - continuing through the remaining endpoints...\n\n31. `postBulkNamesToIds(['Pilot'])` -> `BulkIdResultSchema` - Mock has all required fields with `characters: [{ id: 123, name: 'Pilot' }]`. All OK!\n\n32. `postNamesAndCategories([123])` -> `z.array(NameAndCategorySchema)` - Mock provides `id`, `name`, `category`. All OK!\n\nI'm noting that endpoints without response schemas like `getConstellations()` and `getGraphics()` won't be validated even though they return objects, so those are fine. Now I need to compile the full list of edits required to fix the mismatches. `category_id: 6`, `published: true` for Item Group, then continuing with Moon, Planet, Races, Star, Stargate, and Station\u2014each needing their own set of required fields like positions, type IDs, and various configuration properties. Structure is the last one on the list but the entry got cut off.\n\nNow I need to finish adding the remaining fields: Structure needs its owner ID, System needs constellation ID, System Kills needs pod kill counts, and Type needs the published flag and group ID. Then I'll apply all these changes.",
+      "source_message_uuid": "515ee8b4-c1cd-4934-ac3c-0df194a562cd",
+      "source_lines": [
+        20
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5657,
+          "repetition_score": 0.5441,
+          "confidence": 0.5657,
+          "semantic_similarity": 0.8341,
+          "lexical_similarity": 0.1771,
+          "entity_similarity": 0.1759,
+          "action_similarity": 0.3333,
+          "parameter_novelty": 0.8241
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Now I have a clear picture. Let me systematically compare each mock response against its corresponding Zod schema and identify what's missing.\n\nLet me go through each test case:\n\n1. **Ancestries** - Mock uses `ancestry_id` but schema uses `"
+      }
+    },
+    {
+      "position": 12,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5652420520782471,
+      "intent_similarity": 0.5652420520782471,
+      "tokens": 34,
+      "text": "Now I have a complete picture. Let me systematically identify every mock that's missing required schema fields. I'll now apply all the fixes. Let me do them all.",
+      "source_message_uuid": "515ee8b4-c1cd-4934-ac3c-0df194a562cd",
+      "source_lines": [
+        21
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5652,
+          "repetition_score": 0.38,
+          "confidence": 0.5652,
+          "semantic_similarity": 0.6269,
+          "lexical_similarity": 0.1081,
+          "entity_similarity": 0.0714,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9286
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll start by reading both files to understand the schemas and current mock data."
+      }
+    },
+    {
+      "position": 13,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5300877690315247,
+      "tokens": 181,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"    const mockResponse = [\\n      {\\n        ancestry_id: 1,\\n        name: 'Ancestry 1',\\n        bloodline_id: 1,\\n        description: 'Description 1',\\n        short_description: 'Short description 1',\\n      },\\n    ];\",\"new_string\":\"    const mockResponse = [\\n      {\\n        id: 1,\\n        ancestry_id: 1,\\n        name: 'Ancestry 1',\\n        bloodline_id: 1,\\n        description: 'Description 1',\\n        short_description: 'Short description 1',\\n      },\\n    ];\"}",
+      "source_message_uuid": "515ee8b4-c1cd-4934-ac3c-0df194a562cd",
+      "source_lines": [
+        22
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5301,
+          "repetition_score": 0.0527,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6048,
+          "lexical_similarity": 0.2963,
+          "entity_similarity": 0.3478,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\"}"
+      }
+    },
+    {
+      "position": 14,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.46217021346092224,
+      "tokens": 157,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"    const mockResponse = {\\n      asteroid_belt_id: 1,\\n      name: 'Asteroid Belt 1',\\n      system_id: 30000001,\\n    };\",\"new_string\":\"    const mockResponse = {\\n      asteroid_belt_id: 1,\\n      name: 'Asteroid Belt 1',\\n      system_id: 30000001,\\n      position: { x: -123456789.0, y: 987654321.0, z: 456789123.0 },\\n    };\"}",
+      "source_message_uuid": "8c67a564-dec5-40de-8736-394a89f96781",
+      "source_lines": [
+        24
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4622,
+          "repetition_score": 0.6459,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8875,
+          "lexical_similarity": 0.4615,
+          "entity_similarity": 0.5161,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 13,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"    const mockResponse = [\\n      {\\n        ancestry_id: 1,\\n        name: 'Ancestry 1',\\n        bloodline_id: 1,\\n      "
+      }
+    },
+    {
+      "position": 15,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4923591613769531,
+      "tokens": 203,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"    const mockResponse = [\\n      {\\n        bloodline_id: 1,\\n        name: 'Bloodline 1',\\n        description: 'Description 1',\\n        race_id: 1,\\n      },\\n    ];\",\"new_string\":\"    const mockResponse = [\\n      {\\n        bloodline_id: 1,\\n        name: 'Bloodline 1',\\n        description: 'Description 1',\\n        race_id: 1,\\n        corporation_id: 1000006,\\n        ship_type_id: 601,\\n        charisma: 6,\\n        intelligence: 7,\\n        memory: 7,\\n        perception: 5,\\n        willpower: 5,\\n      },\\n    ];\"}",
+      "source_message_uuid": "32aab052-3756-4897-8d25-49208fcd27fc",
+      "source_lines": [
+        26
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4924,
+          "repetition_score": 0.6814,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9599,
+          "lexical_similarity": 0.525,
+          "entity_similarity": 0.5455,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 13,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"    const mockResponse = [\\n      {\\n        ancestry_id: 1,\\n        name: 'Ancestry 1',\\n        bloodline_id: 1,\\n      "
+      }
+    },
+    {
+      "position": 16,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.539299726486206,
+      "tokens": 214,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid constellation information by ID', async () => {\\n    const mockResponse = {\\n      constellation_id: 1,\\n      name: 'Constellation 1',\\n      region_id: 10000001,\\n      systems: [30000001, 30000002],\\n    };\",\"new_string\":\"  it('should return valid constellation information by ID', async () => {\\n    const mockResponse = {\\n      constellation_id: 1,\\n      name: 'Constellation 1',\\n      region_id: 10000001,\\n      systems: [30000001, 30000002],\\n      position: { x: -1.5e+17, y: 6.8e+16, z: -8.4e+16 },\\n    };\"}",
+      "source_message_uuid": "8c6a713a-4f5f-43c2-ae1d-85667e7c7684",
+      "source_lines": [
+        28
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5393,
+          "repetition_score": 0.6071,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7938,
+          "lexical_similarity": 0.4423,
+          "entity_similarity": 0.4737,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 14,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"    const mockResponse = {\\n      asteroid_belt_id: 1,\\n      name: 'Asteroid Belt 1',\\n      system_id: 30000001,\\n    };\""
+      }
+    },
+    {
+      "position": 17,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4969942569732666,
+      "tokens": 165,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"    const mockResponse = [\\n      {\\n        faction_id: 1,\\n        name: 'Faction 1',\\n        description: 'Description 1',\\n      },\\n    ];\",\"new_string\":\"    const mockResponse = [\\n      {\\n        faction_id: 1,\\n        name: 'Faction 1',\\n        description: 'Description 1',\\n        size_factor: 5.0,\\n        station_count: 1503,\\n        station_system_count: 508,\\n        is_unique: true,\\n      },\\n    ];\"}",
+      "source_message_uuid": "50026941-0d1a-46f6-ae11-a5135e64e1fb",
+      "source_lines": [
+        30
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.497,
+          "repetition_score": 0.6713,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9257,
+          "lexical_similarity": 0.5405,
+          "entity_similarity": 0.5484,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 13,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"    const mockResponse = [\\n      {\\n        ancestry_id: 1,\\n        name: 'Ancestry 1',\\n        bloodline_id: 1,\\n      "
+      }
+    },
+    {
+      "position": 18,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5560007691383362,
+      "tokens": 267,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"    const mockResponse = {\\n      schematic_id: 1,\\n      name: 'Test Schematic',\\n      description: 'A test schematic description',\\n      cycle_time: 300,\\n      materials: [\\n        {\\n          type_id: 34,\\n          quantity: 1,\\n        },\\n      ],\\n      products: [\\n        {\\n          type_id: 35,\\n          quantity: 1,\\n        },\\n      ],\\n    };\",\"new_string\":\"    const mockResponse = {\\n      schematic_id: 1,\\n      schematic_name: 'Test Schematic',\\n      name: 'Test Schematic',\\n      description: 'A test schematic description',\\n      cycle_time: 300,\\n      materials: [\\n        {\\n          type_id: 34,\\n          quantity: 1,\\n        },\\n      ],\\n      products: [\\n        {\\n          type_id: 35,\\n          quantity: 1,\\n        },\\n      ],\\n    };\"}",
+      "source_message_uuid": "ecc1a721-58d9-4b8e-9030-cec01c7eb983",
+      "source_lines": [
+        32
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.556,
+          "repetition_score": 0.6406,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8555,
+          "lexical_similarity": 0.5128,
+          "entity_similarity": 0.5152,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 13,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"    const mockResponse = [\\n      {\\n        ancestry_id: 1,\\n        name: 'Ancestry 1',\\n        bloodline_id: 1,\\n      "
+      }
+    },
+    {
+      "position": 19,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4202865660190582,
+      "tokens": 91,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"      JSON.stringify({ category_id: 6, name: 'Ship', groups: [25, 26] }),\",\"new_string\":\"      JSON.stringify({ category_id: 6, name: 'Ship', groups: [25, 26], published: true }),\"}",
+      "source_message_uuid": "001490ec-5029-44b0-92ef-277a8cc3f2c0",
+      "source_lines": [
+        34
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4203,
+          "repetition_score": 0.5995,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8169,
+          "lexical_similarity": 0.35,
+          "entity_similarity": 0.4118,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 14,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"    const mockResponse = {\\n      asteroid_belt_id: 1,\\n      name: 'Asteroid Belt 1',\\n      system_id: 30000001,\\n    };\""
+      }
+    },
+    {
+      "position": 20,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.42293575406074524,
+      "tokens": 101,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"      JSON.stringify({ group_id: 25, name: 'Frigate', types: [587, 603] }),\",\"new_string\":\"      JSON.stringify({ group_id: 25, name: 'Frigate', category_id: 6, types: [587, 603], published: true }),\"}",
+      "source_message_uuid": "d9068a08-a7ce-40a3-bb72-2e99020700a6",
+      "source_lines": [
+        36
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4229,
+          "repetition_score": 0.7231,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9771,
+          "lexical_similarity": 0.7143,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 19,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"      JSON.stringify({ category_id: 6, name: 'Ship', groups: [25, 26] }),\",\"new_string\":\"      JSON.stringify({ category_id"
+      }
+    },
+    {
+      "position": 21,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5505627393722534,
+      "tokens": 206,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid moon info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n        moon_id: 40000001,\\n        name: 'Moon I',\\n        system_id: 30000001,\\n      }),\\n    );\",\"new_string\":\"  it('should return valid moon info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n        moon_id: 40000001,\\n        name: 'Moon I',\\n        system_id: 30000001,\\n        position: { x: 1.6e+11, y: -2.3e+10, z: 5.7e+10 },\\n      }),\\n    );\"}",
+      "source_message_uuid": "2d26e824-a251-4ca2-acb4-bbed4726900b",
+      "source_lines": [
+        38
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5506,
+          "repetition_score": 0.6089,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7643,
+          "lexical_similarity": 0.5439,
+          "entity_similarity": 0.4762,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 16,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid constellation information by ID', async () => {\\n    const mockResponse = {\\n      constellation_"
+      }
+    },
+    {
+      "position": 22,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5692094564437866,
+      "tokens": 215,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid planet info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n        planet_id: 40000002,\\n        name: 'Planet I',\\n        system_id: 30000001,\\n      }),\\n    );\",\"new_string\":\"  it('should return valid planet info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n        planet_id: 40000002,\\n        name: 'Planet I',\\n        system_id: 30000001,\\n        type_id: 2015,\\n        position: { x: 2.1e+12, y: -3.4e+10, z: 8.9e+11 },\\n      }),\\n    );\"}",
+      "source_message_uuid": "968dd9a2-90cc-4431-be78-41e5a3975f63",
+      "source_lines": [
+        40
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5692,
+          "repetition_score": 0.7129,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9377,
+          "lexical_similarity": 0.717,
+          "entity_similarity": 0.7568,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 21,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid moon info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n       "
+      }
+    },
+    {
+      "position": 23,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.42375585436820984,
+      "tokens": 96,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"      JSON.stringify([{ race_id: 1, name: 'Caldari', description: 'A race' }]),\",\"new_string\":\"      JSON.stringify([{ race_id: 1, name: 'Caldari', description: 'A race', alliance_id: 500001 }]),\"}",
+      "source_message_uuid": "af24d6cc-372e-45ce-be73-1a5b7cfacba0",
+      "source_lines": [
+        42
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4238,
+          "repetition_score": 0.6678,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9516,
+          "lexical_similarity": 0.4545,
+          "entity_similarity": 0.5161,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 20,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"      JSON.stringify({ group_id: 25, name: 'Frigate', types: [587, 603] }),\",\"new_string\":\"      JSON.stringify({ group_id:"
+      }
+    },
+    {
+      "position": 24,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5723791122436523,
+      "tokens": 234,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid star info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n        star_id: 40000099,\\n        name: 'Jita Star',\\n        spectral_class: 'K2 V',\\n      }),\\n    );\",\"new_string\":\"  it('should return valid star info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n        star_id: 40000099,\\n        solar_system_id: 30000142,\\n        name: 'Jita Star',\\n        type_id: 45041,\\n        age: 1.28e+17,\\n        luminosity: 0.0661,\\n        radius: 346600000,\\n        spectral_class: 'K2 V',\\n        temperature: 3953,\\n      }),\\n    );\"}",
+      "source_message_uuid": "09a08a30-e98c-44ae-8b16-533e03a0fa09",
+      "source_lines": [
+        44
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5724,
+          "repetition_score": 0.6533,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9309,
+          "lexical_similarity": 0.4179,
+          "entity_similarity": 0.48,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 22,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid planet info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n     "
+      }
+    },
+    {
+      "position": 25,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5763313174247742,
+      "tokens": 253,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid stargate info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n        stargate_id: 50000001,\\n        name: 'Jita-Perimeter',\\n        system_id: 30000142,\\n      }),\\n    );\",\"new_string\":\"  it('should return valid stargate info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n        stargate_id: 50000001,\\n        name: 'Jita-Perimeter',\\n        system_id: 30000142,\\n        type_id: 29624,\\n        position: { x: 1.3e+11, y: -4.5e+9, z: 6.7e+10 },\\n        destination: { system_id: 30000144, stargate_id: 50000002 },\\n      }),\\n    );\"}",
+      "source_message_uuid": "b78bf50d-cddf-42ab-aa7b-6ed687c58cf4",
+      "source_lines": [
+        46
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5763,
+          "repetition_score": 0.6919,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9297,
+          "lexical_similarity": 0.6441,
+          "entity_similarity": 0.6364,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 22,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid planet info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n     "
+      }
+    },
+    {
+      "position": 26,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5595555901527405,
+      "tokens": 339,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid station info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n        station_id: 60003760,\\n        name: 'Jita IV - Moon 4',\\n        system_id: 30000142,\\n      }),\\n    );\",\"new_string\":\"  it('should return valid station info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n        station_id: 60003760,\\n        name: 'Jita IV - Moon 4',\\n        system_id: 30000142,\\n        type_id: 52678,\\n        reprocessing_efficiency: 0.5,\\n        reprocessing_stations_take: 0.05,\\n        max_dockable_ship_volume: 50000000,\\n        office_rental_cost: 10000,\\n        services: ['bounty-missions', 'courier-missions', 'reprocessing-plant', 'market', 'repair-facilities', 'fitting', 'news', 'insurance', 'docking', 'office-rental', 'loyalty-point-store', 'navy-offices'],\\n        position: { x: 4.6e+11, y: 7.8e+10, z: -1.2e+11 },\\n      }),\\n    );\"}",
+      "source_message_uuid": "19993beb-c0a9-4722-9055-ac8ffb734404",
+      "source_lines": [
+        48
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5596,
+          "repetition_score": 0.6506,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9,
+          "lexical_similarity": 0.52,
+          "entity_similarity": 0.4308,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 21,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid moon info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n       "
+      }
+    },
+    {
+      "position": 27,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5957406759262085,
+      "tokens": 184,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid structure info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n        structure_id: 1000000001,\\n        name: 'My Citadel',\\n        solar_system_id: 30000142,\\n      }),\\n    );\",\"new_string\":\"  it('should return valid structure info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n        structure_id: 1000000001,\\n        name: 'My Citadel',\\n        owner_id: 98000001,\\n        solar_system_id: 30000142,\\n      }),\\n    );\"}",
+      "source_message_uuid": "71c93cd8-5756-4571-9a67-ac60acb14fe0",
+      "source_lines": [
+        50
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5957,
+          "repetition_score": 0.664,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9365,
+          "lexical_similarity": 0.4464,
+          "entity_similarity": 0.5476,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 22,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid planet info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n     "
+      }
+    },
+    {
+      "position": 28,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.597288966178894,
+      "tokens": 182,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid system info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n        system_id: 30000142,\\n        name: 'Jita',\\n        security_status: 0.9459,\\n      }),\\n    );\",\"new_string\":\"  it('should return valid system info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n        system_id: 30000142,\\n        name: 'Jita',\\n        constellation_id: 20000020,\\n        security_status: 0.9459,\\n      }),\\n    );\"}",
+      "source_message_uuid": "d7e8b236-b697-4047-b00c-da3d5cc356db",
+      "source_lines": [
+        52
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5973,
+          "repetition_score": 0.6916,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9383,
+          "lexical_similarity": 0.619,
+          "entity_similarity": 0.6316,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 27,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid structure info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n  "
+      }
+    },
+    {
+      "position": 29,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.42671072483062744,
+      "tokens": 101,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"      JSON.stringify([{ system_id: 30000142, ship_kills: 50, npc_kills: 200 }]),\",\"new_string\":\"      JSON.stringify([{ system_id: 30000142, ship_kills: 50, npc_kills: 200, pod_kills: 15 }]),\"}",
+      "source_message_uuid": "0bec7996-e6d4-4b3d-b401-0f21b621f7a1",
+      "source_lines": [
+        54
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4267,
+          "repetition_score": 0.6647,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9473,
+          "lexical_similarity": 0.4516,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 23,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"      JSON.stringify([{ race_id: 1, name: 'Caldari', description: 'A race' }]),\",\"new_string\":\"      JSON.stringify([{ race"
+      }
+    },
+    {
+      "position": 30,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5991193652153015,
+      "tokens": 180,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid type info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n        type_id: 587,\\n        name: 'Rifter',\\n        description: 'A frigate',\\n      }),\\n    );\",\"new_string\":\"  it('should return valid type info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n        type_id: 587,\\n        name: 'Rifter',\\n        description: 'A frigate',\\n        published: true,\\n        group_id: 25,\\n      }),\\n    );\"}",
+      "source_message_uuid": "b4b91c22-cd6a-4e78-ba6e-9096b893cc27",
+      "source_lines": [
+        56
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5991,
+          "repetition_score": 0.6832,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9514,
+          "lexical_similarity": 0.5556,
+          "entity_similarity": 0.561,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 28,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid system info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n     "
+      }
+    },
+    {
+      "position": 31,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.23918473720550537,
+      "tokens": 14,
+      "text": "All edits are done. Now let me run the tests to verify.",
+      "source_message_uuid": "aa9e2ee1-a041-4c1c-8f01-2f3909010d5c",
+      "source_lines": [
+        58
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2392,
+          "repetition_score": 0.2411,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3676,
+          "lexical_similarity": 0.1515,
+          "entity_similarity": 0.16,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.84
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 12,
+        "matched_prior_text": "Now I have a complete picture. Let me systematically identify every mock that's missing required schema fields. I'll now apply all the fixes. Let me do them all."
+      }
+    },
+    {
+      "position": 32,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3367232084274292,
+      "tokens": 31,
+      "text": "Bash {\"command\":\"npx jest --config jest.unit.config.cjs tests/tdd/universe/ 2>&1\",\"timeout\":120000}",
+      "source_message_uuid": "aa9e2ee1-a041-4c1c-8f01-2f3909010d5c",
+      "source_lines": [
+        59
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3367,
+          "repetition_score": 0.0299,
+          "confidence": 0.6,
+          "semantic_similarity": 0.4375,
+          "lexical_similarity": 0.0167,
+          "entity_similarity": 0.0,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 25,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\universe\\\\UniverseClient.test.ts\",\"old_string\":\"  it('should return valid stargate info by ID', async () => {\\n    fetchMock.mockResponseOnce(\\n      JSON.stringify({\\n   "
+      }
+    },
+    {
+      "position": 33,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.787423849105835,
+      "intent_similarity": 0.787423849105835,
+      "tokens": 699,
+      "text": "All 31 tests pass. Here is a summary of what was fixed:\n\n**File modified:** `D:\\code\\ESI.ts\\tests\\tdd\\universe\\UniverseClient.test.ts`\n\n**18 mock response objects were updated** to include required fields from the Zod schemas in `D:\\code\\ESI.ts\\src\\schemas\\universe.ts`. No test assertions were changed. The specific fixes:\n\n1. **Ancestries** - Added `id: 1` (required by `AncestrySchema`)\n2. **Asteroid Belt** - Added `position: { x, y, z }` (required by `AsteroidBeltInfoSchema`)\n3. **Bloodlines** - Added `corporation_id`, `ship_type_id`, `charisma`, `intelligence`, `memory`, `perception`, `willpower` (required by `BloodlineSchema`)\n4. **Constellation By ID** - Added `position: { x, y, z }` (required by `ConstellationInfoSchema`)\n5. **Factions** - Added `size_factor`, `station_count`, `station_system_count`, `is_unique` (required by `FactionSchema`)\n6. **Schematic** - Added `schematic_name` (required by `SchematicInfoSchema`)\n7. **Item Category** - Added `published: true` (required by `ItemCategorySchema`)\n8. **Item Group** - Added `category_id: 6`, `published: true` (required by `ItemGroupSchema`)\n9. **Moon** - Added `position: { x, y, z }` (required by `MoonInfoSchema`)\n10. **Planet** - Added `type_id: 2015`, `position: { x, y, z }` (required by `PlanetInfoSchema`)\n11. **Races** - Added `alliance_id: 500001` (required by `RaceSchema`)\n12. **Star** - Added `solar_system_id`, `type_id`, `age`, `luminosity`, `radius`, `temperature` (required by `StarInfoSchema`)\n13. **Stargate** - Added `type_id`, `position: { x, y, z }`, `destination: { system_id, stargate_id }` (required by `StargateInfoSchema`)\n14. **Station** - Added `type_id`, `reprocessing_efficiency`, `reprocessing_stations_take`, `max_dockable_ship_volume`, `office_rental_cost`, `services`, `position: { x, y, z }` (required by `StationInfoSchema`)\n15. **Structure** - Added `owner_id: 98000001` (required by `StructureInfoSchema`)\n16. **System** - Added `constellation_id: 20000020` (required by `SolarSystemInfoSchema`)\n17. **System Kills** - Added `pod_kills: 15` (required by `SystemKillSchema`)\n18. **Type** - Added `published: true`, `group_id: 25` (required by `TypeInfoSchema`)\n\nEndpoints without `responseSchema` in the endpoint definitions (getConstellations, getGraphics, getItemCategories, getItemGroups, getRegions, getStructures, getSystems, getTypes) were not validated and needed no changes.",
+      "source_message_uuid": "b36d3287-38a1-4df4-8a85-8261c5dcc03a",
+      "source_lines": [
+        61
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.7874,
+          "repetition_score": 0.3341,
+          "confidence": 0.7874,
+          "semantic_similarity": 0.5672,
+          "lexical_similarity": 0.027,
+          "entity_similarity": 0.0392,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9608
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 12,
+        "matched_prior_text": "Now I have a complete picture. Let me systematically identify every mock that's missing required schema fields. I'll now apply all the fixes. Let me do them all."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "edit_fragmentation",
+        "tokens_wasted": 0,
+        "description": "18 consecutive edits to UniverseClient.test.ts (0 fragmented tokens)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Edit Fragmentation",
+        "tokens": 0,
+        "percentage": 0,
+        "cost_usd": 0.0,
+        "count": 1,
+        "pricing": "output"
+      }
+    ],
+    "total_tokens": 0,
+    "total_cost_usd": 0.0
+  },
+  "economics": {
+    "total_input_tokens": 26,
+    "total_output_tokens": 5761,
+    "total_cache_creation_tokens": 30553,
+    "total_cache_read_tokens": 872495,
+    "input_output_ratio": 0.0,
+    "cache_hit_rate": 1.0,
+    "estimated_cost_usd": 0.4628,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 11,
+      "mid_span_count": 11,
+      "late_span_count": 12
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        12881,
+        15428,
+        26540,
+        27864,
+        31631,
+        34266,
+        37305,
+        37613,
+        37974,
+        38339,
+        38658,
+        39083,
+        39329,
+        39586,
+        39949,
+        40322,
+        40579,
+        40979,
+        41391,
+        41904,
+        42254,
+        42596,
+        42856,
+        43194
+      ],
+      "growth_rate": 3.35,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 277,
+      "user_result_tokens": 12671,
+      "model_reasoning_tokens": 2453,
+      "model_tool_tokens": 3540,
+      "model_generation_tokens": 803,
+      "total_user_tokens": 12948,
+      "total_model_tokens": 6796,
+      "user_ratio": 0.6558
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.5815,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "You're working on ESI.ts at D:\\code\\ESI.ts. Zod runtime validation was added and now tests fail because mock data is missing required fields.\n\nFix `tests/tdd/universe/UniverseClient.test.ts` so its mock data includes all required fields from the Zod schemas in `src/schemas/universe.ts`.\n\nSteps:\n1. Read `src/schemas/universe.ts` to understand all required fields\n2. Read `tests/tdd/universe/UniverseClient.test.ts` to see current mock data\n3. Update mock data to include all required fields with realistic EVE Online values\n4. Do NOT change test assertions - only fix the mock response data\n5. Run `npx jest --config jest.unit.config.cjs tests/tdd/universe/` to verify the fix works\n\nIMPORTANT: The universe schema is likely large with many endpoints. Be thorough - check every mock response object against its corresponding schema. Universe covers things like: types, systems, constellations, regions, stations, structures, categories, groups, ancestries, bloodlines, factions, races, graphics, moons, planets, stargates, stars, etc.\n\nThe key pattern: if a schema has `z.string()` (not `.optional()`), the mock data MUST include that field. Same for z.number(), z.array(), etc.",
+          "response_text": "I'll start by reading both files to understand the schemas and current mock data. I need to check the UniverseClient implementation to see which schemas map to which endpoints. Now I need to understand how validation is wired up. Let me check the endpoints and the BaseEsiClient. Now I have a complete picture. Let me systematically identify every mock that's missing required schema fields. I'll now apply all the fixes. Let me do them all. All edits are done. Now let me run the tests to verify. All 31 tests pass. Here is a summary of what was fixed:\n\n**File modified:** `D:\\code\\ESI.ts\\tests\\tdd\\universe\\UniverseClient.test.ts`\n\n**18 mock response objects were updated** to include required fields from the Zod schemas in `D:\\code\\ESI.ts\\src\\schemas\\universe.ts`. No test assertions were changed. The specific fixes:\n\n1. **Ancestries** - Added `id: 1` (required by `AncestrySchema`)\n2. **Asteroid Belt** - Added `position: { x, y, z }` (required by `AsteroidBeltInfoSchema`)\n3. **Bloodlines** - Added `corporation_id`, `ship_type_id`, `charisma`, `intelligence`, `memory`, `perception`, `willpower` (required by `BloodlineSchema`)\n4. **Constellation By ID** - Added `position: { x, y, z }` (required by `ConstellationInfoSchema`)\n5. **Factions** - Added `size_factor`, `station_count`, `station_system_count`, `is_unique` (required by `FactionSchema`)\n6. **Schematic** - Added `schematic_name` (required by `SchematicInfoSchema`)\n7. **Item Category** - Added `published: true` (required by `ItemCategorySchema`)\n8. **Item Group** - Added `category_id: 6`, `published: true` (required by `ItemGroupSchema`)\n9. **Moon** - Added `position: { x, y, z }` (required by `MoonInfoSchema`)\n10. **Planet** - Added `type_id: 2015`, `position: { x, y, z }` (required by `PlanetInfoSchema`)\n11. **Races** - Added `alliance_id: 500001` (required by `RaceSchema`)\n12. **Star** - Added `solar_system_id`, `type_id`, `age`, `luminosity`, `radius`, `temperature` (required by `StarInfoSchema`)\n13. **Stargate** - Added `type_id`, `position: { x, y, z }`, `destination: { system_id, stargate_id }` (required by `StargateInfoSchema`)\n14. **Station** - Added `type_id`, `reprocessing_efficiency`, `reprocessing_stations_take`, `max_dockable_ship_volume`, `office_rental_cost`, `services`, `position: { x, y, z }` (required by `StationInfoSchema`)\n15. **Structure** - Added `owner_id: 98000001` (required by `StructureInfoSchema`)\n16. **System** - Added `constellation_id: 20000020` (required by `SolarSystemInfoSchema`)\n17. **System Kills** - Added `pod_kills: 15` (required by `SystemKillSchema`)\n18. **Type** - Added `published: true`, `group_id: 25` (required by `TypeInfoSchema`)\n\nEndpoints without `responseSchema` in the endpoint definitions (getConstellations, getGraphics, getItemCategories, getItemGroups, getRegions, getStructures, getSystems, getTypes) were not validated and needed no changes.",
+          "alignment": 0.5815
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "d9883245-8956-4bdb-a766-9689ec76d1de",
+    "source_file": "data/D--code-ESI-ts__agent-ae7e1d107e7e9ea58.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

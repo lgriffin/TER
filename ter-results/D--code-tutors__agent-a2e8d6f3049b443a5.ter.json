@@ -1,0 +1,580 @@
+{
+  "session_id": "73c597d0-ff67-43ff-88ac-23a48a528111",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 2310,
+  "aligned_tokens": 2310,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5867,
+    "token_weighted_confidence": 0.6261,
+    "low_confidence_tokens": 1380,
+    "low_confidence_share": 0.5974,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 15,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "waste_patterns": [
+    {
+      "type": "bash_antipattern",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 3,
+      "tokens_wasted": 291,
+      "description": "3 Bash calls should use dedicated tools (291 tokens)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.6292681097984314,
+      "intent_similarity": 0.6292681097984314,
+      "tokens": 38,
+      "text": "The user wants me to analyze 7 open PRs on the tutors-sdk/tutors repo. Let me fetch the details for all 7 PRs in parallel using `gh` commands.",
+      "source_message_uuid": "5662af5d-f7d3-44b6-a497-d1b6942822c6",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6293,
+          "repetition_score": 0.0,
+          "confidence": 0.6293
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.30565035343170166,
+      "tokens": 13,
+      "text": "I'll fetch all 7 PRs' details in parallel.",
+      "source_message_uuid": "5662af5d-f7d3-44b6-a497-d1b6942822c6",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3057,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.49400603771209717,
+      "tokens": 72,
+      "text": "Bash {\"command\":\"gh pr view 987 --repo tutors-sdk/tutors --json number,title,reviewDecision,reviews,mergeable,statusCheckRollup,additions,deletions,changedFiles,comments,state,createdAt,updatedAt,headRefName,baseRefName,labels 2>&1\",\"description\":\"Fetch PR #987 details\"}",
+      "source_message_uuid": "5662af5d-f7d3-44b6-a497-d1b6942822c6",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.494,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4876593351364136,
+      "tokens": 74,
+      "text": "Bash {\"command\":\"gh pr view 1043 --repo tutors-sdk/tutors --json number,title,reviewDecision,reviews,mergeable,statusCheckRollup,additions,deletions,changedFiles,comments,state,createdAt,updatedAt,headRefName,baseRefName,labels 2>&1\",\"description\":\"Fetch PR #1043 details\"}",
+      "source_message_uuid": "5662af5d-f7d3-44b6-a497-d1b6942822c6",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4877,
+          "repetition_score": 0.7715,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9929,
+          "lexical_similarity": 0.9355,
+          "entity_similarity": 0.9259,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Bash {\"command\":\"gh pr view 987 --repo tutors-sdk/tutors --json number,title,reviewDecision,reviews,mergeable,statusCheckRollup,additions,deletions,changedFiles,comments,state,createdAt,updatedAt,headRefName,baseRefName,labels 2>&1\",\"descri"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.49372270703315735,
+      "tokens": 74,
+      "text": "Bash {\"command\":\"gh pr view 1062 --repo tutors-sdk/tutors --json number,title,reviewDecision,reviews,mergeable,statusCheckRollup,additions,deletions,changedFiles,comments,state,createdAt,updatedAt,headRefName,baseRefName,labels 2>&1\",\"description\":\"Fetch PR #1062 details\"}",
+      "source_message_uuid": "5662af5d-f7d3-44b6-a497-d1b6942822c6",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4937,
+          "repetition_score": 0.7722,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9949,
+          "lexical_similarity": 0.9355,
+          "entity_similarity": 0.9259,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Bash {\"command\":\"gh pr view 987 --repo tutors-sdk/tutors --json number,title,reviewDecision,reviews,mergeable,statusCheckRollup,additions,deletions,changedFiles,comments,state,createdAt,updatedAt,headRefName,baseRefName,labels 2>&1\",\"descri"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.49654197692871094,
+      "tokens": 74,
+      "text": "Bash {\"command\":\"gh pr view 1063 --repo tutors-sdk/tutors --json number,title,reviewDecision,reviews,mergeable,statusCheckRollup,additions,deletions,changedFiles,comments,state,createdAt,updatedAt,headRefName,baseRefName,labels 2>&1\",\"description\":\"Fetch PR #1063 details\"}",
+      "source_message_uuid": "5662af5d-f7d3-44b6-a497-d1b6942822c6",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4965,
+          "repetition_score": 0.7736,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9987,
+          "lexical_similarity": 0.9355,
+          "entity_similarity": 0.9259,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Bash {\"command\":\"gh pr view 1062 --repo tutors-sdk/tutors --json number,title,reviewDecision,reviews,mergeable,statusCheckRollup,additions,deletions,changedFiles,comments,state,createdAt,updatedAt,headRefName,baseRefName,labels 2>&1\",\"descr"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.49555134773254395,
+      "tokens": 74,
+      "text": "Bash {\"command\":\"gh pr view 1064 --repo tutors-sdk/tutors --json number,title,reviewDecision,reviews,mergeable,statusCheckRollup,additions,deletions,changedFiles,comments,state,createdAt,updatedAt,headRefName,baseRefName,labels 2>&1\",\"description\":\"Fetch PR #1064 details\"}",
+      "source_message_uuid": "5662af5d-f7d3-44b6-a497-d1b6942822c6",
+      "source_lines": [
+        13
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4956,
+          "repetition_score": 0.7737,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9989,
+          "lexical_similarity": 0.9355,
+          "entity_similarity": 0.9259,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Bash {\"command\":\"gh pr view 1062 --repo tutors-sdk/tutors --json number,title,reviewDecision,reviews,mergeable,statusCheckRollup,additions,deletions,changedFiles,comments,state,createdAt,updatedAt,headRefName,baseRefName,labels 2>&1\",\"descr"
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4944891035556793,
+      "tokens": 74,
+      "text": "Bash {\"command\":\"gh pr view 1065 --repo tutors-sdk/tutors --json number,title,reviewDecision,reviews,mergeable,statusCheckRollup,additions,deletions,changedFiles,comments,state,createdAt,updatedAt,headRefName,baseRefName,labels 2>&1\",\"description\":\"Fetch PR #1065 details\"}",
+      "source_message_uuid": "5662af5d-f7d3-44b6-a497-d1b6942822c6",
+      "source_lines": [
+        14
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4945,
+          "repetition_score": 0.7735,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9985,
+          "lexical_similarity": 0.9355,
+          "entity_similarity": 0.9259,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Bash {\"command\":\"gh pr view 1064 --repo tutors-sdk/tutors --json number,title,reviewDecision,reviews,mergeable,statusCheckRollup,additions,deletions,changedFiles,comments,state,createdAt,updatedAt,headRefName,baseRefName,labels 2>&1\",\"descr"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4961627423763275,
+      "tokens": 74,
+      "text": "Bash {\"command\":\"gh pr view 1066 --repo tutors-sdk/tutors --json number,title,reviewDecision,reviews,mergeable,statusCheckRollup,additions,deletions,changedFiles,comments,state,createdAt,updatedAt,headRefName,baseRefName,labels 2>&1\",\"description\":\"Fetch PR #1066 details\"}",
+      "source_message_uuid": "5662af5d-f7d3-44b6-a497-d1b6942822c6",
+      "source_lines": [
+        15
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4962,
+          "repetition_score": 0.7734,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9983,
+          "lexical_similarity": 0.9355,
+          "entity_similarity": 0.9259,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Bash {\"command\":\"gh pr view 1063 --repo tutors-sdk/tutors --json number,title,reviewDecision,reviews,mergeable,statusCheckRollup,additions,deletions,changedFiles,comments,state,createdAt,updatedAt,headRefName,baseRefName,labels 2>&1\",\"descr"
+      }
+    },
+    {
+      "position": 9,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.43283548951148987,
+      "tokens": 36,
+      "text": "Now let me also check for review comments (not just issue comments) on each PR, and look at file overlap between PRs. Let me also fetch the PR review comments.",
+      "source_message_uuid": "f746b906-14c4-4fcc-a55d-0b2cac5d2774",
+      "source_lines": [
+        19
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4328,
+          "repetition_score": 0.3027,
+          "confidence": 0.5,
+          "semantic_similarity": 0.4664,
+          "lexical_similarity": 0.15,
+          "entity_similarity": 0.1667,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8333
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "The user wants me to analyze 7 open PRs on the tutors-sdk/tutors repo. Let me fetch the details for all 7 PRs in parallel using `gh` commands."
+      }
+    },
+    {
+      "position": 10,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.41886529326438904,
+      "tokens": 21,
+      "text": "Now let me check for review comments (inline code review comments) on the PRs that have activity.",
+      "source_message_uuid": "f746b906-14c4-4fcc-a55d-0b2cac5d2774",
+      "source_lines": [
+        20
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4189,
+          "repetition_score": 0.2489,
+          "confidence": 0.5,
+          "semantic_similarity": 0.4148,
+          "lexical_similarity": 0.0435,
+          "entity_similarity": 0.0588,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9412
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 1,
+        "matched_prior_text": "I'll fetch all 7 PRs' details in parallel."
+      }
+    },
+    {
+      "position": 11,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4225609004497528,
+      "tokens": 38,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors/pulls/1062/reviews 2>&1 | head -5\",\"description\":\"Check PR #1062 reviews\"}",
+      "source_message_uuid": "f746b906-14c4-4fcc-a55d-0b2cac5d2774",
+      "source_lines": [
+        21
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4226,
+          "repetition_score": 0.5832,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8562,
+          "lexical_similarity": 0.2571,
+          "entity_similarity": 0.1667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Bash {\"command\":\"gh pr view 1062 --repo tutors-sdk/tutors --json number,title,reviewDecision,reviews,mergeable,statusCheckRollup,additions,deletions,changedFiles,comments,state,createdAt,updatedAt,headRefName,baseRefName,labels 2>&1\",\"descr"
+      }
+    },
+    {
+      "position": 12,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3841654062271118,
+      "tokens": 113,
+      "text": "Bash {\"command\":\"gh pr diff 1062 --repo tutors-sdk/tutors 2>&1 | head -5 && echo \\\"---\\\" && gh pr diff 1063 --repo tutors-sdk/tutors 2>&1 | head -5 && echo \\\"---\\\" && gh pr diff 1065 --repo tutors-sdk/tutors 2>&1 | head -5 && echo \\\"---\\\" && gh pr diff 1066 --repo tutors-sdk/tutors 2>&1 | head -5\",\"description\":\"Check diff headers for file overlap\"}",
+      "source_message_uuid": "f746b906-14c4-4fcc-a55d-0b2cac5d2774",
+      "source_lines": [
+        23
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3842,
+          "repetition_score": 0.5582,
+          "confidence": 0.6,
+          "semantic_similarity": 0.695,
+          "lexical_similarity": 0.44,
+          "entity_similarity": 0.3,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 11,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors/pulls/1062/reviews 2>&1 | head -5\",\"description\":\"Check PR #1062 reviews\"}"
+      }
+    },
+    {
+      "position": 13,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.35831090807914734,
+      "tokens": 605,
+      "text": "Bash {\"command\":\"gh pr diff 1062 --repo tutors-sdk/tutors 2>&1 | grep \\\"^diff --git\\\" | sed 's/diff --git a\\\\///' | sed 's/ b\\\\/.*//' | sort > /tmp/pr1062_files.txt && gh pr diff 1063 --repo tutors-sdk/tutors 2>&1 | grep \\\"^diff --git\\\" | sed 's/diff --git a\\\\///' | sed 's/ b\\\\/.*//' | sort > /tmp/pr1063_files.txt && gh pr diff 1064 --repo tutors-sdk/tutors 2>&1 | grep \\\"^diff --git\\\" | sed 's/diff --git a\\\\///' | sed 's/ b\\\\/.*//' | sort > /tmp/pr1064_files.txt && gh pr diff 1065 --repo tutors-sdk/tutors 2>&1 | grep \\\"^diff --git\\\" | sed 's/diff --git a\\\\///' | sed 's/ b\\\\/.*//' | sort > /tmp/pr1065_files.txt && gh pr diff 1066 --repo tutors-sdk/tutors 2>&1 | grep \\\"^diff --git\\\" | sed 's/diff --git a\\\\///' | sed 's/ b\\\\/.*//' | sort > /tmp/pr1066_files.txt && echo \\\"=== 1062 vs 1066 ===\\\" && comm -12 /tmp/pr1062_files.txt /tmp/pr1066_files.txt && echo \\\"=== 1063 vs 1064 ===\\\" && comm -12 /tmp/pr1063_files.txt /tmp/pr1064_files.txt && echo \\\"=== 1063 vs 1065 ===\\\" && comm -12 /tmp/pr1063_files.txt /tmp/pr1065_files.txt && echo \\\"=== 1063 vs 1066 ===\\\" && comm -12 /tmp/pr1063_files.txt /tmp/pr1066_files.txt && echo \\\"=== 1064 vs 1065 ===\\\" && comm -12 /tmp/pr1064_files.txt /tmp/pr1065_files.txt && echo \\\"=== 1064 vs 1066 ===\\\" && comm -12 /tmp/pr1064_files.txt /tmp/pr1066_files.txt && echo \\\"=== 1065 vs 1066 ===\\\" && comm -12 /tmp/pr1065_files.txt /tmp/pr1066_files.txt && echo \\\"=== 1062 vs 1065 ===\\\" && comm -12 /tmp/pr1062_files.txt /tmp/pr1065_files.txt && echo \\\"=== 1062 vs 1063 ===\\\" && comm -12 /tmp/pr1062_files.txt /tmp/pr1063_files.txt && echo \\\"=== 1062 vs 1064 ===\\\" && comm -12 /tmp/pr1062_files.txt /tmp/pr1064_files.txt\",\"description\":\"Compute file overlap between all PR pairs\"}",
+      "source_message_uuid": "f746b906-14c4-4fcc-a55d-0b2cac5d2774",
+      "source_lines": [
+        25
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3583,
+          "repetition_score": 0.5955,
+          "confidence": 0.6,
+          "semantic_similarity": 0.797,
+          "lexical_similarity": 0.3953,
+          "entity_similarity": 0.3824,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 12,
+        "matched_prior_text": "Bash {\"command\":\"gh pr diff 1062 --repo tutors-sdk/tutors 2>&1 | head -5 && echo \\\"---\\\" && gh pr diff 1063 --repo tutors-sdk/tutors 2>&1 | head -5 && echo \\\"---\\\" && gh pr diff 1065 --repo tutors-sdk/tutors 2>&1 | head -5 && echo \\\"---\\\" &"
+      }
+    },
+    {
+      "position": 14,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6711714267730713,
+      "intent_similarity": 0.6711714267730713,
+      "tokens": 930,
+      "text": "Here is the structured analysis of all 7 open PRs by lgriffin on tutors-sdk/tutors, oldest first:\n\n---\n\n**#987 -- Fix SSR Build Failure** (Jul 2025)\n- Size: 4 files, +24/-18\n- Mergeable: CONFLICTING -- has merge conflicts with development\n- Reviews: None. No CI checks configured.\n- Stale: Yes, 1 year old, no activity since creation.\n- Overlaps: None.\n\n**#1043 -- Arch flow** (Apr 2026)\n- Size: 15 files, +1,659/-0 (adds-only, architecture doc)\n- Mergeable: Clean\n- Reviews: None. No CI checks. 1 self-comment linking O'Reilly article on agent-based architecture awareness.\n- Stale: ~3 months old, no activity since April.\n- Overlaps: None.\n\n**#1062 -- Mutation testing + testing docs** (Jul 9, 2026)\n- Size: 29 files, +15,418/-3,755 (largest code PR)\n- Mergeable: Clean\n- Reviews: None requested/given. 5 self-comments documenting CI issues.\n- CI: mutation-testing PASSES; unit-integration-tests FAIL (pre-existing lint issues on development branch block test execution); e2e-tests FAIL (missing GitHub OAuth env vars); Vercel FAIL (unauthorized).\n- Overlaps: package.json/package-lock.json with #1063, #1065.\n\n**#1063 -- Mermaid.js + Marp slide support** (Jul 13, 2026)\n- Size: 10 files, +1,756/-100\n- Mergeable: Clean\n- Reviews: None. Vercel FAIL (unauthorized). 1 self-comment confirming local testing.\n- Overlaps: `markdown.svelte.ts` with #1064; `Lab.svelte`, `Note.svelte`, package.json with #1065; package.json with #1062.\n\n**#1064 -- Jupyter Notebook support** (Jul 13, 2026)\n- Size: 14 files, +467/-2\n- Mergeable: Clean\n- Reviews: None. Vercel FAIL. 1 self-comment noting linked PR on tutors-apps repo.\n- Overlaps: `markdown.svelte.ts` with #1063; `course.svelte.ts` with #1065.\n\n**#1065 -- Fix 6 critical issues (XSS, security)** (Jul 13, 2026)\n- Size: 22 files, +161/-113\n- Mergeable: Clean\n- Reviews: None. Vercel FAIL.\n- Overlaps: `Lab.svelte`, `Note.svelte`, package.json with #1063; `course.svelte.ts` with #1064; package.json with #1062.\n\n**#1066 -- Prettier formatting** (Jul 13, 2026)\n- Size: 171 files, +59,778/-5,614 (massive formatting-only PR)\n- Mergeable: Clean\n- Reviews: None. Vercel FAIL. Diff too large for GitHub API (>20k lines).\n- Overlaps: None directly detected (diff too large to parse), but touches 171 files so will almost certainly conflict with every other PR after merge.\n\n---\n\n**Key findings:**\n\n1. **No PR has any reviews** -- all 7 have empty reviewDecision and zero reviews.\n2. **All Vercel checks fail** due to unauthorized deployment (Vercel team authorization needed).\n3. **#987 is the only PR with merge conflicts**; it is stale at 1 year old.\n4. **#1066 (Prettier) is a merge-conflict bomb** -- 171 files changed means merging it will force rebases on every other PR. It was explicitly created to fix the lint failures blocking #1062's CI. Recommended merge order: #1066 first, then rebase all others.\n5. **Significant file overlaps**: #1063 (Mermaid/Marp) and #1064 (Jupyter) both touch `markdown.svelte.ts`. #1063 and #1065 both touch `Lab.svelte` and `Note.svelte`. #1064 and #1065 both touch `course.svelte.ts`. These will need careful sequential merging.\n6. **#1043 is documentation-only** (+1,659 lines, 0 deletions) and has no conflicts or overlaps.",
+      "source_message_uuid": "02176e30-ecd1-4dcd-a400-408874603d1e",
+      "source_lines": [
+        27
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6712,
+          "repetition_score": 0.2516,
+          "confidence": 0.6712,
+          "semantic_similarity": 0.4345,
+          "lexical_similarity": 0.0124,
+          "entity_similarity": 0.0101,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9899
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 1,
+        "matched_prior_text": "I'll fetch all 7 PRs' details in parallel."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "bash_antipattern",
+        "tokens_wasted": 291,
+        "description": "3 Bash calls should use dedicated tools (291 tokens)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Bash Anti-Patterns",
+        "tokens": 291,
+        "percentage": 100.0,
+        "cost_usd": 0.000873,
+        "count": 1,
+        "pricing": "input"
+      }
+    ],
+    "total_tokens": 291,
+    "total_cost_usd": 0.000873
+  },
+  "economics": {
+    "total_input_tokens": 5,
+    "total_output_tokens": 1119,
+    "total_cache_creation_tokens": 25818,
+    "total_cache_read_tokens": 39424,
+    "input_output_ratio": 0.0,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.1254,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 5,
+      "mid_span_count": 5,
+      "late_span_count": 5
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        15463,
+        23963
+      ],
+      "growth_rate": 1.55,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 283,
+      "user_result_tokens": 6203,
+      "model_reasoning_tokens": 74,
+      "model_tool_tokens": 1272,
+      "model_generation_tokens": 964,
+      "total_user_tokens": 6486,
+      "total_model_tokens": 2310,
+      "user_ratio": 0.7374
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.6665,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "Analyze all 7 open PRs on the tutors-sdk/tutors repo by lgriffin. For each PR, fetch the diff, comments, and review status. Use `gh` commands from D:\\code\\tutors.\n\nThe PRs are:\n- #1066 - chore: apply prettier formatting across the codebase\n- #1065 - Fix 6 critical issues: XSS, error handling, data bugs, security headers\n- #1064 - Add Jupyter Notebook as first-class content type\n- #1063 - Add Mermaid.js and Marp slide support\n- #1062 - feat: Improve mutation testing and add comprehensive testing documentation\n- #1043 - Arch flow (from April 2026)\n- #987 - Fix SSR Build Failure (from July 2025)\n\nFor each PR, report:\n1. Status (reviews, CI checks, merge conflicts)\n2. Size (files changed, lines)\n3. Any review comments or requested changes\n4. Whether it's stale or has merge conflicts with development\n5. Whether it overlaps with any other PR\n\nAlso check: `gh pr view <number> --repo tutors-sdk/tutors --json reviewDecision,reviews,mergeable,statusCheckRollup,additions,deletions,changedFiles,comments`\n\nSummarize in a structured format, oldest PRs first. Under 500 words.",
+          "response_text": "I'll fetch all 7 PRs' details in parallel. Now let me check for review comments (inline code review comments) on the PRs that have activity. Here is the structured analysis of all 7 open PRs by lgriffin on tutors-sdk/tutors, oldest first:\n\n---\n\n**#987 -- Fix SSR Build Failure** (Jul 2025)\n- Size: 4 files, +24/-18\n- Mergeable: CONFLICTING -- has merge conflicts with development\n- Reviews: None. No CI checks configured.\n- Stale: Yes, 1 year old, no activity since creation.\n- Overlaps: None.\n\n**#1043 -- Arch flow** (Apr 2026)\n- Size: 15 files, +1,659/-0 (adds-only, architecture doc)\n- Mergeable: Clean\n- Reviews: None. No CI checks. 1 self-comment linking O'Reilly article on agent-based architecture awareness.\n- Stale: ~3 months old, no activity since April.\n- Overlaps: None.\n\n**#1062 -- Mutation testing + testing docs** (Jul 9, 2026)\n- Size: 29 files, +15,418/-3,755 (largest code PR)\n- Mergeable: Clean\n- Reviews: None requested/given. 5 self-comments documenting CI issues.\n- CI: mutation-testing PASSES; unit-integration-tests FAIL (pre-existing lint issues on development branch block test execution); e2e-tests FAIL (missing GitHub OAuth env vars); Vercel FAIL (unauthorized).\n- Overlaps: package.json/package-lock.json with #1063, #1065.\n\n**#1063 -- Mermaid.js + Marp slide support** (Jul 13, 2026)\n- Size: 10 files, +1,756/-100\n- Mergeable: Clean\n- Reviews: None. Vercel FAIL (unauthorized). 1 self-comment confirming local testing.\n- Overlaps: `markdown.svelte.ts` with #1064; `Lab.svelte`, `Note.svelte`, package.json with #1065; package.json with #1062.\n\n**#1064 -- Jupyter Notebook support** (Jul 13, 2026)\n- Size: 14 files, +467/-2\n- Mergeable: Clean\n- Reviews: None. Vercel FAIL. 1 self-comment noting linked PR on tutors-apps repo.\n- Overlaps: `markdown.svelte.ts` with #1063; `course.svelte.ts` with #1065.\n\n**#1065 -- Fix 6 critical issues (XSS, security)** (Jul 13, 2026)\n- Size: 22 files, +161/-113\n- Mergeable: Clean\n- Reviews: None. Vercel FAIL.\n- Overlaps: `Lab.svelte`, `Note.svelte`, package.json with #1063; `course.svelte.ts` with #1064; package.json with #1062.\n\n**#1066 -- Prettier formatting** (Jul 13, 2026)\n- Size: 171 files, +59,778/-5,614 (massive formatting-only PR)\n- Mergeable: Clean\n- Reviews: None. Vercel FAIL. Diff too large for GitHub API (>20k lines).\n- Overlaps: None directly detected (diff too large to parse), but touches 171 files so will almost certainly conflict with every other PR after merge.\n\n---\n\n**Key findings:**\n\n1. **No PR has any reviews** -- all 7 have empty reviewDecision and zero reviews.\n2. **All Vercel checks fail** due to unauthorized deployment (Vercel team authorization needed).\n3. **#987 is the only PR with merge conflicts**; it is stale at 1 year old.\n4. **#1066 (Prettier) is a merge-conflict bomb** -- 171 files changed means merging it will force rebases on every other PR. It was explicitly created to fix the lint failures blocking #1062's CI. Recommended merge order: #1066 first, then rebase all others.\n5. **Significant file overlaps**: #1063 (Mermaid/Marp) and #1064 (Jupyter) both touch `markdown.svelte.ts`. #1063 and #1065 both touch `Lab.svelte` and `Note.svelte`. #1064 and #1065 both touch `course.svelte.ts`. These will need careful sequential merging.\n6. **#1043 is documentation-only** (+1,659 lines, 0 deletions) and has no conflicts or overlaps.",
+          "alignment": 0.6665
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "73c597d0-ff67-43ff-88ac-23a48a528111",
+    "source_file": "data/D--code-tutors__agent-a2e8d6f3049b443a5.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

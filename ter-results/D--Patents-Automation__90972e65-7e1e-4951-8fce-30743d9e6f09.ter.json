@@ -1,0 +1,164 @@
+{
+  "session_id": "90972e65-7e1e-4951-8fce-30743d9e6f09",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 1082,
+  "aligned_tokens": 1082,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6311,
+    "token_weighted_confidence": 0.5104,
+    "low_confidence_tokens": 1039,
+    "low_confidence_share": 0.9603,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 2,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.762270987033844,
+      "intent_similarity": 0.762270987033844,
+      "tokens": 43,
+      "text": "The user wants mermaid.js diagrams specific to the invention about edge device self-mutation testing for security trust scoring. I need to create diagrams that accurately represent this system. Let me output only mermaid code blocks.",
+      "source_message_uuid": "30d53190-c22f-4042-8019-b8d54d676a1c",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.7623,
+          "repetition_score": 0.0,
+          "confidence": 0.7623
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.4721822142601013,
+      "tokens": 1039,
+      "text": "## System Architecture\n\n```mermaid\nflowchart TD\n    subgraph Edge[\"Edge Device\"]\n        A[Mutation Generator]\n        B[Isolated Execution Environment]\n        C[Mutation Test Runner]\n        D[Result Signer]\n    end\n    subgraph Mutations[\"Security Mutation Set\"]\n        M1[Auth Bypass]\n        M2[Cert Validation Failure]\n        M3[Privilege Escalation]\n        M4[API Tampering]\n    end\n    subgraph Fleet[\"Neighbor Fleet\"]\n        N1[Edge Node B]\n        N2[Edge Node C]\n        N3[Edge Node D]\n    end\n    subgraph Trust[\"Trust Evaluation\"]\n        T1[Trust Score Aggregator]\n        T2[Anomaly Detector]\n        T3[Quarantine Controller]\n    end\n    A --> B\n    M1 --> B\n    M2 --> B\n    M3 --> B\n    M4 --> B\n    B --> C\n    C --> D\n    D -->|Signed Results| N1\n    D -->|Signed Results| N2\n    D -->|Signed Results| N3\n    N1 -->|Peer Results| T1\n    N2 -->|Peer Results| T1\n    N3 -->|Peer Results| T1\n    T1 --> T2\n    T2 -->|Healthy| Fleet\n    T2 -->|Anomaly Detected| T3\n    T3 -->|Isolate Device| Edge\n```\n\n## Sequence Diagram\n\n```mermaid\nsequenceDiagram\n    participant Sched as Scheduler\n    participant MutGen as Mutation Generator\n    participant Sandbox as Isolated Environment\n    participant Signer as Crypto Signer\n    participant Peer1 as Neighbor Node B\n    participant Peer2 as Neighbor Node C\n    participant Trust as Trust Aggregator\n    participant QC as Quarantine Controller\n\n    Sched->>MutGen: Trigger periodic mutation cycle\n    MutGen->>Sandbox: Deploy auth bypass mutation\n    Sandbox-->>MutGen: Mutation detected\n    MutGen->>Sandbox: Deploy cert validation failure\n    Sandbox-->>MutGen: Mutation detected\n    MutGen->>Sandbox: Deploy privilege escalation\n    Sandbox-->>MutGen: Mutation detected\n    MutGen->>Signer: Submit detection results\n    Signer->>Peer1: Broadcast signed report\n    Signer->>Peer2: Broadcast signed report\n    Peer1->>Trust: Forward own signed report\n    Peer2->>Trust: Forward own signed report\n    Trust->>Trust: Compute fleet trust scores\n    alt All mutations detected\n        Trust-->>Sched: Device healthy\n    else Missing detections\n        Trust->>QC: Flag anomaly\n        QC->>QC: Evaluate compromise indicators\n        QC-->>Sched: Quarantine device\n    end\n```\n\n## Trust Score State Diagram\n\n```mermaid\nstateDiagram-v2\n    [*] --> Initializing\n    Initializing --> Trusted: First mutation cycle passes\n    Trusted --> Trusted: All mutations detected on schedule\n    Trusted --> Degraded: Partial mutation detection failure\n    Degraded --> Trusted: Subsequent cycle fully passes\n    Degraded --> Suspect: Repeated partial failures\n    Suspect --> Quarantined: Neighbor consensus confirms anomaly\n    Suspect --> Degraded: Single cycle recovers\n    Quarantined --> Investigating: Admin review triggered\n    Investigating --> Trusted: Device cleared and policies updated\n    Investigating --> Decommissioned: Confirmed compromise\n    Trusted --> Suspect: Mutation reports stop arriving\n    Decommissioned --> [*]\n```\n\n## Fleet Topology and Trust Flow\n\n```mermaid\nflowchart LR\n    subgraph Zone1[\"Zone Alpha\"]\n        A1[Edge A - Trusted]\n        A2[Edge B - Trusted]\n        A3[Edge C - Degraded]\n    end\n    subgraph Zone2[\"Zone Beta\"]\n        B1[Edge D - Trusted]\n        B2[Edge E - Suspect]\n        B3[Edge F - Trusted]\n    end\n    subgraph Control[\"Fleet Control Plane\"]\n        TS[Trust Score Registry]\n        QE[Quarantine Engine]\n        PM[Policy Manager]\n    end\n    A1 <-->|Signed Reports| A2\n    A2 <-->|Signed Reports| A3\n    A1 <-->|Signed Reports| A3\n    B1 <-->|Signed Reports| B2\n    B2 <-->|Signed Reports| B3\n    B1 <-->|Signed Reports| B3\n    A1 --> TS\n    A2 --> TS\n    A3 --> TS\n    B1 --> TS\n    B2 --> TS\n    B3 --> TS\n    TS --> QE\n    QE -->|Isolate Edge E| B2\n    PM -->|Update Mutation Sets| Zone1\n    PM -->|Update Mutation Sets| Zone2\n```",
+      "source_message_uuid": "30d53190-c22f-4042-8019-b8d54d676a1c",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4722,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 3,
+    "total_output_tokens": 1308,
+    "total_cache_creation_tokens": 815,
+    "total_cache_read_tokens": 6343,
+    "input_output_ratio": 0.0,
+    "cache_hit_rate": 0.9995,
+    "estimated_cost_usd": 0.0246,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 0
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        6346
+      ],
+      "growth_rate": 1.0,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 422,
+      "user_result_tokens": 0,
+      "model_reasoning_tokens": 43,
+      "model_tool_tokens": 0,
+      "model_generation_tokens": 1039,
+      "total_user_tokens": 422,
+      "total_model_tokens": 1082,
+      "user_ratio": 0.2806
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.4722,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "TASK: Create mermaid.js diagrams for this invention.\r\n\r\nINSTRUCTION: Output ONLY mermaid code blocks. No explanations.\r\n\r\nMERMAID RULES (for PNG / mermaid-cli compatibility):\r\n- Do NOT use HTML line breaks in the diagram: no <br/>, <br>, or similar anywhere in the mermaid source (including inside node labels). They break many renderers and image export.\r\n- Use shorter labels, multiple nodes, or subgraphs instead of forcing line breaks inside one label.\r\n\r\nINVENTION:\r\n---\r\ninvention-id: invention-20260710-102315\r\ncompany: RedHat\r\ncreated: 2026-07-10T10:23:17\r\n---\r\n\r\n# Invention Idea\r\n\r\nRather than only mutation testing software during CI/CD, each edge device periodically executes a small set of security-focused mutations (authentication bypasses, certificate validation failures, privilege escalation paths, API tampering) against itself in an isolated execution environment. The results are cryptographically signed and shared with neighboring edge nodes, which build a collective trust score for the fleet. Devices that suddenly stop detecting expected mutations may indicate compromise, stale security policies, or tampering, allowing autonomous quarantine before an exploit succeeds.\r\n\r\n\r\nOUTPUT:\r\n\r\n## System Architecture\r\n\r\n`mermaid\r\nflowchart TD\r\n    subgraph Input[Data Sources]\r\n        A[Source A]\r\n        B[Source B]\r\n    end\r\n    subgraph Process[Processing]\r\n        C[Tracker]\r\n        D[Detector]\r\n    end\r\n    subgraph Output[Results]\r\n        E[Clean Data]\r\n        F[Alerts]\r\n    end\r\n    A --> C\r\n    B --> C\r\n    C --> D\r\n    D --> E\r\n    D --> F\r\n`\r\n\r\n## Sequence Diagram\r\n\r\n`mermaid\r\nsequenceDiagram\r\n    participant S as Source\r\n    participant T as Tracker\r\n    participant D as Detector\r\n    participant Sys as System\r\n    S->>T: Submit Data\r\n    T->>D: Validate\r\n    D->>Sys: Forward or Block\r\n`\r\n\r\nCreate diagrams specific to THIS invention.",
+          "response_text": "## System Architecture\n\n```mermaid\nflowchart TD\n    subgraph Edge[\"Edge Device\"]\n        A[Mutation Generator]\n        B[Isolated Execution Environment]\n        C[Mutation Test Runner]\n        D[Result Signer]\n    end\n    subgraph Mutations[\"Security Mutation Set\"]\n        M1[Auth Bypass]\n        M2[Cert Validation Failure]\n        M3[Privilege Escalation]\n        M4[API Tampering]\n    end\n    subgraph Fleet[\"Neighbor Fleet\"]\n        N1[Edge Node B]\n        N2[Edge Node C]\n        N3[Edge Node D]\n    end\n    subgraph Trust[\"Trust Evaluation\"]\n        T1[Trust Score Aggregator]\n        T2[Anomaly Detector]\n        T3[Quarantine Controller]\n    end\n    A --> B\n    M1 --> B\n    M2 --> B\n    M3 --> B\n    M4 --> B\n    B --> C\n    C --> D\n    D -->|Signed Results| N1\n    D -->|Signed Results| N2\n    D -->|Signed Results| N3\n    N1 -->|Peer Results| T1\n    N2 -->|Peer Results| T1\n    N3 -->|Peer Results| T1\n    T1 --> T2\n    T2 -->|Healthy| Fleet\n    T2 -->|Anomaly Detected| T3\n    T3 -->|Isolate Device| Edge\n```\n\n## Sequence Diagram\n\n```mermaid\nsequenceDiagram\n    participant Sched as Scheduler\n    participant MutGen as Mutation Generator\n    participant Sandbox as Isolated Environment\n    participant Signer as Crypto Signer\n    participant Peer1 as Neighbor Node B\n    participant Peer2 as Neighbor Node C\n    participant Trust as Trust Aggregator\n    participant QC as Quarantine Controller\n\n    Sched->>MutGen: Trigger periodic mutation cycle\n    MutGen->>Sandbox: Deploy auth bypass mutation\n    Sandbox-->>MutGen: Mutation detected\n    MutGen->>Sandbox: Deploy cert validation failure\n    Sandbox-->>MutGen: Mutation detected\n    MutGen->>Sandbox: Deploy privilege escalation\n    Sandbox-->>MutGen: Mutation detected\n    MutGen->>Signer: Submit detection results\n    Signer->>Peer1: Broadcast signed report\n    Signer->>Peer2: Broadcast signed report\n    Peer1->>Trust: Forward own signed report\n    Peer2->>Trust: Forward own signed report\n    Trust->>Trust: Compute fleet trust scores\n    alt All mutations detected\n        Trust-->>Sched: Device healthy\n    else Missing detections\n        Trust->>QC: Flag anomaly\n        QC->>QC: Evaluate compromise indicators\n        QC-->>Sched: Quarantine device\n    end\n```\n\n## Trust Score State Diagram\n\n```mermaid\nstateDiagram-v2\n    [*] --> Initializing\n    Initializing --> Trusted: First mutation cycle passes\n    Trusted --> Trusted: All mutations detected on schedule\n    Trusted --> Degraded: Partial mutation detection failure\n    Degraded --> Trusted: Subsequent cycle fully passes\n    Degraded --> Suspect: Repeated partial failures\n    Suspect --> Quarantined: Neighbor consensus confirms anomaly\n    Suspect --> Degraded: Single cycle recovers\n    Quarantined --> Investigating: Admin review triggered\n    Investigating --> Trusted: Device cleared and policies updated\n    Investigating --> Decommissioned: Confirmed compromise\n    Trusted --> Suspect: Mutation reports stop arriving\n    Decommissioned --> [*]\n```\n\n## Fleet Topology and Trust Flow\n\n```mermaid\nflowchart LR\n    subgraph Zone1[\"Zone Alpha\"]\n        A1[Edge A - Trusted]\n        A2[Edge B - Trusted]\n        A3[Edge C - Degraded]\n    end\n    subgraph Zone2[\"Zone Beta\"]\n        B1[Edge D - Trusted]\n        B2[Edge E - Suspect]\n        B3[Edge F - Trusted]\n    end\n    subgraph Control[\"Fleet Control Plane\"]\n        TS[Trust Score Registry]\n        QE[Quarantine Engine]\n        PM[Policy Manager]\n    end\n    A1 <-->|Signed Reports| A2\n    A2 <-->|Signed Reports| A3\n    A1 <-->|Signed Reports| A3\n    B1 <-->|Signed Reports| B2\n    B2 <-->|Signed Reports| B3\n    B1 <-->|Signed Reports| B3\n    A1 --> TS\n    A2 --> TS\n    A3 --> TS\n    B1 --> TS\n    B2 --> TS\n    B3 --> TS\n    TS --> QE\n    QE -->|Isolate Edge E| B2\n    PM -->|Update Mutation Sets| Zone1\n    PM -->|Update Mutation Sets| Zone2\n```",
+          "alignment": 0.4722
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "90972e65-7e1e-4951-8fce-30743d9e6f09",
+    "source_file": "data/D--Patents-Automation__90972e65-7e1e-4951-8fce-30743d9e6f09.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

@@ -49,6 +49,10 @@ class ContentBlock:
     tool_name: str | None = None
     tool_input: dict[str, Any] | None = None
     tool_use_id: str | None = None
+    source_line: int | None = None
+    source_lines: list[int] = field(default_factory=list)
+    content_fingerprint: str | None = None
+    block_index: int | None = None
 
 
 @dataclass
@@ -69,6 +73,8 @@ class Message:
     request_id: str | None = None
     usage: TokenUsage | None = None
     stop_reason: str | None = None
+    source_lines: list[int] = field(default_factory=list)
+    merge_warnings: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -79,6 +85,7 @@ class Session:
     timestamp: datetime | None = None
     total_tokens: int = 0
     user_prompts: list[str] = field(default_factory=list)
+    merge_warnings: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -92,6 +99,16 @@ class TokenSpan:
     embedding: np.ndarray | None = None
     # assistant | user — aligns waste $ with billed output vs input context.
     source_role: str = "assistant"
+    tool_name: str | None = None
+    tool_input: dict[str, Any] | None = None
+    parent_block_id: str | None = None
+    segment_index: int = 0
+    char_start: int = 0
+    char_end: int | None = None
+    source_line: int | None = None
+    source_lines: list[int] = field(default_factory=list)
+    content_fingerprint: str | None = None
+    source_block_index: int | None = None
 
 
 @dataclass
@@ -103,11 +120,41 @@ class IntentVector:
 
 
 @dataclass
+class ClassificationExplanation:
+    """Human-readable and machine-readable evidence for a span label."""
+
+    reason_code: str
+    summary: str
+    signals: dict[str, float] = field(default_factory=dict)
+    threshold: float | None = None
+    matched_prior_position: int | None = None
+    matched_prior_text: str | None = None
+
+
+@dataclass
 class ClassifiedSpan:
     span: TokenSpan
     label: SpanLabel
     confidence: float
     cosine_similarity: float
+    explanation: ClassificationExplanation | None = None
+
+
+@dataclass
+class UncertaintyReport:
+    """Session-level uncertainty summary derived from classified spans."""
+
+    mean_confidence: float
+    token_weighted_confidence: float
+    low_confidence_tokens: int
+    low_confidence_share: float
+    interval_lower: float
+    interval_upper: float
+    bootstrap_samples: int
+    span_count: int
+    confidence_level: float = 0.95
+    method: str = "deterministic_span_bootstrap"
+    reliability: str = "moderate"
 
 
 @dataclass
@@ -124,6 +171,7 @@ class WastePattern:
 @dataclass
 class CostModel:
     """Pricing rates per million tokens."""
+
     input_rate: float = 3.00
     output_rate: float = 15.00
     cache_read_rate: float = 0.30
@@ -133,6 +181,7 @@ class CostModel:
 @dataclass
 class PositionalBreakdown:
     """TER computed over session thirds (early/mid/late)."""
+
     early_ter: float
     mid_ter: float
     late_ter: float
@@ -144,6 +193,7 @@ class PositionalBreakdown:
 @dataclass
 class InputGrowth:
     """Turn-over-turn input token growth tracking."""
+
     turn_input_tokens: list[int]
     growth_rate: float
     is_superlinear: bool
@@ -153,6 +203,7 @@ class InputGrowth:
 @dataclass
 class SessionEconomics:
     """Aggregated token usage, cost, positional analysis, and growth."""
+
     total_input_tokens: int
     total_output_tokens: int
     total_cache_creation_tokens: int
@@ -182,13 +233,20 @@ class TERResult:
     classified_spans: list[ClassifiedSpan] = field(default_factory=list)
     economics: SessionEconomics | None = None
     input_analysis: InputAnalysis | None = None
-    cost_report: Any | None = None  # CostReport from cost_model.py (avoid circular import)
-    overthinking_result: Any | None = None  # OverthinkingResult from overthinking.py (avoid circular import)
+    cost_report: Any | None = (
+        None  # CostReport from cost_model.py (avoid circular import)
+    )
+    overthinking_result: Any | None = (
+        None  # OverthinkingResult from overthinking.py (avoid circular import)
+    )
+    uncertainty: UncertaintyReport | None = None
+    classifier_version: str = "v11"
 
 
 @dataclass
 class TokenBreakdown:
     """Token counts categorised by origin (user vs model)."""
+
     user_input_tokens: int = 0
     user_result_tokens: int = 0
     model_reasoning_tokens: int = 0
@@ -202,6 +260,7 @@ class TokenBreakdown:
 @dataclass
 class PromptPair:
     """A pair of user prompts with their cosine similarity."""
+
     prompt_a_index: int
     prompt_b_index: int
     similarity: float
@@ -212,6 +271,7 @@ class PromptPair:
 @dataclass
 class PromptSimilarityResult:
     """Pairwise similarity analysis of user prompts."""
+
     similarity_matrix: list[list[float]] = field(default_factory=list)
     similar_pairs: list[PromptPair] = field(default_factory=list)
     prompt_redundancy_score: float = 0.0
@@ -221,6 +281,7 @@ class PromptSimilarityResult:
 @dataclass
 class IntentDriftStep:
     """A single step in the intent drift sequence."""
+
     from_index: int
     to_index: int
     similarity: float
@@ -230,6 +291,7 @@ class IntentDriftStep:
 @dataclass
 class IntentDrift:
     """Turn-over-turn intent drift analysis."""
+
     steps: list[IntentDriftStep] = field(default_factory=list)
     overall_trajectory: str = "stable"  # "convergent", "divergent", "stable", "mixed"
     average_drift: float = 0.0
@@ -238,6 +300,7 @@ class IntentDrift:
 @dataclass
 class PromptResponsePair:
     """A user prompt paired with the model's response and their alignment."""
+
     prompt_index: int
     prompt_text: str
     response_text: str
@@ -247,6 +310,7 @@ class PromptResponsePair:
 @dataclass
 class PromptResponseAlignment:
     """Alignment analysis between user prompts and model responses."""
+
     pairs: list[PromptResponsePair] = field(default_factory=list)
     average_alignment: float = 0.0
     low_alignment_count: int = 0
@@ -255,6 +319,7 @@ class PromptResponseAlignment:
 @dataclass
 class InputAnalysis:
     """Combined input-side analysis: token breakdown + prompt similarity."""
+
     token_breakdown: TokenBreakdown = field(default_factory=TokenBreakdown)
     prompt_similarity: PromptSimilarityResult = field(
         default_factory=PromptSimilarityResult

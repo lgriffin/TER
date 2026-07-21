@@ -7,6 +7,8 @@ from datetime import datetime
 from pathlib import Path
 
 from .embedding_cache import estimate_tokens
+from .jsonl_identity import content_block_fingerprint, entry_identity
+from .span_segmentation import SegmentationConfig, segment_text
 from .models import (
     ContentBlock,
     Message,
@@ -36,7 +38,10 @@ def load_session(path: str | Path) -> Session:
             if not line:
                 continue
             try:
-                raw_entries.append(json.loads(line))
+                entry = json.loads(line)
+                if isinstance(entry, dict):
+                    entry["_source_line"] = line_num
+                    raw_entries.append(entry)
             except json.JSONDecodeError as e:
                 raise ValueError(
                     f"Invalid JSON on line {line_num} of {path}: {e}"
@@ -46,7 +51,7 @@ def load_session(path: str | Path) -> Session:
         raise ValueError(f"Session file is empty: {path}")
 
     # Deduplicate by requestId — keep entry with highest output_tokens.
-    deduped = _deduplicate_entries(raw_entries)
+    deduped, merge_warnings = _deduplicate_entries_with_warnings(raw_entries)
 
     # Build messages.
     messages: list[Message] = []
@@ -67,28 +72,36 @@ def load_session(path: str | Path) -> Session:
         if first_timestamp is None:
             first_timestamp = timestamp
 
-        content_blocks = _parse_content_blocks(msg_data.get("content", []))
+        content_blocks = _parse_content_blocks(
+            msg_data.get("content", []),
+            role=msg_data.get("role", entry_type),
+        )
         usage = _parse_usage(msg_data.get("usage"))
 
-        messages.append(Message(
-            uuid=uuid,
-            role=msg_data.get("role", entry_type),
-            content_blocks=content_blocks,
-            parent_uuid=entry.get("parentUuid"),
-            timestamp=timestamp,
-            request_id=entry.get("requestId"),
-            usage=usage,
-            stop_reason=msg_data.get("stop_reason"),
-        ))
+        messages.append(
+            Message(
+                uuid=uuid,
+                role=msg_data.get("role", entry_type),
+                content_blocks=content_blocks,
+                parent_uuid=entry.get("parentUuid"),
+                timestamp=timestamp,
+                request_id=entry.get("requestId"),
+                usage=usage,
+                stop_reason=msg_data.get("stop_reason"),
+                source_lines=list(
+                    entry.get("_source_lines", [entry.get("_source_line")])
+                )
+                if entry.get("_source_line") is not None
+                else [],
+                merge_warnings=list(entry.get("_merge_warnings", [])),
+            )
+        )
 
     # Extract user prompts.
     user_prompts = _extract_user_prompts(messages)
 
     # Compute total tokens from assistant message usage.
-    total_tokens = sum(
-        m.usage.output_tokens for m in messages
-        if m.usage is not None
-    )
+    total_tokens = sum(m.usage.output_tokens for m in messages if m.usage is not None)
 
     return Session(
         session_id=session_id or path.stem,
@@ -97,13 +110,22 @@ def load_session(path: str | Path) -> Session:
         timestamp=first_timestamp,
         total_tokens=total_tokens,
         user_prompts=user_prompts,
+        merge_warnings=merge_warnings,
     )
 
 
-def segment_spans(session: Session) -> list[TokenSpan]:
-    """Extract TokenSpans from a Session's content blocks.
+def segment_spans(
+    session: Session,
+    config: SegmentationConfig | None = None,
+) -> list[TokenSpan]:
+    """Extract model-output TokenSpans from a Session's content blocks.
 
-    Assigns phases based on block type:
+    User messages remain available on the Session for intent construction and
+    input analysis, but they are excluded from TER scoring. This prevents long
+    prompts and duplicated queue metadata from being counted as generated
+    output.
+
+    Assigns phases based on assistant block type:
     - thinking → reasoning
     - tool_use, tool_result → tool_use
     - text → generation
@@ -112,26 +134,51 @@ def segment_spans(session: Session) -> list[TokenSpan]:
     """
     spans: list[TokenSpan] = []
     position = 0
+    segmentation = config or SegmentationConfig()
 
     for message in session.messages:
-        for block in message.content_blocks:
+        # TER measures model-output efficiency. User prompts are inputs used to
+        # construct intent and must never become scored generation spans.
+        if message.role != "assistant":
+            continue
+
+        for block_index, block in enumerate(message.content_blocks):
             text = _get_block_text(block)
             if not text:
                 continue
 
             phase = _block_type_to_phase(block.block_type)
-            token_count = estimate_tokens(text)
+            parent_block_id = f"{message.uuid}:{block_index}"
+            should_split = block.block_type in {"thinking", "text"}
+            pieces = (
+                segment_text(text, segmentation)
+                if should_split
+                else segment_text(text, SegmentationConfig(enabled=False))
+            )
 
-            spans.append(TokenSpan(
-                text=text,
-                phase=phase,
-                position=position,
-                token_count=token_count,
-                source_message_uuid=message.uuid,
-                block_type=block.block_type,
-                source_role=message.role,
-            ))
-            position += 1
+            for segment_index, piece in enumerate(pieces):
+                spans.append(
+                    TokenSpan(
+                        text=piece.text,
+                        phase=phase,
+                        position=position,
+                        token_count=estimate_tokens(piece.text),
+                        source_message_uuid=message.uuid,
+                        block_type=block.block_type,
+                        source_role=message.role,
+                        tool_name=block.tool_name,
+                        tool_input=block.tool_input,
+                        parent_block_id=parent_block_id,
+                        segment_index=segment_index,
+                        char_start=piece.char_start,
+                        char_end=piece.char_end,
+                        source_line=block.source_line,
+                        source_lines=list(block.source_lines),
+                        content_fingerprint=block.content_fingerprint,
+                        source_block_index=block.block_index,
+                    )
+                )
+                position += 1
 
     return spans
 
@@ -178,9 +225,7 @@ def find_latest_session(project_path: str | Path | None = None) -> Path:
                 all_sessions.append(jsonl_file)
 
         if not all_sessions:
-            raise FileNotFoundError(
-                f"No session files found in {claude_dir}"
-            )
+            raise FileNotFoundError(f"No session files found in {claude_dir}")
 
         # Return the most recently modified
         return max(all_sessions, key=lambda p: p.stat().st_mtime)
@@ -204,50 +249,116 @@ def find_latest_session(project_path: str | Path | None = None) -> Path:
 
 
 def _deduplicate_entries(entries: list[dict]) -> list[dict]:
-    """Merge per-block JSONL lines that share a requestId into one entry.
+    """Compatibility wrapper returning deterministically merged entries."""
+    merged, _ = _deduplicate_entries_with_warnings(entries)
+    return merged
 
-    Claude Code writes one JSONL line per content block (thinking, tool_use,
-    text) even when they belong to the same API response — all sharing the
-    same requestId.  The previous strategy of keeping only the entry with the
-    highest output_tokens silently dropped the other blocks (e.g. the
-    tool_use line when a thinking block was logged first).
 
-    Instead we merge the content lists of all sibling lines into the first
-    occurrence so the resulting Message contains every block.
+def _deduplicate_entries_with_warnings(
+    entries: list[dict],
+) -> tuple[list[dict], list[str]]:
+    """Merge sibling records while preserving order, conflicts, and provenance.
+
+    Exact content-block fingerprints are emitted once. Distinct sibling blocks
+    sharing an entry identity are retained in first-seen order. Missing request
+    IDs fall back to UUID/message identity and ultimately source-line identity.
     """
     import copy
 
-    seen: dict[str, int] = {}  # requestId -> index in result
+    seen: dict[str, int] = {}
     result: list[dict] = []
+    warnings: list[str] = []
 
-    for entry in entries:
-        request_id = entry.get("requestId")
-        if request_id is None:
+    for sequence, original in enumerate(entries, 1):
+        entry = copy.deepcopy(original)
+        source_line = int(entry.get("_source_line", sequence))
+        identity = entry_identity(entry, source_line)
+        role = entry.get("message", {}).get("role", entry.get("type", ""))
+        content = entry.get("message", {}).get("content", [])
+        blocks = content if isinstance(content, list) else [content]
+
+        annotated_blocks: list[dict | str] = []
+        for block_index, block in enumerate(blocks):
+            if not isinstance(block, (dict, str)):
+                continue
+            if isinstance(block, dict):
+                annotated_dict = copy.deepcopy(block)
+                annotated_dict["_source_line"] = source_line
+                annotated_dict["_source_lines"] = [source_line]
+                annotated_dict["_source_block_index"] = block_index
+                annotated_dict["_content_fingerprint"] = content_block_fingerprint(
+                    role, block
+                )
+                annotated_blocks.append(annotated_dict)
+            else:
+                annotated_blocks.append(block)
+
+        entry.setdefault("message", {})["content"] = annotated_blocks
+        entry["_source_lines"] = [source_line]
+
+        if identity not in seen:
+            seen[identity] = len(result)
             result.append(entry)
             continue
 
-        if request_id in seen:
-            base = result[seen[request_id]]
-            base_msg = base.setdefault("message", {})
-            base_content = base_msg.get("content")
-            new_content = entry.get("message", {}).get("content", [])
-            if isinstance(new_content, list) and new_content:
-                if isinstance(base_content, list):
-                    base_content.extend(new_content)
-                else:
-                    base_msg["content"] = list(new_content)
-            # Backfill usage if the first sibling didn't carry it.
-            if not base_msg.get("usage") and entry.get("message", {}).get("usage"):
-                base_msg["usage"] = entry["message"]["usage"]
-        else:
-            seen[request_id] = len(result)
-            result.append(copy.deepcopy(entry))
+        base = result[seen[identity]]
+        base_msg = base.setdefault("message", {})
+        base_content = base_msg.setdefault("content", [])
+        if not isinstance(base_content, list):
+            base_content = [base_content]
+            base_msg["content"] = base_content
 
-    return result
+        existing: dict[str, dict] = {}
+        for block in base_content:
+            if isinstance(block, dict):
+                fingerprint = block.get("_content_fingerprint")
+                if fingerprint:
+                    existing[fingerprint] = block
+
+        added_distinct = False
+        for block in annotated_blocks:
+            if not isinstance(block, dict):
+                if block not in base_content:
+                    base_content.append(block)
+                    added_distinct = True
+                continue
+            fingerprint = block.get("_content_fingerprint")
+            if fingerprint in existing:
+                previous = existing[fingerprint]
+                lines = previous.setdefault("_source_lines", [])
+                if source_line not in lines:
+                    lines.append(source_line)
+                continue
+            base_content.append(block)
+            if fingerprint:
+                existing[fingerprint] = block
+            added_distinct = True
+
+        source_lines = base.setdefault("_source_lines", [])
+        if source_line not in source_lines:
+            source_lines.append(source_line)
+
+        usage = entry.get("message", {}).get("usage")
+        if not base_msg.get("usage") and usage:
+            base_msg["usage"] = usage
+
+        if added_distinct:
+            warning = (
+                f"Merged distinct sibling content for {identity} from source line "
+                f"{source_line}; all non-duplicate blocks were retained."
+            )
+            base.setdefault("_merge_warnings", []).append(warning)
+            warnings.append(warning)
+
+    return result, warnings
 
 
-def _parse_content_blocks(content) -> list[ContentBlock]:
-    """Parse content field into ContentBlock objects."""
+def _parse_content_blocks(
+    content,
+    *,
+    role: str = "",
+) -> list[ContentBlock]:
+    """Parse content into blocks with stable identity and source provenance."""
     if isinstance(content, str):
         return [ContentBlock(block_type="text", text=content)]
 
@@ -273,17 +384,30 @@ def _parse_content_blocks(content) -> list[ContentBlock]:
             elif isinstance(raw_content, list):
                 # tool_result content can be a list of {type, text} objects.
                 text = " ".join(
-                    c.get("text", "") for c in raw_content
+                    c.get("text", "")
+                    for c in raw_content
                     if isinstance(c, dict) and c.get("text")
                 )
             # Otherwise leave text as None.
-        blocks.append(ContentBlock(
-            block_type=block_type,
-            text=text,
-            tool_name=item.get("name"),
-            tool_input=item.get("input"),
-            tool_use_id=item.get("id") or item.get("tool_use_id"),
-        ))
+        fingerprint = item.get("_content_fingerprint") or content_block_fingerprint(
+            role,
+            {key: value for key, value in item.items() if not str(key).startswith("_")},
+        )
+        source_line = item.get("_source_line")
+        source_lines = item.get("_source_lines", [])
+        blocks.append(
+            ContentBlock(
+                block_type=block_type,
+                text=text,
+                tool_name=item.get("name"),
+                tool_input=item.get("input"),
+                tool_use_id=item.get("id") or item.get("tool_use_id"),
+                source_line=source_line if isinstance(source_line, int) else None,
+                source_lines=[line for line in source_lines if isinstance(line, int)],
+                content_fingerprint=str(fingerprint),
+                block_index=item.get("_source_block_index"),
+            )
+        )
 
     return blocks
 

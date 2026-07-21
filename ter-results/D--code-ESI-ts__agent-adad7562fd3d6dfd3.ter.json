@@ -1,0 +1,2554 @@
+{
+  "session_id": "a4e701aa-0dce-4f48-867d-8ac45b40f603",
+  "aggregate_ter": 0.9952,
+  "raw_ratio": 0.9942,
+  "phase_scores": {
+    "reasoning": 0.9841,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 7224,
+  "aligned_tokens": 7182,
+  "waste_tokens": 42,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5869,
+    "token_weighted_confidence": 0.6136,
+    "low_confidence_tokens": 7224,
+    "low_confidence_share": 1.0,
+    "ter_interval": [
+      0.9092,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 81,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "high"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5758592486381531,
+      "intent_similarity": 0.5758592486381531,
+      "tokens": 76,
+      "text": "The user wants me to analyze 22 example files and map their method calls to ESI API endpoints. This is a large research task that requires reading many files. Let me start by reading the endpoint definition files to build a mapping, then read all 22 example files.\n\nLet me launch this in parallel - first get all endpoint definition files, then start reading the example files.",
+      "source_message_uuid": "0aa6f607-137a-4eed-93ec-6c61dff83b28",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.5759,
+          "repetition_score": 0.0,
+          "confidence": 0.5759
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.4300664961338043,
+      "tokens": 40,
+      "text": "I'll tackle this systematically: first discover all endpoint definition files to build the method-to-path mapping, then read all 22 example files. Let me start by finding the endpoint definitions and example files.",
+      "source_message_uuid": "0aa6f607-137a-4eed-93ec-6c61dff83b28",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4301,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.44793811440467834,
+      "tokens": 23,
+      "text": "Glob {\"pattern\":\"src/core/endpoints/*Endpoints.ts\",\"path\":\"D:\\\\code\\\\ESI.ts\"}",
+      "source_message_uuid": "0aa6f607-137a-4eed-93ec-6c61dff83b28",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4479,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4353232681751251,
+      "tokens": 19,
+      "text": "Glob {\"pattern\":\"examples/*.ts\",\"path\":\"D:\\\\code\\\\ESI.ts\"}",
+      "source_message_uuid": "0aa6f607-137a-4eed-93ec-6c61dff83b28",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4353,
+          "repetition_score": 0.6724,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8918,
+          "lexical_similarity": 0.6,
+          "entity_similarity": 0.625,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Glob {\"pattern\":\"src/core/endpoints/*Endpoints.ts\",\"path\":\"D:\\\\code\\\\ESI.ts\"}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.40558964014053345,
+      "tokens": 184,
+      "text": "Good, I have 35 endpoint definition files and 43 example files. The user listed 22 specific examples. Let me now read all endpoint definition files to build the method-to-path mapping, and simultaneously read all 22 example files.\n\nLet me batch these reads. I'll start with the endpoint files and the example files in parallel. There are a lot of files to read, so let me use agents to parallelize this work.\n\nActually, let me think about the best approach. I need to:\n1. Read all 35 endpoint definition files to build a mapping of method names to API paths\n2. Read all 22 example files to identify which methods they call\n3. Cross-reference the two to find which examples use which endpoints\n\nGiven the volume, I'll spawn two agents in parallel\u2014one to catalog all the endpoints from the definition files and another to catalog the method calls in the example files.",
+      "source_message_uuid": "7cd956a1-3141-499b-bb4e-83623ee6f124",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4056,
+          "repetition_score": 0.5107,
+          "confidence": 0.5,
+          "semantic_similarity": 0.7366,
+          "lexical_similarity": 0.2449,
+          "entity_similarity": 0.2469,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.7531
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "The user wants me to analyze 22 example files and map their method calls to ESI API endpoints. This is a large research task that requires reading many files. Let me start by reading the endpoint definition files to build a mapping, then re"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.412216454744339,
+      "tokens": 21,
+      "text": "Now let me read all the endpoint definition files and example files. I'll batch them in parallel groups.",
+      "source_message_uuid": "7cd956a1-3141-499b-bb4e-83623ee6f124",
+      "source_lines": [
+        10
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4122,
+          "repetition_score": 0.4594,
+          "confidence": 0.5,
+          "semantic_similarity": 0.6171,
+          "lexical_similarity": 0.3824,
+          "entity_similarity": 0.3214,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.6786
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 1,
+        "matched_prior_text": "I'll tackle this systematically: first discover all endpoint definition files to build the method-to-path mapping, then read all 22 example files. Let me start by finding the endpoint definitions and example files."
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4421958029270172,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\allianceEndpoints.ts\"}",
+      "source_message_uuid": "7cd956a1-3141-499b-bb4e-83623ee6f124",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4422,
+          "repetition_score": 0.058,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7318,
+          "lexical_similarity": 0.2143,
+          "entity_similarity": 0.25,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Glob {\"pattern\":\"src/core/endpoints/*Endpoints.ts\",\"path\":\"D:\\\\code\\\\ESI.ts\"}"
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4041745364665985,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\statusEndpoints.ts\"}",
+      "source_message_uuid": "7cd956a1-3141-499b-bb4e-83623ee6f124",
+      "source_lines": [
+        13
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4042,
+          "repetition_score": 0.7229,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9338,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\allianceEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4142290949821472,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\characterEndpoints.ts\"}",
+      "source_message_uuid": "7cd956a1-3141-499b-bb4e-83623ee6f124",
+      "source_lines": [
+        14
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4142,
+          "repetition_score": 0.7294,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9522,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\statusEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 9,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4207112491130829,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\universeEndpoints.ts\"}",
+      "source_message_uuid": "7cd956a1-3141-499b-bb4e-83623ee6f124",
+      "source_lines": [
+        17
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4207,
+          "repetition_score": 0.7378,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9759,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\characterEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 10,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4069662392139435,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\marketEndpoints.ts\"}",
+      "source_message_uuid": "7cd956a1-3141-499b-bb4e-83623ee6f124",
+      "source_lines": [
+        19
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.407,
+          "repetition_score": 0.7201,
+          "confidence": 0.6,
+          "semantic_similarity": 0.926,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\universeEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 11,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.39263013005256653,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\warEndpoints.ts\"}",
+      "source_message_uuid": "7cd956a1-3141-499b-bb4e-83623ee6f124",
+      "source_lines": [
+        21
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3926,
+          "repetition_score": 0.7347,
+          "confidence": 0.6,
+          "semantic_similarity": 0.967,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\universeEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 12,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4031168222427368,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\industryEndpoints.ts\"}",
+      "source_message_uuid": "7cd956a1-3141-499b-bb4e-83623ee6f124",
+      "source_lines": [
+        23
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4031,
+          "repetition_score": 0.7309,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9564,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 11,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\warEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 13,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.41858240962028503,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\incursionEndpoints.ts\"}",
+      "source_message_uuid": "7cd956a1-3141-499b-bb4e-83623ee6f124",
+      "source_lines": [
+        25
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4186,
+          "repetition_score": 0.7297,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9529,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\universeEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 14,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.40646883845329285,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\dogmaEndpoints.ts\"}",
+      "source_message_uuid": "7cd956a1-3141-499b-bb4e-83623ee6f124",
+      "source_lines": [
+        27
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4065,
+          "repetition_score": 0.7228,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9334,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\universeEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 15,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.39618560671806335,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\routeEndpoints.ts\"}",
+      "source_message_uuid": "7cd956a1-3141-499b-bb4e-83623ee6f124",
+      "source_lines": [
+        29
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3962,
+          "repetition_score": 0.7256,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9415,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\universeEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 16,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.40140533447265625,
+      "tokens": 26,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\sovereigntyEndpoints.ts\"}",
+      "source_message_uuid": "7cd956a1-3141-499b-bb4e-83623ee6f124",
+      "source_lines": [
+        31
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4014,
+          "repetition_score": 0.7315,
+          "confidence": 0.6,
+          "semantic_similarity": 0.958,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\universeEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 17,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4188370406627655,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\contractEndpoints.ts\"}",
+      "source_message_uuid": "7cd956a1-3141-499b-bb4e-83623ee6f124",
+      "source_lines": [
+        33
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4188,
+          "repetition_score": 0.7348,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9673,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\universeEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 18,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.40734705328941345,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\mercenaryEndpoints.ts\"}",
+      "source_message_uuid": "7cd956a1-3141-499b-bb4e-83623ee6f124",
+      "source_lines": [
+        35
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4073,
+          "repetition_score": 0.7254,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9409,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 17,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\contractEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 19,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.39169952273368835,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\skyhookEndpoints.ts\"}",
+      "source_message_uuid": "7cd956a1-3141-499b-bb4e-83623ee6f124",
+      "source_lines": [
+        37
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3917,
+          "repetition_score": 0.7245,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9382,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\universeEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 20,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4279143512248993,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\metaEndpoints.ts\"}",
+      "source_message_uuid": "7cd956a1-3141-499b-bb4e-83623ee6f124",
+      "source_lines": [
+        39
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4279,
+          "repetition_score": 0.7296,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9528,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 17,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\contractEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 21,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.3513658046722412,
+      "tokens": 34,
+      "text": "Good, I've read most of the endpoint files. Now let me read the remaining endpoint files that I haven't read yet, and also start reading the example files.",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        41
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3514,
+          "repetition_score": 0.4248,
+          "confidence": 0.5,
+          "semantic_similarity": 0.6174,
+          "lexical_similarity": 0.2222,
+          "entity_similarity": 0.2326,
+          "action_similarity": 0.3333,
+          "parameter_novelty": 0.7674
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "The user wants me to analyze 22 example files and map their method calls to ESI API endpoints. This is a large research task that requires reading many files. Let me start by reading the endpoint definition files to build a mapping, then re"
+      }
+    },
+    {
+      "position": 22,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.4015923738479614,
+      "tokens": 16,
+      "text": "Now let me read the remaining endpoint definition files and start reading the example files.",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        42
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4016,
+          "repetition_score": 0.6516,
+          "confidence": 0.5,
+          "semantic_similarity": 0.7862,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5294,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.4706
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Now let me read all the endpoint definition files and example files. I'll batch them in parallel groups."
+      }
+    },
+    {
+      "position": 23,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.41321614384651184,
+      "tokens": 26,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\corporationEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        43
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4132,
+          "repetition_score": 0.7362,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9714,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 12,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\industryEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 24,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3971271514892578,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\assetEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        45
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3971,
+          "repetition_score": 0.7256,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9414,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 23,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\corporationEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 25,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3926045596599579,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\cloneEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        47
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3926,
+          "repetition_score": 0.7008,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8713,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 20,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\metaEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 26,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.37064918875694275,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\contactEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        49
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3706,
+          "repetition_score": 0.7212,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9288,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 17,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\contractEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 27,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4308764636516571,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\factionEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        51
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4309,
+          "repetition_score": 0.7317,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9586,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 23,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\corporationEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 28,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.38500553369522095,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\fittingEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        53
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.385,
+          "repetition_score": 0.7235,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9353,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 20,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\metaEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 29,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4116753041744232,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\fleetEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        55
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4117,
+          "repetition_score": 0.7313,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9574,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 17,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\contractEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 30,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.38623225688934326,
+      "tokens": 27,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\freelanceJobsEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        57
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3862,
+          "repetition_score": 0.7251,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9399,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 23,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\corporationEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 31,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4186057150363922,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\insuranceEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        59
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4186,
+          "repetition_score": 0.729,
+          "confidence": 0.6,
+          "semantic_similarity": 0.951,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 23,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\corporationEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 32,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.35081908106803894,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\killmailEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        61
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3508,
+          "repetition_score": 0.6954,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8561,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 26,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\contactEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 33,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.40889519453048706,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\locationEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        63
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4089,
+          "repetition_score": 0.7364,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9718,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 23,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\corporationEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 34,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4174692928791046,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\loyaltyEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        65
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4175,
+          "repetition_score": 0.7261,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9427,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 27,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\factionEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 35,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3655043840408325,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\mailEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        67
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3655,
+          "repetition_score": 0.7201,
+          "confidence": 0.6,
+          "semantic_similarity": 0.926,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 32,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\killmailEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 36,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3943207263946533,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\piEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        69
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3943,
+          "repetition_score": 0.7337,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9641,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 33,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\locationEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 37,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4026009440422058,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\skillEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        71
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4026,
+          "repetition_score": 0.7321,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9597,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 33,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\locationEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 38,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3971370756626129,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\walletEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        73
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3971,
+          "repetition_score": 0.7197,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9248,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 33,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\locationEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 39,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.420693963766098,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\searchEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        75
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4207,
+          "repetition_score": 0.7343,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9659,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 33,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\locationEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 40,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4186404347419739,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\uiEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        77
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4186,
+          "repetition_score": 0.7407,
+          "confidence": 0.6,
+          "semantic_similarity": 0.984,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 33,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\locationEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 41,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.42589423060417175,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\accessListEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        79
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4259,
+          "repetition_score": 0.7356,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9697,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 40,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\uiEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 42,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3662175238132477,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\calendarEndpoints.ts\"}",
+      "source_message_uuid": "92e33c8d-6f0b-40ed-96d2-f32fa6144a48",
+      "source_lines": [
+        81
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3662,
+          "repetition_score": 0.7155,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9129,
+          "lexical_similarity": 0.8,
+          "entity_similarity": 0.7778,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 40,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\uiEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 43,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.48069489002227783,
+      "tokens": 23,
+      "text": "Now I have all the endpoint definitions. Let me now read all 22 example files. Let me batch them.",
+      "source_message_uuid": "4bfb0b0d-aeee-44b9-bfcf-018c99034a16",
+      "source_lines": [
+        83
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4807,
+          "repetition_score": 0.5917,
+          "confidence": 0.5,
+          "semantic_similarity": 0.8063,
+          "lexical_similarity": 0.3103,
+          "entity_similarity": 0.3043,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.6957
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 21,
+        "matched_prior_text": "Good, I've read most of the endpoint files. Now let me read the remaining endpoint files that I haven't read yet, and also start reading the example files."
+      }
+    },
+    {
+      "position": 44,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.3360874354839325,
+      "tokens": 17,
+      "text": "Now let me read all 22 example files. I'll batch them in groups.",
+      "source_message_uuid": "4bfb0b0d-aeee-44b9-bfcf-018c99034a16",
+      "source_lines": [
+        84
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3361,
+          "repetition_score": 0.5483,
+          "confidence": 0.5,
+          "semantic_similarity": 0.6012,
+          "lexical_similarity": 0.65,
+          "entity_similarity": 0.6,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.4
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Now let me read all the endpoint definition files and example files. I'll batch them in parallel groups."
+      }
+    },
+    {
+      "position": 45,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.39478403329849243,
+      "tokens": 18,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\status.ts\"}",
+      "source_message_uuid": "4bfb0b0d-aeee-44b9-bfcf-018c99034a16",
+      "source_lines": [
+        85
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3948,
+          "repetition_score": 0.6306,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8725,
+          "lexical_similarity": 0.4545,
+          "entity_similarity": 0.4,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 36,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\piEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 46,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4123755395412445,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\alliance-info.ts\"}",
+      "source_message_uuid": "4bfb0b0d-aeee-44b9-bfcf-018c99034a16",
+      "source_lines": [
+        87
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4124,
+          "repetition_score": 0.6756,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8509,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.625,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 45,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\status.ts\"}"
+      }
+    },
+    {
+      "position": 47,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3963591158390045,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\character-lookup.ts\"}",
+      "source_message_uuid": "4bfb0b0d-aeee-44b9-bfcf-018c99034a16",
+      "source_lines": [
+        89
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3964,
+          "repetition_score": 0.6701,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8353,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.625,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 45,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\status.ts\"}"
+      }
+    },
+    {
+      "position": 48,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3563355505466461,
+      "tokens": 19,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\character-profile.ts\"}",
+      "source_message_uuid": "4bfb0b0d-aeee-44b9-bfcf-018c99034a16",
+      "source_lines": [
+        91
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3563,
+          "repetition_score": 0.7058,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9085,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.75,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 47,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\character-lookup.ts\"}"
+      }
+    },
+    {
+      "position": 49,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.37185147404670715,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\universe-info.ts\"}",
+      "source_message_uuid": "4bfb0b0d-aeee-44b9-bfcf-018c99034a16",
+      "source_lines": [
+        93
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3719,
+          "repetition_score": 0.6986,
+          "confidence": 0.6,
+          "semantic_similarity": 0.888,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.75,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 46,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\alliance-info.ts\"}"
+      }
+    },
+    {
+      "position": 50,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3385784924030304,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\market-prices.ts\"}",
+      "source_message_uuid": "4bfb0b0d-aeee-44b9-bfcf-018c99034a16",
+      "source_lines": [
+        95
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3386,
+          "repetition_score": 0.6703,
+          "confidence": 0.6,
+          "semantic_similarity": 0.836,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.625,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 45,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\status.ts\"}"
+      }
+    },
+    {
+      "position": 51,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3801153898239136,
+      "tokens": 19,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\wars.ts\"}",
+      "source_message_uuid": "4bfb0b0d-aeee-44b9-bfcf-018c99034a16",
+      "source_lines": [
+        97
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3801,
+          "repetition_score": 0.6981,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8946,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 45,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\status.ts\"}"
+      }
+    },
+    {
+      "position": 52,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3782395124435425,
+      "tokens": 18,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\industry.ts\"}",
+      "source_message_uuid": "4bfb0b0d-aeee-44b9-bfcf-018c99034a16",
+      "source_lines": [
+        99
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3782,
+          "repetition_score": 0.694,
+          "confidence": 0.6,
+          "semantic_similarity": 0.883,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 45,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\status.ts\"}"
+      }
+    },
+    {
+      "position": 53,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4081609845161438,
+      "tokens": 19,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\incursions.ts\"}",
+      "source_message_uuid": "4bfb0b0d-aeee-44b9-bfcf-018c99034a16",
+      "source_lines": [
+        101
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4082,
+          "repetition_score": 0.6881,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8664,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 51,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\wars.ts\"}"
+      }
+    },
+    {
+      "position": 54,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.388973206281662,
+      "tokens": 19,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\dogma.ts\"}",
+      "source_message_uuid": "4bfb0b0d-aeee-44b9-bfcf-018c99034a16",
+      "source_lines": [
+        103
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.389,
+          "repetition_score": 0.6902,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8723,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 51,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\wars.ts\"}"
+      }
+    },
+    {
+      "position": 55,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.33382317423820496,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\route-planner.ts\"}",
+      "source_message_uuid": "4bfb0b0d-aeee-44b9-bfcf-018c99034a16",
+      "source_lines": [
+        105
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3338,
+          "repetition_score": 0.6638,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8176,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.625,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 52,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\industry.ts\"}"
+      }
+    },
+    {
+      "position": 56,
+      "phase": "reasoning",
+      "label": "redundant_reasoning",
+      "confidence": 0.6,
+      "intent_similarity": 0.245604008436203,
+      "tokens": 9,
+      "text": "Let me continue reading the remaining example files.",
+      "source_message_uuid": "616d3101-5622-4602-96be-ca768808eb3a",
+      "source_lines": [
+        107
+      ],
+      "explanation": {
+        "reason_code": "low_information_reasoning",
+        "summary": "The reasoning span is short and weakly aligned with the active intent.",
+        "signals": {
+          "intent_similarity": 0.2456,
+          "repetition_score": 0.4675,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6619,
+          "lexical_similarity": 0.2917,
+          "entity_similarity": 0.3333,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.6667
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 21,
+        "matched_prior_text": "Good, I've read most of the endpoint files. Now let me read the remaining endpoint files that I haven't read yet, and also start reading the example files."
+      }
+    },
+    {
+      "position": 57,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.30146360397338867,
+      "tokens": 11,
+      "text": "Now let me read the remaining 11 example files.",
+      "source_message_uuid": "616d3101-5622-4602-96be-ca768808eb3a",
+      "source_lines": [
+        108
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3015,
+          "repetition_score": 0.6029,
+          "confidence": 0.5,
+          "semantic_similarity": 0.7866,
+          "lexical_similarity": 0.3529,
+          "entity_similarity": 0.3846,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.6154
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 44,
+        "matched_prior_text": "Now let me read all 22 example files. I'll batch them in groups."
+      }
+    },
+    {
+      "position": 58,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3855993151664734,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\sovereignty.ts\"}",
+      "source_message_uuid": "616d3101-5622-4602-96be-ca768808eb3a",
+      "source_lines": [
+        109
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3856,
+          "repetition_score": 0.7,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 51,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\wars.ts\"}"
+      }
+    },
+    {
+      "position": 59,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3640315532684326,
+      "tokens": 22,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\dogma-meta-sov.ts\"}",
+      "source_message_uuid": "616d3101-5622-4602-96be-ca768808eb3a",
+      "source_lines": [
+        111
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.364,
+          "repetition_score": 0.709,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9175,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.75,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 54,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\dogma.ts\"}"
+      }
+    },
+    {
+      "position": 60,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.37621137499809265,
+      "tokens": 23,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\universe-encyclopedia.ts\"}",
+      "source_message_uuid": "616d3101-5622-4602-96be-ca768808eb3a",
+      "source_lines": [
+        113
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3762,
+          "repetition_score": 0.717,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9398,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.75,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 49,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\universe-info.ts\"}"
+      }
+    },
+    {
+      "position": 61,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.39967623353004456,
+      "tokens": 22,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\universe-post-helpers.ts\"}",
+      "source_message_uuid": "616d3101-5622-4602-96be-ca768808eb3a",
+      "source_lines": [
+        115
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3997,
+          "repetition_score": 0.7007,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9125,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.6667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 49,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\universe-info.ts\"}"
+      }
+    },
+    {
+      "position": 62,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.36884114146232605,
+      "tokens": 19,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\contracts-browser.ts\"}",
+      "source_message_uuid": "616d3101-5622-4602-96be-ca768808eb3a",
+      "source_lines": [
+        117
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3688,
+          "repetition_score": 0.6803,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8642,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.625,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 52,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\industry.ts\"}"
+      }
+    },
+    {
+      "position": 63,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3576067388057709,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\rate-limiting.ts\"}",
+      "source_message_uuid": "616d3101-5622-4602-96be-ca768808eb3a",
+      "source_lines": [
+        119
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3576,
+          "repetition_score": 0.6652,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8215,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.625,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 51,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\wars.ts\"}"
+      }
+    },
+    {
+      "position": 64,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3221789300441742,
+      "tokens": 21,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\retry-timeout-metadata.ts\"}",
+      "source_message_uuid": "616d3101-5622-4602-96be-ca768808eb3a",
+      "source_lines": [
+        121
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3222,
+          "repetition_score": 0.6308,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7523,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 63,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\rate-limiting.ts\"}"
+      }
+    },
+    {
+      "position": 65,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.34584060311317444,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\streaming-pagination.ts\"}",
+      "source_message_uuid": "616d3101-5622-4602-96be-ca768808eb3a",
+      "source_lines": [
+        123
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3458,
+          "repetition_score": 0.6391,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7478,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.625,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 53,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\incursions.ts\"}"
+      }
+    },
+    {
+      "position": 66,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3587675392627716,
+      "tokens": 19,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\cursor-pagination.ts\"}",
+      "source_message_uuid": "616d3101-5622-4602-96be-ca768808eb3a",
+      "source_lines": [
+        124
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3588,
+          "repetition_score": 0.6851,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8501,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.75,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 65,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\streaming-pagination.ts\"}"
+      }
+    },
+    {
+      "position": 67,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3894338309764862,
+      "tokens": 19,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\mercenary.ts\"}",
+      "source_message_uuid": "616d3101-5622-4602-96be-ca768808eb3a",
+      "source_lines": [
+        127
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3894,
+          "repetition_score": 0.6979,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8941,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 58,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\sovereignty.ts\"}"
+      }
+    },
+    {
+      "position": 68,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3632614016532898,
+      "tokens": 19,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\skyhooks.ts\"}",
+      "source_message_uuid": "616d3101-5622-4602-96be-ca768808eb3a",
+      "source_lines": [
+        129
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3633,
+          "repetition_score": 0.6714,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8192,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 58,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\sovereignty.ts\"}"
+      }
+    },
+    {
+      "position": 69,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.2738513648509979,
+      "tokens": 281,
+      "text": "Now I need to check what `streamMarketOrders` and `streamMarketTypes` map to since these are streaming methods, not direct endpoint calls. Let me also check the `getItemCategories` and `getItemGroups` method names since those might be aliased differently from the endpoint names. Let me also check for `getCharacterPortrait` since it's called `getPortrait` in the endpoint definition. Let me look at how the client maps method names to endpoint names.\n\nActually, I need to check how the client's API delegates method names. For example, in `character-lookup.ts`, the call is `client.characters.getCharacterPortrait(...)` but the endpoint is named `getPortrait`. \n\nI'm realizing the method names on the client classes might differ from the endpoint definition keys, so I need to examine the client files directly to understand the exact mapping. Let me go through the examples and construct the complete mapping from each method call to its corresponding ESI endpoint path. Continuing with the rest of the available client methods across wars, industry, insurance, incursions, factions, dogma, routing, sovereignty, metadata, and contracts endpoints. I need to verify the actual path mappings by checking the client code directly, since method names might differ from the endpoint keys. The key is understanding how each client call translates to its underlying API path so I can trace where the data is coming from.",
+      "source_message_uuid": "18f73e7b-5106-49e2-9f6a-65380eafced5",
+      "source_lines": [
+        131
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2739,
+          "repetition_score": 0.2698,
+          "confidence": 0.5,
+          "semantic_similarity": 0.442,
+          "lexical_similarity": 0.0853,
+          "entity_similarity": 0.0755,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9245
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 21,
+        "matched_prior_text": "Good, I've read most of the endpoint files. Now let me read the remaining endpoint files that I haven't read yet, and also start reading the example files."
+      }
+    },
+    {
+      "position": 70,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.3734152615070343,
+      "tokens": 42,
+      "text": "I need to verify how some method names map to endpoints, especially `streamMarketOrders`, `streamMarketTypes`, `getCharacterPortrait`, `getItemCategories`, etc. Let me check the client API layer.",
+      "source_message_uuid": "18f73e7b-5106-49e2-9f6a-65380eafced5",
+      "source_lines": [
+        132
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3734,
+          "repetition_score": 0.4026,
+          "confidence": 0.5,
+          "semantic_similarity": 0.6639,
+          "lexical_similarity": 0.1087,
+          "entity_similarity": 0.075,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.925
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 1,
+        "matched_prior_text": "I'll tackle this systematically: first discover all endpoint definition files to build the method-to-path mapping, then read all 22 example files. Let me start by finding the endpoint definitions and example files."
+      }
+    },
+    {
+      "position": 71,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3292173743247986,
+      "tokens": 32,
+      "text": "Grep {\"pattern\":\"streamMarketOrders|streamMarketTypes\",\"output_mode\":\"files_with_matches\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\"}",
+      "source_message_uuid": "18f73e7b-5106-49e2-9f6a-65380eafced5",
+      "source_lines": [
+        133
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3292,
+          "repetition_score": 0.0453,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5749,
+          "lexical_similarity": 0.2,
+          "entity_similarity": 0.1333,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 63,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\rate-limiting.ts\"}"
+      }
+    },
+    {
+      "position": 72,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3538232743740082,
+      "tokens": 39,
+      "text": "Grep {\"pattern\":\"getCharacterPortrait|getCharacterPublicInfo|getItemCategories|getItemGroups\",\"output_mode\":\"files_with_matches\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\"}",
+      "source_message_uuid": "18f73e7b-5106-49e2-9f6a-65380eafced5",
+      "source_lines": [
+        135
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3538,
+          "repetition_score": 0.632,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7898,
+          "lexical_similarity": 0.6,
+          "entity_similarity": 0.5714,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 71,
+        "matched_prior_text": "Grep {\"pattern\":\"streamMarketOrders|streamMarketTypes\",\"output_mode\":\"files_with_matches\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\"}"
+      }
+    },
+    {
+      "position": 73,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.32593074440956116,
+      "tokens": 41,
+      "text": "Grep {\"pattern\":\"streamMarketOrders|streamMarketTypes\",\"output_mode\":\"content\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\clients\\\\MarketClient.ts\",\"-A\":5}",
+      "source_message_uuid": "7c2e996d-f5dc-4ebd-9013-50ec9f472ba6",
+      "source_lines": [
+        137
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3259,
+          "repetition_score": 0.6949,
+          "confidence": 0.6,
+          "semantic_similarity": 0.932,
+          "lexical_similarity": 0.625,
+          "entity_similarity": 0.6923,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 71,
+        "matched_prior_text": "Grep {\"pattern\":\"streamMarketOrders|streamMarketTypes\",\"output_mode\":\"files_with_matches\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\"}"
+      }
+    },
+    {
+      "position": 74,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.36674585938453674,
+      "tokens": 43,
+      "text": "Grep {\"pattern\":\"getCharacterPortrait|getItemCategories|getItemGroups\",\"output_mode\":\"content\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\clients\\\\CharacterClient.ts\",\"-A\":3}",
+      "source_message_uuid": "7c2e996d-f5dc-4ebd-9013-50ec9f472ba6",
+      "source_lines": [
+        139
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3667,
+          "repetition_score": 0.502,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9217,
+          "lexical_similarity": 0.6111,
+          "entity_similarity": 0.6667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.5
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 72,
+        "matched_prior_text": "Grep {\"pattern\":\"getCharacterPortrait|getCharacterPublicInfo|getItemCategories|getItemGroups\",\"output_mode\":\"files_with_matches\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\"}"
+      }
+    },
+    {
+      "position": 75,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3840057849884033,
+      "tokens": 44,
+      "text": "Grep {\"pattern\":\"getCharacterPortrait|getItemCategories|getItemGroups\",\"output_mode\":\"content\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\clients\\\\UniverseClient.ts\",\"-A\":3}",
+      "source_message_uuid": "7c2e996d-f5dc-4ebd-9013-50ec9f472ba6",
+      "source_lines": [
+        141
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.384,
+          "repetition_score": 0.7507,
+          "confidence": 0.6,
+          "semantic_similarity": 0.967,
+          "lexical_similarity": 0.8824,
+          "entity_similarity": 0.8571,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 74,
+        "matched_prior_text": "Grep {\"pattern\":\"getCharacterPortrait|getItemCategories|getItemGroups\",\"output_mode\":\"content\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\clients\\\\CharacterClient.ts\",\"-A\":3}"
+      }
+    },
+    {
+      "position": 76,
+      "phase": "reasoning",
+      "label": "redundant_reasoning",
+      "confidence": 0.6,
+      "intent_similarity": 0.1684180051088333,
+      "tokens": 33,
+      "text": "Now I have enough information to build the complete mapping. Let me also check what `getItemCategoryById` and `getItemGroupById` map to in UniverseClient.",
+      "source_message_uuid": "4d61c475-3304-466b-940d-30c65d0dabe1",
+      "source_lines": [
+        143
+      ],
+      "explanation": {
+        "reason_code": "low_information_reasoning",
+        "summary": "The reasoning span is short and weakly aligned with the active intent.",
+        "signals": {
+          "intent_similarity": 0.1684,
+          "repetition_score": 0.1802,
+          "confidence": 0.6,
+          "semantic_similarity": 0.2657,
+          "lexical_similarity": 0.1129,
+          "entity_similarity": 0.0962,
+          "action_similarity": 0.3333,
+          "parameter_novelty": 0.9038
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 69,
+        "matched_prior_text": "Now I need to check what `streamMarketOrders` and `streamMarketTypes` map to since these are streaming methods, not direct endpoint calls. Let me also check the `getItemCategories` and `getItemGroups` method names since those might be alias"
+      }
+    },
+    {
+      "position": 77,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.16088570654392242,
+      "tokens": 11,
+      "text": "Now let me verify a couple more method name mappings.",
+      "source_message_uuid": "4d61c475-3304-466b-940d-30c65d0dabe1",
+      "source_lines": [
+        144
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1609,
+          "repetition_score": 0.3586,
+          "confidence": 0.5,
+          "semantic_similarity": 0.5452,
+          "lexical_similarity": 0.1379,
+          "entity_similarity": 0.12,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.88
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 70,
+        "matched_prior_text": "I need to verify how some method names map to endpoints, especially `streamMarketOrders`, `streamMarketTypes`, `getCharacterPortrait`, `getItemCategories`, etc. Let me check the client API layer."
+      }
+    },
+    {
+      "position": 78,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.38601550459861755,
+      "tokens": 42,
+      "text": "Grep {\"pattern\":\"getItemCategoryById|getItemGroupById|getCharacterPublicInfo\",\"output_mode\":\"content\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\clients\",\"-A\":3}",
+      "source_message_uuid": "4d61c475-3304-466b-940d-30c65d0dabe1",
+      "source_lines": [
+        145
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.386,
+          "repetition_score": 0.5061,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9539,
+          "lexical_similarity": 0.6316,
+          "entity_similarity": 0.5625,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.5
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 75,
+        "matched_prior_text": "Grep {\"pattern\":\"getCharacterPortrait|getItemCategories|getItemGroups\",\"output_mode\":\"content\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\clients\\\\UniverseClient.ts\",\"-A\":3}"
+      }
+    },
+    {
+      "position": 79,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.617940366268158,
+      "intent_similarity": 0.617940366268158,
+      "tokens": 2003,
+      "text": "Now I have all the information I need. Let me now compile the complete report.\n\nLet me now count the total number of endpoints across all endpoint definition files:\n\n1. **allianceEndpoints.ts** (4 endpoints):\n   - getAllianceById: GET alliances/{allianceId}/\n   - getCorporations: GET alliances/{allianceId}/corporations/\n   - getIcons: GET alliances/{allianceId}/icons/\n   - getAlliances: GET alliances\n\n2. **statusEndpoints.ts** (1 endpoint):\n   - getStatus: GET status\n\n3. **characterEndpoints.ts** (14 endpoints):\n   - getCharacterPublicInfo: GET characters/{characterId}/\n   - getAgentsResearch: GET characters/{characterId}/agents_research/\n   - getBlueprints: GET characters/{characterId}/blueprints/\n   - getRoles: GET characters/{characterId}/roles\n   - getStandings: GET characters/{characterId}/standings\n   - getTitles: GET characters/{characterId}/titles\n   - getContactNotifications: GET characters/{characterId}/notifications/contacts/\n   - getCorporationHistory: GET characters/{characterId}/corporationhistory/\n   - getJumpFatigue: GET characters/{characterId}/fat\n   - getMedals: GET characters/{characterId}/medals/\n   - getNotifications: GET characters/{characterId}/notifications/\n   - getPortrait: GET characters/{characterId}/portrait/\n   - postCharacterAffiliation: POST characters/affiliation\n   - calculateCspaChargeCost: POST characters/{characterId}/cspa/\n\nNow moving into the universe endpoints with about 30 total, starting with methods for retrieving ancestries, bloodlines, asteroid belt information, categories, and constellation data.\n\nContinuing through more universe endpoints...\n\nNow moving into the market endpoints, starting with character order retrieval methods. Continuing with the war endpoints, there's also a killmails endpoint. Then moving into industry endpoints with eight total, covering character and corporation job tracking, mining data, and facility information. The incursion endpoints section is just starting. Finishing up the contract endpoints with methods for retrieving character, corporation, and public contracts along with their associated bids and items, then moving into the mercenary endpoints. Adding more corporation endpoints... Continuing through the asset endpoints with corporation-specific operations and asset location/name management, then moving into clone and implant retrieval endpoints, followed by alliance and character contact management endpoints.\n\nAdding faction warfare endpoints... Adding more fleet management endpoints...\n\nNow I'm looking at the freelance jobs endpoints, which handle retrieving job listings for characters and corporations along with participation details. There's also an insurance pricing endpoint to cover.\n\nContinuing through the killmail endpoints for recent activity and specific killmail lookups, location endpoints for character positioning and ship information, and loyalty endpoints for points and store offers.\n\n28. **mailEndpoints.ts** has 9 endpoints covering the full mail lifecycle\u2014retrieving headers, sending and reading messages, managing individual mail items with metadata updates, organizing with labels, and accessing mailing lists.\n\n29. **piEndpoints.ts** (4 endpoints):\n    - getColonies: GET characters/{characterId}/planets\n    - getColonyLayout: GET characters/{characterId}/planets/{planetId}\n    - getCorporationCustomsOffices: GET corporations/{corporationId}/customs_offices\n    - getSchematicInformation: GET universe/schematics/{schematicId}\n\n30. **skillEndpoints.ts** (3 endpoints):\n    - getCharacterAttributes: GET characters/{characterId}/attributes\n    - getCharacterSkillQueue: GET characters/{characterId}/skillqueue\n    - getCharacterSkills: GET characters/{characterId}/skills\n\n31. **walletEndpoints.ts** (6 endpoints):\n    - getCharacterWallet: GET characters/{characterId}/wallet\n    - getCharacterWalletJournal: GET characters/{characterId}/wallet/journal\n    - getCharacterWalletTransactions: GET characters/{characterId}/\n\nwallet/transactions\n    - getCorporationWallets: GET corporations/{corporationId}/wallets\n    - getCorporationWalletJournal: GET corporations/{corporationId}/wallets/{division}/journal\n    - getCorporationWalletTransactions: GET corporations/{corporationId}/wallets/{division}/transactions\n\n32. **searchEndpoints.ts** (1 endpoint):\n    - searchCharacter: GET characters/{characterId}/search/\n\n33. **uiEndpoints.ts** (5 endpoints):\n    - setAutopilotWaypoint: POST ui/autopilot/waypoint\n    - openContractWindow: POST ui/openwindow/contract\n    - openInformationWindow: POST ui/openwindow/information\n    - openMarketDetailsWindow: POST ui/openwindow/marketdetails\n    - openNewMailWindow: POST ui/openwindow\n\n/newmail\n\n34. **accessListEndpoints.ts** (1 endpoint):\n    - getAccessList: GET access-lists/{accessListId}\n\n35. **calendarEndpoints.ts** (4 endpoints):\n    - getCalendarEvents: GET characters/{characterId}/calendar/\n    - getCalendarEventById: GET characters/{characterId}/calendar/{eventId}/\n    - getEventAttendees: GET characters/{characterId}/calendar/{eventId}/attendees/\n    - respondToCalendarEvent: PUT characters/{characterId}/calendar/{eventId}/\n\nNow I'm tallying up all the endpoints across these files to get a total count. Continuing through the fleet methods, I count 14 total. Moving on to freelanceJobs with 6 methods, insurance with 1, killmail with 3, location with 3, loyalty with 2, and mail which I need to recount\u2014looks like 9 when I include getMailingLists.\n\nNow I'm tallying up all the endpoint categories to get a grand total, adding them step by step to make sure I don't lose count. Finishing the count at 206 total endpoints across all the files. I'm noticing there's a path collision though\u2014both piEndpoints and universeEndpoints define endpoints for the same schematic resource, so I should track that separately from the raw endpoint count.\n\nNow I'm mapping out the actual method calls in the example files to their corresponding API paths. Starting with status.ts which has just one call to getStatus, then moving through alliance-info.ts which chains together four different endpoint calls across the alliance and corporation resources.\n\nContinuing with character-lookup.ts, I see three endpoints being hit\u2014the character public info, portrait, and corporation info. Character-profile.ts follows a similar pattern but expands to five endpoints, adding alliance and location lookups to the mix.\n\nNow looking at universe-info.ts, which queries various celestial bodies like systems, stations, constellations, and regions\u2014four endpoints total. Market-prices.ts is more focused with just two endpoints for market data and history. The wars.ts file appears to be starting but cuts off mid-way. Continuing through the remaining endpoint mappings for dogma, route planning, sovereignty, and the final dogma-meta-sov module. Continuing through the universe endpoints, mapping out item groups, categories, graphics, and system-related queries with their corresponding GET paths and optional ID parameters.\n\nAdding more universe endpoints... Continuing through more endpoint examples\u2014rate limiting with status and alliance calls, streaming pagination for market orders, and cursor-based pagination for freelance jobs, each mapping client methods to their corresponding GET routes.\n\nNow I'm moving through the remaining examples: mercenary operations and sovereignty hubs with skyhooks, then starting to tally up all the unique endpoints I've seen across the full set of examples. Continuing through the remaining endpoints: incursions, faction warfare stats and systems, dogma attributes and effects, route planning, sovereignty campaigns and systems, and a comprehensive set of universe encyclopedia endpoints covering ancestries, bloodlines, races, factions, categories, groups, graphics, and systems.\n\nThen adding endpoints for constellations, system jumps and kills, stars, planets, moons, asteroid belts, and stargates, plus POST endpoints for universe ID/name resolution and character affiliation, contract browsing across regions and characters, rate limiting endpoints for regions and types, alliance data, market orders and types with pagination, and freelance job listings.\n\nNow I'm compiling the complete list of all unique endpoints I've encountered, starting with the foundational ones like status, alliances, corporations, and characters, then moving through universe data, stations, and market pricing. Continuing through the universe endpoints for groups, categories, graphics, systems, and various celestial bodies, then moving into ID and name resolution endpoints, character affiliation lookups, and finally contract-related endpoints for public listings and bids.\n\nNow I'm tallying up all the unique endpoints I've found across the examples\u2014looks like I'm at 71 total. Let me verify this count by going back through each example systematically to make sure I haven't missed or double-counted anything. I'm also noticing a discrepancy with the route endpoint definition that shows POST as the method, but I need to check what the actual implementation says. Continuing through the remaining endpoint files, I'm tallying up contacts, factions, fittings, fleets, freelance jobs, insurance, killmails, locations, loyalty, mail, PI, skills, wallets, search, UI, access lists, and calendar endpoints. Now I'm adding everything together to get the final total count across all the endpoint definitions. So there's actually a duplicate mapping between two endpoints that share the same API path, which brings the unique paths down to 205. Looking at the coverage, that's 71 unique endpoints being used out of the 206 total defined, or about 34.5% if counting by named entries versus 34.6% if counting by unique paths.",
+      "source_message_uuid": "077e60d3-d2fb-4ecd-89cd-6a9d7718aadc",
+      "source_lines": [
+        147
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6179,
+          "repetition_score": 0.294,
+          "confidence": 0.6179,
+          "semantic_similarity": 0.5032,
+          "lexical_similarity": 0.0227,
+          "entity_similarity": 0.0239,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9761
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 43,
+        "matched_prior_text": "Now I have all the endpoint definitions. Let me now read all 22 example files. Let me batch them."
+      }
+    },
+    {
+      "position": 80,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6465104818344116,
+      "intent_similarity": 0.6465104818344116,
+      "tokens": 2847,
+      "text": "Now I have all the data I need. Let me compile the comprehensive report.\n\nHere is the complete analysis of ESI API endpoint coverage across the 22 public example scripts.\n\n---\n\n## 1. Endpoints Called Per Example File\n\n### status.ts (1 endpoint)\n- GET `status`\n\n### alliance-info.ts (4 endpoints)\n- GET `alliances/{allianceId}/`\n- GET `alliances/{allianceId}/corporations/`\n- GET `alliances/{allianceId}/icons/`\n- GET `corporations/{corporationId}`\n\n### character-lookup.ts (3 endpoints)\n- GET `characters/{characterId}/`\n- GET `characters/{characterId}/portrait/`\n- GET `corporations/{corporationId}`\n\n### character-profile.ts (5 endpoints)\n- GET `characters/{characterId}/`\n- GET `characters/{characterId}/portrait/`\n- GET `corporations/{corporationId}`\n- GET `alliances/{allianceId}/`\n- GET `characters/{characterId}/location`\n\n### universe-info.ts (4 endpoints)\n- GET `universe/systems/{systemId}`\n- GET `universe/stations/{stationId}`\n- GET `universe/constellations/{constellationId}`\n- GET `universe/regions/{regionId}`\n\n### market-prices.ts (2 endpoints)\n- GET `markets/prices/`\n- GET `markets/{regionId}/history/`\n\n### wars.ts (2 endpoints)\n- GET `wars`\n- GET `wars/{warId}`\n\n### industry.ts (3 endpoints)\n- GET `industry/facilities`\n- GET `industry/systems`\n- GET `insurance/prices`\n\n### incursions.ts (3 endpoints)\n- GET `incursions`\n- GET `fw/stats`\n- GET `fw/systems`\n\n### dogma.ts (3 endpoints)\n- GET `universe/types/{typeId}`\n- GET `dogma/attributes`\n- GET `dogma/attributes/{attributeId}`\n\n### route-planner.ts (2 endpoints)\n- POST `route/{origin}/{destination}`\n- GET `universe/systems/{systemId}`\n\n### sovereignty.ts (1 endpoint)\n- GET `sovereignty/campaigns`\n\n### dogma-meta-sov.ts (5 endpoints)\n- GET `dogma/effects`\n- GET `dogma/effects/{effectId}`\n- GET `sovereignty/systems`\n- GET `meta/openapi.json`\n- GET `wars/{warId}/killmails`\n\n### universe-encyclopedia.ts (20 endpoints)\n- GET `universe/ancestries`\n- GET `universe/bloodlines`\n- GET `universe/races`\n- GET `universe/factions`\n- GET `universe/categories`\n- GET `universe/categories/{categoryId}`\n- GET `universe/groups`\n- GET `universe/groups/{groupId}`\n- GET `universe/graphics`\n- GET `universe/graphics/{graphicId}`\n- GET `universe/systems`\n- GET `universe/constellations`\n- GET `universe/system_jumps`\n- GET `universe/system_kills`\n- GET `universe/systems/{systemId}`\n- GET `universe/stars/{starId}`\n- GET `universe/planets/{planetId}`\n- GET `universe/moons/{moonId}`\n- GET `universe/asteroid_belts/{asteroidBeltId}`\n- GET `universe/stargates/{stargateId}`\n\n### universe-post-helpers.ts (3 endpoints)\n- POST `universe/ids`\n- POST `universe/names`\n- POST `characters/affiliation`\n\n### contracts-browser.ts (4 endpoints)\n- GET `contracts/public/{regionId}`\n- GET `contracts/public/bids/{contractId}`\n- GET `contracts/public/items/{contractId}`\n- GET `characters/{characterId}/contracts`\n\n### rate-limiting.ts (3 endpoints)\n- GET `universe/regions`\n- GET `universe/types`\n- GET `universe/schematics/{schematicId}`\n\n### retry-timeout-metadata.ts (2 endpoints)\n- GET `status`\n- GET `alliances`\n\n### streaming-pagination.ts (2 endpoints)\n- GET `markets/{regionId}/orders/` (via `streamMarketOrders`, wraps `getMarketOrders`)\n- GET `markets/{regionId}/types/` (via `streamMarketTypes`, wraps `getMarketTypes`)\n\n### cursor-pagination.ts (2 endpoints)\n- GET `freelance-jobs`\n- GET `freelance-jobs/{jobId}`\n\n### mercenary.ts (2 endpoints)\n- GET `mercenary/dens`\n- GET `mercenary/operations`\n\n### skyhooks.ts (3 endpoints)\n- GET `sovereignty/hubs`\n- GET `sovereignty/skyhooks`\n- GET `sovereignty/skyhooks/raidable`\n\n---\n\n## 2. Total Unique Endpoints Across All 22 Examples\n\n**71 distinct API endpoints** are called across all 22 examples. The full deduplicated list:\n\n| # | Method | Path |\n|---|--------|------|\n| 1 | GET | `status` |\n| 2 | GET | `alliances` |\n| 3 | GET | `alliances/{allianceId}/` |\n| 4 | GET | `alliances/{allianceId}/corporations/` |\n| 5 | GET | `alliances/{allianceId}/icons/` |\n| 6 | GET | `characters/{characterId}/` |\n| 7 | GET | `characters/{characterId}/portrait/` |\n| 8 | GET | `characters/{characterId}/location` |\n| 9 | GET | `characters/{characterId}/contracts` |\n| 10 | POST | `characters/affiliation` |\n| 11 | GET | `corporations/{corporationId}` |\n| 12 | GET | `contracts/public/{regionId}` |\n| 13 | GET | `contracts/public/bids/{contractId}` |\n| 14 | GET | `contracts/public/items/{contractId}` |\n| 15 | GET | `dogma/attributes` |\n| 16 | GET | `dogma/attributes/{attributeId}` |\n| 17 | GET | `dogma/effects` |\n| 18 | GET | `dogma/effects/{effectId}` |\n| 19 | GET | `freelance-jobs` |\n| 20 | GET | `freelance-jobs/{jobId}` |\n| 21 | GET | `fw/stats` |\n| 22 | GET | `fw/systems` |\n| 23 | GET | `incursions` |\n| 24 | GET | `industry/facilities` |\n| 25 | GET | `industry/systems` |\n| 26 | GET | `insurance/prices` |\n| 27 | GET | `markets/prices/` |\n| 28 | GET | `markets/{regionId}/history/` |\n| 29 | GET | `markets/{regionId}/orders/` |\n| 30 | GET | `markets/{regionId}/types/` |\n| 31 | GET | `mercenary/dens` |\n| 32 | GET | `mercenary/operations` |\n| 33 | GET | `meta/openapi.json` |\n| 34 | POST | `route/{origin}/{destination}` |\n| 35 | GET | `sovereignty/campaigns` |\n| 36 | GET | `sovereignty/systems` |\n| 37 | GET | `sovereignty/hubs` |\n| 38 | GET | `sovereignty/skyhooks` |\n| 39 | GET | `sovereignty/skyhooks/raidable` |\n| 40 | GET | `universe/ancestries` |\n| 41 | GET | `universe/asteroid_belts/{asteroidBeltId}` |\n| 42 | GET | `universe/bloodlines` |\n| 43 | GET | `universe/categories` |\n| 44 | GET | `universe/categories/{categoryId}` |\n| 45 | GET | `universe/constellations` |\n| 46 | GET | `universe/constellations/{constellationId}` |\n| 47 | GET | `universe/factions` |\n| 48 | GET | `universe/graphics` |\n| 49 | GET | `universe/graphics/{graphicId}` |\n| 50 | GET | `universe/groups` |\n| 51 | GET | `universe/groups/{groupId}` |\n| 52 | POST | `universe/ids` |\n| 53 | GET | `universe/moons/{moonId}` |\n| 54 | POST | `universe/names` |\n| 55 | GET | `universe/planets/{planetId}` |\n| 56 | GET | `universe/races` |\n| 57 | GET | `universe/regions` |\n| 58 | GET | `universe/regions/{regionId}` |\n| 59 | GET | `universe/schematics/{schematicId}` |\n| 60 | GET | `universe/stargates/{stargateId}` |\n| 61 | GET | `universe/stars/{starId}` |\n| 62 | GET | `universe/stations/{stationId}` |\n| 63 | GET | `universe/system_jumps` |\n| 64 | GET | `universe/system_kills` |\n| 65 | GET | `universe/systems` |\n| 66 | GET | `universe/systems/{systemId}` |\n| 67 | GET | `universe/types` |\n| 68 | GET | `universe/types/{typeId}` |\n| 69 | GET | `wars` |\n| 70 | GET | `wars/{warId}` |\n| 71 | GET | `wars/{warId}/killmails` |\n\n---\n\n## 3. Comparison Against Total Defined Endpoints\n\n**Total endpoint entries defined across all 35 *Endpoints.ts files: 206**\n\nBreakdown by file:\n- allianceEndpoints.ts: 4\n- statusEndpoints.ts: 1\n- characterEndpoints.ts: 14\n- universeEndpoints.ts: 30\n- marketEndpoints.ts: 11\n- warEndpoints.ts: 3\n- industryEndpoints.ts: 8\n- incursionEndpoints.ts: 1\n- dogmaEndpoints.ts: 5\n- routeEndpoints.ts: 1\n- sovereigntyEndpoints.ts: 2\n- contractEndpoints.ts: 9\n- mercenaryEndpoints.ts: 2\n- skyhookEndpoints.ts: 3\n- metaEndpoints.ts: 1\n- corporationEndpoints.ts: 21\n- assetEndpoints.ts: 6\n- cloneEndpoints.ts: 2\n- contactEndpoints.ts: 9\n- factionEndpoints.ts: 8\n- fittingEndpoints.ts: 3\n- fleetEndpoints.ts: 14\n- freelanceJobsEndpoints.ts: 6\n- insuranceEndpoints.ts: 1\n- killmailEndpoints.ts: 3\n- locationEndpoints.ts: 3\n- loyaltyEndpoints.ts: 2\n- mailEndpoints.ts: 9\n- piEndpoints.ts: 4\n- skillEndpoints.ts: 3\n- walletEndpoints.ts: 6\n- searchEndpoints.ts: 1\n- uiEndpoints.ts: 5\n- accessListEndpoints.ts: 1\n- calendarEndpoints.ts: 4\n\n**Coverage: 71 unique endpoints exercised out of 206 total defined = 34.5%**\n\nNote: `piEndpoints.getSchematicInformation` and `universeEndpoints.getSchematicById` both map to the same underlying API path (`universe/schematics/{schematicId}`), so by unique API paths the total is 205, making coverage 71/205 = 34.6%.\n\n**Endpoint groups with ZERO example coverage (135 uncovered endpoints):**\n- All of assetEndpoints (6) -- assets/inventory example exists but was not in the 22 listed\n- All of cloneEndpoints (2)\n- All of contactEndpoints (9)\n- Most of factionEndpoints (6 of 8: character stats, corp stats, leaderboards overall/characters/corporations, wars)\n- All of fittingEndpoints (3)\n- All of fleetEndpoints (14)\n- 4 of 6 freelanceJobsEndpoints (character/corp freelance jobs + participation)\n- All of killmailEndpoints (3)\n- 2 of 3 locationEndpoints (online, ship)\n- All of loyaltyEndpoints (2)\n- All of mailEndpoints (9)\n- All of piEndpoints (4)\n- All of skillEndpoints (3)\n- All of walletEndpoints (6)\n- All of searchEndpoints (1)\n- All of uiEndpoints (5)\n- All of accessListEndpoints (1)\n- All of calendarEndpoints (4)\n- 12 of 14 characterEndpoints (agents_research, blueprints, roles, standings, titles, contact_notifications, corporation_history, fatigue, medals, notifications, cspa)\n- 20 of 21 corporationEndpoints (all except getCorporationInfo)\n- 5 of 9 contractEndpoints (character bids/items, corp contracts/bids/items)\n- 6 of 8 industryEndpoints (character/corp jobs, mining)\n- 6 of 11 marketEndpoints (character/corp orders, groups, structure orders)\n- 1 of 5 dogmaEndpoints (dynamic item info)",
+      "source_message_uuid": "077e60d3-d2fb-4ecd-89cd-6a9d7718aadc",
+      "source_lines": [
+        148
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6465,
+          "repetition_score": 0.2735,
+          "confidence": 0.6465,
+          "semantic_similarity": 0.4663,
+          "lexical_similarity": 0.0291,
+          "entity_similarity": 0.0272,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9728
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 70,
+        "matched_prior_text": "I need to verify how some method names map to endpoints, especially `streamMarketOrders`, `streamMarketTypes`, `getCharacterPortrait`, `getItemCategories`, etc. Let me check the client API layer."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 42,
+    "waste_by_category": {
+      "Redundant Reasoning": 42
+    },
+    "waste_by_phase": {
+      "reasoning": 42
+    },
+    "top_patterns": [],
+    "explanation": "42 of 7,224 tokens (0.6%) were identified as waste. The largest waste category is Redundant Reasoning (42 tokens)."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Redundant Reasoning",
+        "tokens": 42,
+        "percentage": 100.0,
+        "cost_usd": 0.00063,
+        "count": 2,
+        "pricing": "output"
+      }
+    ],
+    "total_tokens": 42,
+    "total_cost_usd": 0.00063
+  },
+  "economics": {
+    "total_input_tokens": 11,
+    "total_output_tokens": 104,
+    "total_cache_creation_tokens": 161989,
+    "total_cache_read_tokens": 312085,
+    "input_output_ratio": 0.11,
+    "cache_hit_rate": 1.0,
+    "estimated_cost_usd": 0.7027,
+    "estimated_waste_cost_usd": 0.0006,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 0.9927,
+      "early_span_count": 27,
+      "mid_span_count": 27,
+      "late_span_count": 27
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        19942,
+        17301,
+        17301,
+        17301,
+        17301,
+        73030,
+        74544,
+        75373
+      ],
+      "growth_rate": 3.78,
+      "is_superlinear": true,
+      "context_bloat_detected": true
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 330,
+      "user_result_tokens": 35293,
+      "model_reasoning_tokens": 2643,
+      "model_tool_tokens": 1576,
+      "model_generation_tokens": 3005,
+      "total_user_tokens": 35623,
+      "total_model_tokens": 7224,
+      "user_ratio": 0.8314
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.4234,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "I need to count how many distinct ESI API endpoints are called across the 22 public example scripts in D:\\code\\ESI.ts\\examples\\. \n\nThe examples are: status.ts, alliance-info.ts, character-lookup.ts, character-profile.ts, universe-info.ts, market-prices.ts, wars.ts, industry.ts, incursions.ts, dogma.ts, route-planner.ts, sovereignty.ts, dogma-meta-sov.ts, universe-encyclopedia.ts, universe-post-helpers.ts, contracts-browser.ts, rate-limiting.ts, retry-timeout-metadata.ts, streaming-pagination.ts, cursor-pagination.ts, mercenary.ts, skyhooks.ts\n\nFor each example file, read it and identify every ESI API endpoint it calls. These will be method calls on ESI client objects like `client.status.getStatus()`, `client.alliance.getAlliances()`, etc. Map each method call to its underlying ESI endpoint path (e.g., GET /status/, GET /alliances/, etc.).\n\nThe endpoint definitions are in D:\\code\\ESI.ts\\src\\core\\endpoints\\ \u2014 files like AllianceEndpoints.ts, StatusEndpoints.ts, etc. Each has entries like `getStatus: { path: '/status/', method: 'GET' }`.\n\nProduce a final report with:\n1. A list of every distinct API endpoint (method + path) called, grouped by example file\n2. A total count of unique endpoints across all 22 examples\n3. Compare against the total endpoint count (check how many total endpoints exist in the *Endpoints.ts files)\n\nBe very thorough \u2014 read every example file completely.",
+          "response_text": "I'll tackle this systematically: first discover all endpoint definition files to build the method-to-path mapping, then read all 22 example files. Let me start by finding the endpoint definitions and example files. Now let me read all the endpoint definition files and example files. I'll batch them in parallel groups. Now let me read the remaining endpoint definition files and start reading the example files. Now let me read all 22 example files. I'll batch them in groups. Now let me read the remaining 11 example files. I need to verify how some method names map to endpoints, especially `streamMarketOrders`, `streamMarketTypes`, `getCharacterPortrait`, `getItemCategories`, etc. Let me check the client API layer. Now let me verify a couple more method name mappings. Now I have all the data I need. Let me compile the comprehensive report.\n\nHere is the complete analysis of ESI API endpoint coverage across the 22 public example scripts.\n\n---\n\n## 1. Endpoints Called Per Example File\n\n### status.ts (1 endpoint)\n- GET `status`\n\n### alliance-info.ts (4 endpoints)\n- GET `alliances/{allianceId}/`\n- GET `alliances/{allianceId}/corporations/`\n- GET `alliances/{allianceId}/icons/`\n- GET `corporations/{corporationId}`\n\n### character-lookup.ts (3 endpoints)\n- GET `characters/{characterId}/`\n- GET `characters/{characterId}/portrait/`\n- GET `corporations/{corporationId}`\n\n### character-profile.ts (5 endpoints)\n- GET `characters/{characterId}/`\n- GET `characters/{characterId}/portrait/`\n- GET `corporations/{corporationId}`\n- GET `alliances/{allianceId}/`\n- GET `characters/{characterId}/location`\n\n### universe-info.ts (4 endpoints)\n- GET `universe/systems/{systemId}`\n- GET `universe/stations/{stationId}`\n- GET `universe/constellations/{constellationId}`\n- GET `universe/regions/{regionId}`\n\n### market-prices.ts (2 endpoints)\n- GET `markets/prices/`\n- GET `markets/{regionId}/history/`\n\n### wars.ts (2 endpoints)\n- GET `wars`\n- GET `wars/{warId}`\n\n### industry.ts (3 endpoints)\n- GET `industry/facilities`\n- GET `industry/systems`\n- GET `insurance/prices`\n\n### incursions.ts (3 endpoints)\n- GET `incursions`\n- GET `fw/stats`\n- GET `fw/systems`\n\n### dogma.ts (3 endpoints)\n- GET `universe/types/{typeId}`\n- GET `dogma/attributes`\n- GET `dogma/attributes/{attributeId}`\n\n### route-planner.ts (2 endpoints)\n- POST `route/{origin}/{destination}`\n- GET `universe/systems/{systemId}`\n\n### sovereignty.ts (1 endpoint)\n- GET `sovereignty/campaigns`\n\n### dogma-meta-sov.ts (5 endpoints)\n- GET `dogma/effects`\n- GET `dogma/effects/{effectId}`\n- GET `sovereignty/systems`\n- GET `meta/openapi.json`\n- GET `wars/{warId}/killmails`\n\n### universe-encyclopedia.ts (20 endpoints)\n- GET `universe/ancestries`\n- GET `universe/bloodlines`\n- GET `universe/races`\n- GET `universe/factions`\n- GET `universe/categories`\n- GET `universe/categories/{categoryId}`\n- GET `universe/groups`\n- GET `universe/groups/{groupId}`\n- GET `universe/graphics`\n- GET `universe/graphics/{graphicId}`\n- GET `universe/systems`\n- GET `universe/constellations`\n- GET `universe/system_jumps`\n- GET `universe/system_kills`\n- GET `universe/systems/{systemId}`\n- GET `universe/stars/{starId}`\n- GET `universe/planets/{planetId}`\n- GET `universe/moons/{moonId}`\n- GET `universe/asteroid_belts/{asteroidBeltId}`\n- GET `universe/stargates/{stargateId}`\n\n### universe-post-helpers.ts (3 endpoints)\n- POST `universe/ids`\n- POST `universe/names`\n- POST `characters/affiliation`\n\n### contracts-browser.ts (4 endpoints)\n- GET `contracts/public/{regionId}`\n- GET `contracts/public/bids/{contractId}`\n- GET `contracts/public/items/{contractId}`\n- GET `characters/{characterId}/contracts`\n\n### rate-limiting.ts (3 endpoints)\n- GET `universe/regions`\n- GET `universe/types`\n- GET `universe/schematics/{schematicId}`\n\n### retry-timeout-metadata.ts (2 endpoints)\n- GET `status`\n- GET `alliances`\n\n### streaming-pagination.ts (2 endpoints)\n- GET `markets/{regionId}/orders/` (via `streamMarketOrders`, wraps `getMarketOrders`)\n- GET `markets/{regionId}/types/` (via `streamMarketTypes`, wraps `getMarketTypes`)\n\n### cursor-pagination.ts (2 endpoints)\n- GET `freelance-jobs`\n- GET `freelance-jobs/{jobId}`\n\n### mercenary.ts (2 endpoints)\n- GET `mercenary/dens`\n- GET `mercenary/operations`\n\n### skyhooks.ts (3 endpoints)\n- GET `sovereignty/hubs`\n- GET `sovereignty/skyhooks`\n- GET `sovereignty/skyhooks/raidable`\n\n---\n\n## 2. Total Unique Endpoints Across All 22 Examples\n\n**71 distinct API endpoints** are called across all 22 examples. The full deduplicated list:\n\n| # | Method | Path |\n|---|--------|------|\n| 1 | GET | `status` |\n| 2 | GET | `alliances` |\n| 3 | GET | `alliances/{allianceId}/` |\n| 4 | GET | `alliances/{allianceId}/corporations/` |\n| 5 | GET | `alliances/{allianceId}/icons/` |\n| 6 | GET | `characters/{characterId}/` |\n| 7 | GET | `characters/{characterId}/portrait/` |\n| 8 | GET | `characters/{characterId}/location` |\n| 9 | GET | `characters/{characterId}/contracts` |\n| 10 | POST | `characters/affiliation` |\n| 11 | GET | `corporations/{corporationId}` |\n| 12 | GET | `contracts/public/{regionId}` |\n| 13 | GET | `contracts/public/bids/{contractId}` |\n| 14 | GET | `contracts/public/items/{contractId}` |\n| 15 | GET | `dogma/attributes` |\n| 16 | GET | `dogma/attributes/{attributeId}` |\n| 17 | GET | `dogma/effects` |\n| 18 | GET | `dogma/effects/{effectId}` |\n| 19 | GET | `freelance-jobs` |\n| 20 | GET | `freelance-jobs/{jobId}` |\n| 21 | GET | `fw/stats` |\n| 22 | GET | `fw/systems` |\n| 23 | GET | `incursions` |\n| 24 | GET | `industry/facilities` |\n| 25 | GET | `industry/systems` |\n| 26 | GET | `insurance/prices` |\n| 27 | GET | `markets/prices/` |\n| 28 | GET | `markets/{regionId}/history/` |\n| 29 | GET | `markets/{regionId}/orders/` |\n| 30 | GET | `markets/{regionId}/types/` |\n| 31 | GET | `mercenary/dens` |\n| 32 | GET | `mercenary/operations` |\n| 33 | GET | `meta/openapi.json` |\n| 34 | POST | `route/{origin}/{destination}` |\n| 35 | GET | `sovereignty/campaigns` |\n| 36 | GET | `sovereignty/systems` |\n| 37 | GET | `sovereignty/hubs` |\n| 38 | GET | `sovereignty/skyhooks` |\n| 39 | GET | `sovereignty/skyhooks/raidable` |\n| 40 | GET | `universe/ancestries` |\n| 41 | GET | `universe/asteroid_belts/{asteroidBeltId}` |\n| 42 | GET | `universe/bloodlines` |\n| 43 | GET | `universe/categories` |\n| 44 | GET | `universe/categories/{categoryId}` |\n| 45 | GET | `universe/constellations` |\n| 46 | GET | `universe/constellations/{constellationId}` |\n| 47 | GET | `universe/factions` |\n| 48 | GET | `universe/graphics` |\n| 49 | GET | `universe/graphics/{graphicId}` |\n| 50 | GET | `universe/groups` |\n| 51 | GET | `universe/groups/{groupId}` |\n| 52 | POST | `universe/ids` |\n| 53 | GET | `universe/moons/{moonId}` |\n| 54 | POST | `universe/names` |\n| 55 | GET | `universe/planets/{planetId}` |\n| 56 | GET | `universe/races` |\n| 57 | GET | `universe/regions` |\n| 58 | GET | `universe/regions/{regionId}` |\n| 59 | GET | `universe/schematics/{schematicId}` |\n| 60 | GET | `universe/stargates/{stargateId}` |\n| 61 | GET | `universe/stars/{starId}` |\n| 62 | GET | `universe/stations/{stationId}` |\n| 63 | GET | `universe/system_jumps` |\n| 64 | GET | `universe/system_kills` |\n| 65 | GET | `universe/systems` |\n| 66 | GET | `universe/systems/{systemId}` |\n| 67 | GET | `universe/types` |\n| 68 | GET | `universe/types/{typeId}` |\n| 69 | GET | `wars` |\n| 70 | GET | `wars/{warId}` |\n| 71 | GET | `wars/{warId}/killmails` |\n\n---\n\n## 3. Comparison Against Total Defined Endpoints\n\n**Total endpoint entries defined across all 35 *Endpoints.ts files: 206**\n\nBreakdown by file:\n- allianceEndpoints.ts: 4\n- statusEndpoints.ts: 1\n- characterEndpoints.ts: 14\n- universeEndpoints.ts: 30\n- marketEndpoints.ts: 11\n- warEndpoints.ts: 3\n- industryEndpoints.ts: 8\n- incursionEndpoints.ts: 1\n- dogmaEndpoints.ts: 5\n- routeEndpoints.ts: 1\n- sovereigntyEndpoints.ts: 2\n- contractEndpoints.ts: 9\n- mercenaryEndpoints.ts: 2\n- skyhookEndpoints.ts: 3\n- metaEndpoints.ts: 1\n- corporationEndpoints.ts: 21\n- assetEndpoints.ts: 6\n- cloneEndpoints.ts: 2\n- contactEndpoints.ts: 9\n- factionEndpoints.ts: 8\n- fittingEndpoints.ts: 3\n- fleetEndpoints.ts: 14\n- freelanceJobsEndpoints.ts: 6\n- insuranceEndpoints.ts: 1\n- killmailEndpoints.ts: 3\n- locationEndpoints.ts: 3\n- loyaltyEndpoints.ts: 2\n- mailEndpoints.ts: 9\n- piEndpoints.ts: 4\n- skillEndpoints.ts: 3\n- walletEndpoints.ts: 6\n- searchEndpoints.ts: 1\n- uiEndpoints.ts: 5\n- accessListEndpoints.ts: 1\n- calendarEndpoints.ts: 4\n\n**Coverage: 71 unique endpoints exercised out of 206 total defined = 34.5%**\n\nNote: `piEndpoints.getSchematicInformation` and `universeEndpoints.getSchematicById` both map to the same underlying API path (`universe/schematics/{schematicId}`), so by unique API paths the total is 205, making coverage 71/205 = 34.6%.\n\n**Endpoint groups with ZERO example coverage (135 uncovered endpoints):**\n- All of assetEndpoints (6) -- assets/inventory example exists but was not in the 22 listed\n- All of cloneEndpoints (2)\n- All of contactEndpoints (9)\n- Most of factionEndpoints (6 of 8: character stats, corp stats, leaderboards overall/characters/corporations, wars)\n- All of fittingEndpoints (3)\n- All of fleetEndpoints (14)\n- 4 of 6 freelanceJobsEndpoints (character/corp freelance jobs + participation)\n- All of killmailEndpoints (3)\n- 2 of 3 locationEndpoints (online, ship)\n- All of loyaltyEndpoints (2)\n- All of mailEndpoints (9)\n- All of piEndpoints (4)\n- All of skillEndpoints (3)\n- All of walletEndpoints (6)\n- All of searchEndpoints (1)\n- All of uiEndpoints (5)\n- All of accessListEndpoints (1)\n- All of calendarEndpoints (4)\n- 12 of 14 characterEndpoints (agents_research, blueprints, roles, standings, titles, contact_notifications, corporation_history, fatigue, medals, notifications, cspa)\n- 20 of 21 corporationEndpoints (all except getCorporationInfo)\n- 5 of 9 contractEndpoints (character bids/items, corp contracts/bids/items)\n- 6 of 8 industryEndpoints (character/corp jobs, mining)\n- 6 of 11 marketEndpoints (character/corp orders, groups, structure orders)\n- 1 of 5 dogmaEndpoints (dynamic item info)",
+          "alignment": 0.4234
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "a4e701aa-0dce-4f48-867d-8ac45b40f603",
+    "source_file": "data/D--code-ESI-ts__agent-adad7562fd3d6dfd3.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

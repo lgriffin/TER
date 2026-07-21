@@ -25,7 +25,6 @@ Key components:
 
 from __future__ import annotations
 
-import hashlib
 import logging
 import math
 import re
@@ -34,10 +33,9 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Sequence
 
-import numpy as np
 
 if TYPE_CHECKING:
-    from numpy.typing import NDArray
+    pass
 
 __all__ = [
     "CostReport",
@@ -240,7 +238,9 @@ def compute_cost_weighted_ter(
 
         cat_name = span.get("category")
         category = (
-            TokenCategory(cat_name) if cat_name else _PHASE_TO_CATEGORY.get(phase, TokenCategory.OUTPUT)
+            TokenCategory(cat_name)
+            if cat_name
+            else _PHASE_TO_CATEGORY.get(phase, TokenCategory.OUTPUT)
         )
 
         cost = tier.cost(category, tokens)
@@ -341,7 +341,7 @@ class SemanticDensityScorer:
         max_entropy = math.log2(total_words) if total_words > 1 else 1.0
         norm_entropy = entropy / max_entropy if max_entropy > 0 else 0.0
 
-        sentences = [s.strip() for s in re.split(r'[.!?]+', text) if s.strip()]
+        sentences = [s.strip() for s in re.split(r"[.!?]+", text) if s.strip()]
         if len(sentences) > 1:
             seen_trigrams: set[str] = set()
             total_trigrams = 0
@@ -359,9 +359,7 @@ class SemanticDensityScorer:
             redundancy = 0.0
 
         density = (
-            0.4 * vocabulary_richness
-            + 0.4 * norm_entropy
-            + 0.2 * (1.0 - redundancy)
+            0.4 * vocabulary_richness + 0.4 * norm_entropy + 0.2 * (1.0 - redundancy)
         )
 
         avg_info = entropy / max(1, total_words // 4)
@@ -394,7 +392,9 @@ def generate_cost_report(
     usage: dict[str, int] | None = None,
 ) -> CostReport:
     """Generate a comprehensive cost + density report."""
-    cost_ter = compute_cost_weighted_ter(spans, model=model, raw_ter=raw_ter, usage=usage)
+    cost_ter = compute_cost_weighted_ter(
+        spans, model=model, raw_ter=raw_ter, usage=usage
+    )
     density = compute_semantic_density(full_text)
 
     phase_costs: dict[str, float] = {}
@@ -408,7 +408,9 @@ def generate_cost_report(
     for alt_name, alt_tier in PRICING.items():
         if alt_name == model:
             continue
-        alt_result = compute_cost_weighted_ter(spans, model=alt_name, raw_ter=raw_ter, usage=usage)
+        alt_result = compute_cost_weighted_ter(
+            spans, model=alt_name, raw_ter=raw_ter, usage=usage
+        )
         saving = cost_ter.total_cost_usd - alt_result.total_cost_usd
         alt_savings[alt_name] = round(saving, 6)
 

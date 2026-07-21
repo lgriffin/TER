@@ -147,7 +147,7 @@ def _simple_cosine_similarity(a: str, b: str) -> float:
 
     if mag_a == 0.0 or mag_b == 0.0:
         return 0.0
-    return dot / (mag_a * mag_b)
+    return float(dot / (mag_a * mag_b))
 
 
 # ---------------------------------------------------------------------------
@@ -240,21 +240,23 @@ def detect_permission_loops(
         retries = len(chain) - 1
         if retries >= min_retries:
             wasted = sum(cs.span.token_count for cs in chain[1:])
-            patterns.append(WastePattern(
-                pattern_type=ExtendedWasteType.PERMISSION_LOOP.value,
-                description=(
-                    f"Permission loop: '{tool_name}' denied and retried "
-                    f"{retries} time(s)"
-                ),
-                start_position=chain[0].span.position,
-                end_position=chain[-1].span.position,
-                spans_involved=len(chain),
-                tokens_wasted=wasted,
-                details={
-                    "tool_name": tool_name,
-                    "retries": retries,
-                },
-            ))
+            patterns.append(
+                WastePattern(
+                    pattern_type=ExtendedWasteType.PERMISSION_LOOP.value,
+                    description=(
+                        f"Permission loop: '{tool_name}' denied and retried "
+                        f"{retries} time(s)"
+                    ),
+                    start_position=chain[0].span.position,
+                    end_position=chain[-1].span.position,
+                    spans_involved=len(chain),
+                    tokens_wasted=wasted,
+                    details={
+                        "tool_name": tool_name,
+                        "retries": retries,
+                    },
+                )
+            )
 
         i = j
 
@@ -301,11 +303,13 @@ def detect_error_retry_spirals(
     patterns: list[WastePattern] = []
 
     tool_use_spans: list[ClassifiedSpan] = [
-        cs for cs in classified_spans
+        cs
+        for cs in classified_spans
         if cs.span.phase == SpanPhase.TOOL_USE and cs.span.block_type == "tool_use"
     ]
     tool_result_spans: list[ClassifiedSpan] = [
-        cs for cs in classified_spans
+        cs
+        for cs in classified_spans
         if cs.span.phase == SpanPhase.TOOL_USE and cs.span.block_type == "tool_result"
     ]
 
@@ -355,22 +359,24 @@ def detect_error_retry_spirals(
         retries = len(chain) - 1
         if retries >= min_retries:
             wasted = sum(cs.span.token_count for cs in chain[1:])
-            patterns.append(WastePattern(
-                pattern_type=ExtendedWasteType.ERROR_RETRY_SPIRAL.value,
-                description=(
-                    f"Error-retry spiral: '{chain_tool_name}' failed and "
-                    f"retried {retries} time(s) with minimal changes"
-                ),
-                start_position=chain[0].span.position,
-                end_position=chain[-1].span.position,
-                spans_involved=len(chain),
-                tokens_wasted=wasted,
-                details={
-                    "tool_name": chain_tool_name,
-                    "retries": retries,
-                    "similarity_threshold": similarity_threshold,
-                },
-            ))
+            patterns.append(
+                WastePattern(
+                    pattern_type=ExtendedWasteType.ERROR_RETRY_SPIRAL.value,
+                    description=(
+                        f"Error-retry spiral: '{chain_tool_name}' failed and "
+                        f"retried {retries} time(s) with minimal changes"
+                    ),
+                    start_position=chain[0].span.position,
+                    end_position=chain[-1].span.position,
+                    spans_involved=len(chain),
+                    tokens_wasted=wasted,
+                    details={
+                        "tool_name": chain_tool_name,
+                        "retries": retries,
+                        "similarity_threshold": similarity_threshold,
+                    },
+                )
+            )
 
         i = j
 
@@ -459,22 +465,24 @@ def detect_over_reading(
         wasted = sum(cs.span.token_count for cs in redundant)
         short_name = file_path.rsplit("/", 1)[-1].rsplit("\\", 1)[-1]
 
-        patterns.append(WastePattern(
-            pattern_type=ExtendedWasteType.OVER_READING.value,
-            description=(
-                f"Over-reading: '{short_name}' read {len(read_spans)} "
-                f"time(s) without intervening write"
-            ),
-            start_position=read_spans[0].span.position,
-            end_position=read_spans[-1].span.position,
-            spans_involved=len(read_spans),
-            tokens_wasted=wasted,
-            details={
-                "file_path": file_path,
-                "read_count": len(read_spans),
-                "redundant_reads": len(redundant),
-            },
-        ))
+        patterns.append(
+            WastePattern(
+                pattern_type=ExtendedWasteType.OVER_READING.value,
+                description=(
+                    f"Over-reading: '{short_name}' read {len(read_spans)} "
+                    f"time(s) without intervening write"
+                ),
+                start_position=read_spans[0].span.position,
+                end_position=read_spans[-1].span.position,
+                spans_involved=len(read_spans),
+                tokens_wasted=wasted,
+                details={
+                    "file_path": file_path,
+                    "read_count": len(read_spans),
+                    "redundant_reads": len(redundant),
+                },
+            )
+        )
 
     patterns.sort(key=lambda p: p.tokens_wasted, reverse=True)
     return patterns
@@ -560,8 +568,7 @@ def detect_abandoned_approaches(
 
         # Check if the agent moves on to a different file after this.
         subsequent_ops = [
-            (p, t, fp, s) for p, t, fp, s in file_ops
-            if p > pos and fp != file_path
+            (p, t, fp, s) for p, t, fp, s in file_ops if p > pos and fp != file_path
         ]
 
         if not subsequent_ops:
@@ -583,22 +590,23 @@ def detect_abandoned_approaches(
         first_pos = min(s.span.position for s in file_spans)
         last_pos = max(s.span.position for s in file_spans)
 
-        patterns.append(WastePattern(
-            pattern_type=ExtendedWasteType.ABANDONED_APPROACH.value,
-            description=(
-                f"Abandoned approach: '{short_name}' was edited but "
-                f"never revisited"
-            ),
-            start_position=first_pos,
-            end_position=last_pos,
-            spans_involved=len(file_spans),
-            tokens_wasted=wasted,
-            details={
-                "file_path": file_path,
-                "edit_count": len(file_spans),
-                "last_edit_position": last_pos,
-            },
-        ))
+        patterns.append(
+            WastePattern(
+                pattern_type=ExtendedWasteType.ABANDONED_APPROACH.value,
+                description=(
+                    f"Abandoned approach: '{short_name}' was edited but never revisited"
+                ),
+                start_position=first_pos,
+                end_position=last_pos,
+                spans_involved=len(file_spans),
+                tokens_wasted=wasted,
+                details={
+                    "file_path": file_path,
+                    "edit_count": len(file_spans),
+                    "last_edit_position": last_pos,
+                },
+            )
+        )
 
     patterns.sort(key=lambda p: p.tokens_wasted, reverse=True)
     return patterns
@@ -660,22 +668,24 @@ def detect_verbose_thinking(
         if action_span is None:
             # No subsequent action -- the thinking block is the last span.
             # Flag it: thinking with no action at all is pure waste.
-            patterns.append(WastePattern(
-                pattern_type=ExtendedWasteType.VERBOSE_THINKING.value,
-                description=(
-                    f"Verbose thinking: {thinking_tokens} tokens of "
-                    f"reasoning with no subsequent action"
-                ),
-                start_position=cs.span.position,
-                end_position=cs.span.position,
-                spans_involved=1,
-                tokens_wasted=thinking_tokens,
-                details={
-                    "thinking_tokens": thinking_tokens,
-                    "action_tokens": 0,
-                    "ratio": float("inf"),
-                },
-            ))
+            patterns.append(
+                WastePattern(
+                    pattern_type=ExtendedWasteType.VERBOSE_THINKING.value,
+                    description=(
+                        f"Verbose thinking: {thinking_tokens} tokens of "
+                        f"reasoning with no subsequent action"
+                    ),
+                    start_position=cs.span.position,
+                    end_position=cs.span.position,
+                    spans_involved=1,
+                    tokens_wasted=thinking_tokens,
+                    details={
+                        "thinking_tokens": thinking_tokens,
+                        "action_tokens": 0,
+                        "ratio": float("inf"),
+                    },
+                )
+            )
             continue
 
         action_tokens = action_span.span.token_count
@@ -693,24 +703,26 @@ def detect_verbose_thinking(
         excess = thinking_tokens - int(action_tokens * ratio_threshold)
         excess = max(0, excess)
 
-        patterns.append(WastePattern(
-            pattern_type=ExtendedWasteType.VERBOSE_THINKING.value,
-            description=(
-                f"Verbose thinking: {thinking_tokens} tokens of reasoning "
-                f"for {action_tokens} tokens of action "
-                f"(ratio {ratio:.1f}x, threshold {ratio_threshold:.1f}x)"
-            ),
-            start_position=cs.span.position,
-            end_position=action_span.span.position,
-            spans_involved=2,
-            tokens_wasted=excess,
-            details={
-                "thinking_tokens": thinking_tokens,
-                "action_tokens": action_tokens,
-                "ratio": round(ratio, 2),
-                "ratio_threshold": ratio_threshold,
-            },
-        ))
+        patterns.append(
+            WastePattern(
+                pattern_type=ExtendedWasteType.VERBOSE_THINKING.value,
+                description=(
+                    f"Verbose thinking: {thinking_tokens} tokens of reasoning "
+                    f"for {action_tokens} tokens of action "
+                    f"(ratio {ratio:.1f}x, threshold {ratio_threshold:.1f}x)"
+                ),
+                start_position=cs.span.position,
+                end_position=action_span.span.position,
+                spans_involved=2,
+                tokens_wasted=excess,
+                details={
+                    "thinking_tokens": thinking_tokens,
+                    "action_tokens": action_tokens,
+                    "ratio": round(ratio, 2),
+                    "ratio_threshold": ratio_threshold,
+                },
+            )
+        )
 
     return patterns
 
@@ -776,9 +788,7 @@ def detect_all_extended(
             min_reads=over_reading_min_reads,
         )
     )
-    all_patterns.extend(
-        detect_abandoned_approaches(classified_spans)
-    )
+    all_patterns.extend(detect_abandoned_approaches(classified_spans))
     all_patterns.extend(
         detect_verbose_thinking(
             classified_spans,

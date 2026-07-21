@@ -1,0 +1,1412 @@
+{
+  "session_id": "f839dfe7-6be9-46ae-ba7a-d5d88e96ba31",
+  "aggregate_ter": 0.7,
+  "raw_ratio": 0.9967,
+  "phase_scores": {
+    "reasoning": 0.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 5744,
+  "aligned_tokens": 5725,
+  "waste_tokens": 19,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5835,
+    "token_weighted_confidence": 0.5786,
+    "low_confidence_tokens": 5744,
+    "low_confidence_share": 1.0,
+    "ter_interval": [
+      0.7,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 42,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "waste_patterns": [
+    {
+      "type": "bash_antipattern",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 2,
+      "tokens_wasted": 1584,
+      "description": "2 Bash calls should use dedicated tools (1,584 tokens)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "redundant_reasoning",
+      "confidence": 0.6,
+      "intent_similarity": 0.3140603005886078,
+      "tokens": 19,
+      "text": "Let me explore the codebase thoroughly to understand the current state and design a detailed implementation plan.",
+      "source_message_uuid": "26083243-8cde-436b-aa4b-5f0d4c1f39ef",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "low_information_reasoning",
+        "summary": "The reasoning span is short and weakly aligned with the active intent.",
+        "signals": {
+          "intent_similarity": 0.3141,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5645432472229004,
+      "intent_similarity": 0.5645432472229004,
+      "tokens": 19,
+      "text": "I will start by exploring the project structure and understanding the current BDD scaffolding in detail.",
+      "source_message_uuid": "26083243-8cde-436b-aa4b-5f0d4c1f39ef",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.5645,
+          "repetition_score": 0.0,
+          "confidence": 0.5645
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.05018283426761627,
+      "tokens": 26,
+      "text": "Bash {\"command\":\"ls -la \\\"D:/code/warcraftlogs_project\\\"\",\"description\":\"List project root directory\"}",
+      "source_message_uuid": "26083243-8cde-436b-aa4b-5f0d4c1f39ef",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.0502,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2528610825538635,
+      "tokens": 47,
+      "text": "Bash {\"command\":\"find \\\"D:/code/warcraftlogs_project/tests\\\" -type f -name \\\"*.py\\\" -o -name \\\"*.feature\\\" | sort\",\"description\":\"List all test files and feature files\"}",
+      "source_message_uuid": "26083243-8cde-436b-aa4b-5f0d4c1f39ef",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2529,
+          "repetition_score": 0.5148,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6788,
+          "lexical_similarity": 0.1739,
+          "entity_similarity": 0.2222,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Bash {\"command\":\"ls -la \\\"D:/code/warcraftlogs_project\\\"\",\"description\":\"List project root directory\"}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.170599102973938,
+      "tokens": 40,
+      "text": "Bash {\"command\":\"find \\\"D:/code/warcraftlogs_project/warcraftlogs_client\\\" -type f -name \\\"*.py\\\" | sort\",\"description\":\"List all source modules\"}",
+      "source_message_uuid": "26083243-8cde-436b-aa4b-5f0d4c1f39ef",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1706,
+          "repetition_score": 0.6241,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7934,
+          "lexical_similarity": 0.55,
+          "entity_similarity": 0.5294,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Bash {\"command\":\"find \\\"D:/code/warcraftlogs_project/tests\\\" -type f -name \\\"*.py\\\" -o -name \\\"*.feature\\\" | sort\",\"description\":\"List all test files and feature files\"}"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.13862285017967224,
+      "tokens": 18,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/pyproject.toml\"}",
+      "source_message_uuid": "12c652a5-1b2f-4635-b1d6-ffd9889acc8b",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1386,
+          "repetition_score": 0.0414,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6128,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.0,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Bash {\"command\":\"ls -la \\\"D:/code/warcraftlogs_project\\\"\",\"description\":\"List project root directory\"}"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.17755156755447388,
+      "tokens": 19,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/conftest.py\"}",
+      "source_message_uuid": "12c652a5-1b2f-4635-b1d6-ffd9889acc8b",
+      "source_lines": [
+        13
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1776,
+          "repetition_score": 0.6058,
+          "confidence": 0.6,
+          "semantic_similarity": 0.765,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/pyproject.toml\"}"
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.18805694580078125,
+      "tokens": 22,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/step_defs/conftest.py\"}",
+      "source_message_uuid": "12c652a5-1b2f-4635-b1d6-ffd9889acc8b",
+      "source_lines": [
+        15
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1881,
+          "repetition_score": 0.6725,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9533,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/conftest.py\"}"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.2975456416606903,
+      "tokens": 14,
+      "text": "Now let me read all the existing feature files and step definition files.",
+      "source_message_uuid": "f9c72eb0-1b0c-4abf-842c-a5a8408c99d0",
+      "source_lines": [
+        17
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2975,
+          "repetition_score": 0.2136,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3437,
+          "lexical_similarity": 0.0769,
+          "entity_similarity": 0.0952,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9048
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 1,
+        "matched_prior_text": "I will start by exploring the project structure and understanding the current BDD scaffolding in detail."
+      }
+    },
+    {
+      "position": 9,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.25310593843460083,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/features/raid_analysis.feature\"}",
+      "source_message_uuid": "f9c72eb0-1b0c-4abf-842c-a5a8408c99d0",
+      "source_lines": [
+        18
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2531,
+          "repetition_score": 0.6015,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7529,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/conftest.py\"}"
+      }
+    },
+    {
+      "position": 10,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.20797164738178253,
+      "tokens": 18,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/features/configuration.feature\"}",
+      "source_message_uuid": "f9c72eb0-1b0c-4abf-842c-a5a8408c99d0",
+      "source_lines": [
+        20
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.208,
+          "repetition_score": 0.6354,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8486,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/conftest.py\"}"
+      }
+    },
+    {
+      "position": 11,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.16635605692863464,
+      "tokens": 18,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/features/database.feature\"}",
+      "source_message_uuid": "f9c72eb0-1b0c-4abf-842c-a5a8408c99d0",
+      "source_lines": [
+        22
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1664,
+          "repetition_score": 0.6576,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9112,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 10,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/features/configuration.feature\"}"
+      }
+    },
+    {
+      "position": 12,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.19710108637809753,
+      "tokens": 18,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/features/cli.feature\"}",
+      "source_message_uuid": "f9c72eb0-1b0c-4abf-842c-a5a8408c99d0",
+      "source_lines": [
+        24
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1971,
+          "repetition_score": 0.6702,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9469,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 10,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/features/configuration.feature\"}"
+      }
+    },
+    {
+      "position": 13,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.19384919106960297,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/features/consumables.feature\"}",
+      "source_message_uuid": "f9c72eb0-1b0c-4abf-842c-a5a8408c99d0",
+      "source_lines": [
+        26
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1938,
+          "repetition_score": 0.6654,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9333,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 10,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/features/configuration.feature\"}"
+      }
+    },
+    {
+      "position": 14,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.16179601848125458,
+      "tokens": 19,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/features/report_export.feature\"}",
+      "source_message_uuid": "f9c72eb0-1b0c-4abf-842c-a5a8408c99d0",
+      "source_lines": [
+        28
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1618,
+          "repetition_score": 0.6526,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8971,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 12,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/features/cli.feature\"}"
+      }
+    },
+    {
+      "position": 15,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.19348566234111786,
+      "tokens": 10,
+      "text": "Now let me read all the step definition files.",
+      "source_message_uuid": "479ee8ef-2f2e-4895-8dd2-f68f478630ae",
+      "source_lines": [
+        30
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1935,
+          "repetition_score": 0.748,
+          "confidence": 0.5,
+          "semantic_similarity": 0.8224,
+          "lexical_similarity": 0.6923,
+          "entity_similarity": 0.7273,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.2727
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Now let me read all the existing feature files and step definition files."
+      }
+    },
+    {
+      "position": 16,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.29869216680526733,
+      "tokens": 23,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/step_defs/test_raid_analysis.py\"}",
+      "source_message_uuid": "479ee8ef-2f2e-4895-8dd2-f68f478630ae",
+      "source_lines": [
+        31
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2987,
+          "repetition_score": 0.6603,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9188,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/features/raid_analysis.feature\"}"
+      }
+    },
+    {
+      "position": 17,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.18620210886001587,
+      "tokens": 21,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/step_defs/test_database.py\"}",
+      "source_message_uuid": "479ee8ef-2f2e-4895-8dd2-f68f478630ae",
+      "source_lines": [
+        33
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1862,
+          "repetition_score": 0.6493,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8879,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 11,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/features/database.feature\"}"
+      }
+    },
+    {
+      "position": 18,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.18355445563793182,
+      "tokens": 22,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/step_defs/test_report_export.py\"}",
+      "source_message_uuid": "479ee8ef-2f2e-4895-8dd2-f68f478630ae",
+      "source_lines": [
+        35
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1836,
+          "repetition_score": 0.6527,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8973,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 14,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/features/report_export.feature\"}"
+      }
+    },
+    {
+      "position": 19,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.219289630651474,
+      "tokens": 22,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/step_defs/test_consumables.py\"}",
+      "source_message_uuid": "fd2d8804-f829-48cc-a1c2-c41b2ef2c415",
+      "source_lines": [
+        37
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2193,
+          "repetition_score": 0.6733,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9555,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/step_defs/conftest.py\"}"
+      }
+    },
+    {
+      "position": 20,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.22556646168231964,
+      "tokens": 21,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/step_defs/test_configuration.py\"}",
+      "source_message_uuid": "fd2d8804-f829-48cc-a1c2-c41b2ef2c415",
+      "source_lines": [
+        39
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2256,
+          "repetition_score": 0.6715,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9503,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 19,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/step_defs/test_consumables.py\"}"
+      }
+    },
+    {
+      "position": 21,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2015731930732727,
+      "tokens": 21,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/step_defs/test_cli.py\"}",
+      "source_message_uuid": "fd2d8804-f829-48cc-a1c2-c41b2ef2c415",
+      "source_lines": [
+        41
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2016,
+          "repetition_score": 0.6732,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9553,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 20,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/step_defs/test_configuration.py\"}"
+      }
+    },
+    {
+      "position": 22,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5655692219734192,
+      "intent_similarity": 0.5655692219734192,
+      "tokens": 21,
+      "text": "Now let me read the source files that need BDD coverage - the unit tests and the source modules.",
+      "source_message_uuid": "28d87767-1889-4faa-8f0b-45c5e2089101",
+      "source_lines": [
+        43
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5656,
+          "repetition_score": 0.3618,
+          "confidence": 0.5656,
+          "semantic_similarity": 0.5774,
+          "lexical_similarity": 0.1111,
+          "entity_similarity": 0.1304,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8696
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 1,
+        "matched_prior_text": "I will start by exploring the project structure and understanding the current BDD scaffolding in detail."
+      }
+    },
+    {
+      "position": 23,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.1673421561717987,
+      "tokens": 19,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/test_reference_reports.py\"}",
+      "source_message_uuid": "28d87767-1889-4faa-8f0b-45c5e2089101",
+      "source_lines": [
+        44
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1673,
+          "repetition_score": 0.6566,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9084,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 18,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/step_defs/test_report_export.py\"}"
+      }
+    },
+    {
+      "position": 24,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.1785096973180771,
+      "tokens": 19,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/test_user_auth.py\"}",
+      "source_message_uuid": "28d87767-1889-4faa-8f0b-45c5e2089101",
+      "source_lines": [
+        45
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1785,
+          "repetition_score": 0.6428,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8694,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 20,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/step_defs/test_configuration.py\"}"
+      }
+    },
+    {
+      "position": 25,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.19172382354736328,
+      "tokens": 18,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/test_auth.py\"}",
+      "source_message_uuid": "28d87767-1889-4faa-8f0b-45c5e2089101",
+      "source_lines": [
+        47
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1917,
+          "repetition_score": 0.6862,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9918,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 24,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/test_user_auth.py\"}"
+      }
+    },
+    {
+      "position": 26,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.19493965804576874,
+      "tokens": 19,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/test_encounters.py\"}",
+      "source_message_uuid": "77f2cd0e-1501-4acb-9ad7-a3e9e7840120",
+      "source_lines": [
+        50
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1949,
+          "repetition_score": 0.6641,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9296,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 23,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/test_reference_reports.py\"}"
+      }
+    },
+    {
+      "position": 27,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.18135806918144226,
+      "tokens": 19,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/test_database_extended.py\"}",
+      "source_message_uuid": "77f2cd0e-1501-4acb-9ad7-a3e9e7840120",
+      "source_lines": [
+        52
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1814,
+          "repetition_score": 0.6711,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9494,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 17,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/step_defs/test_database.py\"}"
+      }
+    },
+    {
+      "position": 28,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.06454459577798843,
+      "tokens": 17,
+      "text": "Now let me examine the source modules for auth and user_auth to understand the domain.",
+      "source_message_uuid": "eba26d49-f43e-42a7-9c0c-1bf0db0c8fbb",
+      "source_lines": [
+        54
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.0645,
+          "repetition_score": 0.1956,
+          "confidence": 0.5,
+          "semantic_similarity": 0.2564,
+          "lexical_similarity": 0.2609,
+          "entity_similarity": 0.3,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.7
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 22,
+        "matched_prior_text": "Now let me read the source files that need BDD coverage - the unit tests and the source modules."
+      }
+    },
+    {
+      "position": 29,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.106230728328228,
+      "tokens": 21,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/warcraftlogs_client/auth.py\"}",
+      "source_message_uuid": "eba26d49-f43e-42a7-9c0c-1bf0db0c8fbb",
+      "source_lines": [
+        55
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1062,
+          "repetition_score": 0.6642,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9299,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 25,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/test_auth.py\"}"
+      }
+    },
+    {
+      "position": 30,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.09698024392127991,
+      "tokens": 22,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/warcraftlogs_client/user_auth.py\"}",
+      "source_message_uuid": "eba26d49-f43e-42a7-9c0c-1bf0db0c8fbb",
+      "source_lines": [
+        57
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.097,
+          "repetition_score": 0.6864,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9924,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 29,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/warcraftlogs_client/auth.py\"}"
+      }
+    },
+    {
+      "position": 31,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.1116722896695137,
+      "tokens": 21,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/warcraftlogs_client/models.py\"}",
+      "source_message_uuid": "eba26d49-f43e-42a7-9c0c-1bf0db0c8fbb",
+      "source_lines": [
+        59
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1117,
+          "repetition_score": 0.6524,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8965,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 29,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/warcraftlogs_client/auth.py\"}"
+      }
+    },
+    {
+      "position": 32,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.05398500710725784,
+      "tokens": 18,
+      "text": "Now let me look at the database module to understand the reference reports and extended DB operations.",
+      "source_message_uuid": "5b4544fe-2b4c-4183-9488-340891f85696",
+      "source_lines": [
+        61
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.054,
+          "repetition_score": 0.2065,
+          "confidence": 0.5,
+          "semantic_similarity": 0.2956,
+          "lexical_similarity": 0.2083,
+          "entity_similarity": 0.2105,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.7895
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Now let me read all the existing feature files and step definition files."
+      }
+    },
+    {
+      "position": 33,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.07832426577806473,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/warcraftlogs_client/database.py\",\"limit\":100}",
+      "source_message_uuid": "5b4544fe-2b4c-4183-9488-340891f85696",
+      "source_lines": [
+        62
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.0783,
+          "repetition_score": 0.5987,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8377,
+          "lexical_similarity": 0.3333,
+          "entity_similarity": 0.3333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 31,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/warcraftlogs_client/models.py\"}"
+      }
+    },
+    {
+      "position": 34,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.17114126682281494,
+      "tokens": 66,
+      "text": "Grep {\"pattern\":\"def (get_reference|import_raid|get_comparison|get_common_encounter|get_encounter_comparison|update_raid_label|get_raid_source|get_guild_raids)\",\"path\":\"D:/code/warcraftlogs_project/warcraftlogs_client/database.py\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "5b4544fe-2b4c-4183-9488-340891f85696",
+      "source_lines": [
+        64
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1711,
+          "repetition_score": 0.0405,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5996,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.0,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 26,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/tests/test_encounters.py\"}"
+      }
+    },
+    {
+      "position": 35,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.2057480365037918,
+      "tokens": 28,
+      "text": "Now I have a thorough understanding of the codebase. Let me check one more thing - the `_make_analysis` duplication pattern across files.",
+      "source_message_uuid": "508a1ecd-f6a0-4c57-a815-fe571a870a34",
+      "source_lines": [
+        66
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2057,
+          "repetition_score": 0.2272,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3308,
+          "lexical_similarity": 0.2083,
+          "entity_similarity": 0.2,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 15,
+        "matched_prior_text": "Now let me read all the step definition files."
+      }
+    },
+    {
+      "position": 36,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.12121886759996414,
+      "tokens": 32,
+      "text": "Grep {\"pattern\":\"def _make_analysis|def _base_analysis\",\"path\":\"D:/code/warcraftlogs_project/tests\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "508a1ecd-f6a0-4c57-a815-fe571a870a34",
+      "source_lines": [
+        67
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1212,
+          "repetition_score": 0.4246,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7889,
+          "lexical_similarity": 0.3333,
+          "entity_similarity": 0.3333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.5
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 34,
+        "matched_prior_text": "Grep {\"pattern\":\"def (get_reference|import_raid|get_comparison|get_common_encounter|get_encounter_comparison|update_raid_label|get_raid_source|get_guild_raids)\",\"path\":\"D:/code/warcraftlogs_project/warcraftlogs_client/database.py\",\"output_m"
+      }
+    },
+    {
+      "position": 37,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.11073451489210129,
+      "tokens": 22,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/warcraftlogs_client/common/errors.py\"}",
+      "source_message_uuid": "508a1ecd-f6a0-4c57-a815-fe571a870a34",
+      "source_lines": [
+        69
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1107,
+          "repetition_score": 0.6588,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9145,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 31,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/warcraftlogs_client/models.py\"}"
+      }
+    },
+    {
+      "position": 38,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.18109378218650818,
+      "tokens": 34,
+      "text": "I now have a comprehensive understanding of the entire codebase. Let me verify the exact count and signatures of the duplicated `_make_analysis` functions and understand the analysis module.",
+      "source_message_uuid": "49ddd91d-ab29-4551-8d63-83ab5792418b",
+      "source_lines": [
+        71
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1811,
+          "repetition_score": 0.5655,
+          "confidence": 0.5,
+          "semantic_similarity": 0.8395,
+          "lexical_similarity": 0.3438,
+          "entity_similarity": 0.25,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.75
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 35,
+        "matched_prior_text": "Now I have a thorough understanding of the codebase. Let me check one more thing - the `_make_analysis` duplication pattern across files."
+      }
+    },
+    {
+      "position": 39,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.12608052790164948,
+      "tokens": 26,
+      "text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/warcraftlogs_client/analysis.py\",\"limit\":60}",
+      "source_message_uuid": "49ddd91d-ab29-4551-8d63-83ab5792418b",
+      "source_lines": [
+        72
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1261,
+          "repetition_score": 0.6461,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9184,
+          "lexical_similarity": 0.4286,
+          "entity_similarity": 0.4286,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 33,
+        "matched_prior_text": "Read {\"file_path\":\"D:/code/warcraftlogs_project/warcraftlogs_client/database.py\",\"limit\":100}"
+      }
+    },
+    {
+      "position": 40,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.16333426535129547,
+      "tokens": 65,
+      "text": "Grep {\"pattern\":\"def analyze_raid|def _identify_tanks|def _identify_healers|def _identify_composition|def _classify_hybrid_role|def _analyze_encounters\",\"path\":\"D:/code/warcraftlogs_project/warcraftlogs_client/analysis.py\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "49ddd91d-ab29-4551-8d63-83ab5792418b",
+      "source_lines": [
+        74
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1633,
+          "repetition_score": 0.453,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8757,
+          "lexical_similarity": 0.375,
+          "entity_similarity": 0.375,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.5
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 36,
+        "matched_prior_text": "Grep {\"pattern\":\"def _make_analysis|def _base_analysis\",\"path\":\"D:/code/warcraftlogs_project/tests\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 41,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5769383311271667,
+      "intent_similarity": 0.5769383311271667,
+      "tokens": 4755,
+      "text": "I have now thoroughly explored every relevant file. Let me compile the implementation plan.\n\n---\n\n## Implementation Plan: BDD Scaffolding Improvements\n\n### Part 1: Analysis of Current State\n\n**Duplication inventory** -- five copies of `_make_analysis` / `_base_analysis` exist across the test suite:\n\n| File | Function | Signature / Parameters |\n|---|---|---|\n| `tests/step_defs/test_database.py:20` | `_make_analysis` | `report_id, healer_name, tank_name, dps_name` |\n| `tests/step_defs/test_report_export.py:20` | `_make_analysis` | `title, owner` |\n| `tests/step_defs/test_consumables.py:18` | `_base_analysis` | no params (hardcoded) |\n| `tests/test_reference_reports.py:20` | `_make_analysis` | `report_id, title, healer_name, tank_name, dps_name, encounter_id, encounter_name` |\n| `tests/test_database_extended.py:16` | `_make_analysis` | `report_id, title, start_time, healing, damage, damage_taken, mitigated, consumes_count` |\n\nAll build the same fundamental structure: `RaidMetadata` + `RaidComposition` + healers/tanks/dps lists + consumables. The signatures differ because each caller needs to control different fields. A unified factory fixture with keyword overrides would replace all five.\n\n**Current data flow pattern**: Step definitions use `target_fixture` to thread data between Given/When/Then steps. For example, `test_database.py` uses `db_ctx` (dict with `\"db\"` key) and `analysis_ctx` (dict with `\"analysis\"` and `\"report_id\"` keys). This is correct for pytest-bdd >= 7.0 and should be preserved.\n\n**Tag gap**: Only EARS methodology tags (`@ears_event_driven`, `@ears_ubiquitous`, etc.) exist. No domain/speed tags exist for selective execution.\n\n---\n\n### Part 2: Infrastructure Improvements\n\n#### Step 2.1 -- Create a `RaidAnalysis` builder factory in `tests/conftest.py`\n\nThe root `tests/conftest.py` already has `sample_raid_analysis` but it is rigid. Add a parametric factory fixture that subsumes all five `_make_analysis` variants.\n\n**File**: `tests/conftest.py`\n\nAdd a `build_analysis` fixture that returns a callable (factory pattern). The callable accepts keyword arguments to override any field:\n\n```\nreport_id, title, owner, start_time, end_time,\nhealer_name, healer_class, healer_healing, healer_overhealing,\ntank_name, tank_class, tank_damage_taken, tank_mitigated,\ndps_name, dps_class, dps_damage, dps_role,\nencounter_id, encounter_name,\nconsumables (list),\nconsumes_count\n```\n\nAll parameters have sensible defaults (matching the most common test values across the codebase). Returns a fully-formed `RaidAnalysis` object. This allows every step definition and unit test to produce test data with a single call, overriding only the fields they care about.\n\nThe existing `sample_raid_analysis` fixture should remain for backward compatibility but can be reimplemented to delegate to `build_analysis`.\n\n#### Step 2.2 -- Create shared step definitions in `tests/step_defs/conftest.py`\n\nThe BDD conftest currently has only a `context` fixture. Expand it to contain:\n\n1. **The `build_analysis` fixture re-export** -- BDD steps get the factory from the root conftest automatically via pytest fixture discovery, no special action needed.\n\n2. **Shared Given steps** that appear in multiple feature files:\n   - `Given a fresh test database` -- currently defined only in `test_database.py` but needed by reference_reports and encounter features too. Move to the shared conftest.\n   - `Given a raid analysis for report \"{report_id}\"` -- used by database.feature and will be used by reference_reports.feature and encounter_analysis.feature.\n   - `Given a mock WCL client` -- sets up the `MagicMock` client that appears in `test_raid_analysis.py` and will be needed for encounter analysis and auth features.\n\n3. **Shared Then steps** that check common assertions:\n   - `Then the result should contain {count:d} records` -- generic collection-size check\n   - `Then no error should be raised` -- reusable positive assertion\n\n4. **Remove the bare `context` fixture** -- it is unused. Step defs use `target_fixture` for data flow (the correct pattern for pytest-bdd). Removing it eliminates the misleading scaffold.\n\n#### Step 2.3 -- Refactor existing step definitions to use the shared factory\n\nEach of the three step definition files that define their own `_make_analysis` / `_base_analysis` should:\n\n1. Delete their local `_make_analysis` / `_base_analysis` function.\n2. Replace calls with the `build_analysis` fixture, passed in via the step function parameter.\n3. For steps that use `target_fixture`, the fixture function simply calls `build_analysis(...)` with the appropriate overrides.\n\nSpecific changes per file:\n\n- **`tests/step_defs/test_database.py`**: Remove lines 20-72 (`_make_analysis`). Replace `analysis_for_report`, `analysis_with_healer`, `analysis_with_tank`, `analysis_with_dps` to call `build_analysis(report_id=..., healer_name=..., ...)`. Move `Given a fresh test database` step to shared conftest.\n\n- **`tests/step_defs/test_report_export.py`**: Remove lines 20-72 (`_make_analysis`). Replace `analysis_for_title`, `analysis_for_owner`, `analysis_with_roles`, `analysis_with_healer` to call `build_analysis(title=..., owner=..., ...)`.\n\n- **`tests/step_defs/test_consumables.py`**: Remove lines 18-61 (`_base_analysis`). Replace with `build_analysis()` calls, adding consumables via the `consumables` parameter or post-construction mutation.\n\n#### Step 2.4 -- Tag organization in `pyproject.toml`\n\nAdd domain and speed markers to `pyproject.toml` under `[tool.pytest.ini_options].markers`:\n\n```\n\"database: Tests involving SQLite database operations\",\n\"api: Tests involving WCL API client/network calls\",\n\"auth: Tests involving authentication/token management\",\n\"slow: Tests that are slow (network, callback server, etc.)\",\n\"reference: Tests for reference report comparison features\",\n```\n\nThese supplement the existing EARS tags. Feature files will use both: e.g. `@ears_event_driven @database`.\n\n---\n\n### Part 3: New Feature Files\n\n#### Feature 3.1 -- `tests/features/reference_reports.feature`\n\n**Domain**: Guild/reference isolation, comparison aggregates, encounter matching, label management, reimport protection.\n\n**Why BDD is ideal**: These are requirements-level rules about data isolation and comparison. The existing unit tests in `test_reference_reports.py` have 14 test classes with complex setup; BDD scenarios will express the *business rules* clearly while the unit tests keep the edge cases.\n\n**Scenarios** (high-level):\n\n```\nFeature: Reference Report Comparison\n  The system shall support importing reference raids separately from\n  guild raids, enabling side-by-side performance comparison while\n  maintaining strict data isolation.\n\n  Background:\n    Given a fresh test database\n\n  @ears_event_driven @database @reference\n  Scenario: When a raid is imported as a reference, it shall not appear in guild raid list\n\n  @ears_event_driven @database @reference\n  Scenario: When a raid is imported without specifying source, it shall default to guild\n\n  @ears_ubiquitous @database @reference\n  Scenario: The system shall exclude reference-only characters from the guild character list\n\n  @ears_ubiquitous @database @reference\n  Scenario: The system shall count only guild raids in character history\n\n  @ears_event_driven @database @reference\n  Scenario: When comparison aggregates are computed, they shall be scoped by source\n\n  @ears_event_driven @database @reference\n  Scenario: When guild and reference raids share an encounter, the system shall find common encounters\n\n  @ears_unwanted_behavior @database @reference\n  Scenario: If the same report is imported with a different source, the original source shall be preserved\n\n  @ears_event_driven @database @reference\n  Scenario: When a label is set on a reference raid, it shall be retrievable\n```\n\n**Step definition file**: `tests/step_defs/test_reference_reports.py`\n\nKey steps will use the shared `build_analysis` factory and the shared `Given a fresh test database` step. New steps specific to this domain:\n- `When the analysis is imported as \"{source}\"`\n- `When comparison aggregates are computed for \"{source}\"`\n- `Then the guild raid list should have {count:d} entries`\n- `Then the reference raid list should have {count:d} entries`\n- `Then character \"{name}\" should not appear in guild characters`\n\n#### Feature 3.2 -- `tests/features/user_auth.feature`\n\n**Domain**: OAuth2 Authorization Code flow state machine -- unauthenticated, authenticated, expired, refreshed, revoked.\n\n**Why BDD is ideal**: Authentication flows are a natural state machine. The existing unit tests in `test_user_auth.py` test internal methods; BDD will express the user-visible behavior states.\n\n**Scenarios** (high-level):\n\n```\nFeature: User Authentication\n  The system shall manage OAuth2 user tokens with persistence,\n  automatic refresh, and clean revocation.\n\n  @ears_state_driven @auth\n  Scenario: While no token exists, the user shall not be authenticated\n\n  @ears_event_driven @auth\n  Scenario: When the OAuth flow completes with a valid code, the system shall store the token\n\n  @ears_state_driven @auth\n  Scenario: While a valid token exists on disk, the user shall be authenticated after reload\n\n  @ears_event_driven @auth\n  Scenario: When the access token expires but a refresh token exists, the system shall refresh automatically\n\n  @ears_unwanted_behavior @auth\n  Scenario: If the refresh attempt fails, the system shall revoke and require re-authentication\n\n  @ears_event_driven @auth\n  Scenario: When the user revokes authentication, the token file shall be deleted\n\n  @ears_unwanted_behavior @auth\n  Scenario: If the token file is corrupted, the system shall treat it as unauthenticated\n\n  @ears_unwanted_behavior @auth\n  Scenario: If the auth server is unreachable during token exchange, the system shall raise an authentication error\n```\n\n**Step definition file**: `tests/step_defs/test_user_auth.py`\n\nKey steps:\n- `Given no token file exists` (target_fixture returning a `UserTokenManager` with tmp_path)\n- `Given a saved token with access \"{access}\" and refresh \"{refresh}\" expiring in {seconds:d} seconds`\n- `When the OAuth flow completes with code \"{code}\"`\n- `When the user requests a token` (calls `get_token()`)\n- `When the user revokes authentication`\n- `Then the user should be authenticated`\n- `Then the user should not be authenticated`\n- `Then the token file should not exist`\n- `Then an authentication error should be raised with message containing \"{text}\"`\n\nUses `@patch` on `requests.post` within When steps to simulate server responses. The `monkeypatch` fixture integrates naturally with pytest-bdd.\n\n#### Feature 3.3 -- `tests/features/auth.feature`\n\n**Domain**: OAuth2 Client Credentials flow -- token acquisition, caching, expiry, error mapping.\n\n**Scenarios** (high-level):\n\n```\nFeature: API Authentication\n  The system shall acquire and cache OAuth2 client credentials tokens,\n  automatically refreshing them before expiry.\n\n  @ears_event_driven @auth\n  Scenario: When the first API call is made, the system shall acquire a token\n\n  @ears_ubiquitous @auth\n  Scenario: The system shall cache the token and not re-request while valid\n\n  @ears_event_driven @auth\n  Scenario: When the cached token expires, the system shall acquire a new one\n\n  @ears_unwanted_behavior @auth\n  Scenario: If the auth server returns HTTP 401, the system shall raise an authentication error\n\n  @ears_unwanted_behavior @auth\n  Scenario: If the auth server is unreachable, the system shall raise a connection error\n\n  @ears_unwanted_behavior @auth\n  Scenario: If the auth server times out, the system shall raise a timeout error\n\n  @ears_unwanted_behavior @auth\n  Scenario: If the auth server returns invalid JSON, the system shall raise an error\n```\n\n**Step definition file**: `tests/step_defs/test_auth.py`\n\nKey steps:\n- `Given a token manager with client_id \"{cid}\" and client_secret \"{csec}\"` (target_fixture)\n- `Given the auth server will respond with access_token \"{token}\" expiring in {seconds:d} seconds`\n- `Given the auth server will return status {code:d}`\n- `When a token is requested`\n- `Then the token should be \"{expected}\"`\n- `Then an authentication error should be raised`\n\n#### Feature 3.4 -- `tests/features/encounter_analysis.feature`\n\n**Domain**: Filtering boss kills, merging multi-table data, graceful error recovery.\n\n**Scenarios** (high-level):\n\n```\nFeature: Encounter Analysis\n  The system shall analyze individual boss encounters within a raid,\n  filtering out trash fights and merging damage/healing/damage-taken data.\n\n  @ears_event_driven @api\n  Scenario: When a raid contains boss kills, the system shall produce encounter summaries\n\n  @ears_ubiquitous @api\n  Scenario: The system shall filter out trash fights (encounterID 0)\n\n  @ears_ubiquitous @api\n  Scenario: The system shall filter out wipes (kill=false)\n\n  @ears_event_driven @api\n  Scenario: When encounter data includes damage, healing, and damage taken, the system shall merge them per player\n\n  @ears_ubiquitous @api\n  Scenario: The system shall exclude pet entries from encounter summaries\n\n  @ears_unwanted_behavior @api\n  Scenario: If the API fails for one encounter, the system shall skip it and continue\n\n  @ears_event_driven @database\n  Scenario: When encounters are imported to the database, they shall be retrievable\n\n  @ears_event_driven @database\n  Scenario: When a raid is deleted, its encounter data shall be cascaded\n```\n\n**Step definition file**: `tests/step_defs/test_encounter_analysis.py`\n\nUses shared `Given a mock WCL client` and `Given a fresh test database` steps. New domain-specific steps:\n- `Given the client returns fight data with {count:d} boss kills and {trash:d} trash fights`\n- `Given the client returns encounter table with damage {dmg:d} for \"{player}\"`\n- `When encounters are analyzed for report \"{report_id}\"`\n- `Then there should be {count:d} encounter summaries`\n- `Then encounter \"{name}\" should have player \"{player}\" with damage {dmg:d}`\n\n---\n\n### Part 4: File-by-File Implementation Sequence\n\nThis sequence is ordered to minimize breakage and enable incremental verification.\n\n**Phase A -- Infrastructure (no new features, no broken tests)**\n\n1. **`tests/conftest.py`** -- Add the `build_analysis` factory fixture. Keep all existing fixtures. Re-implement `sample_raid_analysis` to delegate to `build_analysis` if desired, but this is optional since the existing fixture works.\n\n2. **`tests/step_defs/conftest.py`** -- Add shared Given/Then steps (`Given a fresh test database`, `Given a raid analysis for report...`, `Given a mock WCL client`). Remove the unused `context` fixture.\n\n3. **`tests/step_defs/test_database.py`** -- Remove local `_make_analysis`. Remove the locally-defined `Given a fresh test database` step (now shared). Update step functions to use `build_analysis` fixture.\n\n4. **`tests/step_defs/test_report_export.py`** -- Remove local `_make_analysis`. Update step functions.\n\n5. **`tests/step_defs/test_consumables.py`** -- Remove local `_base_analysis`. Update step functions.\n\n6. **`pyproject.toml`** -- Add new markers for `database`, `api`, `auth`, `reference`, `slow`.\n\n7. **Verify**: Run `pytest tests/step_defs/ -v` to confirm all existing BDD tests still pass with the refactored infrastructure.\n\n**Phase B -- New Feature Files (incremental additions)**\n\n8. **`tests/features/reference_reports.feature`** + **`tests/step_defs/test_reference_reports.py`** -- Reference reports BDD scenarios.\n\n9. **`tests/features/auth.feature`** + **`tests/step_defs/test_auth.py`** -- Client credentials auth BDD scenarios.\n\n10. **`tests/features/user_auth.feature`** + **`tests/step_defs/test_user_auth.py`** -- User auth BDD scenarios.\n\n11. **`tests/features/encounter_analysis.feature`** + **`tests/step_defs/test_encounter_analysis.py`** -- Encounter analysis BDD scenarios.\n\n12. **Add domain tags to existing feature files**: Add `@database` to `database.feature`, `@api` to `raid_analysis.feature` scenarios that use mock clients, etc.\n\n**Phase C -- Verification and cleanup**\n\n13. Run full test suite: `pytest tests/ -v --tb=short` to confirm BDD and unit tests coexist.\n\n14. Run tag-filtered execution to verify: `pytest -m database`, `pytest -m auth`, `pytest -m \"ears_event_driven and database\"`.\n\n15. Optionally refactor the `_make_analysis` in unit test files (`test_reference_reports.py`, `test_database_extended.py`) to also use the shared `build_analysis` fixture for consistency across the entire test suite.\n\n---\n\n### Part 5: Key Design Decisions and Rationale\n\n**Why a factory fixture, not a conftest-level function?**\nA pytest fixture can inject `tmp_path` and other fixtures automatically. A bare function cannot. Since some analysis objects need encounters, consumables, or database paths, a fixture gives access to the full pytest dependency injection chain.\n\n**Why move shared steps to `tests/step_defs/conftest.py` instead of a separate `shared_steps.py`?**\npytest-bdd discovers steps through module imports and conftest fixtures. Steps defined in `conftest.py` are automatically available to all step definition files in the same directory. A separate module would require explicit imports in every step def file, which is more fragile.\n\n**Why keep unit tests alongside BDD?**\nThe BDD scenarios express requirements at the behavior level (\"When a raid is imported as a reference, it shall not appear in guild raid list\"). Unit tests cover implementation edge cases (\"migration adds source column to existing db\", \"auth header uses Base64 encoding\", \"safety margin on token expiry\"). These serve different audiences: BDD for stakeholders and acceptance, unit tests for developers and regression.\n\n**Why not add feature files for all uncovered modules?**\nThe five modules selected (reference reports, user auth, client credentials auth, encounter analysis) are the highest-value targets for BDD because they have clear state machines, isolation rules, or multi-step flows. Lower-ranked modules like database_extended are better served by their existing unit tests because they test individual query methods rather than behavioral requirements.\n\n---\n\n### Part 6: `build_analysis` Factory Fixture Specification\n\nThe fixture signature should unify all five existing `_make_analysis` variants:\n\n```python\n@pytest.fixture\ndef build_analysis():\n    def _build(\n        report_id=\"test_report\",\n        title=\"Test Raid\",\n        owner=\"TestGuild\",\n        start_time=1_700_000_000_000,\n        end_time=1_700_003_600_000,\n        zone=None,\n        healer_name=\"HolyPriest\",\n        healer_class=\"Priest\",\n        healer_healing=500_000,\n        healer_overhealing=100_000,\n        tank_name=\"TankWarrior\",\n        tank_class=\"Warrior\",\n        tank_damage_taken=800_000,\n        tank_mitigated=600_000,\n        dps_name=\"StabbyRogue\",\n        dps_class=\"Rogue\",\n        dps_damage=400_000,\n        dps_role=\"melee\",\n        encounter_id=None,\n        encounter_name=\"Attumen\",\n        consumables=None,\n        consumes_count=0,\n    ) -> RaidAnalysis:\n        ...\n    return _build\n```\n\nThis covers every parameter used by any of the five existing variants. The default values match the most common values found across the test suite.\n\n---\n\n### Part 7: Potential Challenges\n\n1. **Step name collisions**: When moving `Given a fresh test database` to the shared conftest, it must be removed from `test_database.py`. If both exist simultaneously, pytest-bdd will raise a duplicate step error. The removal and addition must happen atomically (same commit).\n\n2. **`target_fixture` interaction with shared steps**: Shared steps that use `target_fixture` will inject their return value as a fixture visible to subsequent steps in the same scenario. This works correctly as long as the fixture names (`db_ctx`, `analysis_ctx`, etc.) do not collide across different feature files running in the same pytest session. The current codebase already uses distinct names per domain (`db_ctx`, `export_ctx`, `consume_ctx`, `parsed`, `actor_setup`), so this is safe.\n\n3. **Monkeypatch in BDD steps**: Some steps need `monkeypatch` (e.g., the auth steps that patch `requests.post`). This is a session-scoped fixture that works fine with pytest-bdd -- just add `monkeypatch` as a parameter to the step function alongside any target_fixture data.\n\n4. **Unit test `_make_analysis` divergence**: The unit test files (`test_reference_reports.py`, `test_database_extended.py`) have their own `_make_analysis` with different signatures. Phase A focuses only on the BDD step_defs. Phase C optionally migrates unit tests. This avoids a large blast radius.\n\n---\n\n### Critical Files for Implementation\n- `D:/code/warcraftlogs_project/tests/conftest.py`\n- `D:/code/warcraftlogs_project/tests/step_defs/conftest.py`\n- `D:/code/warcraftlogs_project/tests/step_defs/test_database.py`\n- `D:/code/warcraftlogs_project/tests/step_defs/test_report_export.py`\n- `D:/code/warcraftlogs_project/pyproject.toml`",
+      "source_message_uuid": "777a183e-2d3e-43cb-8a28-2064d58d5103",
+      "source_lines": [
+        76
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5769,
+          "repetition_score": 0.3243,
+          "confidence": 0.5769,
+          "semantic_similarity": 0.5532,
+          "lexical_similarity": 0.0199,
+          "entity_similarity": 0.0205,
+          "action_similarity": 0.0625,
+          "parameter_novelty": 0.9795
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 38,
+        "matched_prior_text": "I now have a comprehensive understanding of the entire codebase. Let me verify the exact count and signatures of the duplicated `_make_analysis` functions and understand the analysis module."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 19,
+    "waste_by_category": {
+      "Redundant Reasoning": 19
+    },
+    "waste_by_phase": {
+      "reasoning": 19
+    },
+    "top_patterns": [
+      {
+        "type": "bash_antipattern",
+        "tokens_wasted": 1584,
+        "description": "2 Bash calls should use dedicated tools (1,584 tokens)"
+      }
+    ],
+    "explanation": "19 of 5,744 tokens (0.3%) were identified as waste. The largest waste category is Redundant Reasoning (19 tokens). The most impactful pattern: 2 Bash calls should use dedicated tools (1,584 tokens) (1,584 tokens)."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Bash Anti-Patterns",
+        "tokens": 1584,
+        "percentage": 98.8,
+        "cost_usd": 0.004752,
+        "count": 1,
+        "pricing": "input"
+      },
+      {
+        "source": "Redundant Reasoning",
+        "tokens": 19,
+        "percentage": 1.2,
+        "cost_usd": 0.000285,
+        "count": 1,
+        "pricing": "output"
+      }
+    ],
+    "total_tokens": 1603,
+    "total_cost_usd": 0.005037
+  },
+  "economics": {
+    "total_input_tokens": 5166,
+    "total_output_tokens": 5699,
+    "total_cache_creation_tokens": 67601,
+    "total_cache_read_tokens": 541655,
+    "input_output_ratio": 0.91,
+    "cache_hit_rate": 0.9906,
+    "estimated_cost_usd": 0.517,
+    "estimated_waste_cost_usd": 0.0003,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 0.9403,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 14,
+      "mid_span_count": 14,
+      "late_span_count": 14
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        13525,
+        17571,
+        22509,
+        26586,
+        31003,
+        37430,
+        46756,
+        52130,
+        66942,
+        75378,
+        76893,
+        80098
+      ],
+      "growth_rate": 5.92,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 1018,
+      "user_result_tokens": 44492,
+      "model_reasoning_tokens": 19,
+      "model_tool_tokens": 809,
+      "model_generation_tokens": 4916,
+      "total_user_tokens": 45510,
+      "total_model_tokens": 5744,
+      "user_ratio": 0.8879
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.5807,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "Design a detailed implementation plan for improving BDD scaffolding in a Python project that uses pytest-bdd. The user wants both infrastructure improvements and new feature files, with BDD coexisting alongside unit tests (BDD for requirements/behavior, unit tests for edge cases).\n\n## Current State\n\n**Framework:** pytest + pytest-bdd (both >= 7.0), configured in pyproject.toml.\n\n**Existing BDD structure:**\n- `tests/features/` \u2014 6 .feature files (raid_analysis, configuration, database, cli, consumables, report_export)\n- `tests/step_defs/` \u2014 6 matching step definition files + conftest.py with a minimal `context` fixture\n- Each step def file has `scenarios(\"feature_name.feature\")` at the top\n- Steps use `target_fixture` for data passing between Given/When/Then\n- Feature files use EARS markers as tags: `@ears_event_driven`, `@ears_ubiquitous`, `@ears_state_driven`, `@ears_unwanted_behavior`\n- These EARS markers are registered in pyproject.toml\n\n**Root conftest.py** (`tests/conftest.py`): 13 fixtures including `reset_global_state` (autouse), sample data builders (`sample_raid_metadata`, `sample_healer_performance`, etc.), `mock_client`, `db`, `config_file`.\n\n**BDD step_defs conftest.py** (`tests/step_defs/conftest.py`): Just a single `context` fixture (shared mutable dict), but most step defs use `target_fixture` instead.\n\n**Problems/gaps in current scaffolding:**\n1. **Duplicated `_make_analysis()` helpers**: Three separate step definition files each define their own `_make_analysis()` function that builds a `RaidAnalysis` object. These are near-identical.\n2. **No shared steps**: Each step def file is fully self-contained. Common patterns like \"Given a fresh test database\" or mock client setup are duplicated.\n3. **No data builder/factory pattern**: Step defs construct test data inline with full dataclass constructors, making scenarios verbose.\n4. **The `context` fixture is barely used**: Most steps pass data via `target_fixture`, which is correct for pytest-bdd but the `context` dict in conftest is unnecessary noise.\n5. **No domain tags**: Only EARS methodology tags exist. No `@slow`, `@database`, `@api`, `@auth` style tags for selective test runs.\n\n**Source modules that lack BDD coverage (ranked by BDD suitability):**\n1. **Reference Reports** (VERY HIGH) \u2014 guild/reference isolation rules, comparison aggregates, encounter matching with fallback, reimport protection, label management. Tests in `test_reference_reports.py`.\n2. **User Auth** (HIGH) \u2014 OAuth2 Authorization Code flow with complex state machine: unauthenticated -> authenticated -> expired -> refreshed -> revoked. Token persistence to disk, CSRF protection, callback server. Tests in `test_user_auth.py`.\n3. **Auth / TokenManager** (HIGH) \u2014 OAuth2 Client Credentials flow with token caching, lazy acquisition, four distinct error-mapping scenarios. Tests in `test_auth.py`.\n4. **Encounter Analysis** (HIGH) \u2014 Filtering boss kills, merging multi-table data, graceful error recovery, encounter database roundtrips. Tests in `test_encounters.py`.\n5. **Extended Database** (MEDIUM-HIGH) \u2014 Raid groups CRUD, consistency scores, character trends. Tests in `test_database_extended.py`.\n\n**Key source models used everywhere:**\n- `RaidAnalysis`, `RaidMetadata`, `RaidComposition`, `PlayerIdentity` \u2014 from `warcraftlogs_client/models.py`\n- `HealerPerformance`, `TankPerformance`, `DPSPerformance` \u2014 from `warcraftlogs_client/models.py`\n- `PerformanceDB` \u2014 from `warcraftlogs_client/database.py`\n- `TokenManager` \u2014 from `warcraftlogs_client/auth.py`\n- `UserTokenManager` \u2014 from `warcraftlogs_client/user_auth.py`\n\n## Requirements\n\n1. **Improve shared BDD infrastructure**: fixture factories, shared steps, conftest improvements, tag organization\n2. **Add new feature files** for the highest-value uncovered domains\n3. **BDD coexists with unit tests** \u2014 BDD captures requirements/behavior at a higher level; unit tests cover edge cases\n4. **Follow existing patterns** \u2014 use `target_fixture`, `parsers.parse()`, `scenarios()` as the existing code does\n5. **EARS markers continue** \u2014 keep the existing EARS tag system, supplement with domain tags\n\n## Deliverables Expected\n\nA step-by-step implementation plan that covers:\n- Infrastructure improvements (shared fixtures, data builders, step reuse)\n- Which new feature files to add and what scenarios they should contain (high-level)\n- Tag organization\n- Verification strategy",
+          "response_text": "I will start by exploring the project structure and understanding the current BDD scaffolding in detail. Now let me read all the existing feature files and step definition files. Now let me read all the step definition files. Now let me read the source files that need BDD coverage - the unit tests and the source modules. Now let me examine the source modules for auth and user_auth to understand the domain. Now let me look at the database module to understand the reference reports and extended DB operations. Now I have a thorough understanding of the codebase. Let me check one more thing - the `_make_analysis` duplication pattern across files. I now have a comprehensive understanding of the entire codebase. Let me verify the exact count and signatures of the duplicated `_make_analysis` functions and understand the analysis module. I have now thoroughly explored every relevant file. Let me compile the implementation plan.\n\n---\n\n## Implementation Plan: BDD Scaffolding Improvements\n\n### Part 1: Analysis of Current State\n\n**Duplication inventory** -- five copies of `_make_analysis` / `_base_analysis` exist across the test suite:\n\n| File | Function | Signature / Parameters |\n|---|---|---|\n| `tests/step_defs/test_database.py:20` | `_make_analysis` | `report_id, healer_name, tank_name, dps_name` |\n| `tests/step_defs/test_report_export.py:20` | `_make_analysis` | `title, owner` |\n| `tests/step_defs/test_consumables.py:18` | `_base_analysis` | no params (hardcoded) |\n| `tests/test_reference_reports.py:20` | `_make_analysis` | `report_id, title, healer_name, tank_name, dps_name, encounter_id, encounter_name` |\n| `tests/test_database_extended.py:16` | `_make_analysis` | `report_id, title, start_time, healing, damage, damage_taken, mitigated, consumes_count` |\n\nAll build the same fundamental structure: `RaidMetadata` + `RaidComposition` + healers/tanks/dps lists + consumables. The signatures differ because each caller needs to control different fields. A unified factory fixture with keyword overrides would replace all five.\n\n**Current data flow pattern**: Step definitions use `target_fixture` to thread data between Given/When/Then steps. For example, `test_database.py` uses `db_ctx` (dict with `\"db\"` key) and `analysis_ctx` (dict with `\"analysis\"` and `\"report_id\"` keys). This is correct for pytest-bdd >= 7.0 and should be preserved.\n\n**Tag gap**: Only EARS methodology tags (`@ears_event_driven`, `@ears_ubiquitous`, etc.) exist. No domain/speed tags exist for selective execution.\n\n---\n\n### Part 2: Infrastructure Improvements\n\n#### Step 2.1 -- Create a `RaidAnalysis` builder factory in `tests/conftest.py`\n\nThe root `tests/conftest.py` already has `sample_raid_analysis` but it is rigid. Add a parametric factory fixture that subsumes all five `_make_analysis` variants.\n\n**File**: `tests/conftest.py`\n\nAdd a `build_analysis` fixture that returns a callable (factory pattern). The callable accepts keyword arguments to override any field:\n\n```\nreport_id, title, owner, start_time, end_time,\nhealer_name, healer_class, healer_healing, healer_overhealing,\ntank_name, tank_class, tank_damage_taken, tank_mitigated,\ndps_name, dps_class, dps_damage, dps_role,\nencounter_id, encounter_name,\nconsumables (list),\nconsumes_count\n```\n\nAll parameters have sensible defaults (matching the most common test values across the codebase). Returns a fully-formed `RaidAnalysis` object. This allows every step definition and unit test to produce test data with a single call, overriding only the fields they care about.\n\nThe existing `sample_raid_analysis` fixture should remain for backward compatibility but can be reimplemented to delegate to `build_analysis`.\n\n#### Step 2.2 -- Create shared step definitions in `tests/step_defs/conftest.py`\n\nThe BDD conftest currently has only a `context` fixture. Expand it to contain:\n\n1. **The `build_analysis` fixture re-export** -- BDD steps get the factory from the root conftest automatically via pytest fixture discovery, no special action needed.\n\n2. **Shared Given steps** that appear in multiple feature files:\n   - `Given a fresh test database` -- currently defined only in `test_database.py` but needed by reference_reports and encounter features too. Move to the shared conftest.\n   - `Given a raid analysis for report \"{report_id}\"` -- used by database.feature and will be used by reference_reports.feature and encounter_analysis.feature.\n   - `Given a mock WCL client` -- sets up the `MagicMock` client that appears in `test_raid_analysis.py` and will be needed for encounter analysis and auth features.\n\n3. **Shared Then steps** that check common assertions:\n   - `Then the result should contain {count:d} records` -- generic collection-size check\n   - `Then no error should be raised` -- reusable positive assertion\n\n4. **Remove the bare `context` fixture** -- it is unused. Step defs use `target_fixture` for data flow (the correct pattern for pytest-bdd). Removing it eliminates the misleading scaffold.\n\n#### Step 2.3 -- Refactor existing step definitions to use the shared factory\n\nEach of the three step definition files that define their own `_make_analysis` / `_base_analysis` should:\n\n1. Delete their local `_make_analysis` / `_base_analysis` function.\n2. Replace calls with the `build_analysis` fixture, passed in via the step function parameter.\n3. For steps that use `target_fixture`, the fixture function simply calls `build_analysis(...)` with the appropriate overrides.\n\nSpecific changes per file:\n\n- **`tests/step_defs/test_database.py`**: Remove lines 20-72 (`_make_analysis`). Replace `analysis_for_report`, `analysis_with_healer`, `analysis_with_tank`, `analysis_with_dps` to call `build_analysis(report_id=..., healer_name=..., ...)`. Move `Given a fresh test database` step to shared conftest.\n\n- **`tests/step_defs/test_report_export.py`**: Remove lines 20-72 (`_make_analysis`). Replace `analysis_for_title`, `analysis_for_owner`, `analysis_with_roles`, `analysis_with_healer` to call `build_analysis(title=..., owner=..., ...)`.\n\n- **`tests/step_defs/test_consumables.py`**: Remove lines 18-61 (`_base_analysis`). Replace with `build_analysis()` calls, adding consumables via the `consumables` parameter or post-construction mutation.\n\n#### Step 2.4 -- Tag organization in `pyproject.toml`\n\nAdd domain and speed markers to `pyproject.toml` under `[tool.pytest.ini_options].markers`:\n\n```\n\"database: Tests involving SQLite database operations\",\n\"api: Tests involving WCL API client/network calls\",\n\"auth: Tests involving authentication/token management\",\n\"slow: Tests that are slow (network, callback server, etc.)\",\n\"reference: Tests for reference report comparison features\",\n```\n\nThese supplement the existing EARS tags. Feature files will use both: e.g. `@ears_event_driven @database`.\n\n---\n\n### Part 3: New Feature Files\n\n#### Feature 3.1 -- `tests/features/reference_reports.feature`\n\n**Domain**: Guild/reference isolation, comparison aggregates, encounter matching, label management, reimport protection.\n\n**Why BDD is ideal**: These are requirements-level rules about data isolation and comparison. The existing unit tests in `test_reference_reports.py` have 14 test classes with complex setup; BDD scenarios will express the *business rules* clearly while the unit tests keep the edge cases.\n\n**Scenarios** (high-level):\n\n```\nFeature: Reference Report Comparison\n  The system shall support importing reference raids separately from\n  guild raids, enabling side-by-side performance comparison while\n  maintaining strict data isolation.\n\n  Background:\n    Given a fresh test database\n\n  @ears_event_driven @database @reference\n  Scenario: When a raid is imported as a reference, it shall not appear in guild raid list\n\n  @ears_event_driven @database @reference\n  Scenario: When a raid is imported without specifying source, it shall default to guild\n\n  @ears_ubiquitous @database @reference\n  Scenario: The system shall exclude reference-only characters from the guild character list\n\n  @ears_ubiquitous @database @reference\n  Scenario: The system shall count only guild raids in character history\n\n  @ears_event_driven @database @reference\n  Scenario: When comparison aggregates are computed, they shall be scoped by source\n\n  @ears_event_driven @database @reference\n  Scenario: When guild and reference raids share an encounter, the system shall find common encounters\n\n  @ears_unwanted_behavior @database @reference\n  Scenario: If the same report is imported with a different source, the original source shall be preserved\n\n  @ears_event_driven @database @reference\n  Scenario: When a label is set on a reference raid, it shall be retrievable\n```\n\n**Step definition file**: `tests/step_defs/test_reference_reports.py`\n\nKey steps will use the shared `build_analysis` factory and the shared `Given a fresh test database` step. New steps specific to this domain:\n- `When the analysis is imported as \"{source}\"`\n- `When comparison aggregates are computed for \"{source}\"`\n- `Then the guild raid list should have {count:d} entries`\n- `Then the reference raid list should have {count:d} entries`\n- `Then character \"{name}\" should not appear in guild characters`\n\n#### Feature 3.2 -- `tests/features/user_auth.feature`\n\n**Domain**: OAuth2 Authorization Code flow state machine -- unauthenticated, authenticated, expired, refreshed, revoked.\n\n**Why BDD is ideal**: Authentication flows are a natural state machine. The existing unit tests in `test_user_auth.py` test internal methods; BDD will express the user-visible behavior states.\n\n**Scenarios** (high-level):\n\n```\nFeature: User Authentication\n  The system shall manage OAuth2 user tokens with persistence,\n  automatic refresh, and clean revocation.\n\n  @ears_state_driven @auth\n  Scenario: While no token exists, the user shall not be authenticated\n\n  @ears_event_driven @auth\n  Scenario: When the OAuth flow completes with a valid code, the system shall store the token\n\n  @ears_state_driven @auth\n  Scenario: While a valid token exists on disk, the user shall be authenticated after reload\n\n  @ears_event_driven @auth\n  Scenario: When the access token expires but a refresh token exists, the system shall refresh automatically\n\n  @ears_unwanted_behavior @auth\n  Scenario: If the refresh attempt fails, the system shall revoke and require re-authentication\n\n  @ears_event_driven @auth\n  Scenario: When the user revokes authentication, the token file shall be deleted\n\n  @ears_unwanted_behavior @auth\n  Scenario: If the token file is corrupted, the system shall treat it as unauthenticated\n\n  @ears_unwanted_behavior @auth\n  Scenario: If the auth server is unreachable during token exchange, the system shall raise an authentication error\n```\n\n**Step definition file**: `tests/step_defs/test_user_auth.py`\n\nKey steps:\n- `Given no token file exists` (target_fixture returning a `UserTokenManager` with tmp_path)\n- `Given a saved token with access \"{access}\" and refresh \"{refresh}\" expiring in {seconds:d} seconds`\n- `When the OAuth flow completes with code \"{code}\"`\n- `When the user requests a token` (calls `get_token()`)\n- `When the user revokes authentication`\n- `Then the user should be authenticated`\n- `Then the user should not be authenticated`\n- `Then the token file should not exist`\n- `Then an authentication error should be raised with message containing \"{text}\"`\n\nUses `@patch` on `requests.post` within When steps to simulate server responses. The `monkeypatch` fixture integrates naturally with pytest-bdd.\n\n#### Feature 3.3 -- `tests/features/auth.feature`\n\n**Domain**: OAuth2 Client Credentials flow -- token acquisition, caching, expiry, error mapping.\n\n**Scenarios** (high-level):\n\n```\nFeature: API Authentication\n  The system shall acquire and cache OAuth2 client credentials tokens,\n  automatically refreshing them before expiry.\n\n  @ears_event_driven @auth\n  Scenario: When the first API call is made, the system shall acquire a token\n\n  @ears_ubiquitous @auth\n  Scenario: The system shall cache the token and not re-request while valid\n\n  @ears_event_driven @auth\n  Scenario: When the cached token expires, the system shall acquire a new one\n\n  @ears_unwanted_behavior @auth\n  Scenario: If the auth server returns HTTP 401, the system shall raise an authentication error\n\n  @ears_unwanted_behavior @auth\n  Scenario: If the auth server is unreachable, the system shall raise a connection error\n\n  @ears_unwanted_behavior @auth\n  Scenario: If the auth server times out, the system shall raise a timeout error\n\n  @ears_unwanted_behavior @auth\n  Scenario: If the auth server returns invalid JSON, the system shall raise an error\n```\n\n**Step definition file**: `tests/step_defs/test_auth.py`\n\nKey steps:\n- `Given a token manager with client_id \"{cid}\" and client_secret \"{csec}\"` (target_fixture)\n- `Given the auth server will respond with access_token \"{token}\" expiring in {seconds:d} seconds`\n- `Given the auth server will return status {code:d}`\n- `When a token is requested`\n- `Then the token should be \"{expected}\"`\n- `Then an authentication error should be raised`\n\n#### Feature 3.4 -- `tests/features/encounter_analysis.feature`\n\n**Domain**: Filtering boss kills, merging multi-table data, graceful error recovery.\n\n**Scenarios** (high-level):\n\n```\nFeature: Encounter Analysis\n  The system shall analyze individual boss encounters within a raid,\n  filtering out trash fights and merging damage/healing/damage-taken data.\n\n  @ears_event_driven @api\n  Scenario: When a raid contains boss kills, the system shall produce encounter summaries\n\n  @ears_ubiquitous @api\n  Scenario: The system shall filter out trash fights (encounterID 0)\n\n  @ears_ubiquitous @api\n  Scenario: The system shall filter out wipes (kill=false)\n\n  @ears_event_driven @api\n  Scenario: When encounter data includes damage, healing, and damage taken, the system shall merge them per player\n\n  @ears_ubiquitous @api\n  Scenario: The system shall exclude pet entries from encounter summaries\n\n  @ears_unwanted_behavior @api\n  Scenario: If the API fails for one encounter, the system shall skip it and continue\n\n  @ears_event_driven @database\n  Scenario: When encounters are imported to the database, they shall be retrievable\n\n  @ears_event_driven @database\n  Scenario: When a raid is deleted, its encounter data shall be cascaded\n```\n\n**Step definition file**: `tests/step_defs/test_encounter_analysis.py`\n\nUses shared `Given a mock WCL client` and `Given a fresh test database` steps. New domain-specific steps:\n- `Given the client returns fight data with {count:d} boss kills and {trash:d} trash fights`\n- `Given the client returns encounter table with damage {dmg:d} for \"{player}\"`\n- `When encounters are analyzed for report \"{report_id}\"`\n- `Then there should be {count:d} encounter summaries`\n- `Then encounter \"{name}\" should have player \"{player}\" with damage {dmg:d}`\n\n---\n\n### Part 4: File-by-File Implementation Sequence\n\nThis sequence is ordered to minimize breakage and enable incremental verification.\n\n**Phase A -- Infrastructure (no new features, no broken tests)**\n\n1. **`tests/conftest.py`** -- Add the `build_analysis` factory fixture. Keep all existing fixtures. Re-implement `sample_raid_analysis` to delegate to `build_analysis` if desired, but this is optional since the existing fixture works.\n\n2. **`tests/step_defs/conftest.py`** -- Add shared Given/Then steps (`Given a fresh test database`, `Given a raid analysis for report...`, `Given a mock WCL client`). Remove the unused `context` fixture.\n\n3. **`tests/step_defs/test_database.py`** -- Remove local `_make_analysis`. Remove the locally-defined `Given a fresh test database` step (now shared). Update step functions to use `build_analysis` fixture.\n\n4. **`tests/step_defs/test_report_export.py`** -- Remove local `_make_analysis`. Update step functions.\n\n5. **`tests/step_defs/test_consumables.py`** -- Remove local `_base_analysis`. Update step functions.\n\n6. **`pyproject.toml`** -- Add new markers for `database`, `api`, `auth`, `reference`, `slow`.\n\n7. **Verify**: Run `pytest tests/step_defs/ -v` to confirm all existing BDD tests still pass with the refactored infrastructure.\n\n**Phase B -- New Feature Files (incremental additions)**\n\n8. **`tests/features/reference_reports.feature`** + **`tests/step_defs/test_reference_reports.py`** -- Reference reports BDD scenarios.\n\n9. **`tests/features/auth.feature`** + **`tests/step_defs/test_auth.py`** -- Client credentials auth BDD scenarios.\n\n10. **`tests/features/user_auth.feature`** + **`tests/step_defs/test_user_auth.py`** -- User auth BDD scenarios.\n\n11. **`tests/features/encounter_analysis.feature`** + **`tests/step_defs/test_encounter_analysis.py`** -- Encounter analysis BDD scenarios.\n\n12. **Add domain tags to existing feature files**: Add `@database` to `database.feature`, `@api` to `raid_analysis.feature` scenarios that use mock clients, etc.\n\n**Phase C -- Verification and cleanup**\n\n13. Run full test suite: `pytest tests/ -v --tb=short` to confirm BDD and unit tests coexist.\n\n14. Run tag-filtered execution to verify: `pytest -m database`, `pytest -m auth`, `pytest -m \"ears_event_driven and database\"`.\n\n15. Optionally refactor the `_make_analysis` in unit test files (`test_reference_reports.py`, `test_database_extended.py`) to also use the shared `build_analysis` fixture for consistency across the entire test suite.\n\n---\n\n### Part 5: Key Design Decisions and Rationale\n\n**Why a factory fixture, not a conftest-level function?**\nA pytest fixture can inject `tmp_path` and other fixtures automatically. A bare function cannot. Since some analysis objects need encounters, consumables, or database paths, a fixture gives access to the full pytest dependency injection chain.\n\n**Why move shared steps to `tests/step_defs/conftest.py` instead of a separate `shared_steps.py`?**\npytest-bdd discovers steps through module imports and conftest fixtures. Steps defined in `conftest.py` are automatically available to all step definition files in the same directory. A separate module would require explicit imports in every step def file, which is more fragile.\n\n**Why keep unit tests alongside BDD?**\nThe BDD scenarios express requirements at the behavior level (\"When a raid is imported as a reference, it shall not appear in guild raid list\"). Unit tests cover implementation edge cases (\"migration adds source column to existing db\", \"auth header uses Base64 encoding\", \"safety margin on token expiry\"). These serve different audiences: BDD for stakeholders and acceptance, unit tests for developers and regression.\n\n**Why not add feature files for all uncovered modules?**\nThe five modules selected (reference reports, user auth, client credentials auth, encounter analysis) are the highest-value targets for BDD because they have clear state machines, isolation rules, or multi-step flows. Lower-ranked modules like database_extended are better served by their existing unit tests because they test individual query methods rather than behavioral requirements.\n\n---\n\n### Part 6: `build_analysis` Factory Fixture Specification\n\nThe fixture signature should unify all five existing `_make_analysis` variants:\n\n```python\n@pytest.fixture\ndef build_analysis():\n    def _build(\n        report_id=\"test_report\",\n        title=\"Test Raid\",\n        owner=\"TestGuild\",\n        start_time=1_700_000_000_000,\n        end_time=1_700_003_600_000,\n        zone=None,\n        healer_name=\"HolyPriest\",\n        healer_class=\"Priest\",\n        healer_healing=500_000,\n        healer_overhealing=100_000,\n        tank_name=\"TankWarrior\",\n        tank_class=\"Warrior\",\n        tank_damage_taken=800_000,\n        tank_mitigated=600_000,\n        dps_name=\"StabbyRogue\",\n        dps_class=\"Rogue\",\n        dps_damage=400_000,\n        dps_role=\"melee\",\n        encounter_id=None,\n        encounter_name=\"Attumen\",\n        consumables=None,\n        consumes_count=0,\n    ) -> RaidAnalysis:\n        ...\n    return _build\n```\n\nThis covers every parameter used by any of the five existing variants. The default values match the most common values found across the test suite.\n\n---\n\n### Part 7: Potential Challenges\n\n1. **Step name collisions**: When moving `Given a fresh test database` to the shared conftest, it must be removed from `test_database.py`. If both exist simultaneously, pytest-bdd will raise a duplicate step error. The removal and addition must happen atomically (same commit).\n\n2. **`target_fixture` interaction with shared steps**: Shared steps that use `target_fixture` will inject their return value as a fixture visible to subsequent steps in the same scenario. This works correctly as long as the fixture names (`db_ctx`, `analysis_ctx`, etc.) do not collide across different feature files running in the same pytest session. The current codebase already uses distinct names per domain (`db_ctx`, `export_ctx`, `consume_ctx`, `parsed`, `actor_setup`), so this is safe.\n\n3. **Monkeypatch in BDD steps**: Some steps need `monkeypatch` (e.g., the auth steps that patch `requests.post`). This is a session-scoped fixture that works fine with pytest-bdd -- just add `monkeypatch` as a parameter to the step function alongside any target_fixture data.\n\n4. **Unit test `_make_analysis` divergence**: The unit test files (`test_reference_reports.py`, `test_database_extended.py`) have their own `_make_analysis` with different signatures. Phase A focuses only on the BDD step_defs. Phase C optionally migrates unit tests. This avoids a large blast radius.\n\n---\n\n### Critical Files for Implementation\n- `D:/code/warcraftlogs_project/tests/conftest.py`\n- `D:/code/warcraftlogs_project/tests/step_defs/conftest.py`\n- `D:/code/warcraftlogs_project/tests/step_defs/test_database.py`\n- `D:/code/warcraftlogs_project/tests/step_defs/test_report_export.py`\n- `D:/code/warcraftlogs_project/pyproject.toml`",
+          "alignment": 0.5807
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "f839dfe7-6be9-46ae-ba7a-d5d88e96ba31",
+    "source_file": "data/D--code-warcraftlogs-project__agent-a60e61c0705c9e7f1.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

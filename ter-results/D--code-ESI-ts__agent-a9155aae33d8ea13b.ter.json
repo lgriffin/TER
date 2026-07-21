@@ -1,0 +1,829 @@
+{
+  "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 2773,
+  "aligned_tokens": 2773,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5882,
+    "token_weighted_confidence": 0.7086,
+    "low_confidence_tokens": 1306,
+    "low_confidence_share": 0.471,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 23,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "waste_patterns": [
+    {
+      "type": "bash_antipattern",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 2,
+      "tokens_wasted": 1783,
+      "description": "2 Bash calls should use dedicated tools (1,783 tokens)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6164858937263489,
+      "intent_similarity": 0.6164858937263489,
+      "tokens": 28,
+      "text": "\n\nI'll research the eve-esi Java library systematically. Let me fetch the repository information, README, and source code structure in parallel.",
+      "source_message_uuid": "d96842bd-dcb6-4ac7-8522-0a58335972d7",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6165,
+          "repetition_score": 0.0,
+          "confidence": 0.6165
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.19610431790351868,
+      "tokens": 63,
+      "text": "Bash {\"command\":\"gh repo view burberius/eve-esi --json name,description,stargazersCount,forkCount,updatedAt,createdAt,primaryLanguage,licenseInfo,openIssues,latestRelease 2>/dev/null || echo \\\"FAILED\\\"\",\"description\":\"Get repo metadata via GitHub API\"}",
+      "source_message_uuid": "d96842bd-dcb6-4ac7-8522-0a58335972d7",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.1961,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.12342962622642517,
+      "tokens": 69,
+      "text": "Bash {\"command\":\"gh api repos/burberius/eve-esi/commits?per_page=10 --jq '.[] | \\\"\\\\(.commit.committer.date) \\\\(.commit.message | split(\\\"\\\\n\\\")[0])\\\"' 2>/dev/null || echo \\\"FAILED\\\"\",\"description\":\"Get recent commits\"}",
+      "source_message_uuid": "d96842bd-dcb6-4ac7-8522-0a58335972d7",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1234,
+          "repetition_score": 0.5535,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7528,
+          "lexical_similarity": 0.2703,
+          "entity_similarity": 0.2353,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"gh repo view burberius/eve-esi --json name,description,stargazersCount,forkCount,updatedAt,createdAt,primaryLanguage,licenseInfo,openIssues,latestRelease 2>/dev/null || echo \\\"FAILED\\\"\",\"description\":\"Get repo metadata via "
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.18786418437957764,
+      "tokens": 90,
+      "text": "Bash {\"command\":\"gh api repos/burberius/eve-esi/issues?state=open --jq 'length' 2>/dev/null; echo \\\"---\\\"; gh api repos/burberius/eve-esi/issues?state=open --jq '.[:5] | .[] | \\\"#\\\\(.number) \\\\(.title)\\\"' 2>/dev/null || echo \\\"FAILED\\\"\",\"description\":\"Get open issues\"}",
+      "source_message_uuid": "d96842bd-dcb6-4ac7-8522-0a58335972d7",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1879,
+          "repetition_score": 0.5717,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7489,
+          "lexical_similarity": 0.3793,
+          "entity_similarity": 0.32,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/burberius/eve-esi/commits?per_page=10 --jq '.[] | \\\"\\\\(.commit.committer.date) \\\\(.commit.message | split(\\\"\\\\n\\\")[0])\\\"' 2>/dev/null || echo \\\"FAILED\\\"\",\"description\":\"Get recent commits\"}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4025708734989166,
+      "tokens": 53,
+      "text": "WebFetch {\"url\":\"https://github.com/burberius/eve-esi\",\"prompt\":\"Extract the full README content. I need all details about: project description, how to use it, dependencies, authentication, features, and any code examples shown.\"}",
+      "source_message_uuid": "d96842bd-dcb6-4ac7-8522-0a58335972d7",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4026,
+          "repetition_score": 0.0231,
+          "confidence": 0.6,
+          "semantic_similarity": 0.3311,
+          "lexical_similarity": 0.0189,
+          "entity_similarity": 0.0204,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"gh repo view burberius/eve-esi --json name,description,stargazersCount,forkCount,updatedAt,createdAt,primaryLanguage,licenseInfo,openIssues,latestRelease 2>/dev/null || echo \\\"FAILED\\\"\",\"description\":\"Get repo metadata via "
+      }
+    },
+    {
+      "position": 5,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.269491046667099,
+      "tokens": 25,
+      "text": "Good, I have the basics. Now let me dig into the source code structure, pom.xml, and key implementation files.",
+      "source_message_uuid": "d3daa46b-cde2-4678-bdf0-60604a3dae8b",
+      "source_lines": [
+        12
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2695,
+          "repetition_score": 0.3021,
+          "confidence": 0.5,
+          "semantic_similarity": 0.4416,
+          "lexical_similarity": 0.2667,
+          "entity_similarity": 0.2143,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.7857
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "\n\nI'll research the eve-esi Java library systematically. Let me fetch the repository information, README, and source code structure in parallel."
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.1097671315073967,
+      "tokens": 58,
+      "text": "Bash {\"command\":\"gh api repos/burberius/eve-esi/git/trees/master?recursive=1 --jq '.tree[] | select(.type==\\\"blob\\\") | .path' 2>/dev/null | head -100\",\"description\":\"List repo file tree\"}",
+      "source_message_uuid": "d3daa46b-cde2-4678-bdf0-60604a3dae8b",
+      "source_lines": [
+        13
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1098,
+          "repetition_score": 0.5069,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6572,
+          "lexical_similarity": 0.2051,
+          "entity_similarity": 0.1714,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"gh repo view burberius/eve-esi --json name,description,stargazersCount,forkCount,updatedAt,createdAt,primaryLanguage,licenseInfo,openIssues,latestRelease 2>/dev/null || echo \\\"FAILED\\\"\",\"description\":\"Get repo metadata via "
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.37620019912719727,
+      "tokens": 63,
+      "text": "WebFetch {\"url\":\"https://raw.githubusercontent.com/burberius/eve-esi/master/pom.xml\",\"prompt\":\"Extract all details: groupId, artifactId, version, Java version, all dependencies (with versions), build plugins (especially code generation plugins), parent POM info. Give me everything.\"}",
+      "source_message_uuid": "d3daa46b-cde2-4678-bdf0-60604a3dae8b",
+      "source_lines": [
+        15
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3762,
+          "repetition_score": 0.5688,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8401,
+          "lexical_similarity": 0.1522,
+          "entity_similarity": 0.2143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "WebFetch {\"url\":\"https://github.com/burberius/eve-esi\",\"prompt\":\"Extract the full README content. I need all details about: project description, how to use it, dependencies, authentication, features, and any code examples shown.\"}"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3061223328113556,
+      "tokens": 61,
+      "text": "WebFetch {\"url\":\"https://raw.githubusercontent.com/burberius/eve-esi/master/generate.sh\",\"prompt\":\"Extract the full script content. I need to understand how code generation works \\u2014 what generator tool is used, what spec URL, what configuration options, what templates.\"}",
+      "source_message_uuid": "d3daa46b-cde2-4678-bdf0-60604a3dae8b",
+      "source_lines": [
+        16
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3061,
+          "repetition_score": 0.5424,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7099,
+          "lexical_similarity": 0.2791,
+          "entity_similarity": 0.275,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "WebFetch {\"url\":\"https://github.com/burberius/eve-esi\",\"prompt\":\"Extract the full README content. I need all details about: project description, how to use it, dependencies, authentication, features, and any code examples shown.\"}"
+      }
+    },
+    {
+      "position": 9,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.33354413509368896,
+      "tokens": 20,
+      "text": "Now let me look at key implementation files for authentication, rate limiting, caching, and pagination details.",
+      "source_message_uuid": "99442f1c-2edd-4f0b-ba5c-da3e3418a508",
+      "source_lines": [
+        19
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3335,
+          "repetition_score": 0.4023,
+          "confidence": 0.5,
+          "semantic_similarity": 0.5986,
+          "lexical_similarity": 0.2143,
+          "entity_similarity": 0.24,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.76
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Good, I have the basics. Now let me dig into the source code structure, pom.xml, and key implementation files."
+      }
+    },
+    {
+      "position": 10,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4910910129547119,
+      "tokens": 101,
+      "text": "WebFetch {\"url\":\"https://raw.githubusercontent.com/burberius/eve-esi/master/src/main/java/net/troja/eve/esi/ApiClient.java\",\"prompt\":\"Analyze this file for: 1) ETag/caching support, 2) Rate limiting or error limit headers, 3) Retry logic, 4) Request interceptors, 5) How pagination is handled, 6) User-Agent configuration. Extract relevant code patterns and method signatures. Be thorough.\"}",
+      "source_message_uuid": "99442f1c-2edd-4f0b-ba5c-da3e3418a508",
+      "source_lines": [
+        20
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4911,
+          "repetition_score": 0.5347,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7704,
+          "lexical_similarity": 0.1129,
+          "entity_similarity": 0.1538,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "WebFetch {\"url\":\"https://github.com/burberius/eve-esi\",\"prompt\":\"Extract the full README content. I need all details about: project description, how to use it, dependencies, authentication, features, and any code examples shown.\"}"
+      }
+    },
+    {
+      "position": 11,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4626926779747009,
+      "tokens": 67,
+      "text": "WebFetch {\"url\":\"https://raw.githubusercontent.com/burberius/eve-esi/master/src/main/java/net/troja/eve/esi/ApiClientBuilder.java\",\"prompt\":\"Extract the full content of this file. I need to see the builder pattern implementation, what options it supports, and how the client is configured.\"}",
+      "source_message_uuid": "99442f1c-2edd-4f0b-ba5c-da3e3418a508",
+      "source_lines": [
+        21
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4627,
+          "repetition_score": 0.5892,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8386,
+          "lexical_similarity": 0.2791,
+          "entity_similarity": 0.2895,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "WebFetch {\"url\":\"https://github.com/burberius/eve-esi\",\"prompt\":\"Extract the full README content. I need all details about: project description, how to use it, dependencies, authentication, features, and any code examples shown.\"}"
+      }
+    },
+    {
+      "position": 12,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4244401454925537,
+      "tokens": 74,
+      "text": "WebFetch {\"url\":\"https://raw.githubusercontent.com/burberius/eve-esi/master/src/main/java/net/troja/eve/esi/auth/RetryingOAuth.java\",\"prompt\":\"Extract the full content. I need to understand how OAuth token refresh and retry logic works \\u2014 what triggers a retry, how tokens are refreshed, error handling.\"}",
+      "source_message_uuid": "99442f1c-2edd-4f0b-ba5c-da3e3418a508",
+      "source_lines": [
+        22
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4244,
+          "repetition_score": 0.5069,
+          "confidence": 0.6,
+          "semantic_similarity": 0.671,
+          "lexical_similarity": 0.1475,
+          "entity_similarity": 0.1961,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 10,
+        "matched_prior_text": "WebFetch {\"url\":\"https://raw.githubusercontent.com/burberius/eve-esi/master/src/main/java/net/troja/eve/esi/ApiClient.java\",\"prompt\":\"Analyze this file for: 1) ETag/caching support, 2) Rate limiting or error limit headers, 3) Retry logic, 4"
+      }
+    },
+    {
+      "position": 13,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3422410488128662,
+      "tokens": 70,
+      "text": "WebFetch {\"url\":\"https://raw.githubusercontent.com/burberius/eve-esi/master/src/main/java/net/troja/eve/esi/HeaderUtil.java\",\"prompt\":\"Extract the full file content. I need to see what ESI headers are parsed \\u2014 ETag, X-Pages, error limit headers, etc.\"}",
+      "source_message_uuid": "99442f1c-2edd-4f0b-ba5c-da3e3418a508",
+      "source_lines": [
+        23
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3422,
+          "repetition_score": 0.5815,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8042,
+          "lexical_similarity": 0.275,
+          "entity_similarity": 0.3529,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 11,
+        "matched_prior_text": "WebFetch {\"url\":\"https://raw.githubusercontent.com/burberius/eve-esi/master/src/main/java/net/troja/eve/esi/ApiClientBuilder.java\",\"prompt\":\"Extract the full content of this file. I need to see the builder pattern implementation, what optio"
+      }
+    },
+    {
+      "position": 14,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.2558193504810333,
+      "tokens": 18,
+      "text": "Let me check the test structure and a sample API class to understand pagination and type patterns.",
+      "source_message_uuid": "b5e48e38-eff1-42f6-9caa-579edbcaa223",
+      "source_lines": [
+        28
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2558,
+          "repetition_score": 0.3248,
+          "confidence": 0.5,
+          "semantic_similarity": 0.5147,
+          "lexical_similarity": 0.1429,
+          "entity_similarity": 0.125,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.875
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Now let me look at key implementation files for authentication, rate limiting, caching, and pagination details."
+      }
+    },
+    {
+      "position": 15,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.10185185819864273,
+      "tokens": 67,
+      "text": "Bash {\"command\":\"gh api repos/burberius/eve-esi/git/trees/master?recursive=1 --jq '.tree[] | select(.type==\\\"blob\\\") | .path' 2>/dev/null | grep -E \\\"^src/test/\\\" | head -40\",\"description\":\"List test files\"}",
+      "source_message_uuid": "b5e48e38-eff1-42f6-9caa-579edbcaa223",
+      "source_lines": [
+        29
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1019,
+          "repetition_score": 0.6952,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9315,
+          "lexical_similarity": 0.6667,
+          "entity_similarity": 0.6364,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/burberius/eve-esi/git/trees/master?recursive=1 --jq '.tree[] | select(.type==\\\"blob\\\") | .path' 2>/dev/null | head -100\",\"description\":\"List repo file tree\"}"
+      }
+    },
+    {
+      "position": 16,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4308019280433655,
+      "tokens": 93,
+      "text": "WebFetch {\"url\":\"https://raw.githubusercontent.com/burberius/eve-esi/master/src/main/java/net/troja/eve/esi/api/MarketApi.java\",\"prompt\":\"Look at the method signatures for paginated endpoints. How is the page parameter handled? What does the method return? Is there any automatic page iteration? Also look at the response types \\u2014 are they generic? Show me 2-3 key method signatures.\"}",
+      "source_message_uuid": "b5e48e38-eff1-42f6-9caa-579edbcaa223",
+      "source_lines": [
+        31
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4308,
+          "repetition_score": 0.573,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8662,
+          "lexical_similarity": 0.1471,
+          "entity_similarity": 0.1579,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 10,
+        "matched_prior_text": "WebFetch {\"url\":\"https://raw.githubusercontent.com/burberius/eve-esi/master/src/main/java/net/troja/eve/esi/ApiClient.java\",\"prompt\":\"Analyze this file for: 1) ETag/caching support, 2) Rate limiting or error limit headers, 3) Retry logic, 4"
+      }
+    },
+    {
+      "position": 17,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.06806990504264832,
+      "tokens": 21,
+      "text": "Now let me check the test approach and the MarketApiTest for the paging example mentioned in the README.",
+      "source_message_uuid": "b5f67d07-30c3-43f8-8cc4-8cd54a425696",
+      "source_lines": [
+        33
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.0681,
+          "repetition_score": 0.4352,
+          "confidence": 0.5,
+          "semantic_similarity": 0.5938,
+          "lexical_similarity": 0.24,
+          "entity_similarity": 0.2381,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.7619
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 14,
+        "matched_prior_text": "Let me check the test structure and a sample API class to understand pagination and type patterns."
+      }
+    },
+    {
+      "position": 18,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3778151869773865,
+      "tokens": 103,
+      "text": "WebFetch {\"url\":\"https://raw.githubusercontent.com/burberius/eve-esi/master/src/test/java/net/troja/eve/esi/api/MarketApiTest.java\",\"prompt\":\"Extract the full file content. I need to see: 1) The paging example method, 2) How tests are structured \\u2014 are they unit tests with mocks or integration tests hitting real ESI? 3) What test framework is used. 4) How authentication is handled in tests.\"}",
+      "source_message_uuid": "b5f67d07-30c3-43f8-8cc4-8cd54a425696",
+      "source_lines": [
+        34
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3778,
+          "repetition_score": 0.5882,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8178,
+          "lexical_similarity": 0.2885,
+          "entity_similarity": 0.3571,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 13,
+        "matched_prior_text": "WebFetch {\"url\":\"https://raw.githubusercontent.com/burberius/eve-esi/master/src/main/java/net/troja/eve/esi/HeaderUtil.java\",\"prompt\":\"Extract the full file content. I need to see what ESI headers are parsed \\u2014 ETag, X-Pages, error limi"
+      }
+    },
+    {
+      "position": 19,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.42570480704307556,
+      "tokens": 79,
+      "text": "WebFetch {\"url\":\"https://raw.githubusercontent.com/burberius/eve-esi/master/src/test/java/net/troja/eve/esi/api/GeneralApiTest.java\",\"prompt\":\"Extract the full file content. I need to understand the test base class or general test setup \\u2014 how is authentication configured for tests, are there environment variable checks, conditional test execution?\"}",
+      "source_message_uuid": "b5f67d07-30c3-43f8-8cc4-8cd54a425696",
+      "source_lines": [
+        35
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4257,
+          "repetition_score": 0.6098,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8688,
+          "lexical_similarity": 0.3333,
+          "entity_similarity": 0.3333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 18,
+        "matched_prior_text": "WebFetch {\"url\":\"https://raw.githubusercontent.com/burberius/eve-esi/master/src/test/java/net/troja/eve/esi/api/MarketApiTest.java\",\"prompt\":\"Extract the full file content. I need to see: 1) The paging example method, 2) How tests are struc"
+      }
+    },
+    {
+      "position": 20,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.1458590030670166,
+      "tokens": 16,
+      "text": "Now I have comprehensive data. Let me also quickly check for any async support.",
+      "source_message_uuid": "d7b61e87-350e-4509-b72b-4eaa2926bf0c",
+      "source_lines": [
+        38
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1459,
+          "repetition_score": 0.2515,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3912,
+          "lexical_similarity": 0.1538,
+          "entity_similarity": 0.1304,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8696
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Now let me look at key implementation files for authentication, rate limiting, caching, and pagination details."
+      }
+    },
+    {
+      "position": 21,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3716689348220825,
+      "tokens": 67,
+      "text": "WebFetch {\"url\":\"https://raw.githubusercontent.com/burberius/eve-esi/master/src/main/java/net/troja/eve/esi/ApiCallback.java\",\"prompt\":\"Extract the full content. I need to understand the async callback interface \\u2014 what methods does it define, how are errors surfaced asynchronously.\"}",
+      "source_message_uuid": "d7b61e87-350e-4509-b72b-4eaa2926bf0c",
+      "source_lines": [
+        39
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3717,
+          "repetition_score": 0.5464,
+          "confidence": 0.6,
+          "semantic_similarity": 0.666,
+          "lexical_similarity": 0.375,
+          "entity_similarity": 0.3784,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 12,
+        "matched_prior_text": "WebFetch {\"url\":\"https://raw.githubusercontent.com/burberius/eve-esi/master/src/main/java/net/troja/eve/esi/auth/RetryingOAuth.java\",\"prompt\":\"Extract the full content. I need to understand how OAuth token refresh and retry logic works \\u20"
+      }
+    },
+    {
+      "position": 22,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.8118626475334167,
+      "intent_similarity": 0.8118626475334167,
+      "tokens": 1467,
+      "text": "I now have all the data needed for a thorough technical evaluation. Here is the report:\n\n---\n\n## Technical Evaluation: eve-esi (Java ESI Client)\n\n**Repository**: github.com/burberius/eve-esi | **Version**: 7.0.0 (released 2025-10-06) | **Language**: Java 8+ | **License**: Apache-2.0\n\n### 1. Architecture & Design\n\n**Code-generated** via OpenAPI Generator from the official ESI OpenAPI spec (`esi.evetech.net/meta/openapi.json`). The `generate.sh` script fetches the latest spec with compatibility date, applies `sed` transformations for naming cleanup, generates with custom Mustache templates, then runs `renameClasses.sh` for further class renaming. A few hand-maintained files (`SsoApi.java`, `ApiClientBuilder.java`, test classes) are preserved across regeneration.\n\nAPI groups map 1:1 to ESI endpoint categories: `MarketApi`, `CharacterApi`, `CorporationApi`, etc. (~30 API classes). Models are concrete POJOs in `net.troja.eve.esi.model` (~200+ classes). The builder pattern is used for client construction (`ApiClientBuilder`), and `SsoScopes` constants are auto-generated from the spec's OAuth scope definitions.\n\nHTTP transport: **OkHttp 5.1.0** with Gson serialization. v3.0.0 migrated from the Swagger default HTTP client to OkHttp specifically for thread safety.\n\n### 2. Authentication\n\nOAuth2 via `RetryingOAuth` interceptor implementing OkHttp's `Interceptor`. Supports two flows: direct access token or client ID + refresh token. Token refresh is automatic on 401/403 responses with a single-retry guard (prevents infinite loops). The `updateAccessToken()` method is `synchronized` with a compare-and-swap pattern to prevent redundant refreshes under concurrent access.\n\n**Multi-character**: Not directly supported. The `ApiClient` is bound to one refresh token. The README notes that \"for authorized endpoints every refresh token needs its own ApiClient,\" meaning callers must instantiate separate clients per character.\n\n**No PKCE support**. Uses `org.apache.oltu.oauth2.client` (an archived Apache project) for the OAuth flow.\n\n### 3. Caching\n\n**No caching whatsoever.** No ETag support, no `If-None-Match` headers, no cache storage. `HeaderUtil` does not parse `ETag` or `Last-Modified`. The `ifNoneMatch` parameter exists in generated method signatures (from the spec) but is never populated automatically. Callers must implement their own caching layer externally or via OkHttp interceptors.\n\n### 4. Rate Limiting\n\n**Not implemented.** ESI error-limit headers (`X-ESI-Error-Limit-Remain`, `X-ESI-Error-Limit-Reset`) are not parsed or acted upon. No backoff strategy, no queue management. Error limit data is technically accessible in `ApiException.getResponseHeaders()` but requires manual handling by the caller.\n\n### 5. Error Handling\n\nErrors throw `ApiException` containing status code, message, response headers, and body. The test base class `ValidatingApiClient` implements a retry mechanism: up to 3 retries via `call.clone()` on any failure, but this is **test-only code** and not part of the published library. The README acknowledges ~2000 errors per 500K requests and recommends callers implement retry logic. No circuit breaker pattern.\n\n### 6. Pagination\n\nManual only. Paginated endpoints accept an `Integer page` parameter. `HeaderUtil.getXPages()` parses the `X-Pages` response header. Callers must loop themselves. The README's `MarketApiTest.pagingExample()` demonstrates the pattern: fetch page 1 via `WithHttpInfo` variant, read `X-Pages`, loop pages 2..N. No streaming, no automatic aggregation, no `Page<T>` wrapper.\n\n### 7. Type Safety\n\nModels are concrete generated Java classes with typed getters/setters (not maps). Enums are generated from the spec; unknown enum values return `null` (since v4.0.0) with a fallback `get[Field]String()` method. v7.0.0 changed all IDs from `int` to `long`. Methods use `@Nonnull`/`@Nullable` annotations (JSR-305). No generics beyond `List<T>` returns and `ApiResponse<T>`/`ApiCallback<T>`. Async support via `ApiCallback<T>` interface with `onSuccess`/`onFailure` callbacks.\n\n### 8. Advanced Features\n\n**Minimal.** No batch requests, no event-driven updates, no websocket support, no market data optimizations. The library is a straightforward OpenAPI-generated client with OAuth bolted on. The `SsoApi` (hand-written) handles the SSO browser flow for obtaining refresh tokens. `GzipRequestInterceptor` compresses request bodies. Thread safety is documented (public endpoints safe to share; authenticated endpoints need per-token clients).\n\n### 9. Testing\n\n**Integration tests only** hitting the live ESI API. No mocking, no recorded responses. Tests require `SSO_CLIENT_ID`, `SSO_REFRESH_TOKEN`, and `SSO_REFRESH_TOKEN_PUBLIC_DATA` environment variables. Tests that need corp roles or specific game state are `@Disabled`. Framework: JUnit 5 + AssertJ. JaCoCo plugin is declared but not configured with thresholds. This means tests cannot run in CI without valid EVE credentials and are inherently flaky (dependent on live server state and rate limits).\n\n### 10. Developer Experience\n\nREADME covers SSO setup with a working flow for obtaining refresh tokens. Maven Central published (`net.troja.eve:eve-esi`). Builder pattern makes client construction clean. However: no Javadoc site, no usage guides beyond the README, no example project. The code generation workflow (`generate.sh`) requires Cygwin on Windows. Dependency on the archived Apache Oltu OAuth library is a concern.\n\n### 11. Maintenance & Community\n\n43 stars, 15 forks. Last release: v7.0.0 (October 2025) with a meaningful breaking change (OpenAPI migration, int-to-long IDs). 4 open issues (1 dependency bump, 3 real issues including broken custom OkHttpClient for async and OAuth retry problems). Two active maintainers (burberius + goldengnu). Release cadence: roughly annual major versions. The project is alive but lightly maintained.\n\n### Summary Comparison Points\n\n| Capability | eve-esi (Java) |\n|---|---|\n| Code generation | OpenAPI Generator from live spec |\n| Auth | OAuth2 with auto-refresh, no PKCE, no multi-char |\n| Caching | None |\n| Rate limiting | None |\n| Pagination | Manual loop required |\n| Error handling | Exception-based, no retry in library |\n| Async | Callback-based (`ApiCallback<T>`) |\n| Testing | Live integration only, no mocking |\n| Java version | 8+ |",
+      "source_message_uuid": "0aef3700-1166-4151-8364-ff72b5a1a954",
+      "source_lines": [
+        41
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.8119,
+          "repetition_score": 0.3907,
+          "confidence": 0.8119,
+          "semantic_similarity": 0.6705,
+          "lexical_similarity": 0.022,
+          "entity_similarity": 0.0226,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9774
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "\n\nI'll research the eve-esi Java library systematically. Let me fetch the repository information, README, and source code structure in parallel."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "bash_antipattern",
+        "tokens_wasted": 1783,
+        "description": "2 Bash calls should use dedicated tools (1,783 tokens)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Bash Anti-Patterns",
+        "tokens": 1783,
+        "percentage": 100.0,
+        "cost_usd": 0.005349,
+        "count": 1,
+        "pricing": "input"
+      }
+    ],
+    "total_tokens": 1783,
+    "total_cost_usd": 0.005349
+  },
+  "economics": {
+    "total_input_tokens": 2656,
+    "total_output_tokens": 1703,
+    "total_cache_creation_tokens": 30297,
+    "total_cache_read_tokens": 136502,
+    "input_output_ratio": 1.56,
+    "cache_hit_rate": 0.9809,
+    "estimated_cost_usd": 0.1881,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 7,
+      "mid_span_count": 7,
+      "late_span_count": 9
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        15082,
+        18388,
+        23613,
+        24292,
+        28097,
+        29683
+      ],
+      "growth_rate": 1.97,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 358,
+      "user_result_tokens": 9769,
+      "model_reasoning_tokens": 0,
+      "model_tool_tokens": 1178,
+      "model_generation_tokens": 1595,
+      "total_user_tokens": 10127,
+      "total_model_tokens": 2773,
+      "user_ratio": 0.785
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.672,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "You are evaluating a Java ESI (EVE Online API) library at https://github.com/burberius/eve-esi for a technical comparison. I need a thorough technical evaluation covering:\n\n1. **Architecture & Design**: How is the client structured? Code generation vs hand-written? How are API groups organized? What patterns are used (builder, factory, etc.)?\n2. **Authentication**: How does it handle OAuth2/SSO? Token refresh? Multi-character support?\n3. **Caching**: ETag support? Cache strategies? Cache storage backends?\n4. **Rate Limiting**: Error limit handling? Backoff strategies? Queue management?\n5. **Error Handling**: How are ESI errors surfaced? Retry logic? Circuit breakers?\n6. **Pagination**: How is pagination handled? Automatic page fetching? Streaming?\n7. **Type Safety**: How are ESI response types modeled? Generics usage? Null handling?\n8. **Advanced Features**: Anything beyond basic API wrapping \u2014 batch requests, event-driven updates, websocket support, market data optimizations, etc.\n9. **Testing**: Test approach, coverage, mocking strategy\n10. **Developer Experience**: Documentation quality, example code, ease of getting started\n11. **Maintenance & Community**: Activity level, open issues, release cadence\n\nUse the GitHub URL to fetch the README, browse the source code structure, and examine key implementation files. Look at pom.xml or build files for dependencies. Check recent commits and issues for activity level.\n\nReport your findings in a structured format with specific code examples or patterns where relevant. Be specific about version numbers, dependency choices, and implementation details. Keep your report under 800 words but make every word count \u2014 I want technical depth, not fluff.",
+          "response_text": "\n\nI'll research the eve-esi Java library systematically. Let me fetch the repository information, README, and source code structure in parallel. Good, I have the basics. Now let me dig into the source code structure, pom.xml, and key implementation files. Now let me look at key implementation files for authentication, rate limiting, caching, and pagination details. Let me check the test structure and a sample API class to understand pagination and type patterns. Now let me check the test approach and the MarketApiTest for the paging example mentioned in the README. Now I have comprehensive data. Let me also quickly check for any async support. I now have all the data needed for a thorough technical evaluation. Here is the report:\n\n---\n\n## Technical Evaluation: eve-esi (Java ESI Client)\n\n**Repository**: github.com/burberius/eve-esi | **Version**: 7.0.0 (released 2025-10-06) | **Language**: Java 8+ | **License**: Apache-2.0\n\n### 1. Architecture & Design\n\n**Code-generated** via OpenAPI Generator from the official ESI OpenAPI spec (`esi.evetech.net/meta/openapi.json`). The `generate.sh` script fetches the latest spec with compatibility date, applies `sed` transformations for naming cleanup, generates with custom Mustache templates, then runs `renameClasses.sh` for further class renaming. A few hand-maintained files (`SsoApi.java`, `ApiClientBuilder.java`, test classes) are preserved across regeneration.\n\nAPI groups map 1:1 to ESI endpoint categories: `MarketApi`, `CharacterApi`, `CorporationApi`, etc. (~30 API classes). Models are concrete POJOs in `net.troja.eve.esi.model` (~200+ classes). The builder pattern is used for client construction (`ApiClientBuilder`), and `SsoScopes` constants are auto-generated from the spec's OAuth scope definitions.\n\nHTTP transport: **OkHttp 5.1.0** with Gson serialization. v3.0.0 migrated from the Swagger default HTTP client to OkHttp specifically for thread safety.\n\n### 2. Authentication\n\nOAuth2 via `RetryingOAuth` interceptor implementing OkHttp's `Interceptor`. Supports two flows: direct access token or client ID + refresh token. Token refresh is automatic on 401/403 responses with a single-retry guard (prevents infinite loops). The `updateAccessToken()` method is `synchronized` with a compare-and-swap pattern to prevent redundant refreshes under concurrent access.\n\n**Multi-character**: Not directly supported. The `ApiClient` is bound to one refresh token. The README notes that \"for authorized endpoints every refresh token needs its own ApiClient,\" meaning callers must instantiate separate clients per character.\n\n**No PKCE support**. Uses `org.apache.oltu.oauth2.client` (an archived Apache project) for the OAuth flow.\n\n### 3. Caching\n\n**No caching whatsoever.** No ETag support, no `If-None-Match` headers, no cache storage. `HeaderUtil` does not parse `ETag` or `Last-Modified`. The `ifNoneMatch` parameter exists in generated method signatures (from the spec) but is never populated automatically. Callers must implement their own caching layer externally or via OkHttp interceptors.\n\n### 4. Rate Limiting\n\n**Not implemented.** ESI error-limit headers (`X-ESI-Error-Limit-Remain`, `X-ESI-Error-Limit-Reset`) are not parsed or acted upon. No backoff strategy, no queue management. Error limit data is technically accessible in `ApiException.getResponseHeaders()` but requires manual handling by the caller.\n\n### 5. Error Handling\n\nErrors throw `ApiException` containing status code, message, response headers, and body. The test base class `ValidatingApiClient` implements a retry mechanism: up to 3 retries via `call.clone()` on any failure, but this is **test-only code** and not part of the published library. The README acknowledges ~2000 errors per 500K requests and recommends callers implement retry logic. No circuit breaker pattern.\n\n### 6. Pagination\n\nManual only. Paginated endpoints accept an `Integer page` parameter. `HeaderUtil.getXPages()` parses the `X-Pages` response header. Callers must loop themselves. The README's `MarketApiTest.pagingExample()` demonstrates the pattern: fetch page 1 via `WithHttpInfo` variant, read `X-Pages`, loop pages 2..N. No streaming, no automatic aggregation, no `Page<T>` wrapper.\n\n### 7. Type Safety\n\nModels are concrete generated Java classes with typed getters/setters (not maps). Enums are generated from the spec; unknown enum values return `null` (since v4.0.0) with a fallback `get[Field]String()` method. v7.0.0 changed all IDs from `int` to `long`. Methods use `@Nonnull`/`@Nullable` annotations (JSR-305). No generics beyond `List<T>` returns and `ApiResponse<T>`/`ApiCallback<T>`. Async support via `ApiCallback<T>` interface with `onSuccess`/`onFailure` callbacks.\n\n### 8. Advanced Features\n\n**Minimal.** No batch requests, no event-driven updates, no websocket support, no market data optimizations. The library is a straightforward OpenAPI-generated client with OAuth bolted on. The `SsoApi` (hand-written) handles the SSO browser flow for obtaining refresh tokens. `GzipRequestInterceptor` compresses request bodies. Thread safety is documented (public endpoints safe to share; authenticated endpoints need per-token clients).\n\n### 9. Testing\n\n**Integration tests only** hitting the live ESI API. No mocking, no recorded responses. Tests require `SSO_CLIENT_ID`, `SSO_REFRESH_TOKEN`, and `SSO_REFRESH_TOKEN_PUBLIC_DATA` environment variables. Tests that need corp roles or specific game state are `@Disabled`. Framework: JUnit 5 + AssertJ. JaCoCo plugin is declared but not configured with thresholds. This means tests cannot run in CI without valid EVE credentials and are inherently flaky (dependent on live server state and rate limits).\n\n### 10. Developer Experience\n\nREADME covers SSO setup with a working flow for obtaining refresh tokens. Maven Central published (`net.troja.eve:eve-esi`). Builder pattern makes client construction clean. However: no Javadoc site, no usage guides beyond the README, no example project. The code generation workflow (`generate.sh`) requires Cygwin on Windows. Dependency on the archived Apache Oltu OAuth library is a concern.\n\n### 11. Maintenance & Community\n\n43 stars, 15 forks. Last release: v7.0.0 (October 2025) with a meaningful breaking change (OpenAPI migration, int-to-long IDs). 4 open issues (1 dependency bump, 3 real issues including broken custom OkHttpClient for async and OAuth retry problems). Two active maintainers (burberius + goldengnu). Release cadence: roughly annual major versions. The project is alive but lightly maintained.\n\n### Summary Comparison Points\n\n| Capability | eve-esi (Java) |\n|---|---|\n| Code generation | OpenAPI Generator from live spec |\n| Auth | OAuth2 with auto-refresh, no PKCE, no multi-char |\n| Caching | None |\n| Rate limiting | None |\n| Pagination | Manual loop required |\n| Error handling | Exception-based, no retry in library |\n| Async | Callback-based (`ApiCallback<T>`) |\n| Testing | Live integration only, no mocking |\n| Java version | 8+ |",
+          "alignment": 0.672
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+    "source_file": "data/D--code-ESI-ts__agent-a9155aae33d8ea13b.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

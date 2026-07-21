@@ -1,0 +1,189 @@
+{
+  "session_id": "a4e701aa-0dce-4f48-867d-8ac45b40f603",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 3204,
+  "aligned_tokens": 3204,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.639,
+    "token_weighted_confidence": 0.5954,
+    "low_confidence_tokens": 3186,
+    "low_confidence_share": 0.9944,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 3,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.7223824858665466,
+      "intent_similarity": 0.7223824858665466,
+      "tokens": 18,
+      "text": "Let me find and read the entire `scripts/generate-esi-types.ts` file.",
+      "source_message_uuid": "5e995608-aa18-4578-8d13-d450edc8b81c",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.7224,
+          "repetition_score": 0.0,
+          "confidence": 0.7224
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5776198506355286,
+      "tokens": 21,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\scripts\\\\generate-esi-types.ts\"}",
+      "source_message_uuid": "5e995608-aa18-4578-8d13-d450edc8b81c",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.5776,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5946897864341736,
+      "intent_similarity": 0.5946897864341736,
+      "tokens": 3165,
+      "text": "I have read the entire file (568 lines). Here is a thorough analysis of every aspect you asked about.\n\n---\n\n## 1. All Interfaces Defined\n\nThe file defines the following interfaces:\n\n### Swagger 2.0 Spec Interfaces\n\n**`SwaggerSchema`** (lines 37-47) -- Represents a JSON Schema object within the Swagger spec. Fields: `type`, `format`, `description`, `title`, `properties` (recursive map of `SwaggerSchema`), `items` (for arrays, another `SwaggerSchema`), `required` (string array), `enum`, `maxItems`.\n\n**`SwaggerOperation`** (lines 49-64) -- Represents a single HTTP operation (e.g., GET on a path). Fields: `operationId`, `tags`, `description`, `x-cached-seconds` (number, the cache TTL vendor extension), `parameters` (array of `SwaggerParameter`), `responses` (map of status code string to `{description, schema, headers}`), `security` (array of `Record<string, string[]>` -- each element is a security requirement object).\n\n**`SwaggerParameter`** (lines 66-75) -- Represents a parameter on an operation. Fields: `name`, `in` (location: path/query/header/body), `type`, `format`, `required`, `description`, `enum`, `$ref`. Note: this uses **inline** `type`/`format` fields (Swagger 2.0 style), not a `schema` wrapper (OpenAPI 3.x style). There is no `schema` property on this interface.\n\n**`SwaggerSpec`** (lines 77-88) -- The top-level Swagger 2.0 document. Fields: `basePath`, `host`, `info` (title/version), `paths` (map of path string to map of method string to `SwaggerOperation`), `definitions` (map of named schemas), `parameters` (map of named shared parameters), `securityDefinitions` (map of security scheme name to `{ scopes?: Record<string, string> }`).\n\n### Internal / Generated Interfaces\n\n**`GeneratedInterface`** (lines 149-157) -- The output of `generateInterface()`. Fields: `name` (PascalCase interface name), `tag` (ESI tag like \"Character\", \"Market\"), `operationId`, `path`, `method`, `body` (the full TypeScript interface source text), `isArray` (whether the 200 response is an array).\n\n**`CacheTtlEntry`** (lines 202-207) -- Output of `extractCacheTtls()`. Fields: `path`, `method`, `seconds`, `operationId`.\n\n### OpenAPI 3.x Interfaces (for rate limits only)\n\n**`OpenApiRateLimitExtension`** (lines 305-309) -- The shape of the `x-rate-limit` vendor extension. Fields: `group` (string), `max-tokens` (optional number), `window-size` (optional string like `\"15m\"`).\n\n**`OpenApiOperation`** (lines 311-313) -- Minimal OpenAPI operation shape, only has `x-rate-limit`.\n\n**`OpenApiSpec`** (lines 315-317) -- Minimal OpenAPI spec, only has `paths`.\n\n**`RateLimitGroupEntry`** (lines 319-325) -- Output of `extractRateLimitGroups()`. Fields: `path`, `method`, `group`, `maxTokens`, `windowSizeMs`.\n\n### Scope Interfaces\n\n**`EndpointScopeEntry`** (lines 399-403) -- Output of `extractEndpointScopes()`. Fields: `path`, `method`, `scopes` (string array).\n\n---\n\n## 2. URL Constants\n\n```ts\nconst ESI_SWAGGER_URL = 'https://esi.evetech.net/latest/swagger.json';\nconst ESI_OPENAPI_URL = 'https://esi.evetech.net/meta/openapi.json?compatibility_date=2025-12-16';\n```\n\n- **`ESI_SWAGGER_URL`** (line 17) -- The Swagger 2.0 spec. Used for: type generation, cache TTLs, and scope extraction.\n- **`ESI_OPENAPI_URL`** (line 18-19) -- The OpenAPI 3.x \"meta\" spec, with a `compatibility_date` query parameter. Used **only** for rate limit group extraction (`x-rate-limit`).\n\n---\n\n## 3. How It Fetches Both Specs\n\nIn `main()` (lines 486-568):\n\n1. **Swagger fetch** (lines 489-499): Uses the global `fetch()` API (Node 18+ built-in) to GET `ESI_SWAGGER_URL`. On failure, it logs and calls `process.exit(1)` -- a hard crash.\n\n2. **OpenAPI fetch** (lines 534-546): Uses `fetch()` to GET `ESI_OPENAPI_URL`. On failure, it logs a warning (\"Rate limit groups will not be updated\") and **returns early** -- a soft failure. This means the rate-limit-groups file simply does not get regenerated, but types, TTLs, and scopes still succeed.\n\nThe Swagger spec is typed as `SwaggerSpec`; the OpenAPI spec is typed as `OpenApiSpec` (the minimal type with only `paths`).\n\nA SHA-256 hash of the Swagger spec JSON is computed (truncated to 12 hex chars) and embedded in the generated types file header as a `// Spec hash:` comment (lines 501-506).\n\n---\n\n## 4. How `generateInterface()` Works\n\n`generateInterface()` (lines 159-200) takes a path, method, and `SwaggerOperation` and returns a `GeneratedInterface | null`.\n\n**Step-by-step:**\n\n1. **Extract the 200 response schema**: Reads `op.responses?.['200']`. If there is no 200 response, or the 200 response has no `schema`, returns `null`. It only looks at the `'200'` key -- not `'201'`, `'204'`, etc.\n\n2. **Determine array vs object**: \n   - If `schema.type === 'array' && schema.items` -- sets `itemSchema = schema.items` and `isArray = true`.\n   - If `schema.type === 'object' && schema.properties` -- sets `itemSchema = schema` and `isArray = false`.\n   - Otherwise returns `null`. This means endpoints whose 200 response is a plain scalar (string, number) are skipped entirely.\n\n3. **Require properties**: If `itemSchema.properties` is falsy (e.g., a bare `type: object` with no properties), returns `null`.\n\n4. **Derive the interface name**: Uses `itemSchema.title` if present, otherwise falls back to `operationId + '_200_ok'`. Converts to PascalCase via `snakeToPascal()`.\n\n5. **Generate property lines**: Iterates `itemSchema.properties`. For each property, checks if it is in the `required` set to decide `?` optionality, then calls `swaggerTypeToTs()` to convert the schema to a TypeScript type string.\n\n6. **Build the body**: Constructs the full `export interface Name { ... }` text.\n\n7. **Returns** the `GeneratedInterface` with `isArray` indicating whether the endpoint returns an array of these items.\n\nThe `swaggerTypeToTs()` helper (lines 97-129) handles:\n- **Enums**: union of literal values\n- **Arrays**: recursive, wraps in `()[]` if the item type is complex\n- **Objects with properties**: calls `generateInlineObject()` for nested objects\n- **Bare objects**: becomes `Record<string, unknown>`\n- **Primitives**: `integer`/`number` -> `number`, `string` -> `string`, `boolean` -> `boolean`, default -> `unknown`\n\n---\n\n## 5. How `extractCacheTtls()` Works\n\n`extractCacheTtls()` (lines 209-231) reads the **Swagger 2.0** spec (not the OpenAPI spec).\n\nIt iterates all paths and all HTTP methods (`get`, `post`, `put`, `delete`). For each operation, it reads the **`x-cached-seconds`** vendor extension (line 219). If the value is a `number` and is greater than 0, it records an entry.\n\nThe path is normalized by stripping leading and trailing slashes. The method is uppercased.\n\nOutput: an array of `CacheTtlEntry` objects with `{ path, method, seconds, operationId }`.\n\n---\n\n## 6. How Scope Extraction Works\n\n### `extractAllScopes()` (lines 405-417)\n\nReads `spec.securityDefinitions` -- the **top-level** security definitions in the Swagger 2.0 spec. For each security definition, it reads the `scopes` sub-object (which in Swagger 2.0 is a `Record<string, string>` mapping scope name to description). It collects all scope names into a `Set`, then returns them sorted.\n\nThis produces the complete universe of ESI OAuth scopes, regardless of which endpoints use them.\n\n### `extractEndpointScopes()` (lines 419-448)\n\nIterates all paths and methods. For each operation, it checks `op.security` -- the **per-operation** security requirements array. If the operation has no security requirements (or the array is empty), it is skipped.\n\nThe `security` field in Swagger 2.0 is an array of objects. Each object maps a security scheme name to an array of scope strings. For example: `[{ \"evesso\": [\"esi-characters.read_contacts.v1\"] }]`.\n\nThe function collects all scopes from all security requirement objects for a given operation into a `Set`, then outputs a sorted array. So if an operation has multiple security requirement objects, all their scopes are merged.\n\n### `writeScopesFile()` (lines 450-484)\n\nProduces:\n- An `EsiScope` type: a union of all scope string literals (e.g., `type EsiScope = | 'esi-alliances.read_contacts.v1' | ...;`)\n- An `esiEndpointScopes` const: a `Record<string, EsiScope[]>` keyed by `\"METHOD:path\"` mapping each endpoint to its required scopes.\n\n---\n\n## 7. How Parameters Are Handled\n\n**They are largely NOT handled for code generation.** The `SwaggerParameter` interface (lines 66-75) is defined, and it uses the **Swagger 2.0** inline `type`/`format` pattern (not a `schema` wrapper). However:\n\n- `generateInterface()` only looks at `op.responses?.['200']?.schema` -- it does not process parameters at all.\n- No function in the file iterates parameters to generate types or metadata for them.\n- The `SwaggerSpec` interface declares `parameters?: Record<string, SwaggerParameter>` for shared/global parameters, but this is never accessed.\n- The `SwaggerOperation` interface declares `parameters?: SwaggerParameter[]`, but again this is read by no function.\n\nThe `SwaggerParameter` interface does have `$ref` for references to shared parameters, but there is no `$ref` resolution logic anywhere in the file.\n\nThis is significant for the migration: OpenAPI 3.x restructures parameters to use a `schema` wrapper (`{ name, in, schema: { type, format } }`) instead of inline `type`/`format`. Since parameters are not currently consumed for code generation, this difference does not affect the current output -- but it would matter if parameter type generation were added in the future.\n\n---\n\n## 8. Generated Output Files\n\nFour files are produced, all at paths relative to `__dirname` (the `scripts/` directory):\n\n| Constant | Output Path | Source Spec | Generated By |\n|---|---|---|---|\n| `TYPES_OUTPUT` | `src/types/generated/esi-spec.generated.ts` | Swagger 2.0 | `writeTypesFile()` |\n| `TTL_OUTPUT` | `src/core/endpoints/esi-cache-ttls.generated.ts` | Swagger 2.0 | `writeTtlFile()` |\n| `RATE_LIMIT_GROUPS_OUTPUT` | `src/core/endpoints/esi-rate-limit-groups.generated.ts` | OpenAPI 3.x | `writeRateLimitGroupsFile()` |\n| `SCOPES_OUTPUT` | `src/core/endpoints/esi-scopes.generated.ts` | Swagger 2.0 | `writeScopesFile()` |\n\n### What each file contains:\n\n1. **`esi-spec.generated.ts`**: All generated `export interface` declarations, grouped by ESI tag (e.g., \"Character\", \"Market\") and sorted alphabetically. Also contains an `EsiOperationTypes` interface mapping each `operationId` string to its response type (using `Name[]` for array responses). Header includes the spec hash and interface count.\n\n2. **`esi-cache-ttls.generated.ts`**: Exports `esiCacheTtls: Record<string, number>`, a flat map keyed by `\"METHOD:path\"` (e.g., `'GET:characters/{character_id}'`) to the cache TTL in seconds.\n\n3. **`esi-rate-limit-groups.generated.ts`**: Defines and exports `RateLimitGroupSpec` interface (`{ group, maxTokens, windowSizeMs }`) and `esiRateLimitGroups: Record<string, RateLimitGroupSpec>`, keyed by `\"METHOD:path\"`.\n\n4. **`esi-scopes.generated.ts`**: Exports `EsiScope` (a string literal union type of all scopes) and `esiEndpointScopes: Record<string, EsiScope[]>`, keyed by `\"METHOD:path\"`.\n\nAll output directories are created with `fs.mkdirSync(..., { recursive: true })` before writing.\n\n---\n\n## Key Migration-Relevant Observations\n\n- The file currently fetches **both** specs but uses them for different purposes: Swagger 2.0 for types/TTLs/scopes, OpenAPI 3.x only for rate limits.\n- The `SwaggerParameter` interface uses Swagger 2.0's inline `type`/`format` pattern. OpenAPI 3.x wraps these in a `schema` object. However, parameters are never consumed for generation, so this is a latent incompatibility.\n- The `x-cached-seconds` extension is read from the Swagger 2.0 spec. You would need to verify whether this extension is also present in the OpenAPI 3.1 spec (or whether it has been renamed/restructured).\n- Response schemas are accessed as `op.responses['200'].schema` -- in OpenAPI 3.x, this becomes `op.responses['200'].content['application/json'].schema`, a significant structural difference.\n- `securityDefinitions` (Swagger 2.0) becomes `components.securitySchemes` in OpenAPI 3.x.\n- The OpenAPI spec types (`OpenApiSpec`, `OpenApiOperation`) are already defined separately and minimally -- they only capture `x-rate-limit`. If migrating fully to OpenAPI 3.1, these would need to be expanded or merged with the Swagger types.",
+      "source_message_uuid": "4b118cea-aa3c-4396-97f9-082a8923699c",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.5947,
+          "repetition_score": 0.0,
+          "confidence": 0.5947
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 4,
+    "total_output_tokens": 3682,
+    "total_cache_creation_tokens": 18945,
+    "total_cache_read_tokens": 12006,
+    "input_output_ratio": 0.0,
+    "cache_hit_rate": 0.9997,
+    "estimated_cost_usd": 0.1299,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 1
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        12007
+      ],
+      "growth_rate": 1.0,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 206,
+      "user_result_tokens": 4741,
+      "model_reasoning_tokens": 18,
+      "model_tool_tokens": 21,
+      "model_generation_tokens": 3165,
+      "total_user_tokens": 4947,
+      "total_model_tokens": 3204,
+      "user_ratio": 0.6069
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.5947,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "I need a thorough understanding of `scripts/generate-esi-types.ts` in the ESI.ts project at D:\\code\\ESI.ts. This is the primary file for a Swagger 2.0 \u2192 OpenAPI 3.1 migration.\n\nPlease find and read the entire file. I need to understand:\n1. All interfaces defined (SwaggerSpec, SwaggerOperation, SwaggerParameter, etc.)\n2. The URL constants (ESI_SWAGGER_URL, ESI_OPENAPI_URL)\n3. How it currently fetches both swagger.json and openapi.json\n4. How `generateInterface()` works \u2014 how it extracts schemas from responses\n5. How `extractCacheTtls()` works \u2014 what key it reads\n6. How `extractAllScopes()` and `extractEndpointScopes()` work \u2014 the security structure\n7. How parameters are handled (inline type/format vs schema wrapper)\n8. What generated files it produces and how\n\nBe very thorough \u2014 read the entire file, not just excerpts.",
+          "response_text": "I have read the entire file (568 lines). Here is a thorough analysis of every aspect you asked about.\n\n---\n\n## 1. All Interfaces Defined\n\nThe file defines the following interfaces:\n\n### Swagger 2.0 Spec Interfaces\n\n**`SwaggerSchema`** (lines 37-47) -- Represents a JSON Schema object within the Swagger spec. Fields: `type`, `format`, `description`, `title`, `properties` (recursive map of `SwaggerSchema`), `items` (for arrays, another `SwaggerSchema`), `required` (string array), `enum`, `maxItems`.\n\n**`SwaggerOperation`** (lines 49-64) -- Represents a single HTTP operation (e.g., GET on a path). Fields: `operationId`, `tags`, `description`, `x-cached-seconds` (number, the cache TTL vendor extension), `parameters` (array of `SwaggerParameter`), `responses` (map of status code string to `{description, schema, headers}`), `security` (array of `Record<string, string[]>` -- each element is a security requirement object).\n\n**`SwaggerParameter`** (lines 66-75) -- Represents a parameter on an operation. Fields: `name`, `in` (location: path/query/header/body), `type`, `format`, `required`, `description`, `enum`, `$ref`. Note: this uses **inline** `type`/`format` fields (Swagger 2.0 style), not a `schema` wrapper (OpenAPI 3.x style). There is no `schema` property on this interface.\n\n**`SwaggerSpec`** (lines 77-88) -- The top-level Swagger 2.0 document. Fields: `basePath`, `host`, `info` (title/version), `paths` (map of path string to map of method string to `SwaggerOperation`), `definitions` (map of named schemas), `parameters` (map of named shared parameters), `securityDefinitions` (map of security scheme name to `{ scopes?: Record<string, string> }`).\n\n### Internal / Generated Interfaces\n\n**`GeneratedInterface`** (lines 149-157) -- The output of `generateInterface()`. Fields: `name` (PascalCase interface name), `tag` (ESI tag like \"Character\", \"Market\"), `operationId`, `path`, `method`, `body` (the full TypeScript interface source text), `isArray` (whether the 200 response is an array).\n\n**`CacheTtlEntry`** (lines 202-207) -- Output of `extractCacheTtls()`. Fields: `path`, `method`, `seconds`, `operationId`.\n\n### OpenAPI 3.x Interfaces (for rate limits only)\n\n**`OpenApiRateLimitExtension`** (lines 305-309) -- The shape of the `x-rate-limit` vendor extension. Fields: `group` (string), `max-tokens` (optional number), `window-size` (optional string like `\"15m\"`).\n\n**`OpenApiOperation`** (lines 311-313) -- Minimal OpenAPI operation shape, only has `x-rate-limit`.\n\n**`OpenApiSpec`** (lines 315-317) -- Minimal OpenAPI spec, only has `paths`.\n\n**`RateLimitGroupEntry`** (lines 319-325) -- Output of `extractRateLimitGroups()`. Fields: `path`, `method`, `group`, `maxTokens`, `windowSizeMs`.\n\n### Scope Interfaces\n\n**`EndpointScopeEntry`** (lines 399-403) -- Output of `extractEndpointScopes()`. Fields: `path`, `method`, `scopes` (string array).\n\n---\n\n## 2. URL Constants\n\n```ts\nconst ESI_SWAGGER_URL = 'https://esi.evetech.net/latest/swagger.json';\nconst ESI_OPENAPI_URL = 'https://esi.evetech.net/meta/openapi.json?compatibility_date=2025-12-16';\n```\n\n- **`ESI_SWAGGER_URL`** (line 17) -- The Swagger 2.0 spec. Used for: type generation, cache TTLs, and scope extraction.\n- **`ESI_OPENAPI_URL`** (line 18-19) -- The OpenAPI 3.x \"meta\" spec, with a `compatibility_date` query parameter. Used **only** for rate limit group extraction (`x-rate-limit`).\n\n---\n\n## 3. How It Fetches Both Specs\n\nIn `main()` (lines 486-568):\n\n1. **Swagger fetch** (lines 489-499): Uses the global `fetch()` API (Node 18+ built-in) to GET `ESI_SWAGGER_URL`. On failure, it logs and calls `process.exit(1)` -- a hard crash.\n\n2. **OpenAPI fetch** (lines 534-546): Uses `fetch()` to GET `ESI_OPENAPI_URL`. On failure, it logs a warning (\"Rate limit groups will not be updated\") and **returns early** -- a soft failure. This means the rate-limit-groups file simply does not get regenerated, but types, TTLs, and scopes still succeed.\n\nThe Swagger spec is typed as `SwaggerSpec`; the OpenAPI spec is typed as `OpenApiSpec` (the minimal type with only `paths`).\n\nA SHA-256 hash of the Swagger spec JSON is computed (truncated to 12 hex chars) and embedded in the generated types file header as a `// Spec hash:` comment (lines 501-506).\n\n---\n\n## 4. How `generateInterface()` Works\n\n`generateInterface()` (lines 159-200) takes a path, method, and `SwaggerOperation` and returns a `GeneratedInterface | null`.\n\n**Step-by-step:**\n\n1. **Extract the 200 response schema**: Reads `op.responses?.['200']`. If there is no 200 response, or the 200 response has no `schema`, returns `null`. It only looks at the `'200'` key -- not `'201'`, `'204'`, etc.\n\n2. **Determine array vs object**: \n   - If `schema.type === 'array' && schema.items` -- sets `itemSchema = schema.items` and `isArray = true`.\n   - If `schema.type === 'object' && schema.properties` -- sets `itemSchema = schema` and `isArray = false`.\n   - Otherwise returns `null`. This means endpoints whose 200 response is a plain scalar (string, number) are skipped entirely.\n\n3. **Require properties**: If `itemSchema.properties` is falsy (e.g., a bare `type: object` with no properties), returns `null`.\n\n4. **Derive the interface name**: Uses `itemSchema.title` if present, otherwise falls back to `operationId + '_200_ok'`. Converts to PascalCase via `snakeToPascal()`.\n\n5. **Generate property lines**: Iterates `itemSchema.properties`. For each property, checks if it is in the `required` set to decide `?` optionality, then calls `swaggerTypeToTs()` to convert the schema to a TypeScript type string.\n\n6. **Build the body**: Constructs the full `export interface Name { ... }` text.\n\n7. **Returns** the `GeneratedInterface` with `isArray` indicating whether the endpoint returns an array of these items.\n\nThe `swaggerTypeToTs()` helper (lines 97-129) handles:\n- **Enums**: union of literal values\n- **Arrays**: recursive, wraps in `()[]` if the item type is complex\n- **Objects with properties**: calls `generateInlineObject()` for nested objects\n- **Bare objects**: becomes `Record<string, unknown>`\n- **Primitives**: `integer`/`number` -> `number`, `string` -> `string`, `boolean` -> `boolean`, default -> `unknown`\n\n---\n\n## 5. How `extractCacheTtls()` Works\n\n`extractCacheTtls()` (lines 209-231) reads the **Swagger 2.0** spec (not the OpenAPI spec).\n\nIt iterates all paths and all HTTP methods (`get`, `post`, `put`, `delete`). For each operation, it reads the **`x-cached-seconds`** vendor extension (line 219). If the value is a `number` and is greater than 0, it records an entry.\n\nThe path is normalized by stripping leading and trailing slashes. The method is uppercased.\n\nOutput: an array of `CacheTtlEntry` objects with `{ path, method, seconds, operationId }`.\n\n---\n\n## 6. How Scope Extraction Works\n\n### `extractAllScopes()` (lines 405-417)\n\nReads `spec.securityDefinitions` -- the **top-level** security definitions in the Swagger 2.0 spec. For each security definition, it reads the `scopes` sub-object (which in Swagger 2.0 is a `Record<string, string>` mapping scope name to description). It collects all scope names into a `Set`, then returns them sorted.\n\nThis produces the complete universe of ESI OAuth scopes, regardless of which endpoints use them.\n\n### `extractEndpointScopes()` (lines 419-448)\n\nIterates all paths and methods. For each operation, it checks `op.security` -- the **per-operation** security requirements array. If the operation has no security requirements (or the array is empty), it is skipped.\n\nThe `security` field in Swagger 2.0 is an array of objects. Each object maps a security scheme name to an array of scope strings. For example: `[{ \"evesso\": [\"esi-characters.read_contacts.v1\"] }]`.\n\nThe function collects all scopes from all security requirement objects for a given operation into a `Set`, then outputs a sorted array. So if an operation has multiple security requirement objects, all their scopes are merged.\n\n### `writeScopesFile()` (lines 450-484)\n\nProduces:\n- An `EsiScope` type: a union of all scope string literals (e.g., `type EsiScope = | 'esi-alliances.read_contacts.v1' | ...;`)\n- An `esiEndpointScopes` const: a `Record<string, EsiScope[]>` keyed by `\"METHOD:path\"` mapping each endpoint to its required scopes.\n\n---\n\n## 7. How Parameters Are Handled\n\n**They are largely NOT handled for code generation.** The `SwaggerParameter` interface (lines 66-75) is defined, and it uses the **Swagger 2.0** inline `type`/`format` pattern (not a `schema` wrapper). However:\n\n- `generateInterface()` only looks at `op.responses?.['200']?.schema` -- it does not process parameters at all.\n- No function in the file iterates parameters to generate types or metadata for them.\n- The `SwaggerSpec` interface declares `parameters?: Record<string, SwaggerParameter>` for shared/global parameters, but this is never accessed.\n- The `SwaggerOperation` interface declares `parameters?: SwaggerParameter[]`, but again this is read by no function.\n\nThe `SwaggerParameter` interface does have `$ref` for references to shared parameters, but there is no `$ref` resolution logic anywhere in the file.\n\nThis is significant for the migration: OpenAPI 3.x restructures parameters to use a `schema` wrapper (`{ name, in, schema: { type, format } }`) instead of inline `type`/`format`. Since parameters are not currently consumed for code generation, this difference does not affect the current output -- but it would matter if parameter type generation were added in the future.\n\n---\n\n## 8. Generated Output Files\n\nFour files are produced, all at paths relative to `__dirname` (the `scripts/` directory):\n\n| Constant | Output Path | Source Spec | Generated By |\n|---|---|---|---|\n| `TYPES_OUTPUT` | `src/types/generated/esi-spec.generated.ts` | Swagger 2.0 | `writeTypesFile()` |\n| `TTL_OUTPUT` | `src/core/endpoints/esi-cache-ttls.generated.ts` | Swagger 2.0 | `writeTtlFile()` |\n| `RATE_LIMIT_GROUPS_OUTPUT` | `src/core/endpoints/esi-rate-limit-groups.generated.ts` | OpenAPI 3.x | `writeRateLimitGroupsFile()` |\n| `SCOPES_OUTPUT` | `src/core/endpoints/esi-scopes.generated.ts` | Swagger 2.0 | `writeScopesFile()` |\n\n### What each file contains:\n\n1. **`esi-spec.generated.ts`**: All generated `export interface` declarations, grouped by ESI tag (e.g., \"Character\", \"Market\") and sorted alphabetically. Also contains an `EsiOperationTypes` interface mapping each `operationId` string to its response type (using `Name[]` for array responses). Header includes the spec hash and interface count.\n\n2. **`esi-cache-ttls.generated.ts`**: Exports `esiCacheTtls: Record<string, number>`, a flat map keyed by `\"METHOD:path\"` (e.g., `'GET:characters/{character_id}'`) to the cache TTL in seconds.\n\n3. **`esi-rate-limit-groups.generated.ts`**: Defines and exports `RateLimitGroupSpec` interface (`{ group, maxTokens, windowSizeMs }`) and `esiRateLimitGroups: Record<string, RateLimitGroupSpec>`, keyed by `\"METHOD:path\"`.\n\n4. **`esi-scopes.generated.ts`**: Exports `EsiScope` (a string literal union type of all scopes) and `esiEndpointScopes: Record<string, EsiScope[]>`, keyed by `\"METHOD:path\"`.\n\nAll output directories are created with `fs.mkdirSync(..., { recursive: true })` before writing.\n\n---\n\n## Key Migration-Relevant Observations\n\n- The file currently fetches **both** specs but uses them for different purposes: Swagger 2.0 for types/TTLs/scopes, OpenAPI 3.x only for rate limits.\n- The `SwaggerParameter` interface uses Swagger 2.0's inline `type`/`format` pattern. OpenAPI 3.x wraps these in a `schema` object. However, parameters are never consumed for generation, so this is a latent incompatibility.\n- The `x-cached-seconds` extension is read from the Swagger 2.0 spec. You would need to verify whether this extension is also present in the OpenAPI 3.1 spec (or whether it has been renamed/restructured).\n- Response schemas are accessed as `op.responses['200'].schema` -- in OpenAPI 3.x, this becomes `op.responses['200'].content['application/json'].schema`, a significant structural difference.\n- `securityDefinitions` (Swagger 2.0) becomes `components.securitySchemes` in OpenAPI 3.x.\n- The OpenAPI spec types (`OpenApiSpec`, `OpenApiOperation`) are already defined separately and minimally -- they only capture `x-rate-limit`. If migrating fully to OpenAPI 3.1, these would need to be expanded or merged with the Swagger types.",
+          "alignment": 0.5947
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "a4e701aa-0dce-4f48-867d-8ac45b40f603",
+    "source_file": "data/D--code-ESI-ts__agent-a846188a34dfc35d0.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

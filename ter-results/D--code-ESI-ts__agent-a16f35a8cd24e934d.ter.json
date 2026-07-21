@@ -1,0 +1,286 @@
+{
+  "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 4392,
+  "aligned_tokens": 4392,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5881,
+    "token_weighted_confidence": 0.6343,
+    "low_confidence_tokens": 3966,
+    "low_confidence_share": 0.903,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 6,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.3680265247821808,
+      "tokens": 14,
+      "text": "\n\nI'll verify the target directories exist, then write both files.",
+      "source_message_uuid": "beea3910-5c91-4b95-b4ce-01091cb2cc81",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.368,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.39387619495391846,
+      "tokens": 100,
+      "text": "Bash {\"command\":\"ls \\\"D:/code/ESI.ts/tests/bdd/features/core/\\\" 2>/dev/null && echo \\\"---features/core exists---\\\" || echo \\\"---features/core missing---\\\"; ls \\\"D:/code/ESI.ts/tests/bdd/step-definitions/core/\\\" 2>/dev/null && echo \\\"---step-definitions/core exists---\\\" || echo \\\"---step-definitions/core missing---\\\"\",\"description\":\"Check if target directories exist\"}",
+      "source_message_uuid": "beea3910-5c91-4b95-b4ce-01091cb2cc81",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3939,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.35824862122535706,
+      "tokens": 13,
+      "text": "Both directories exist. Now I'll write both files in parallel.",
+      "source_message_uuid": "5d45d445-f5d2-495e-b96e-64b3875d43e7",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3582,
+          "repetition_score": 0.6325,
+          "confidence": 0.5,
+          "semantic_similarity": 0.8339,
+          "lexical_similarity": 0.3125,
+          "entity_similarity": 0.4545,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.5455
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "\n\nI'll verify the target directories exist, then write both files."
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6633686423301697,
+      "intent_similarity": 0.6633686423301697,
+      "tokens": 426,
+      "text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/features/core/freelance-jobs.feature\",\"content\":\"Feature: Freelance Jobs Management\\n\\n  Scenario: Get freelance jobs listing\\n    Given publicly available freelance jobs exist\\n    When I request the job listing\\n    Then I should receive jobs with pagination cursors\\n\\n  Scenario: No freelance jobs available\\n    Given no freelance jobs exist\\n    When I request the empty job listing\\n    Then I should receive an empty listing\\n\\n  Scenario: Get a specific freelance job by ID\\n    Given a valid job ID\\n    When I request the job details\\n    Then I should receive the full job information\\n\\n  Scenario: Request a non-existent job\\n    Given an invalid job ID\\n    When I request details for the invalid job\\n    Then I should receive a 404 error for the job\\n\\n  Scenario: Get character freelance jobs\\n    Given an authenticated character with freelance jobs\\n    When I request their job listing\\n    Then I should receive the character jobs with cursors\\n\\n  Scenario: Get character participation in a specific job\\n    Given a character participating in a job\\n    When I request their participation details\\n    Then I should receive contribution data\\n\\n  Scenario: Get corporation freelance jobs\\n    Given an authenticated corporation for freelance jobs\\n    When I request their freelance jobs\\n    Then I should receive the corporation jobs listing\\n\\n  Scenario: Paginate forward through freelance jobs\\n    Given a first page with an after cursor\\n    When I request the next page using the after token\\n    Then I should receive the second page of results\\n\\n  Scenario: Paginate backward through freelance jobs\\n    Given a second page with a before cursor\\n    When I request the previous page using the before token\\n    Then I should receive the first page of results\\n\\n  Scenario: Unauthorized access to character freelance jobs\\n    Given an invalid token for freelance jobs\\n    When I request character freelance jobs with invalid token\\n    Then I should receive a 403 forbidden error for freelance jobs\\n\"}",
+      "source_message_uuid": "5d45d445-f5d2-495e-b96e-64b3875d43e7",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6634,
+          "repetition_score": 0.0295,
+          "confidence": 0.6634,
+          "semantic_similarity": 0.4305,
+          "lexical_similarity": 0.0111,
+          "entity_similarity": 0.0128,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"ls \\\"D:/code/ESI.ts/tests/bdd/features/core/\\\" 2>/dev/null && echo \\\"---features/core exists---\\\" || echo \\\"---features/core missing---\\\"; ls \\\"D:/code/ESI.ts/tests/bdd/step-definitions/core/\\\" 2>/dev/null && echo \\\"---step"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6329538226127625,
+      "intent_similarity": 0.6329538226127625,
+      "tokens": 3705,
+      "text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/step-definitions/core/freelance-jobs.steps.ts\",\"content\":\"import { defineFeature, loadFeature } from 'jest-cucumber';\\nimport { EsiClient } from '../../../../src/EsiClient';\\nimport { EsiError } from '../../../../src/core/util/error';\\nimport { TestDataFactory } from '../../../../src/testing/TestDataFactory';\\n\\nconst feature = loadFeature('tests/bdd/features/core/freelance-jobs.feature');\\n\\ndefineFeature(feature, (test) => {\\n  let client: EsiClient;\\n\\n  beforeEach(() => {\\n    client = new EsiClient({\\n      clientId: 'test-client',\\n      baseUrl: 'https://esi.evetech.net',\\n      timeout: 5000,\\n    });\\n  });\\n\\n  test('Get freelance jobs listing', ({ given, when, then }) => {\\n    let result: any;\\n\\n    given('publicly available freelance jobs exist', () => {\\n      const mockListing = {\\n        cursor: { before: null, after: 'cursor_abc123' },\\n        freelance_jobs: [\\n          {\\n            id: 'job-001',\\n            name: 'Ore Hauling Contract',\\n            state: 'open',\\n            last_modified: '2026-04-20T10:00:00Z',\\n            progress: { current: 0, desired: 10000 },\\n            reward: { initial: 5000000, remaining: 5000000 },\\n          },\\n          {\\n            id: 'job-002',\\n            name: 'Salvage Operation',\\n            state: 'in_progress',\\n            last_modified: '2026-04-21T08:30:00Z',\\n            progress: { current: 3500, desired: 10000 },\\n            reward: { initial: 10000000, remaining: 6500000 },\\n          },\\n        ],\\n      };\\n\\n      jest\\n        .spyOn(client.freelanceJobs, 'getFreelanceJobs')\\n        .mockResolvedValue(mockListing);\\n    });\\n\\n    when('I request the job listing', async () => {\\n      result = await client.freelanceJobs.getFreelanceJobs();\\n    });\\n\\n    then('I should receive jobs with pagination cursors', () => {\\n      expect(result).toBeDefined();\\n      expect(result.freelance_jobs).toBeInstanceOf(Array);\\n      expect(result.freelance_jobs).toHaveLength(2);\\n      expect(result.freelance_jobs[0]).toHaveProperty('id', 'job-001');\\n      expect(result.freelance_jobs[0]).toHaveProperty('name');\\n      expect(result.freelance_jobs[0]).toHaveProperty('state');\\n      expect(result.freelance_jobs[0]).toHaveProperty('progress');\\n      expect(result.cursor).toBeDefined();\\n      expect(result.cursor.before).toBeNull();\\n      expect(result.cursor.after).toBe('cursor_abc123');\\n    });\\n  });\\n\\n  test('No freelance jobs available', ({ given, when, then }) => {\\n    let result: any;\\n\\n    given('no freelance jobs exist', () => {\\n      const mockEmptyListing = {\\n        cursor: { before: null, after: null },\\n        freelance_jobs: [],\\n      };\\n\\n      jest\\n        .spyOn(client.freelanceJobs, 'getFreelanceJobs')\\n        .mockResolvedValue(mockEmptyListing);\\n    });\\n\\n    when('I request the empty job listing', async () => {\\n      result = await client.freelanceJobs.getFreelanceJobs();\\n    });\\n\\n    then('I should receive an empty listing', () => {\\n      expect(result.freelance_jobs).toBeInstanceOf(Array);\\n      expect(result.freelance_jobs).toHaveLength(0);\\n      expect(result.cursor.before).toBeNull();\\n      expect(result.cursor.after).toBeNull();\\n    });\\n  });\\n\\n  test('Get a specific freelance job by ID', ({ given, when, then }) => {\\n    let result: any;\\n    const jobId = 'job-001';\\n\\n    given('a valid job ID', () => {\\n      const mockJobDetail = {\\n        id: jobId,\\n        name: 'Ore Hauling Contract',\\n        state: 'open',\\n        last_modified: '2026-04-20T10:00:00Z',\\n        progress: { current: 0, desired: 10000 },\\n        reward: { initial: 5000000, remaining: 5000000 },\\n        details: {\\n          description: 'Haul 10000 units of Veldspar from Jita to Amarr',\\n          career: 'hauler',\\n          created: '2026-04-19T08:00:00Z',\\n          expires: '2026-05-19T08:00:00Z',\\n          creator: {\\n            character: { id: 1689391488, name: 'Test Character' },\\n            corporation: { id: 1344654522, name: 'GoonWaffe' },\\n          },\\n        },\\n        configuration: {\\n          version: 1,\\n          parameters: {},\\n          method: 'standard',\\n        },\\n        contribution: {\\n          max_committed_participants: 10,\\n          reward_per_contribution: 500,\\n          submission_multiplier: 1.0,\\n        },\\n        access_and_visibility: {\\n          acl_protected: false,\\n          broadcast_locations: [{ id: 30000142, name: 'Jita' }],\\n        },\\n      };\\n\\n      jest\\n        .spyOn(client.freelanceJobs, 'getFreelanceJobById')\\n        .mockResolvedValue(mockJobDetail);\\n    });\\n\\n    when('I request the job details', async () => {\\n      result = await client.freelanceJobs.getFreelanceJobById(jobId);\\n    });\\n\\n    then('I should receive the full job information', () => {\\n      expect(result).toBeDefined();\\n      expect(result.id).toBe(jobId);\\n      expect(result.name).toBe('Ore Hauling Contract');\\n      expect(result.progress.current).toBe(0);\\n      expect(result.progress.desired).toBe(10000);\\n      expect(result.details).toBeDefined();\\n      expect(result.details.description).toContain('Veldspar');\\n      expect(result.details.career).toBe('hauler');\\n    });\\n  });\\n\\n  test('Request a non-existent job', ({ given, when, then }) => {\\n    const invalidJobId = 'job-nonexistent';\\n    let caughtError: any;\\n\\n    given('an invalid job ID', () => {\\n      const notFoundError = TestDataFactory.createError(404);\\n\\n      jest\\n        .spyOn(client.freelanceJobs, 'getFreelanceJobById')\\n        .mockRejectedValue(notFoundError);\\n    });\\n\\n    when('I request details for the invalid job', async () => {\\n      try {\\n        await client.freelanceJobs.getFreelanceJobById(invalidJobId);\\n      } catch (error) {\\n        caughtError = error;\\n      }\\n    });\\n\\n    then('I should receive a 404 error for the job', () => {\\n      expect(caughtError).toBeInstanceOf(EsiError);\\n    });\\n  });\\n\\n  test('Get character freelance jobs', ({ given, when, then }) => {\\n    let result: any;\\n    const characterId = 1689391488;\\n\\n    given('an authenticated character with freelance jobs', () => {\\n      const mockCharacterJobs = {\\n        cursor: { before: null, after: 'char_cursor_xyz' },\\n        freelance_jobs: [\\n          {\\n            id: 'job-010',\\n            name: 'Mining Expedition',\\n            state: 'in_progress',\\n            last_modified: '2026-04-22T14:00:00Z',\\n            progress: { current: 5000, desired: 20000 },\\n            reward: { initial: 15000000, remaining: 11250000 },\\n          },\\n        ],\\n      };\\n\\n      jest\\n        .spyOn(client.freelanceJobs, 'getCharacterFreelanceJobs')\\n        .mockResolvedValue(mockCharacterJobs);\\n    });\\n\\n    when('I request their job listing', async () => {\\n      result = await client.freelanceJobs.getCharacterFreelanceJobs(characterId);\\n    });\\n\\n    then('I should receive the character jobs with cursors', () => {\\n      expect(result).toBeDefined();\\n      expect(result.freelance_jobs).toHaveLength(1);\\n      expect(result.freelance_jobs[0].id).toBe('job-010');\\n      expect(result.freelance_jobs[0].state).toBe('in_progress');\\n      expect(result.cursor.after).toBe('char_cursor_xyz');\\n    });\\n  });\\n\\n  test('Get character participation in a specific job', ({ given, when, then }) => {\\n    let result: any;\\n    const characterId = 1689391488;\\n    const jobId = 'job-010';\\n\\n    given('a character participating in a job', () => {\\n      const mockParticipation = {\\n        job_id: jobId,\\n        character_id: characterId,\\n        status: 'active',\\n        contributions: 5000,\\n        last_contribution: '2026-04-22T14:00:00Z',\\n      };\\n\\n      jest\\n        .spyOn(client.freelanceJobs, 'getCharacterFreelanceJobParticipation')\\n        .mockResolvedValue(mockParticipation);\\n    });\\n\\n    when('I request their participation details', async () => {\\n      result =\\n        await client.freelanceJobs.getCharacterFreelanceJobParticipation(\\n          characterId,\\n          jobId,\\n        );\\n    });\\n\\n    then('I should receive contribution data', () => {\\n      expect(result).toBeDefined();\\n      expect(result.job_id).toBe(jobId);\\n      expect(result.character_id).toBe(characterId);\\n      expect(result.status).toBe('active');\\n      expect(result.contributions).toBe(5000);\\n      expect(result.last_contribution).toBeDefined();\\n    });\\n  });\\n\\n  test('Get corporation freelance jobs', ({ given, when, then }) => {\\n    let result: any;\\n    const corporationId = 1344654522;\\n\\n    given('an authenticated corporation for freelance jobs', () => {\\n      const mockCorpJobs = {\\n        cursor: { before: null, after: null },\\n        freelance_jobs: [\\n          {\\n            id: 'job-050',\\n            name: 'Structure Defense Op',\\n            state: 'open',\\n            last_modified: '2026-04-23T06:00:00Z',\\n            progress: { current: 0, desired: 50 },\\n          },\\n        ],\\n      };\\n\\n      jest\\n        .spyOn(client.freelanceJobs, 'getCorporationFreelanceJobs')\\n        .mockResolvedValue(mockCorpJobs);\\n    });\\n\\n    when('I request their freelance jobs', async () => {\\n      result =\\n        await client.freelanceJobs.getCorporationFreelanceJobs(corporationId);\\n    });\\n\\n    then('I should receive the corporation jobs listing', () => {\\n      expect(result).toBeDefined();\\n      expect(result.freelance_jobs).toHaveLength(1);\\n      expect(result.freelance_jobs[0].id).toBe('job-050');\\n      expect(result.cursor.after).toBeNull();\\n    });\\n  });\\n\\n  test('Paginate forward through freelance jobs', ({ given, when, then }) => {\\n    let page2: any;\\n\\n    given('a first page with an after cursor', () => {\\n      const getJobsSpy = jest.spyOn(client.freelanceJobs, 'getFreelanceJobs');\\n\\n      getJobsSpy.mockResolvedValueOnce({\\n        cursor: { before: null, after: 'page2_token' },\\n        freelance_jobs: [\\n          {\\n            id: 'job-001',\\n            name: 'Job 1',\\n            state: 'open',\\n            last_modified: '2026-04-20T10:00:00Z',\\n            progress: { current: 0, desired: 100 },\\n          },\\n        ],\\n      });\\n\\n      getJobsSpy.mockResolvedValueOnce({\\n        cursor: { before: 'page2_token', after: null },\\n        freelance_jobs: [\\n          {\\n            id: 'job-002',\\n            name: 'Job 2',\\n            state: 'open',\\n            last_modified: '2026-04-21T10:00:00Z',\\n            progress: { current: 0, desired: 200 },\\n          },\\n        ],\\n      });\\n    });\\n\\n    when('I request the next page using the after token', async () => {\\n      const page1 = await client.freelanceJobs.getFreelanceJobs();\\n      expect(page1.cursor.after).toBe('page2_token');\\n\\n      page2 = await client.freelanceJobs.getFreelanceJobs(\\n        undefined,\\n        page1.cursor.after!,\\n      );\\n    });\\n\\n    then('I should receive the second page of results', () => {\\n      expect(page2.freelance_jobs).toHaveLength(1);\\n      expect(page2.freelance_jobs[0].id).toBe('job-002');\\n      expect(page2.cursor.before).toBe('page2_token');\\n      expect(page2.cursor.after).toBeNull();\\n    });\\n  });\\n\\n  test('Paginate backward through freelance jobs', ({ given, when, then }) => {\\n    let firstPage: any;\\n\\n    given('a second page with a before cursor', () => {\\n      jest.spyOn(client.freelanceJobs, 'getFreelanceJobs').mockResolvedValueOnce({\\n        cursor: { before: null, after: 'page2_token' },\\n        freelance_jobs: [\\n          {\\n            id: 'job-001',\\n            name: 'Job 1',\\n            state: 'open',\\n            last_modified: '2026-04-20T10:00:00Z',\\n            progress: { current: 0, desired: 100 },\\n          },\\n        ],\\n      });\\n    });\\n\\n    when('I request the previous page using the before token', async () => {\\n      firstPage = await client.freelanceJobs.getFreelanceJobs('page2_token');\\n    });\\n\\n    then('I should receive the first page of results', () => {\\n      expect(firstPage.freelance_jobs).toHaveLength(1);\\n      expect(firstPage.freelance_jobs[0].id).toBe('job-001');\\n      expect(firstPage.cursor.before).toBeNull();\\n    });\\n  });\\n\\n  test('Unauthorized access to character freelance jobs', ({ given, when, then }) => {\\n    const characterId = 1689391488;\\n    let caughtError: any;\\n\\n    given('an invalid token for freelance jobs', () => {\\n      const forbiddenError = TestDataFactory.createError(403);\\n\\n      jest\\n        .spyOn(client.freelanceJobs, 'getCharacterFreelanceJobs')\\n        .mockRejectedValue(forbiddenError);\\n    });\\n\\n    when('I request character freelance jobs with invalid token', async () => {\\n      try {\\n        await client.freelanceJobs.getCharacterFreelanceJobs(characterId);\\n      } catch (error) {\\n        caughtError = error;\\n      }\\n    });\\n\\n    then('I should receive a 403 forbidden error for freelance jobs', () => {\\n      expect(caughtError).toBeInstanceOf(EsiError);\\n    });\\n  });\\n});\\n\"}",
+      "source_message_uuid": "5d45d445-f5d2-495e-b96e-64b3875d43e7",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.633,
+          "repetition_score": 0.5111,
+          "confidence": 0.633,
+          "semantic_similarity": 0.6334,
+          "lexical_similarity": 0.2421,
+          "entity_similarity": 0.2773,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/features/core/freelance-jobs.feature\",\"content\":\"Feature: Freelance Jobs Management\\n\\n  Scenario: Get freelance jobs listing\\n    Given publicly available freelance jobs exist\\n    When I reques"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.632118284702301,
+      "intent_similarity": 0.632118284702301,
+      "tokens": 134,
+      "text": "Both files have been created successfully:\n\n- **Feature file**: `D:/code/ESI.ts/tests/bdd/features/core/freelance-jobs.feature` -- 10 scenarios covering freelance jobs listing, detail retrieval, character/corporation jobs, pagination (forward and backward), error handling (404 and 403).\n\n- **Steps file**: `D:/code/ESI.ts/tests/bdd/step-definitions/core/freelance-jobs.steps.ts` -- jest-cucumber step definitions with mocked `EsiClient` methods for all 10 scenarios, using `TestDataFactory.createError` for error cases and `jest.spyOn` for mocking.",
+      "source_message_uuid": "52fe5b93-e1fc-42e3-9606-19c1f4d85b04",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6321,
+          "repetition_score": 0.2217,
+          "confidence": 0.6321,
+          "semantic_similarity": 0.3753,
+          "lexical_similarity": 0.0192,
+          "entity_similarity": 0.0392,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9608
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "\n\nI'll verify the target directories exist, then write both files."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 5,
+    "total_output_tokens": 162,
+    "total_cache_creation_tokens": 12245,
+    "total_cache_read_tokens": 52136,
+    "input_output_ratio": 0.03,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.064,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 2,
+      "mid_span_count": 2,
+      "late_span_count": 2
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        12725,
+        19143,
+        20273
+      ],
+      "growth_rate": 1.59,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 3601,
+      "user_result_tokens": 358,
+      "model_reasoning_tokens": 0,
+      "model_tool_tokens": 4231,
+      "model_generation_tokens": 161,
+      "total_user_tokens": 3959,
+      "total_model_tokens": 4392,
+      "user_ratio": 0.4741
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.7026,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "Create two files for the ESI.ts project BDD conversion. The project is at D:/code/ESI.ts.\n\nFILE 1: D:/code/ESI.ts/tests/bdd/features/core/freelance-jobs.feature\nFILE 2: D:/code/ESI.ts/tests/bdd/step-definitions/core/freelance-jobs.steps.ts\n\nFEATURE FILE content (write this exactly):\n```\nFeature: Freelance Jobs Management\n\n  Scenario: Get freelance jobs listing\n    Given publicly available freelance jobs exist\n    When I request the job listing\n    Then I should receive jobs with pagination cursors\n\n  Scenario: No freelance jobs available\n    Given no freelance jobs exist\n    When I request the empty job listing\n    Then I should receive an empty listing\n\n  Scenario: Get a specific freelance job by ID\n    Given a valid job ID\n    When I request the job details\n    Then I should receive the full job information\n\n  Scenario: Request a non-existent job\n    Given an invalid job ID\n    When I request details for the invalid job\n    Then I should receive a 404 error for the job\n\n  Scenario: Get character freelance jobs\n    Given an authenticated character with freelance jobs\n    When I request their job listing\n    Then I should receive the character jobs with cursors\n\n  Scenario: Get character participation in a specific job\n    Given a character participating in a job\n    When I request their participation details\n    Then I should receive contribution data\n\n  Scenario: Get corporation freelance jobs\n    Given an authenticated corporation for freelance jobs\n    When I request their freelance jobs\n    Then I should receive the corporation jobs listing\n\n  Scenario: Paginate forward through freelance jobs\n    Given a first page with an after cursor\n    When I request the next page using the after token\n    Then I should receive the second page of results\n\n  Scenario: Paginate backward through freelance jobs\n    Given a second page with a before cursor\n    When I request the previous page using the before token\n    Then I should receive the first page of results\n\n  Scenario: Unauthorized access to character freelance jobs\n    Given an invalid token for freelance jobs\n    When I request character freelance jobs with invalid token\n    Then I should receive a 403 forbidden error for freelance jobs\n```\n\nSTEPS FILE content (write this exactly):\n```typescript\nimport { defineFeature, loadFeature } from 'jest-cucumber';\nimport { EsiClient } from '../../../../src/EsiClient';\nimport { EsiError } from '../../../../src/core/util/error';\nimport { TestDataFactory } from '../../../../src/testing/TestDataFactory';\n\nconst feature = loadFeature('tests/bdd/features/core/freelance-jobs.feature');\n\ndefineFeature(feature, (test) => {\n  let client: EsiClient;\n\n  beforeEach(() => {\n    client = new EsiClient({\n      clientId: 'test-client',\n      baseUrl: 'https://esi.evetech.net',\n      timeout: 5000,\n    });\n  });\n\n  test('Get freelance jobs listing', ({ given, when, then }) => {\n    let result: any;\n\n    given('publicly available freelance jobs exist', () => {\n      const mockListing = {\n        cursor: { before: null, after: 'cursor_abc123' },\n        freelance_jobs: [\n          {\n            id: 'job-001',\n            name: 'Ore Hauling Contract',\n            state: 'open',\n            last_modified: '2026-04-20T10:00:00Z',\n            progress: { current: 0, desired: 10000 },\n            reward: { initial: 5000000, remaining: 5000000 },\n          },\n          {\n            id: 'job-002',\n            name: 'Salvage Operation',\n            state: 'in_progress',\n            last_modified: '2026-04-21T08:30:00Z',\n            progress: { current: 3500, desired: 10000 },\n            reward: { initial: 10000000, remaining: 6500000 },\n          },\n        ],\n      };\n\n      jest\n        .spyOn(client.freelanceJobs, 'getFreelanceJobs')\n        .mockResolvedValue(mockListing);\n    });\n\n    when('I request the job listing', async () => {\n      result = await client.freelanceJobs.getFreelanceJobs();\n    });\n\n    then('I should receive jobs with pagination cursors', () => {\n      expect(result).toBeDefined();\n      expect(result.freelance_jobs).toBeInstanceOf(Array);\n      expect(result.freelance_jobs).toHaveLength(2);\n      expect(result.freelance_jobs[0]).toHaveProperty('id', 'job-001');\n      expect(result.freelance_jobs[0]).toHaveProperty('name');\n      expect(result.freelance_jobs[0]).toHaveProperty('state');\n      expect(result.freelance_jobs[0]).toHaveProperty('progress');\n      expect(result.cursor).toBeDefined();\n      expect(result.cursor.before).toBeNull();\n      expect(result.cursor.after).toBe('cursor_abc123');\n    });\n  });\n\n  test('No freelance jobs available', ({ given, when, then }) => {\n    let result: any;\n\n    given('no freelance jobs exist', () => {\n      const mockEmptyListing = {\n        cursor: { before: null, after: null },\n        freelance_jobs: [],\n      };\n\n      jest\n        .spyOn(client.freelanceJobs, 'getFreelanceJobs')\n        .mockResolvedValue(mockEmptyListing);\n    });\n\n    when('I request the empty job listing', async () => {\n      result = await client.freelanceJobs.getFreelanceJobs();\n    });\n\n    then('I should receive an empty listing', () => {\n      expect(result.freelance_jobs).toBeInstanceOf(Array);\n      expect(result.freelance_jobs).toHaveLength(0);\n      expect(result.cursor.before).toBeNull();\n      expect(result.cursor.after).toBeNull();\n    });\n  });\n\n  test('Get a specific freelance job by ID', ({ given, when, then }) => {\n    let result: any;\n    const jobId = 'job-001';\n\n    given('a valid job ID', () => {\n      const mockJobDetail = {\n        id: jobId,\n        name: 'Ore Hauling Contract',\n        state: 'open',\n        last_modified: '2026-04-20T10:00:00Z',\n        progress: { current: 0, desired: 10000 },\n        reward: { initial: 5000000, remaining: 5000000 },\n        details: {\n          description: 'Haul 10000 units of Veldspar from Jita to Amarr',\n          career: 'hauler',\n          created: '2026-04-19T08:00:00Z',\n          expires: '2026-05-19T08:00:00Z',\n          creator: {\n            character: { id: 1689391488, name: 'Test Character' },\n            corporation: { id: 1344654522, name: 'GoonWaffe' },\n          },\n        },\n        configuration: {\n          version: 1,\n          parameters: {},\n          method: 'standard',\n        },\n        contribution: {\n          max_committed_participants: 10,\n          reward_per_contribution: 500,\n          submission_multiplier: 1.0,\n        },\n        access_and_visibility: {\n          acl_protected: false,\n          broadcast_locations: [{ id: 30000142, name: 'Jita' }],\n        },\n      };\n\n      jest\n        .spyOn(client.freelanceJobs, 'getFreelanceJobById')\n        .mockResolvedValue(mockJobDetail);\n    });\n\n    when('I request the job details', async () => {\n      result = await client.freelanceJobs.getFreelanceJobById(jobId);\n    });\n\n    then('I should receive the full job information', () => {\n      expect(result).toBeDefined();\n      expect(result.id).toBe(jobId);\n      expect(result.name).toBe('Ore Hauling Contract');\n      expect(result.progress.current).toBe(0);\n      expect(result.progress.desired).toBe(10000);\n      expect(result.details).toBeDefined();\n      expect(result.details.description).toContain('Veldspar');\n      expect(result.details.career).toBe('hauler');\n    });\n  });\n\n  test('Request a non-existent job', ({ given, when, then }) => {\n    const invalidJobId = 'job-nonexistent';\n    let caughtError: any;\n\n    given('an invalid job ID', () => {\n      const notFoundError = TestDataFactory.createError(404);\n\n      jest\n        .spyOn(client.freelanceJobs, 'getFreelanceJobById')\n        .mockRejectedValue(notFoundError);\n    });\n\n    when('I request details for the invalid job', async () => {\n      try {\n        await client.freelanceJobs.getFreelanceJobById(invalidJobId);\n      } catch (error) {\n        caughtError = error;\n      }\n    });\n\n    then('I should receive a 404 error for the job', () => {\n      expect(caughtError).toBeInstanceOf(EsiError);\n    });\n  });\n\n  test('Get character freelance jobs', ({ given, when, then }) => {\n    let result: any;\n    const characterId = 1689391488;\n\n    given('an authenticated character with freelance jobs', () => {\n      const mockCharacterJobs = {\n        cursor: { before: null, after: 'char_cursor_xyz' },\n        freelance_jobs: [\n          {\n            id: 'job-010',\n            name: 'Mining Expedition',\n            state: 'in_progress',\n            last_modified: '2026-04-22T14:00:00Z',\n            progress: { current: 5000, desired: 20000 },\n            reward: { initial: 15000000, remaining: 11250000 },\n          },\n        ],\n      };\n\n      jest\n        .spyOn(client.freelanceJobs, 'getCharacterFreelanceJobs')\n        .mockResolvedValue(mockCharacterJobs);\n    });\n\n    when('I request their job listing', async () => {\n      result = await client.freelanceJobs.getCharacterFreelanceJobs(characterId);\n    });\n\n    then('I should receive the character jobs with cursors', () => {\n      expect(result).toBeDefined();\n      expect(result.freelance_jobs).toHaveLength(1);\n      expect(result.freelance_jobs[0].id).toBe('job-010');\n      expect(result.freelance_jobs[0].state).toBe('in_progress');\n      expect(result.cursor.after).toBe('char_cursor_xyz');\n    });\n  });\n\n  test('Get character participation in a specific job', ({ given, when, then }) => {\n    let result: any;\n    const characterId = 1689391488;\n    const jobId = 'job-010';\n\n    given('a character participating in a job', () => {\n      const mockParticipation = {\n        job_id: jobId,\n        character_id: characterId,\n        status: 'active',\n        contributions: 5000,\n        last_contribution: '2026-04-22T14:00:00Z',\n      };\n\n      jest\n        .spyOn(client.freelanceJobs, 'getCharacterFreelanceJobParticipation')\n        .mockResolvedValue(mockParticipation);\n    });\n\n    when('I request their participation details', async () => {\n      result =\n        await client.freelanceJobs.getCharacterFreelanceJobParticipation(\n          characterId,\n          jobId,\n        );\n    });\n\n    then('I should receive contribution data', () => {\n      expect(result).toBeDefined();\n      expect(result.job_id).toBe(jobId);\n      expect(result.character_id).toBe(characterId);\n      expect(result.status).toBe('active');\n      expect(result.contributions).toBe(5000);\n      expect(result.last_contribution).toBeDefined();\n    });\n  });\n\n  test('Get corporation freelance jobs', ({ given, when, then }) => {\n    let result: any;\n    const corporationId = 1344654522;\n\n    given('an authenticated corporation for freelance jobs', () => {\n      const mockCorpJobs = {\n        cursor: { before: null, after: null },\n        freelance_jobs: [\n          {\n            id: 'job-050',\n            name: 'Structure Defense Op',\n            state: 'open',\n            last_modified: '2026-04-23T06:00:00Z',\n            progress: { current: 0, desired: 50 },\n          },\n        ],\n      };\n\n      jest\n        .spyOn(client.freelanceJobs, 'getCorporationFreelanceJobs')\n        .mockResolvedValue(mockCorpJobs);\n    });\n\n    when('I request their freelance jobs', async () => {\n      result =\n        await client.freelanceJobs.getCorporationFreelanceJobs(corporationId);\n    });\n\n    then('I should receive the corporation jobs listing', () => {\n      expect(result).toBeDefined();\n      expect(result.freelance_jobs).toHaveLength(1);\n      expect(result.freelance_jobs[0].id).toBe('job-050');\n      expect(result.cursor.after).toBeNull();\n    });\n  });\n\n  test('Paginate forward through freelance jobs', ({ given, when, then }) => {\n    let page2: any;\n\n    given('a first page with an after cursor', () => {\n      const getJobsSpy = jest.spyOn(client.freelanceJobs, 'getFreelanceJobs');\n\n      getJobsSpy.mockResolvedValueOnce({\n        cursor: { before: null, after: 'page2_token' },\n        freelance_jobs: [\n          {\n            id: 'job-001',\n            name: 'Job 1',\n            state: 'open',\n            last_modified: '2026-04-20T10:00:00Z',\n            progress: { current: 0, desired: 100 },\n          },\n        ],\n      });\n\n      getJobsSpy.mockResolvedValueOnce({\n        cursor: { before: 'page2_token', after: null },\n        freelance_jobs: [\n          {\n            id: 'job-002',\n            name: 'Job 2',\n            state: 'open',\n            last_modified: '2026-04-21T10:00:00Z',\n            progress: { current: 0, desired: 200 },\n          },\n        ],\n      });\n    });\n\n    when('I request the next page using the after token', async () => {\n      const page1 = await client.freelanceJobs.getFreelanceJobs();\n      expect(page1.cursor.after).toBe('page2_token');\n\n      page2 = await client.freelanceJobs.getFreelanceJobs(\n        undefined,\n        page1.cursor.after!,\n      );\n    });\n\n    then('I should receive the second page of results', () => {\n      expect(page2.freelance_jobs).toHaveLength(1);\n      expect(page2.freelance_jobs[0].id).toBe('job-002');\n      expect(page2.cursor.before).toBe('page2_token');\n      expect(page2.cursor.after).toBeNull();\n    });\n  });\n\n  test('Paginate backward through freelance jobs', ({ given, when, then }) => {\n    let firstPage: any;\n\n    given('a second page with a before cursor', () => {\n      jest.spyOn(client.freelanceJobs, 'getFreelanceJobs').mockResolvedValueOnce({\n        cursor: { before: null, after: 'page2_token' },\n        freelance_jobs: [\n          {\n            id: 'job-001',\n            name: 'Job 1',\n            state: 'open',\n            last_modified: '2026-04-20T10:00:00Z',\n            progress: { current: 0, desired: 100 },\n          },\n        ],\n      });\n    });\n\n    when('I request the previous page using the before token', async () => {\n      firstPage = await client.freelanceJobs.getFreelanceJobs('page2_token');\n    });\n\n    then('I should receive the first page of results', () => {\n      expect(firstPage.freelance_jobs).toHaveLength(1);\n      expect(firstPage.freelance_jobs[0].id).toBe('job-001');\n      expect(firstPage.cursor.before).toBeNull();\n    });\n  });\n\n  test('Unauthorized access to character freelance jobs', ({ given, when, then }) => {\n    const characterId = 1689391488;\n    let caughtError: any;\n\n    given('an invalid token for freelance jobs', () => {\n      const forbiddenError = TestDataFactory.createError(403);\n\n      jest\n        .spyOn(client.freelanceJobs, 'getCharacterFreelanceJobs')\n        .mockRejectedValue(forbiddenError);\n    });\n\n    when('I request character freelance jobs with invalid token', async () => {\n      try {\n        await client.freelanceJobs.getCharacterFreelanceJobs(characterId);\n      } catch (error) {\n        caughtError = error;\n      }\n    });\n\n    then('I should receive a 403 forbidden error for freelance jobs', () => {\n      expect(caughtError).toBeInstanceOf(EsiError);\n    });\n  });\n});\n```\n\nWrite both files using the Write tool. Make sure to use the EXACT content above.",
+          "response_text": "\n\nI'll verify the target directories exist, then write both files. Both directories exist. Now I'll write both files in parallel. Both files have been created successfully:\n\n- **Feature file**: `D:/code/ESI.ts/tests/bdd/features/core/freelance-jobs.feature` -- 10 scenarios covering freelance jobs listing, detail retrieval, character/corporation jobs, pagination (forward and backward), error handling (404 and 403).\n\n- **Steps file**: `D:/code/ESI.ts/tests/bdd/step-definitions/core/freelance-jobs.steps.ts` -- jest-cucumber step definitions with mocked `EsiClient` methods for all 10 scenarios, using `TestDataFactory.createError` for error cases and `jest.spyOn` for mocking.",
+          "alignment": 0.7026
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+    "source_file": "data/D--code-ESI-ts__agent-a16f35a8cd24e934d.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

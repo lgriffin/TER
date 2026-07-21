@@ -1,0 +1,762 @@
+{
+  "session_id": "994b69e8-ce8d-4eb4-8133-d1bb963cd5f9",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 3744,
+  "aligned_tokens": 3744,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6355,
+    "token_weighted_confidence": 0.6412,
+    "low_confidence_tokens": 3558,
+    "low_confidence_share": 0.9503,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 21,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "waste_patterns": [
+    {
+      "type": "bash_antipattern",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 2,
+      "tokens_wasted": 9307,
+      "description": "2 Bash calls should use dedicated tools (9,307 tokens)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.8961880803108215,
+      "intent_similarity": 0.8961880803108215,
+      "tokens": 38,
+      "text": "The user wants me to find documentation about course structure from the tutors-sdk reference manual. Let me start by querying the GitHub API for the repository structure and then find the specific content about courses.",
+      "source_message_uuid": "5f6bd43f-3d10-4872-98d6-b03b9dd840cc",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.8962,
+          "repetition_score": 0.0,
+          "confidence": 0.8962
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.809670090675354,
+      "intent_similarity": 0.809670090675354,
+      "tokens": 23,
+      "text": "I'll start by querying the GitHub API for the reference manual repo structure and looking for the specific course documentation content.",
+      "source_message_uuid": "5f6bd43f-3d10-4872-98d6-b03b9dd840cc",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.8097,
+          "repetition_score": 0.0,
+          "confidence": 0.8097
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6066388487815857,
+      "intent_similarity": 0.6066388487815857,
+      "tokens": 35,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents 2>&1\",\"description\":\"List root contents of tutors-reference-manual repo\"}",
+      "source_message_uuid": "5f6bd43f-3d10-4872-98d6-b03b9dd840cc",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6066,
+          "repetition_score": 0.0,
+          "confidence": 0.6066
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.520728349685669,
+      "tokens": 44,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/git/trees/main?recursive=1 2>&1 | head -500\",\"description\":\"Get full recursive directory tree of the repo\"}",
+      "source_message_uuid": "5f6bd43f-3d10-4872-98d6-b03b9dd840cc",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5207,
+          "repetition_score": 0.5744,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7709,
+          "lexical_similarity": 0.3913,
+          "entity_similarity": 0.2381,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents 2>&1\",\"description\":\"List root contents of tutors-reference-manual repo\"}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.6178540587425232,
+      "intent_similarity": 0.6178540587425232,
+      "tokens": 77,
+      "text": "I found the repo structure. Now let me fetch the key files:\n\n1. The main note about courses: `unit-1-getting-started/note-c-courses/note.md`\n2. The course-level files: `course.md`, `properties.yaml`\n3. Also useful: the other notes in unit-1 for context\n\nLet me fetch the critical files now.",
+      "source_message_uuid": "09a32680-bfbf-4de4-b82e-bd9b201334f1",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6179,
+          "repetition_score": 0.3704,
+          "confidence": 0.6179,
+          "semantic_similarity": 0.5847,
+          "lexical_similarity": 0.0909,
+          "entity_similarity": 0.1591,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8409
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "The user wants me to find documentation about course structure from the tutors-sdk reference manual. Let me start by querying the GitHub API for the repository structure and then find the specific content about courses."
+      }
+    },
+    {
+      "position": 5,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.656231701374054,
+      "intent_similarity": 0.656231701374054,
+      "tokens": 34,
+      "text": "I found the repo structure. Now let me fetch the key content files -- the note about courses, plus supplementary course-level files and the other notes in unit-1.",
+      "source_message_uuid": "09a32680-bfbf-4de4-b82e-bd9b201334f1",
+      "source_lines": [
+        10
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6562,
+          "repetition_score": 0.4273,
+          "confidence": 0.6562,
+          "semantic_similarity": 0.6643,
+          "lexical_similarity": 0.1053,
+          "entity_similarity": 0.1935,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8065
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 1,
+        "matched_prior_text": "I'll start by querying the GitHub API for the reference manual repo structure and looking for the specific course documentation content."
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5101253390312195,
+      "tokens": 63,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents/unit-1-getting-started/note-c-courses/note.md -H \\\"Accept: application/vnd.github.raw+json\\\" 2>&1\",\"description\":\"Fetch note-c-courses/note.md raw content\"}",
+      "source_message_uuid": "09a32680-bfbf-4de4-b82e-bd9b201334f1",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5101,
+          "repetition_score": 0.5878,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8461,
+          "lexical_similarity": 0.3043,
+          "entity_similarity": 0.2,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents 2>&1\",\"description\":\"List root contents of tutors-reference-manual repo\"}"
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5396665334701538,
+      "tokens": 45,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents/course.md -H \\\"Accept: application/vnd.github.raw+json\\\" 2>&1\",\"description\":\"Fetch course.md raw content\"}",
+      "source_message_uuid": "09a32680-bfbf-4de4-b82e-bd9b201334f1",
+      "source_lines": [
+        13
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5397,
+          "repetition_score": 0.7251,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9614,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents/unit-1-getting-started/note-c-courses/note.md -H \\\"Accept: application/vnd.github.raw+json\\\" 2>&1\",\"description\":\"Fetch note-c-courses/note.md raw content\"}"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4843408167362213,
+      "tokens": 46,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents/properties.yaml -H \\\"Accept: application/vnd.github.raw+json\\\" 2>&1\",\"description\":\"Fetch properties.yaml raw content\"}",
+      "source_message_uuid": "09a32680-bfbf-4de4-b82e-bd9b201334f1",
+      "source_lines": [
+        15
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4843,
+          "repetition_score": 0.7085,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9253,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.6667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents/course.md -H \\\"Accept: application/vnd.github.raw+json\\\" 2>&1\",\"description\":\"Fetch course.md raw content\"}"
+      }
+    },
+    {
+      "position": 9,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4591616690158844,
+      "tokens": 63,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents/unit-1-getting-started/note-b-cards/note.md -H \\\"Accept: application/vnd.github.raw+json\\\" 2>&1\",\"description\":\"Fetch note-b-cards/note.md raw content\"}",
+      "source_message_uuid": "09a32680-bfbf-4de4-b82e-bd9b201334f1",
+      "source_lines": [
+        17
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4592,
+          "repetition_score": 0.7289,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9721,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents/unit-1-getting-started/note-c-courses/note.md -H \\\"Accept: application/vnd.github.raw+json\\\" 2>&1\",\"description\":\"Fetch note-c-courses/note.md raw content\"}"
+      }
+    },
+    {
+      "position": 10,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4598599374294281,
+      "tokens": 67,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents/unit-1-getting-started/note-a-getting-started/note.md -H \\\"Accept: application/vnd.github.raw+json\\\" 2>&1\",\"description\":\"Fetch note-a-getting-started/note.md raw content\"}",
+      "source_message_uuid": "09a32680-bfbf-4de4-b82e-bd9b201334f1",
+      "source_lines": [
+        19
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4599,
+          "repetition_score": 0.7339,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9864,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents/unit-1-getting-started/note-c-courses/note.md -H \\\"Accept: application/vnd.github.raw+json\\\" 2>&1\",\"description\":\"Fetch note-c-courses/note.md raw content\"}"
+      }
+    },
+    {
+      "position": 11,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4685366153717041,
+      "tokens": 61,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents/unit-1-getting-started/note-d-properties/note.md -H \\\"Accept: application/vnd.github.raw+json\\\" 2>&1\",\"description\":\"Fetch note-d-properties/note.md raw content\"}",
+      "source_message_uuid": "09a32680-bfbf-4de4-b82e-bd9b201334f1",
+      "source_lines": [
+        21
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4685,
+          "repetition_score": 0.7359,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9921,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 10,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents/unit-1-getting-started/note-a-getting-started/note.md -H \\\"Accept: application/vnd.github.raw+json\\\" 2>&1\",\"description\":\"Fetch note-a-getting-started/note.md raw con"
+      }
+    },
+    {
+      "position": 12,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5160921216011047,
+      "tokens": 46,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents/README.md -H \\\"Accept: application/vnd.github.raw+json\\\" 2>&1\",\"description\":\"Fetch README.md raw content\"}",
+      "source_message_uuid": "09a32680-bfbf-4de4-b82e-bd9b201334f1",
+      "source_lines": [
+        22
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5161,
+          "repetition_score": 0.7252,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9619,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents/course.md -H \\\"Accept: application/vnd.github.raw+json\\\" 2>&1\",\"description\":\"Fetch course.md raw content\"}"
+      }
+    },
+    {
+      "position": 13,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.7499396800994873,
+      "intent_similarity": 0.7499396800994873,
+      "tokens": 44,
+      "text": "Now let me also get the note about resources from unit-2 which has more details about the folder structure, and let me also look at the tutors-reference-course repo to get a concrete example of a real course structure.",
+      "source_message_uuid": "2b896a5d-1973-4ddc-a7dc-9deaba71e34d",
+      "source_lines": [
+        25
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.7499,
+          "repetition_score": 0.4515,
+          "confidence": 0.7499,
+          "semantic_similarity": 0.6859,
+          "lexical_similarity": 0.1875,
+          "entity_similarity": 0.2195,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.7805
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "The user wants me to find documentation about course structure from the tutors-sdk reference manual. Let me start by querying the GitHub API for the repository structure and then find the specific content about courses."
+      }
+    },
+    {
+      "position": 14,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.7026106119155884,
+      "intent_similarity": 0.7026106119155884,
+      "tokens": 47,
+      "text": "Excellent -- I have all four unit-1 notes and the root course files. Let me also fetch the unit-2 resources note (which has detailed learning resource folder specs) and examine the tutors-reference-course repo for a concrete example.",
+      "source_message_uuid": "2b896a5d-1973-4ddc-a7dc-9deaba71e34d",
+      "source_lines": [
+        26
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.7026,
+          "repetition_score": 0.4762,
+          "confidence": 0.7026,
+          "semantic_similarity": 0.7162,
+          "lexical_similarity": 0.1915,
+          "entity_similarity": 0.2439,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.7561
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 5,
+        "matched_prior_text": "I found the repo structure. Now let me fetch the key content files -- the note about courses, plus supplementary course-level files and the other notes in unit-1."
+      }
+    },
+    {
+      "position": 15,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.47222834825515747,
+      "tokens": 63,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents/unit-2-panels-and-videos/note-a-resources/note.md -H \\\"Accept: application/vnd.github.raw+json\\\" 2>&1\",\"description\":\"Fetch unit-2 note-a-resources/note.md\"}",
+      "source_message_uuid": "2b896a5d-1973-4ddc-a7dc-9deaba71e34d",
+      "source_lines": [
+        27
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4722,
+          "repetition_score": 0.6971,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9713,
+          "lexical_similarity": 0.6316,
+          "entity_similarity": 0.5333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 10,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/contents/unit-1-getting-started/note-a-getting-started/note.md -H \\\"Accept: application/vnd.github.raw+json\\\" 2>&1\",\"description\":\"Fetch note-a-getting-started/note.md raw con"
+      }
+    },
+    {
+      "position": 16,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.38037872314453125,
+      "tokens": 125,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-course/git/trees/main?recursive=1 2>&1 | python3 -c \\\"import sys,json; data=json.load(sys.stdin); [print(t['path']) for t in data['tree'] if t['type']=='tree' or t['path'].endswith('.md') or t['path'].endswith('.yaml') or t['path'].endswith('.png') or t['path'].endswith('.json')]\\\" 2>&1 | head -200\",\"description\":\"Get reference-course repo tree filtered to key files\"}",
+      "source_message_uuid": "2b896a5d-1973-4ddc-a7dc-9deaba71e34d",
+      "source_lines": [
+        29
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3804,
+          "repetition_score": 0.5632,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7767,
+          "lexical_similarity": 0.2667,
+          "entity_similarity": 0.2571,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-manual/git/trees/main?recursive=1 2>&1 | head -500\",\"description\":\"Get full recursive directory tree of the repo\"}"
+      }
+    },
+    {
+      "position": 17,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5219179391860962,
+      "intent_similarity": 0.5219179391860962,
+      "tokens": 11,
+      "text": "Let me get the rest of the reference course tree.",
+      "source_message_uuid": "720ca0d8-48b1-485c-b7ea-4b77dbdb9bed",
+      "source_lines": [
+        31
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5219,
+          "repetition_score": 0.3798,
+          "confidence": 0.5219,
+          "semantic_similarity": 0.5828,
+          "lexical_similarity": 0.1818,
+          "entity_similarity": 0.1852,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8148
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 13,
+        "matched_prior_text": "Now let me also get the note about resources from unit-2 which has more details about the folder structure, and let me also look at the tutors-reference-course repo to get a concrete example of a real course structure."
+      }
+    },
+    {
+      "position": 18,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5377399325370789,
+      "intent_similarity": 0.5377399325370789,
+      "tokens": 11,
+      "text": "Let me get the rest of the reference-course tree.",
+      "source_message_uuid": "720ca0d8-48b1-485c-b7ea-4b77dbdb9bed",
+      "source_lines": [
+        32
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5377,
+          "repetition_score": 0.3324,
+          "confidence": 0.5377,
+          "semantic_similarity": 0.5346,
+          "lexical_similarity": 0.0789,
+          "entity_similarity": 0.1212,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8788
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 14,
+        "matched_prior_text": "Excellent -- I have all four unit-1 notes and the root course files. Let me also fetch the unit-2 resources note (which has detailed learning resource folder specs) and examine the tutors-reference-course repo for a concrete example."
+      }
+    },
+    {
+      "position": 19,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.38037872314453125,
+      "tokens": 108,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-course/git/trees/main?recursive=1 2>&1 | python3 -c \\\"import sys,json; data=json.load(sys.stdin); [print(t['path']) for t in data['tree'] if t['type']=='tree' or t['path'].endswith('.md') or t['path'].endswith('.yaml') or t['path'].endswith('.json')]\\\" 2>&1\",\"description\":\"Get complete reference-course directory tree\"}",
+      "source_message_uuid": "720ca0d8-48b1-485c-b7ea-4b77dbdb9bed",
+      "source_lines": [
+        33
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3804,
+          "repetition_score": 0.7365,
+          "confidence": 0.6,
+          "semantic_similarity": 1.0,
+          "lexical_similarity": 0.7561,
+          "entity_similarity": 0.7188,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 16,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-course/git/trees/main?recursive=1 2>&1 | python3 -c \\\"import sys,json; data=json.load(sys.stdin); [print(t['path']) for t in data['tree'] if t['type']=='tree' or t['path'].endswith('"
+      }
+    },
+    {
+      "position": 20,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6463416218757629,
+      "intent_similarity": 0.6463416218757629,
+      "tokens": 2693,
+      "text": "Now I have all the information needed. Here is a comprehensive report.\n\n---\n\n## Full Content of note-c-courses (Course Structure Documentation)\n\n**Source**: `https://github.com/tutors-sdk/tutors-reference-manual/blob/main/unit-1-getting-started/note-c-courses/note.md`\n\nThe note's complete markdown content is as follows:\n\n```markdown\n# Course Structure\n\nA Tutors course is a folder of learning resources, named according to the conventions described in this manual.\n```\n\n### Minimum Required Files\n\nA course folder must contain exactly three files at the root:\n\n| File name        | Purpose                                         |\n|------------------|-------------------------------------------------|\n| `course.md`      | Course title + general course information       |\n| `course.png`     | Course image                                    |\n| `properties.yaml`| Course properties                               |\n\n### course.md format\n\n```markdown\nCourse Title\n\nCourse information - a course outline, description or any other information.\n```\n\n### properties.yaml minimum\n\n```yaml\ncredits: The course author(s) or organisation\n```\n\nThe `credits` value appears as a subtitle in the course title bar. There are many other optional properties (see note-d-properties below).\n\n---\n\n### Topic (folder prefix: `topic-*`)\n\nTop-level learning resource for a course. Typically encapsulates a session or week of material.\n\n**Two files required** inside a topic folder:\n\n| File        | Purpose                                                                 |\n|-------------|-------------------------------------------------------------------------|\n| `topic.md`  | Title + summary. Any filename is allowed, but must be `.md`             |\n| `topic.png` | Image for topic card. Filename must match the `.md` file. Can be `.png`, `.jpg`, or `.jpeg` |\n\n**topic.md format**:\n```markdown\nSimple\n\nUnits with presentations, labs + resources\n```\nFirst line = title, second line = subtitle.\n\n---\n\n### Unit (folder prefix: `unit-*`)\n\nGroups learning resources under a title. Can appear inside topics or directly in the course root.\n\n**One file required**:\n\n| File      | Purpose                                              |\n|-----------|------------------------------------------------------|\n| `unit.md` | Title for the unit. Any name allowed, must be `.md`  |\n\n**unit.md format**:\n```markdown\nMain Lesson\n```\n\n---\n\n### Side (folder prefix: `side-*`)\n\nEquivalent to a Unit but rendered in a sidebar.\n\n**One file required**:\n\n| File      | Purpose                                                     |\n|-----------|-------------------------------------------------------------|\n| `side.md` | Title for the sidebar. Any name allowed, must be `.md`      |\n\n---\n\n### Learning Resources (placed inside unit/side/topic folders)\n\nFolder names encode the resource type via their prefix. All resource types:\n\n| Folder prefix   | Type                                                |\n|-----------------|-----------------------------------------------------|\n| `topic-*`       | Top-level course topic                              |\n| `unit-*`        | Group of learning objects within a topic             |\n| `side-*`        | Group of learning objects in a sidebar               |\n| `talk-*`        | PDF presentation                                    |\n| `book-*`        | Step-by-step lab (markdown) or PDF exercises         |\n| `note-*`        | Single web page in markdown                         |\n| `tutorial-*`    | Single web page in markdown (different category)     |\n| `web-*`         | Link to an external website                         |\n| `archive-*`     | Downloadable zip file                               |\n| `github-*`      | Link to a GitHub repo                               |\n| `panelvideo-*`  | Full-width embedded video                           |\n| `paneltalk-*`   | Full-width embedded PDF                             |\n| `panelnote-*`   | Full-width embedded markdown note                   |\n| `podcast-*`     | Podcast episode (Spotify)                           |\n\n**Naming rules**: No spaces in file/folder names. Append numerals for sort ordering and keywords for meaning (e.g., `topic-01-introduction`, `talk-2-explore`).\n\n**Each resource folder** typically contains:\n- `<name>.md` -- title + short summary\n- `<name>.png` (or `.jpg`/`.jpeg`/`.gif`) -- card image, filename must match the `.md` file\n- Resource-specific files (e.g., `.pdf` for talks, `weburl` for web links, `githubid` for GitHub links, `videoid` for videos, `episode` for podcasts)\n\n**Reserved filenames** at course root:\n\n| File              | Description                    |\n|-------------------|--------------------------------|\n| `course.md`       | Title for course (mandatory)   |\n| `properties.yaml` | Course properties (mandatory)  |\n| `course.png`      | Course image                   |\n| `calendar.yaml`   | Course calendar                |\n| `enrollment.yaml` | Student enrollment file        |\n| `weburl`          | Link to external web site      |\n| `videoid`         | ID of external video           |\n| `githubid`        | Link to GitHub repo            |\n\n---\n\n### properties.yaml Full Options\n\nKey optional properties include:\n- `credits` -- course author/org (mandatory)\n- `icon` -- SVG icon (alternative to `course.png`), with `type` and `color`\n- `parent` -- link to a parent course\n- `slack`, `moodle`, `youtube`, `zoom`, `teams` -- companion site links\n- `github` -- enables \"Edit this page\" button\n- `ignorepin` -- PIN for instructor-only topic access\n- `ignore` -- list of topic folder names to hide\n- `hideVideos` -- globally hide all videos\n- `auth` -- enable authentication (value `1`)\n- `portfolio` -- portfolio mode, no topics (value `true`)\n- `labStepsAutoNumber` -- auto-number lab steps (value `true`)\n- `private` -- exclude from gallery/catalogue (value `1`)\n- `defaultPdfReader` -- `mozilla` or `adobe`\n- `pdfOrientation` -- `portrait` for A4 documents\n- `llm` -- LLM support level (`0`, `1`, or `2`)\n- `companions` -- custom companion icons with link/title/icon\n\n---\n\n## Directory Tree of the Reference Manual Repo\n\n(`tutors-sdk/tutors-reference-manual`, branch `main`)\n\n```\n.\n+-- .github/workflows/publish-html.yml\n+-- .gitignore\n+-- LICENSE\n+-- README.md\n+-- course.md                              (\"Tutors Reference Manual\")\n+-- course.png\n+-- package-lock.json\n+-- properties.yaml\n+-- tutors-light.png\n+-- unit-1.zip\n+-- side/\n|   +-- topic.md\n|   +-- podcast/\n|   |   +-- podcast.md\n|   |   +-- episode\n|   +-- web-0-starter-course/\n|   |   +-- web.md, web.png, weburl\n|   +-- web-1-layout-example/\n|   |   +-- web.md, web.png, weburl\n|   +-- web-2-reference/\n|   |   +-- web.md, web.png, weburl\n|   +-- web/\n|       +-- notebook.md, weburl\n+-- unit-1-getting-started/\n|   +-- topic.md\n|   +-- note-a-getting-started/\n|   |   +-- note.md\n|   |   +-- img/ (netlify-1.png, netlify-2.png, netlify-3.png, netlify-3 copy.png)\n|   +-- note-b-cards/\n|   |   +-- note.md\n|   +-- note-c-courses/\n|   |   +-- note.md                        <-- THE KEY FILE\n|   +-- note-d-properties/\n|       +-- note.md\n+-- unit-2-panels-and-videos/\n|   +-- topic.md\n|   +-- note-a-resources/\n|   |   +-- note.md\n|   |   +-- img/ (12 images)\n|   +-- note-b-panels/\n|   |   +-- note.md\n|   +-- note-c-videos/\n|   |   +-- note.md\n|   |   +-- img/ (6 files including video.mov)\n|   +-- note-d-icons/\n|       +-- note.md\n+-- unit-3-advanced/\n|   +-- topic.md\n|   +-- note-a-latex/\n|   |   +-- note.md\n|   +-- note-b-ordering/\n|   |   +-- note.md\n|   +-- note-c-tutors-lite/\n|   |   +-- note.md, note.png\n|   |   +-- img/ (gh-pages.png, workflow-1/2/3.png)\n|   +-- note-e-time/\n|       +-- fundamentals.md\n+-- unit-4-dev/\n    +-- topic.md\n    +-- note-e-values/\n    |   +-- fundamentals.md\n    +-- web-a-source/\n    |   +-- web.md, web.png, weburl\n    +-- web-b-workshop/\n    |   +-- web.md, web.png, weburl\n    +-- web-c-live/\n    |   +-- web.md, web.png, weburl\n    +-- web-d-gallery/\n        +-- web.md, web.png, weburl\n```\n\n## Directory Tree of the Reference Course (Example)\n\n(`tutors-sdk/tutors-reference-course`, branch `main`) -- a concrete example of every feature:\n\n```\n.\n+-- course.md\n+-- course.png\n+-- properties.yaml\n+-- vercel.json\n+-- topic-01-typical/\n|   +-- typical.md, typical.png\n|   +-- unit-1/\n|   |   +-- main-lesson.md\n|   |   +-- book-a/          (lab with steps 00-08, img/, archives/)\n|   |   +-- talk-1-intro/    (introduction.md, introduction.png)\n|   |   +-- talk-2-explore/  (explore.md, explore.png)\n|   +-- unit-2/\n|       +-- supporting-resources.md\n|       +-- archive/         (archive.md, archive.png)\n|       +-- note-1/          (note.md, note.png, img/, archives/)\n|       +-- tutorial-1/      (problem-sheet-1.md, problem-sheet-1.png)\n|       +-- web-1/           (tutors-web-site.md, tutors-web-site.png)\n+-- topic-02-side/\n|   +-- topic.md, topic.png\n|   +-- unit-1/              (talks, web link)\n|   +-- unit-2/              (archive, note, web link)\n|   +-- side-unit/           (book-a, book-b, book-c, topic-labs.md)\n+-- topic-03-media/\n|   +-- topic.md, topic.png\n|   +-- panelvideo-1/        (video-main.md + videoid)\n|   +-- unit-1/              (book-a, talk-1, talk-2, talk-3)\n|   +-- unit-2-heanet/       (panelvideo with HEANet)\n+-- topic-04-panel-note/\n|   +-- topic.md, topic.png\n|   +-- panelnote/           (note.md, note.png, img/, archives/)\n+-- topic-05-panel-talk/\n|   +-- topic.md, topic.png\n|   +-- paneltalk/           (talk.md, talk.png, talk.pdf)\n+-- topic-07-reference/\n|   +-- topic.md\n|   +-- archive/, book-a/, github-1-template-1/\n|   +-- note-1/, note-2/, talk-1/, tutorial-1/, tutorial-2/, web-1/\n+-- topic-08-ordering/       (demonstrates custom ordering via frontmatter)\n+-- topic-09-podcasts/       (podcast episodes via Spotify)\n+-- topic-09-svg/            (SVG icon-based cards instead of images)\n+-- topic-10-hidden/         (hidden topic example)\n```\n\n### The reference manual's own properties.yaml:\n\n```yaml\nslack: https://tutors-ts-group.slack.com/\ncredits: The Tutors Team, SETU, Ireland\nportfolio : false\ngithub: https://github.com/tutors-sdk/tutors-reference-manual/blob/main\nparent: #\nllm: 2\n```\n\n### The reference manual's own course.md:\n\n```\nTutors Reference Manual\n\nA reference manual for tutors course creators.\n```\n\nThis demonstrates the exact two-line format: line 1 = title, line 2+ = description.",
+      "source_message_uuid": "d86c6543-7e7e-41b1-a5a4-485fcdeb4299",
+      "source_lines": [
+        35
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6463,
+          "repetition_score": 0.4001,
+          "confidence": 0.6463,
+          "semantic_similarity": 0.6732,
+          "lexical_similarity": 0.033,
+          "entity_similarity": 0.0578,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9422
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 14,
+        "matched_prior_text": "Excellent -- I have all four unit-1 notes and the root course files. Let me also fetch the unit-2 resources note (which has detailed learning resource folder specs) and examine the tutors-reference-course repo for a concrete example."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "bash_antipattern",
+        "tokens_wasted": 9307,
+        "description": "2 Bash calls should use dedicated tools (9,307 tokens)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Bash Anti-Patterns",
+        "tokens": 9307,
+        "percentage": 100.0,
+        "cost_usd": 0.027921,
+        "count": 1,
+        "pricing": "input"
+      }
+    ],
+    "total_tokens": 9307,
+    "total_cost_usd": 0.027921
+  },
+  "economics": {
+    "total_input_tokens": 7,
+    "total_output_tokens": 3191,
+    "total_cache_creation_tokens": 62942,
+    "total_cache_read_tokens": 163413,
+    "input_output_ratio": 0.0,
+    "cache_hit_rate": 1.0,
+    "estimated_cost_usd": 0.3329,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 7,
+      "mid_span_count": 7,
+      "late_span_count": 7
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        19321,
+        37827,
+        47593,
+        58676
+      ],
+      "growth_rate": 3.04,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 221,
+      "user_result_tokens": 34196,
+      "model_reasoning_tokens": 170,
+      "model_tool_tokens": 766,
+      "model_generation_tokens": 2808,
+      "total_user_tokens": 34417,
+      "total_model_tokens": 3744,
+      "user_ratio": 0.9019
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.8644,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "I need to find the tutors-sdk reference manual's documentation about how courses are structured. The page at https://tutors.dev/note/tutors-reference-manual/unit-1-getting-started/note-c-courses describes course folder structure but it's a client-rendered SPA.\n\nThe source content is likely in a GitHub repo. Search for it:\n\n1. Try `gh api repos/tutors-sdk/tutors-reference-manual/contents` to find the folder structure of the reference manual repo\n2. Look specifically for content about \"courses\" in unit-1-getting-started, especially a note called \"note-c-courses\"\n3. Read the markdown content of that note \u2014 it should describe the required folder structure, naming conventions, and file requirements for creating a tutors course\n4. Also look at the actual folder structure of the reference manual repo itself as an example of a real course\n\nReport the full content of the note about courses, plus the directory tree of the reference manual repo. Be thorough \u2014 I need every detail about what files are required and how they should be named.",
+          "response_text": "I'll start by querying the GitHub API for the reference manual repo structure and looking for the specific course documentation content. I found the repo structure. Now let me fetch the key content files -- the note about courses, plus supplementary course-level files and the other notes in unit-1. Excellent -- I have all four unit-1 notes and the root course files. Let me also fetch the unit-2 resources note (which has detailed learning resource folder specs) and examine the tutors-reference-course repo for a concrete example. Let me get the rest of the reference-course tree. Now I have all the information needed. Here is a comprehensive report.\n\n---\n\n## Full Content of note-c-courses (Course Structure Documentation)\n\n**Source**: `https://github.com/tutors-sdk/tutors-reference-manual/blob/main/unit-1-getting-started/note-c-courses/note.md`\n\nThe note's complete markdown content is as follows:\n\n```markdown\n# Course Structure\n\nA Tutors course is a folder of learning resources, named according to the conventions described in this manual.\n```\n\n### Minimum Required Files\n\nA course folder must contain exactly three files at the root:\n\n| File name        | Purpose                                         |\n|------------------|-------------------------------------------------|\n| `course.md`      | Course title + general course information       |\n| `course.png`     | Course image                                    |\n| `properties.yaml`| Course properties                               |\n\n### course.md format\n\n```markdown\nCourse Title\n\nCourse information - a course outline, description or any other information.\n```\n\n### properties.yaml minimum\n\n```yaml\ncredits: The course author(s) or organisation\n```\n\nThe `credits` value appears as a subtitle in the course title bar. There are many other optional properties (see note-d-properties below).\n\n---\n\n### Topic (folder prefix: `topic-*`)\n\nTop-level learning resource for a course. Typically encapsulates a session or week of material.\n\n**Two files required** inside a topic folder:\n\n| File        | Purpose                                                                 |\n|-------------|-------------------------------------------------------------------------|\n| `topic.md`  | Title + summary. Any filename is allowed, but must be `.md`             |\n| `topic.png` | Image for topic card. Filename must match the `.md` file. Can be `.png`, `.jpg`, or `.jpeg` |\n\n**topic.md format**:\n```markdown\nSimple\n\nUnits with presentations, labs + resources\n```\nFirst line = title, second line = subtitle.\n\n---\n\n### Unit (folder prefix: `unit-*`)\n\nGroups learning resources under a title. Can appear inside topics or directly in the course root.\n\n**One file required**:\n\n| File      | Purpose                                              |\n|-----------|------------------------------------------------------|\n| `unit.md` | Title for the unit. Any name allowed, must be `.md`  |\n\n**unit.md format**:\n```markdown\nMain Lesson\n```\n\n---\n\n### Side (folder prefix: `side-*`)\n\nEquivalent to a Unit but rendered in a sidebar.\n\n**One file required**:\n\n| File      | Purpose                                                     |\n|-----------|-------------------------------------------------------------|\n| `side.md` | Title for the sidebar. Any name allowed, must be `.md`      |\n\n---\n\n### Learning Resources (placed inside unit/side/topic folders)\n\nFolder names encode the resource type via their prefix. All resource types:\n\n| Folder prefix   | Type                                                |\n|-----------------|-----------------------------------------------------|\n| `topic-*`       | Top-level course topic                              |\n| `unit-*`        | Group of learning objects within a topic             |\n| `side-*`        | Group of learning objects in a sidebar               |\n| `talk-*`        | PDF presentation                                    |\n| `book-*`        | Step-by-step lab (markdown) or PDF exercises         |\n| `note-*`        | Single web page in markdown                         |\n| `tutorial-*`    | Single web page in markdown (different category)     |\n| `web-*`         | Link to an external website                         |\n| `archive-*`     | Downloadable zip file                               |\n| `github-*`      | Link to a GitHub repo                               |\n| `panelvideo-*`  | Full-width embedded video                           |\n| `paneltalk-*`   | Full-width embedded PDF                             |\n| `panelnote-*`   | Full-width embedded markdown note                   |\n| `podcast-*`     | Podcast episode (Spotify)                           |\n\n**Naming rules**: No spaces in file/folder names. Append numerals for sort ordering and keywords for meaning (e.g., `topic-01-introduction`, `talk-2-explore`).\n\n**Each resource folder** typically contains:\n- `<name>.md` -- title + short summary\n- `<name>.png` (or `.jpg`/`.jpeg`/`.gif`) -- card image, filename must match the `.md` file\n- Resource-specific files (e.g., `.pdf` for talks, `weburl` for web links, `githubid` for GitHub links, `videoid` for videos, `episode` for podcasts)\n\n**Reserved filenames** at course root:\n\n| File              | Description                    |\n|-------------------|--------------------------------|\n| `course.md`       | Title for course (mandatory)   |\n| `properties.yaml` | Course properties (mandatory)  |\n| `course.png`      | Course image                   |\n| `calendar.yaml`   | Course calendar                |\n| `enrollment.yaml` | Student enrollment file        |\n| `weburl`          | Link to external web site      |\n| `videoid`         | ID of external video           |\n| `githubid`        | Link to GitHub repo            |\n\n---\n\n### properties.yaml Full Options\n\nKey optional properties include:\n- `credits` -- course author/org (mandatory)\n- `icon` -- SVG icon (alternative to `course.png`), with `type` and `color`\n- `parent` -- link to a parent course\n- `slack`, `moodle`, `youtube`, `zoom`, `teams` -- companion site links\n- `github` -- enables \"Edit this page\" button\n- `ignorepin` -- PIN for instructor-only topic access\n- `ignore` -- list of topic folder names to hide\n- `hideVideos` -- globally hide all videos\n- `auth` -- enable authentication (value `1`)\n- `portfolio` -- portfolio mode, no topics (value `true`)\n- `labStepsAutoNumber` -- auto-number lab steps (value `true`)\n- `private` -- exclude from gallery/catalogue (value `1`)\n- `defaultPdfReader` -- `mozilla` or `adobe`\n- `pdfOrientation` -- `portrait` for A4 documents\n- `llm` -- LLM support level (`0`, `1`, or `2`)\n- `companions` -- custom companion icons with link/title/icon\n\n---\n\n## Directory Tree of the Reference Manual Repo\n\n(`tutors-sdk/tutors-reference-manual`, branch `main`)\n\n```\n.\n+-- .github/workflows/publish-html.yml\n+-- .gitignore\n+-- LICENSE\n+-- README.md\n+-- course.md                              (\"Tutors Reference Manual\")\n+-- course.png\n+-- package-lock.json\n+-- properties.yaml\n+-- tutors-light.png\n+-- unit-1.zip\n+-- side/\n|   +-- topic.md\n|   +-- podcast/\n|   |   +-- podcast.md\n|   |   +-- episode\n|   +-- web-0-starter-course/\n|   |   +-- web.md, web.png, weburl\n|   +-- web-1-layout-example/\n|   |   +-- web.md, web.png, weburl\n|   +-- web-2-reference/\n|   |   +-- web.md, web.png, weburl\n|   +-- web/\n|       +-- notebook.md, weburl\n+-- unit-1-getting-started/\n|   +-- topic.md\n|   +-- note-a-getting-started/\n|   |   +-- note.md\n|   |   +-- img/ (netlify-1.png, netlify-2.png, netlify-3.png, netlify-3 copy.png)\n|   +-- note-b-cards/\n|   |   +-- note.md\n|   +-- note-c-courses/\n|   |   +-- note.md                        <-- THE KEY FILE\n|   +-- note-d-properties/\n|       +-- note.md\n+-- unit-2-panels-and-videos/\n|   +-- topic.md\n|   +-- note-a-resources/\n|   |   +-- note.md\n|   |   +-- img/ (12 images)\n|   +-- note-b-panels/\n|   |   +-- note.md\n|   +-- note-c-videos/\n|   |   +-- note.md\n|   |   +-- img/ (6 files including video.mov)\n|   +-- note-d-icons/\n|       +-- note.md\n+-- unit-3-advanced/\n|   +-- topic.md\n|   +-- note-a-latex/\n|   |   +-- note.md\n|   +-- note-b-ordering/\n|   |   +-- note.md\n|   +-- note-c-tutors-lite/\n|   |   +-- note.md, note.png\n|   |   +-- img/ (gh-pages.png, workflow-1/2/3.png)\n|   +-- note-e-time/\n|       +-- fundamentals.md\n+-- unit-4-dev/\n    +-- topic.md\n    +-- note-e-values/\n    |   +-- fundamentals.md\n    +-- web-a-source/\n    |   +-- web.md, web.png, weburl\n    +-- web-b-workshop/\n    |   +-- web.md, web.png, weburl\n    +-- web-c-live/\n    |   +-- web.md, web.png, weburl\n    +-- web-d-gallery/\n        +-- web.md, web.png, weburl\n```\n\n## Directory Tree of the Reference Course (Example)\n\n(`tutors-sdk/tutors-reference-course`, branch `main`) -- a concrete example of every feature:\n\n```\n.\n+-- course.md\n+-- course.png\n+-- properties.yaml\n+-- vercel.json\n+-- topic-01-typical/\n|   +-- typical.md, typical.png\n|   +-- unit-1/\n|   |   +-- main-lesson.md\n|   |   +-- book-a/          (lab with steps 00-08, img/, archives/)\n|   |   +-- talk-1-intro/    (introduction.md, introduction.png)\n|   |   +-- talk-2-explore/  (explore.md, explore.png)\n|   +-- unit-2/\n|       +-- supporting-resources.md\n|       +-- archive/         (archive.md, archive.png)\n|       +-- note-1/          (note.md, note.png, img/, archives/)\n|       +-- tutorial-1/      (problem-sheet-1.md, problem-sheet-1.png)\n|       +-- web-1/           (tutors-web-site.md, tutors-web-site.png)\n+-- topic-02-side/\n|   +-- topic.md, topic.png\n|   +-- unit-1/              (talks, web link)\n|   +-- unit-2/              (archive, note, web link)\n|   +-- side-unit/           (book-a, book-b, book-c, topic-labs.md)\n+-- topic-03-media/\n|   +-- topic.md, topic.png\n|   +-- panelvideo-1/        (video-main.md + videoid)\n|   +-- unit-1/              (book-a, talk-1, talk-2, talk-3)\n|   +-- unit-2-heanet/       (panelvideo with HEANet)\n+-- topic-04-panel-note/\n|   +-- topic.md, topic.png\n|   +-- panelnote/           (note.md, note.png, img/, archives/)\n+-- topic-05-panel-talk/\n|   +-- topic.md, topic.png\n|   +-- paneltalk/           (talk.md, talk.png, talk.pdf)\n+-- topic-07-reference/\n|   +-- topic.md\n|   +-- archive/, book-a/, github-1-template-1/\n|   +-- note-1/, note-2/, talk-1/, tutorial-1/, tutorial-2/, web-1/\n+-- topic-08-ordering/       (demonstrates custom ordering via frontmatter)\n+-- topic-09-podcasts/       (podcast episodes via Spotify)\n+-- topic-09-svg/            (SVG icon-based cards instead of images)\n+-- topic-10-hidden/         (hidden topic example)\n```\n\n### The reference manual's own properties.yaml:\n\n```yaml\nslack: https://tutors-ts-group.slack.com/\ncredits: The Tutors Team, SETU, Ireland\nportfolio : false\ngithub: https://github.com/tutors-sdk/tutors-reference-manual/blob/main\nparent: #\nllm: 2\n```\n\n### The reference manual's own course.md:\n\n```\nTutors Reference Manual\n\nA reference manual for tutors course creators.\n```\n\nThis demonstrates the exact two-line format: line 1 = title, line 2+ = description.",
+          "alignment": 0.8644
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "994b69e8-ce8d-4eb4-8133-d1bb963cd5f9",
+    "source_file": "data/D--code-tutors-assistant__agent-ab4915458a9cae77d.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

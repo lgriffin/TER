@@ -1,0 +1,155 @@
+{
+  "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 3721,
+  "aligned_tokens": 3721,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5794,
+    "token_weighted_confidence": 0.6241,
+    "low_confidence_tokens": 812,
+    "low_confidence_share": 0.2182,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 2,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.21125879883766174,
+      "tokens": 812,
+      "text": "Let me analyze the 24 confirmed claims and synthesize them into a coherent research report. I need to:\n\n1. Identify semantic duplicates and merge them\n2. Group related claims into findings\n3. Assign confidence levels\n4. Write an executive summary\n5. Note caveats\n6. List open questions\n\nLet me first identify the duplicates/overlaps:\n\n- Claims 0, 1, 16, 17 are all about Hey API's Zod integration - can be merged into findings about Hey API\n- Claims 2, 3, 4 are about AWS SDK v3 - can be merged\n- Claims 5, 6, 7 are about Octokit types - can be merged\n- Claims 8, 9, 10 are about openapi-fetch - can be merged\n- Claims 11, 12 are about zod-openapi - can be merged\n- Claims 13, 14, 15 are about openapi-zod-ts - can be merged\n- Claims 18, 19 are about openapi-zod-client - can be merged\n- Claims 20, 21 are about ts-morph - can be merged\n- Claims 22, 23 are about Knip - can be merged\n\nNow I'm grouping these into thematic clusters so I can synthesize the findings. I'm also seeing discriminated union patterns for handling varied response types, and now I'm reorganizing these findings into broader categories that map more comprehensively to the research questions\u2014grouping them by the core patterns they demonstrate rather than individual tools. Modern OpenAPI-to-TypeScript generators like Hey API and openapi-zod-client produce both Zod runtime schemas and inferred static types from a single specification, while zod-openapi bridges the gap by connecting Zod schemas to OpenAPI docs through native metadata with compile-time type checking. AWS SDK v3 demonstrates forward-compatible type design using union-undefined members and optional strictness transforms, and discriminated union response patterns enable type-safe error handling at call sites. ts-morph and Knip provide static analysis capabilities beyond ESLint for SDK projects. I'm reconsidering the structure\u2014merging the discriminated union pattern into the string literal indexing finding since they're both about openapi-fetch's approach, and folding zod-openapi into the broader Zod integration story.\n\nNow I'm looking at how multiple tools handle the OpenAPI-to-Zod transformation: Hey API generates layered schemas with granular type inference, openapi-zod-client builds Zodios clients with runtime validation baked in, and zod-openapi bridges the gap through metadata. These all solve the dual-layer type safety problem from a single spec.\n\nAWS SDK v3 takes a different approach with Smithy code generation, using optional undefined on all members for forward compatibility while offering opt-in strictness transforms for stricter type checking when needed.\n\nBeyond schema validation, ts-morph and Knip provide complementary static analysis\u2014ts-morph for programmatic AST manipulation and Knip for detecting unused code across 150+ framework integrations\u2014both fitting into CI pipelines. The real enforcement comes through CI drift detection, where tools like openapi-zod-ts can gate builds against spec mismatches across committed output.\n\nLooking at my research sub-topics, I've got solid coverage on type-safe API patterns, OpenAPI code generation, and static analysis, but I'm missing findings on runtime validation integration, type-level testing, contract testing, dependency injection, and error handling type safety.\n\nLet me reorganize around seven focused findings that map directly to these areas: type-safe API clients with advanced TypeScript features, the OpenAPI-to-TypeScript-to-Zod generation pipeline, forward-compatible SDK design patterns, discriminated unions for type-safe error handling, CI-based contract testing drift detection, static analysis tools beyond ESLint, and Zod-OpenAPI metadata bridging for runtime validation.\n\nActually, I'm overcomplicating this\u2014let me step back and consolidate into the most impactful findings.",
+      "source_message_uuid": "7f806636-97de-49af-86b2-2a09dffe495e",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.2113,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6587969660758972,
+      "intent_similarity": 0.6587969660758972,
+      "tokens": 2909,
+      "text": "StructuredOutput {\"summary\":\"The 2025-2026 state of the art for TypeScript OpenAPI SDK wrappers centers on three converging trends: (1) string literal type indexing and discriminated union responses as the dominant pattern for compile-time route-level type safety, proven at scale by Octokit and openapi-fetch; (2) a maturing ecosystem of OpenAPI-to-Zod code generators (Hey API, openapi-zod-client, openapi-zod-ts, zod-openapi) that produce both runtime validation schemas and inferred static types from a single OpenAPI spec, eliminating the historical gap between compile-time and runtime type safety; (3) complementary static analysis tooling beyond ESLint -- ts-morph for programmatic AST checks and Knip for dead-export/dependency detection -- integrated into CI to enforce invariants at the project level. AWS SDK v3 demonstrates the leading pattern for forward-compatible SDK types: loose-by-default with opt-in strictness transforms via @smithy/types. CI-driven drift detection (comparing generated output against committed baselines) has emerged as the practical mechanism for contract testing at the type level.\",\"findings\":[{\"claim\":\"Leading TypeScript SDKs use string literal types as indexed lookup keys into generated interfaces for compile-time route-level type safety, with conditional utility types for response extraction. Octokit types.ts uses 'METHOD /path' keys (e.g., 'GET /repos/{owner}/{repo}') into a generated Endpoints interface, bridging OpenAPI paths to developer-friendly types via layered conditional types, indexed access types, and mapped types. It also provides GetResponseTypeFromEndpointMethod using TypeScript's infer keyword and ReturnType. openapi-fetch achieves similar type safety at 6 kB bundle size using generated type declarations (not runtime code) as a thin fetch wrapper, resolving request/response types from URL path string literals with no generics at call sites -- though pathnames must match the schema literally with no dynamic string construction.\",\"confidence\":\"high\",\"sources\":[\"https://github.com/octokit/types.ts (primary, 3-0 vote)\",\"https://openapi-ts.dev/openapi-fetch/ (primary, 3-0 vote)\"],\"evidence\":\"Octokit's src/generated/Endpoints.ts is a ~39,109-line interface with string literal keys like 'DELETE /gists/{gist_id}', each mapping to Operation/ReadonlyOperation generic types exposing 'parameters' and 'response' sub-types. Source code confirms conditional types (ExtractParameters, ExtractRequestBody), indexed access (T['requestBody']['content']['application/json']), and mapped types (Simplify, SuccessResponseDataType). GetResponseTypeFromEndpointMethod verified verbatim in source: uses Unwrap<T> = T extends Promise<infer U> ? U : T with ReturnType<T>. openapi-fetch docs confirm 'Weighs 6 kb', 'thin wrappers around the native fetch API', and 'Notice there are no generics, and no manual typing' at call sites. Type constraint PathsWithMethod<Paths, Method> rejects non-literal strings.\"},{\"claim\":\"openapi-fetch uses a discriminated union response pattern where data and error fields are mutually exclusive (data for 2xx, error for 4xx/5xx/default), enabling TypeScript narrowing at call sites for type-safe error handling without manual type annotations.\",\"confidence\":\"high\",\"sources\":[\"https://openapi-ts.dev/openapi-fetch/ (primary, 3-0 vote)\"],\"evidence\":\"The FetchResponse type in openapi-fetch source (packages/openapi-fetch/src/index.d.ts) is a true discriminated union with two branches: success branch has required 'data' and 'error?: never', error branch has required 'error' and 'data?: never'. The '?: never' pattern ensures mutual exclusivity and enables TypeScript control-flow narrowing. Documentation states: 'data -- only present if 2XX response' and 'error -- only present if 4XX or 5XX response.' Known edge cases exist at runtime (204 responses, error status codes without response bodies per GitHub issue #2530) but do not invalidate the type-level pattern.\"},{\"claim\":\"The OpenAPI-to-Zod generation ecosystem has matured to provide dual-layer protection (compile-time types plus runtime validation) from a single OpenAPI spec. Hey API generates request, response, and definition Zod schemas with granular z.infer type control (toggle globally or per-resource category), and its SDK validator plugin enables automatic runtime validation by setting validator: true. openapi-zod-client generates Zodios-based clients with both inferred static types and runtime Zod parsing enabled by default. openapi-zod-ts uses a unique ownership model where the schema file is bootstrapped once then treated as user-owned code that regen never overwrites, with a --check CI drift gate that runs generation in memory and exits non-zero on divergence.\",\"confidence\":\"high\",\"sources\":[\"https://heyapi.dev/openapi-ts/plugins/zod (primary, 3-0 vote)\",\"https://heyapi.dev/docs/openapi/typescript/plugins/zod/v4 (primary, 3-0 vote)\",\"https://github.com/astahmer/openapi-zod-client (primary, 3-0 vote)\",\"https://www.npmjs.com/package/openapi-zod-ts (primary, 3-0 vote)\"],\"evidence\":\"Hey API Zod v4 plugin docs confirm three schema categories (request with separate headers/path/query objects, response using z.union for multiple responses, definition per OpenAPI component) and z.infer configuration with types.infer at top level and per-resource overrides like responses.types.infer. SDK plugin docs confirm validator: true configuration with generated requestValidator/responseValidator functions. openapi-zod-client README confirms 'client typesafety and runtime validation using zodios' with Zod .parse() on every response by default. openapi-zod-ts README confirms bootstrapped-once ownership model, --check drift gate, and 13 showcase specs drift-checked and typechecked under tsc --strict on every PR. openapi-zod-ts is very new (June 2026, 3 GitHub stars) so adoption evidence is limited.\"},{\"claim\":\"zod-openapi bridges Zod schemas to OpenAPI documentation generation using Zod v4's native .meta() method with compile-time type checking of OpenAPI metadata, requiring no monkey patching -- the library uses TypeScript module augmentation to extend Zod's GlobalMeta interface with typed OpenAPI properties.\",\"confidence\":\"high\",\"sources\":[\"https://github.com/samchungy/zod-openapi (primary, 3-0 vote)\"],\"evidence\":\"Source code at src/types.ts confirms module augmentation: declare module 'zod/v4' { interface GlobalMeta extends ZodOpenApiMetadata {} }. This merges OpenAPI-specific typed properties (param, header, override, examples, outputId, unusedIO) into Zod v4's GlobalMeta interface. v5+ removed the runtime extendZodWithOpenApi(z) monkey-patching mechanism per v4-to-v5 migration guide. Import of 'zod-openapi' triggers declaration merging side effect. Actively maintained at v6.0.0 (June 2026). Minor nuance: you still need the import statement or triple-slash reference for TypeScript to recognize the augmented types.\"},{\"claim\":\"AWS SDK v3 demonstrates the leading pattern for forward-compatible SDK types: loose-by-default with '| undefined' on all operation members for forward compatibility as AWS APIs change, with opt-in compile-time type transforms via @smithy/types (AssertiveClient, UncheckedClient, NoUndefined) that remove the unions for stricter checking. The entire SDK is generated from Smithy service models via smithy-typescript code generation.\",\"confidence\":\"high\",\"sources\":[\"https://github.com/aws/aws-sdk-js-v3/blob/main/supplemental-docs/TYPESCRIPT.md (primary, 3-0 vote)\"],\"evidence\":\"TYPESCRIPT.md confirms: 'This allows more flexibility when it comes to AWS service APIs changing over time without needing to update your SDK client version.' Required input members get 'Type | undefined', output members use '?' optional modifier per issue #5992. Type transforms documented: AssertiveClient, UncheckedClient, NoUndefined<T> in @smithy/types (v4.16.1, actively maintained). Usage pattern: 'new S3({}) as AssertiveClient<S3>'. codegen/README.md confirms three-layer Smithy architecture (Smithy -> Smithy-TypeScript -> Smithy-AWS-TypeScript) producing @aws-sdk/client-* packages from JSON service models.\"},{\"claim\":\"ts-morph wraps the TypeScript Compiler API to provide high-level programmatic AST navigation and manipulation (renaming, adding interfaces/properties, file deletion) while allowing fallback to raw compiler objects, enabling custom static analysis checks and code generation beyond what ESLint rules can express.\",\"confidence\":\"high\",\"sources\":[\"https://github.com/dsherret/ts-morph (primary, 3-0 vote)\"],\"evidence\":\"README confirms: 'Wraps the compiler API objects to provide helper methods for getting information and programmatically changing files. Allows falling back to the compiler API objects if necessary (ex. classDeclaration.compilerNode or typeChecker.compilerObject).' Documented operations include myClass.rename('NewName'), myClass.addImplements(), myClass.addProperty(), sourceFile.deleteImmediately(). Actively maintained at v28.0.0 (April 2026), 6.1K+ GitHub stars, 4,390+ npm dependents. Notable caveat: ts-morph is NOT compatible with TypeScript 7.0 (Go-native compiler, GA July 2026) and must wait for the 7.1 Compiler API.\"},{\"claim\":\"Knip performs dependency-graph-based static analysis using 150+ framework-aware plugins to detect unused files, unused exports, and unused dependencies in TypeScript/JavaScript projects, and can be integrated into CI pipelines to continuously enforce that no dead code accumulates -- functioning as a complementary tool alongside ESLint and Prettier.\",\"confidence\":\"high\",\"sources\":[\"https://knip.dev/ (primary, 3-0 vote)\"],\"evidence\":\"Homepage confirms: 'Advanced analysis starting from fine-grained entry points based on the actual frameworks and tooling in (mono)repos for accurate and actionable results.' Currently has 157 framework-aware plugins per knip.dev/reference/plugins. Dedicated CI guide at knip.dev/guides/using-knip-in-ci states: 'it is even more valuable in a continuous integration environment to prevent regressions over time' with exit code 1 on issues. Real-world usage confirmed in this very project (ESI.ts uses knip). Documented false positive edge cases exist (GitHub #589, Tailwind v4 gaps) but these are actively addressed. Knip v6.26.0 actively maintained as of July 2025.\"},{\"claim\":\"CI-driven drift detection -- comparing generated output against committed baselines and failing the build on divergence -- has emerged as the practical mechanism for contract testing at the type level, ensuring SDK types stay aligned with upstream OpenAPI specs without manual intervention.\",\"confidence\":\"high\",\"sources\":[\"https://www.npmjs.com/package/openapi-zod-ts (primary, 3-0 vote)\",\"https://heyapi.dev/docs/openapi/typescript/plugins/zod/v4 (primary, 3-0 vote)\"],\"evidence\":\"openapi-zod-ts provides a --check flag described as 'a read-only drift gate for CI -- it runs generation in memory without writing files and exits non-zero if the committed output would differ from what regeneration produces.' Its 13 showcase specs have committed output that is drift-checked and typechecked under tsc --strict on every PR. This project (ESI.ts) also uses this pattern per CLAUDE.md: 'CI verifies generated types are fresh via git diff --exit-code'. Hey API's generation pipeline similarly supports CI integration where regenerated schemas can be compared against committed output. The pattern is tool-agnostic: any generator paired with git diff --exit-code achieves the same contract enforcement.\"}],\"caveats\":\"Time sensitivity: openapi-fetch is entering maintenance mode per its 2026 roadmap, with maintainers recommending users manage the thin wrapper locally. TypeScript 7.0 (Go-native compiler, GA July 2026) breaks ts-morph compatibility, requiring a wait for the 7.1 Compiler API -- this could significantly impact custom static analysis workflows. openapi-zod-ts is extremely new (June 2026, 3 GitHub stars) so its ownership model and drift-check patterns are technically sound but lack adoption evidence. The research had no confirmed claims covering type-level testing approaches (tsd, expect-type), branded/phantom types, template literal types for URL construction, or dependency injection type safety -- these sub-topics of the original question remain unaddressed. All sources are primary (official documentation or project repositories) with unanimous 3-0 verification votes, which gives high confidence but means the evidence skews toward what projects document about themselves rather than independent evaluation. The Stripe SDK, which was specifically asked about, produced no confirmed claims in this research round. The refuted claim about Hey API generating discriminated-union-style runtime validation (0-3 vote) suggests that while Hey API does generate z.union for multiple responses, the discriminated union characterization was an overreach -- the unions lack a shared discriminant property.\",\"openQuestions\":[\"What specific branded type, phantom type, and template literal type patterns do leading SDKs use for URL path construction and auth-gated endpoint enforcement at compile time -- topics the confirmed claims did not cover?\",\"How do tsd and expect-type compare for type-level testing in SDK projects, and what @type-challenges-style patterns are production SDKs actually using to test complex conditional and mapped types?\",\"What is the practical impact of TypeScript 7.0's Go-native compiler on the ts-morph and custom compiler plugin ecosystem -- will alternatives emerge, or will projects need to wait for the TypeScript 7.1 Compiler API?\",\"How does Stripe's SDK achieve its type safety (reportedly using branded types and discriminated unions for error handling), and what patterns from Cloudflare Workers types are applicable to OpenAPI SDK wrappers?\"]}",
+      "source_message_uuid": "7f806636-97de-49af-86b2-2a09dffe495e",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6588,
+          "repetition_score": 0.0,
+          "confidence": 0.6588
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 3,
+    "total_output_tokens": 9,
+    "total_cache_creation_tokens": 30062,
+    "total_cache_read_tokens": 0,
+    "input_output_ratio": 0.33,
+    "cache_hit_rate": 0.0,
+    "estimated_cost_usd": 0.1129,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 0
+    },
+    "input_growth": {
+      "turn_input_tokens": [],
+      "growth_rate": 1.0,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 9779,
+      "user_result_tokens": 4,
+      "model_reasoning_tokens": 812,
+      "model_tool_tokens": 2909,
+      "model_generation_tokens": 0,
+      "total_user_tokens": 9783,
+      "total_model_tokens": 3721,
+      "user_ratio": 0.7245
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.0,
+      "low_alignment_count": 0,
+      "pairs": []
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+    "source_file": "data/D--code-ESI-ts__agent-a55b805db11b6136d.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

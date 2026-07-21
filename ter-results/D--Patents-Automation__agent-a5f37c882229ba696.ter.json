@@ -1,0 +1,255 @@
+{
+  "session_id": "01af8d81-64f4-4b54-a680-83cc5e873bd0",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 1609,
+  "aligned_tokens": 1609,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6605,
+    "token_weighted_confidence": 0.743,
+    "low_confidence_tokens": 77,
+    "low_confidence_share": 0.0479,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 5,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6208899021148682,
+      "intent_similarity": 0.6208899021148682,
+      "tokens": 14,
+      "text": "\n\nI'll start by reading the file to analyze every hyphen.",
+      "source_message_uuid": "2135a005-4e0c-42cf-bc47-2ada7eac95d8",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6209,
+          "repetition_score": 0.0,
+          "confidence": 0.6209
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4845118224620819,
+      "tokens": 45,
+      "text": "Read {\"file_path\":\"D:\\\\Patents\\\\Automation\\\\workspace\\\\mainframe-aware-isolation-broker-for-multi-tenant-spyre-accelerator-pooling\\\\output\\\\final-patent-disclosure.md\"}",
+      "source_message_uuid": "2135a005-4e0c-42cf-bc47-2ada7eac95d8",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4845,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5764345526695251,
+      "intent_similarity": 0.5764345526695251,
+      "tokens": 18,
+      "text": "Now I have the full document. Let me systematically analyze every hyphen in every line.",
+      "source_message_uuid": "3986a68f-e5fa-4afd-8590-a594ff35730e",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5764,
+          "repetition_score": 0.5907,
+          "confidence": 0.5764,
+          "semantic_similarity": 0.8244,
+          "lexical_similarity": 0.1905,
+          "entity_similarity": 0.2857,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.7143
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "\n\nI'll start by reading the file to analyze every hyphen."
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.7654156684875488,
+      "intent_similarity": 0.7654156684875488,
+      "tokens": 639,
+      "text": "Agent {\"description\":\"Categorize all hyphens in document\",\"prompt\":\"I need you to do a meticulous line-by-line analysis of a patent disclosure document. I've already read it and I'll paste the full content below. Your job is to categorize EVERY hyphen character (\\\"-\\\") in the document.\\n\\nThe file is at: D:\\\\Patents\\\\Automation\\\\workspace\\\\mainframe-aware-isolation-broker-for-multi-tenant-spyre-accelerator-pooling\\\\output\\\\final-patent-disclosure.md\\n\\nPlease read it and then for each line containing a hyphen, classify every hyphen on that line as one of:\\n1. CODE - inside a code block (``` delimited) or mermaid diagram\\n2. FRONTMATTER - inside YAML frontmatter (between the opening and closing --- markers, lines 1-7)\\n3. HEADING_DASH - markdown heading separator (---) or horizontal rule\\n4. BULLET - markdown list bullet (leading \\\"- \\\" at the start of a list item)\\n5. COMPOUND_MODIFIER - hyphenated compound word like \\\"multi-tenant\\\", \\\"hardware-enforced\\\", \\\"AI-driven\\\" etc.\\n6. TECHNICAL_TERM - established technical terms like \\\"open-source\\\", \\\"real-time\\\", \\\"side-channel\\\", \\\"re-read\\\"\\n7. EM_DASH - em-dash (\\u2014) or en-dash (\\u2013)  \\n8. OTHER - anything else (e.g. minus signs, ranges, hyphens in identifiers used in prose)\\n\\nImportant notes:\\n- The YAML frontmatter is lines 1-7 (between the two --- lines)\\n- Code blocks are delimited by ``` and include both Python code and plain text examples and mermaid diagrams\\n- Line 16 has a standalone --- which is a horizontal rule\\n- Be very careful to distinguish between hyphens that are inside code blocks vs. prose\\n- For compound modifiers vs technical terms: \\\"real-time\\\", \\\"side-channel\\\", \\\"open-source\\\" are established technical terms. Things like \\\"multi-tenant\\\", \\\"hardware-enforced\\\", \\\"demand-driven\\\", \\\"factory-clean\\\" are compound modifiers.\\n- Watch for em-dashes (\\u2014) which are distinct from hyphens\\n- Identifiers used in prose (like \\\"div-a-retail\\\", \\\"slice-1\\\") that appear OUTSIDE code blocks should be classified as OTHER\\n- Negative numbers or minus signs should be classified as OTHER\\n\\nGive me:\\n1. A complete line-by-line listing showing line number, the hyphenated text, and the category\\n2. A count for each category\\n3. For COMPOUND_MODIFIER specifically, list every unique hyphenated word\\n4. For EM_DASH, list the lines where they appear\\n5. For any hyphens that seem like they should have been removed (e.g., compound modifiers that could be written as two words or one word), flag them\\n\\nBe absolutely thorough - check every single line from 1 to 546.\"}",
+      "source_message_uuid": "3986a68f-e5fa-4afd-8590-a594ff35730e",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.7654,
+          "repetition_score": 0.0372,
+          "confidence": 0.7654,
+          "semantic_similarity": 0.5152,
+          "lexical_similarity": 0.0398,
+          "entity_similarity": 0.1047,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\Patents\\\\Automation\\\\workspace\\\\mainframe-aware-isolation-broker-for-multi-tenant-spyre-accelerator-pooling\\\\output\\\\final-patent-disclosure.md\"}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.7395235300064087,
+      "intent_similarity": 0.7395235300064087,
+      "tokens": 893,
+      "text": "Here is the complete hyphen categorization for `final-patent-disclosure.md`.\n\n---\n\n## Total Hyphens: 307\n\n### Category Counts\n\n| Category | Count | % |\n|---|---|---|\n| CODE | 150 | 48.9% |\n| BULLET | 82 | 26.7% |\n| OTHER (identifiers/dates in prose) | 42 | 13.7% |\n| FRONTMATTER | 20 | 6.5% |\n| COMPOUND_MODIFIER | 8 | 2.6% |\n| HEADING_DASH | 3 | 1.0% |\n| TECHNICAL_TERM | 2 | 0.7% |\n| EM_DASH | 0 | 0.0% |\n\n---\n\n### COMPOUND_MODIFIER -- Unique Hyphenated Words\n\n1. **self-contained** -- lines 32, 36, 528 (3 occurrences)\n2. **Multi-Instance** -- lines 448, 482, 499 (3 occurrences, NVIDIA's official branding)\n3. **Non-Patent** -- line 475 (1 occurrence, standard IP terminology \"Non-Patent Literature\")\n4. **buzzword-heavy** -- line 534 (1 occurrence)\n\n---\n\n### TECHNICAL_TERM\n\n1. **side-channel** -- line 434\n2. **real-time** -- line 466\n\n---\n\n### EM_DASH\n\n**None found.** The document contains zero em-dashes or en-dashes anywhere.\n\n---\n\n### OTHER (42 hyphens) -- Identifiers & Dates in Prose\n\nThese are hyphens in identifiers like `div-a-retail`, `div-b-commercial`, `slice-1` through `slice-8`, `fraud-detection-v3`, `credit-risk-v2`, `US-East`, `invention-20260622-105920`, and dates like `2026-06-22` that appear in prose paragraphs (outside code blocks). They are structural parts of identifiers and are correct.\n\n---\n\n### FRONTMATTER (20 hyphens, lines 1-7)\n\nThe `---` delimiters (6 hyphens) plus YAML keys (`document-type`, `invention-id`) and their values including the slug and date. All correct.\n\n---\n\n### HEADING_DASH (3 hyphens)\n\nLine 16: `---` horizontal rule between the metadata block and the Problem Statement. Correct.\n\n---\n\n### CODE (150 hyphens, lines 62-395)\n\nSpread across five code blocks:\n- Mermaid architecture diagram (lines 62-129): 46 hyphens (arrows, label text)\n- Mermaid state diagram (lines 135-143): 13 hyphens\n- Python reference implementation (lines 157-326): 5 hyphens (return type annotations, a comment)\n- Plain text code blocks (lines 338-395): 86 hyphens (slice IDs, tenant IDs, audit log entries)\n\n---\n\n### Flagged Issues\n\n**Nothing that should have been removed**, but one important consistency observation:\n\nThe document has deliberately removed compound-modifier hyphens from prose throughout (e.g., \"multi tenant\", \"hardware enforced\", \"demand driven\", \"factory clean\", \"per tenant\", \"real time\", \"high risk\", \"cloud scale\", \"fair share\" all appear unhyphenated). The only compound modifiers that survived are:\n\n- **self-contained** -- Correctly kept; \"self-\" compounds always require a hyphen per every major style guide.\n- **Multi-Instance** -- Correctly kept; this is NVIDIA's official trademarked term.\n- **Non-Patent** -- Correctly kept; established IP law terminology.\n- **buzzword-heavy** -- Borderline. It appears in the review checklist (line 534) as a predicate adjective (\"not buzzword-heavy\"). Some style guides would drop the hyphen in predicate position, but keeping it is defensible for readability. Not a problem.\n\n**The hyphen cleanup in the prose was thorough and consistent.** The remaining 8 compound-modifier hyphens and 2 technical-term hyphens are all justified. The 42 OTHER hyphens are all inside identifiers or dates and are correct. Nothing needs to be removed.",
+      "source_message_uuid": "7cd07848-c41c-465b-824d-4d8a4a9b1e4b",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.7395,
+          "repetition_score": 0.3157,
+          "confidence": 0.7395,
+          "semantic_similarity": 0.5404,
+          "lexical_similarity": 0.0191,
+          "entity_similarity": 0.0259,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9741
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Now I have the full document. Let me systematically analyze every hyphen in every line."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 5,
+    "total_output_tokens": 1030,
+    "total_cache_creation_tokens": 50956,
+    "total_cache_read_tokens": 35194,
+    "input_output_ratio": 0.0,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.2171,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 3
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        18603,
+        16593
+      ],
+      "growth_rate": 0.89,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 276,
+      "user_result_tokens": 14062,
+      "model_reasoning_tokens": 0,
+      "model_tool_tokens": 684,
+      "model_generation_tokens": 925,
+      "total_user_tokens": 14338,
+      "total_model_tokens": 1609,
+      "user_ratio": 0.8991
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.7724,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "Read the file D:\\Patents\\Automation\\workspace\\mainframe-aware-isolation-broker-for-multi-tenant-spyre-accelerator-pooling\\output\\final-patent-disclosure.md\n\nI need you to categorize every hyphen that remains in this document. For each line containing a hyphen, classify it as one of:\n1. CODE - inside a code block or mermaid diagram\n2. FRONTMATTER - inside YAML frontmatter (between --- markers)\n3. HEADING_DASH - markdown heading separator or horizontal rule\n4. BULLET - markdown list bullet (leading \"- \")\n5. COMPOUND_MODIFIER - hyphenated compound word like \"multi-tenant\", \"hardware-enforced\", \"AI-driven\" etc.\n6. TECHNICAL_TERM - established terms like \"open-source\", \"real-time\"  \n7. EM_DASH - em-dash (\u2014) or en-dash (\u2013)\n8. OTHER\n\nGive me:\n- A count for each category\n- For COMPOUND_MODIFIER specifically, list every unique hyphenated word found (e.g. \"multi-tenant\", \"hardware-enforced\")\n- For EM_DASH, list the lines where they appear\n- For any category that seems like it should have been removed, flag it\n\nBe thorough - check every single line.",
+          "response_text": "\n\nI'll start by reading the file to analyze every hyphen. Now I have the full document. Let me systematically analyze every hyphen in every line. Here is the complete hyphen categorization for `final-patent-disclosure.md`.\n\n---\n\n## Total Hyphens: 307\n\n### Category Counts\n\n| Category | Count | % |\n|---|---|---|\n| CODE | 150 | 48.9% |\n| BULLET | 82 | 26.7% |\n| OTHER (identifiers/dates in prose) | 42 | 13.7% |\n| FRONTMATTER | 20 | 6.5% |\n| COMPOUND_MODIFIER | 8 | 2.6% |\n| HEADING_DASH | 3 | 1.0% |\n| TECHNICAL_TERM | 2 | 0.7% |\n| EM_DASH | 0 | 0.0% |\n\n---\n\n### COMPOUND_MODIFIER -- Unique Hyphenated Words\n\n1. **self-contained** -- lines 32, 36, 528 (3 occurrences)\n2. **Multi-Instance** -- lines 448, 482, 499 (3 occurrences, NVIDIA's official branding)\n3. **Non-Patent** -- line 475 (1 occurrence, standard IP terminology \"Non-Patent Literature\")\n4. **buzzword-heavy** -- line 534 (1 occurrence)\n\n---\n\n### TECHNICAL_TERM\n\n1. **side-channel** -- line 434\n2. **real-time** -- line 466\n\n---\n\n### EM_DASH\n\n**None found.** The document contains zero em-dashes or en-dashes anywhere.\n\n---\n\n### OTHER (42 hyphens) -- Identifiers & Dates in Prose\n\nThese are hyphens in identifiers like `div-a-retail`, `div-b-commercial`, `slice-1` through `slice-8`, `fraud-detection-v3`, `credit-risk-v2`, `US-East`, `invention-20260622-105920`, and dates like `2026-06-22` that appear in prose paragraphs (outside code blocks). They are structural parts of identifiers and are correct.\n\n---\n\n### FRONTMATTER (20 hyphens, lines 1-7)\n\nThe `---` delimiters (6 hyphens) plus YAML keys (`document-type`, `invention-id`) and their values including the slug and date. All correct.\n\n---\n\n### HEADING_DASH (3 hyphens)\n\nLine 16: `---` horizontal rule between the metadata block and the Problem Statement. Correct.\n\n---\n\n### CODE (150 hyphens, lines 62-395)\n\nSpread across five code blocks:\n- Mermaid architecture diagram (lines 62-129): 46 hyphens (arrows, label text)\n- Mermaid state diagram (lines 135-143): 13 hyphens\n- Python reference implementation (lines 157-326): 5 hyphens (return type annotations, a comment)\n- Plain text code blocks (lines 338-395): 86 hyphens (slice IDs, tenant IDs, audit log entries)\n\n---\n\n### Flagged Issues\n\n**Nothing that should have been removed**, but one important consistency observation:\n\nThe document has deliberately removed compound-modifier hyphens from prose throughout (e.g., \"multi tenant\", \"hardware enforced\", \"demand driven\", \"factory clean\", \"per tenant\", \"real time\", \"high risk\", \"cloud scale\", \"fair share\" all appear unhyphenated). The only compound modifiers that survived are:\n\n- **self-contained** -- Correctly kept; \"self-\" compounds always require a hyphen per every major style guide.\n- **Multi-Instance** -- Correctly kept; this is NVIDIA's official trademarked term.\n- **Non-Patent** -- Correctly kept; established IP law terminology.\n- **buzzword-heavy** -- Borderline. It appears in the review checklist (line 534) as a predicate adjective (\"not buzzword-heavy\"). Some style guides would drop the hyphen in predicate position, but keeping it is defensible for readability. Not a problem.\n\n**The hyphen cleanup in the prose was thorough and consistent.** The remaining 8 compound-modifier hyphens and 2 technical-term hyphens are all justified. The 42 OTHER hyphens are all inside identifiers or dates and are correct. Nothing needs to be removed.",
+          "alignment": 0.7724
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "01af8d81-64f4-4b54-a680-83cc5e873bd0",
+    "source_file": "data/D--Patents-Automation__agent-a5f37c882229ba696.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

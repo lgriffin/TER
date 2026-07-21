@@ -1,0 +1,164 @@
+{
+  "session_id": "3f7422c4-d8b9-4fd7-b0e2-b527ea71c92d",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 1061,
+  "aligned_tokens": 1061,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.7178,
+    "token_weighted_confidence": 0.7363,
+    "low_confidence_tokens": 0,
+    "low_confidence_share": 0.0,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 2,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.6973485946655273,
+      "intent_similarity": 0.6973485946655273,
+      "tokens": 49,
+      "text": "The user wants research on navigation sequence tracking and analysis patterns for educational platforms. This is a research question that doesn't require looking at any specific codebase. Let me synthesize what I know about this topic and provide a concise, technical answer.",
+      "source_message_uuid": "8b20509a-122a-4c38-bff3-f7ed609f1253",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6973,
+          "repetition_score": 0.0,
+          "confidence": 0.6973
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.7381843328475952,
+      "intent_similarity": 0.7381843328475952,
+      "tokens": 1012,
+      "text": "## Navigation Sequence Tracking for Educational Platforms\n\n### 1. Event Stream Data Model (Postgres/Supabase)\n\n```sql\nCREATE TABLE nav_events (\n  id          bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n  student_id  uuid NOT NULL REFERENCES profiles(id),\n  course_id   text NOT NULL,\n  lo_id       text NOT NULL,           -- learning object identifier\n  lo_type     text NOT NULL,           -- 'lab', 'talk', 'note', 'web', 'github', etc.\n  session_id  uuid NOT NULL,\n  ts          timestamptz NOT NULL DEFAULT now(),\n  duration_ms int,                     -- time spent on PREVIOUS lo before this nav\n  referrer_lo text                     -- the lo they came from (nullable for session start)\n);\n\n-- Critical indexes:\nCREATE INDEX idx_nav_student_session ON nav_events (student_id, session_id, ts);\nCREATE INDEX idx_nav_course_ts       ON nav_events (course_id, ts);\nCREATE INDEX idx_nav_lo              ON nav_events (course_id, lo_id);\n```\n\n**Why Postgres/Supabase works:** At 20K rows per session, this is trivially small for Postgres. A full semester (say 30 sessions x 200 students x 100 events = 600K rows) fits comfortably. Supabase Row Level Security lets you scope lecturer access to their own courses. Use `pg_partman` to partition by month only if you exceed tens of millions of rows.\n\n### 2. Session Boundary Detection\n\nFor educational contexts, use a **hybrid approach**:\n\n- **Primary:** 20-minute inactivity gap (not 30 -- educational browsing has shorter natural pauses than general web). A 15-minute lab break stays within session.\n- **Secondary:** Hard cut at 4 hours (catches \"left tab open overnight\").\n- **Tertiary:** New device/IP = new session regardless of timing.\n\nCompute session_id client-side with a simple rule: if `now - last_event_ts > 20min`, generate a new UUID. This avoids server-side reprocessing. Store the session_id with each event.\n\n### 3. Sequence Analysis Techniques\n\n**Common paths:** Build a first-order Markov chain from transitions (lo_A -> lo_B). Count transition frequencies per course. The top-k paths by frequency reveal the \"happy path.\" Use `WITH RECURSIVE` CTEs to extract sequences of length 3-5.\n\n**Confusion detection (thrashing):** Flag any student who visits the same pair of LOs (A->B->A) within 3 minutes. Query pattern:\n```sql\n-- Find back-and-forth patterns\nSELECT student_id, lo_id, lead(lo_id) OVER w AS next, lag(lo_id) OVER w AS prev\nFROM nav_events WHERE course_id = $1\nWINDOW w AS (PARTITION BY student_id, session_id ORDER BY ts)\n```\nWhen `lo_id = prev`, that is a revisit. Count revisit pairs per LO to find confusing content.\n\n**Drop-off:** The last `lo_id` per session is a terminal node. Aggregate terminal nodes across students. High-frequency terminal nodes that are NOT the course endpoint indicate drop-off points.\n\n**Deviation from expected path:** If the course has a canonical ordering (topic 1 -> 2 -> 3), compute edit distance (Levenshtein) between the student's actual sequence and the canonical one. High edit distance = high deviation.\n\n### 4. Visualization\n\n- **Sankey diagram:** Best for showing aggregate flow across LOs. Each node is an LO, edge width = student count. Libraries: D3-sankey or Plotly.\n- **\"Top 3 paths\" summary table:** Simplest for lecturers. Just list the three most common 4-step sequences with percentages.\n- **Heatmap grid:** LOs on y-axis, time-buckets on x-axis, cell color = visit count. Shows when students engage with what.\n- **Drop-off bar chart:** Simple horizontal bars showing session-terminal frequency per LO.\n\nStart with the summary table and drop-off chart. Sankey is impressive but hard to read for courses with 50+ LOs.\n\n### 5. Retention Strategy\n\n- **Hot (0-30 days):** Raw events in `nav_events`.\n- **Warm (30-180 days):** Aggregate into `nav_sessions_summary` (session_id, student_id, course_id, lo_sequence as text[], duration_total, ts_start, ts_end). One row per session instead of 100.\n- **Cold (180+ days):** Delete raw events, keep summaries. A semester of summaries is roughly 6K rows -- negligible.\n\nRun aggregation via a Supabase `pg_cron` job nightly. At 200 students, you will not hit storage concerns for years even without aggregation, so this is about query performance on historical data, not cost.",
+      "source_message_uuid": "8b20509a-122a-4c38-bff3-f7ed609f1253",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.7382,
+          "repetition_score": 0.0,
+          "confidence": 0.7382
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 3,
+    "total_output_tokens": 11,
+    "total_cache_creation_tokens": 2260,
+    "total_cache_read_tokens": 13019,
+    "input_output_ratio": 0.27,
+    "cache_hit_rate": 0.9998,
+    "estimated_cost_usd": 0.0126,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 0
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        13022
+      ],
+      "growth_rate": 1.0,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 292,
+      "user_result_tokens": 0,
+      "model_reasoning_tokens": 49,
+      "model_tool_tokens": 0,
+      "model_generation_tokens": 1012,
+      "total_user_tokens": 292,
+      "total_model_tokens": 1061,
+      "user_ratio": 0.2158
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.7382,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "Research patterns for tracking and analyzing user navigation sequences in web applications, specifically for educational platforms. I need:\n\n1. **Event stream data model** \u2014 what's the right schema for storing ordered navigation events? Consider: (student_id, course_id, lo_id, lo_type, timestamp, session_id, duration_on_previous). Should this go in Supabase (Postgres)? What indexes matter?\n\n2. **Session boundary detection** \u2014 algorithms for splitting a continuous stream of events into meaningful sessions. Common approaches: fixed timeout (30 min gap = new session), activity-based, or sliding window. What works for educational contexts where a student might take a 15-minute break mid-lab?\n\n3. **Sequence analysis techniques** \u2014 once you have navigation sequences, what analysis is useful for lecturers?\n   - Common paths (most students follow path A\u2192B\u2192C)\n   - Confusion indicators (students going back and forth between two pages)\n   - Drop-off points (where students stop engaging)\n   - Deviation from expected path\n\n4. **Visualization patterns** \u2014 how to show navigation sequences to a lecturer. Sankey diagrams? Flow charts? Simple \"common path\" summaries?\n\n5. **Storage efficiency** \u2014 at 200 students \u00d7 100 events per session, that's 20K rows per session. What's the retention strategy? Aggregate after N days?\n\nReport in under 500 words with specific schema designs and analysis approaches.",
+          "response_text": "## Navigation Sequence Tracking for Educational Platforms\n\n### 1. Event Stream Data Model (Postgres/Supabase)\n\n```sql\nCREATE TABLE nav_events (\n  id          bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n  student_id  uuid NOT NULL REFERENCES profiles(id),\n  course_id   text NOT NULL,\n  lo_id       text NOT NULL,           -- learning object identifier\n  lo_type     text NOT NULL,           -- 'lab', 'talk', 'note', 'web', 'github', etc.\n  session_id  uuid NOT NULL,\n  ts          timestamptz NOT NULL DEFAULT now(),\n  duration_ms int,                     -- time spent on PREVIOUS lo before this nav\n  referrer_lo text                     -- the lo they came from (nullable for session start)\n);\n\n-- Critical indexes:\nCREATE INDEX idx_nav_student_session ON nav_events (student_id, session_id, ts);\nCREATE INDEX idx_nav_course_ts       ON nav_events (course_id, ts);\nCREATE INDEX idx_nav_lo              ON nav_events (course_id, lo_id);\n```\n\n**Why Postgres/Supabase works:** At 20K rows per session, this is trivially small for Postgres. A full semester (say 30 sessions x 200 students x 100 events = 600K rows) fits comfortably. Supabase Row Level Security lets you scope lecturer access to their own courses. Use `pg_partman` to partition by month only if you exceed tens of millions of rows.\n\n### 2. Session Boundary Detection\n\nFor educational contexts, use a **hybrid approach**:\n\n- **Primary:** 20-minute inactivity gap (not 30 -- educational browsing has shorter natural pauses than general web). A 15-minute lab break stays within session.\n- **Secondary:** Hard cut at 4 hours (catches \"left tab open overnight\").\n- **Tertiary:** New device/IP = new session regardless of timing.\n\nCompute session_id client-side with a simple rule: if `now - last_event_ts > 20min`, generate a new UUID. This avoids server-side reprocessing. Store the session_id with each event.\n\n### 3. Sequence Analysis Techniques\n\n**Common paths:** Build a first-order Markov chain from transitions (lo_A -> lo_B). Count transition frequencies per course. The top-k paths by frequency reveal the \"happy path.\" Use `WITH RECURSIVE` CTEs to extract sequences of length 3-5.\n\n**Confusion detection (thrashing):** Flag any student who visits the same pair of LOs (A->B->A) within 3 minutes. Query pattern:\n```sql\n-- Find back-and-forth patterns\nSELECT student_id, lo_id, lead(lo_id) OVER w AS next, lag(lo_id) OVER w AS prev\nFROM nav_events WHERE course_id = $1\nWINDOW w AS (PARTITION BY student_id, session_id ORDER BY ts)\n```\nWhen `lo_id = prev`, that is a revisit. Count revisit pairs per LO to find confusing content.\n\n**Drop-off:** The last `lo_id` per session is a terminal node. Aggregate terminal nodes across students. High-frequency terminal nodes that are NOT the course endpoint indicate drop-off points.\n\n**Deviation from expected path:** If the course has a canonical ordering (topic 1 -> 2 -> 3), compute edit distance (Levenshtein) between the student's actual sequence and the canonical one. High edit distance = high deviation.\n\n### 4. Visualization\n\n- **Sankey diagram:** Best for showing aggregate flow across LOs. Each node is an LO, edge width = student count. Libraries: D3-sankey or Plotly.\n- **\"Top 3 paths\" summary table:** Simplest for lecturers. Just list the three most common 4-step sequences with percentages.\n- **Heatmap grid:** LOs on y-axis, time-buckets on x-axis, cell color = visit count. Shows when students engage with what.\n- **Drop-off bar chart:** Simple horizontal bars showing session-terminal frequency per LO.\n\nStart with the summary table and drop-off chart. Sankey is impressive but hard to read for courses with 50+ LOs.\n\n### 5. Retention Strategy\n\n- **Hot (0-30 days):** Raw events in `nav_events`.\n- **Warm (30-180 days):** Aggregate into `nav_sessions_summary` (session_id, student_id, course_id, lo_sequence as text[], duration_total, ts_start, ts_end). One row per session instead of 100.\n- **Cold (180+ days):** Delete raw events, keep summaries. A semester of summaries is roughly 6K rows -- negligible.\n\nRun aggregation via a Supabase `pg_cron` job nightly. At 200 students, you will not hit storage concerns for years even without aggregation, so this is about query performance on historical data, not cost.",
+          "alignment": 0.7382
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "3f7422c4-d8b9-4fd7-b0e2-b527ea71c92d",
+    "source_file": "data/D--code-tutors-thinking__agent-a32292e079b9c9a85.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

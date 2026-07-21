@@ -1,0 +1,763 @@
+{
+  "session_id": "e0cd3457-3774-47bf-ade8-372891f95dec",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 4462,
+  "aligned_tokens": 4462,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.577,
+    "token_weighted_confidence": 0.5263,
+    "low_confidence_tokens": 4462,
+    "low_confidence_share": 1.0,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 21,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "waste_patterns": [
+    {
+      "type": "context_restatement",
+      "start_position": 2,
+      "end_position": 2,
+      "spans_involved": 1,
+      "tokens_wasted": 12,
+      "description": "Response restates prior content (similarity: 0.90)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.3828958570957184,
+      "tokens": 20,
+      "text": "I'll start by fetching the file list and then retrieve the patches for all key files in parallel.",
+      "source_message_uuid": "036016d9-9f02-40d2-92b4-237c5e8afead",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3829,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5344826579093933,
+      "tokens": 63,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename | test(\\\"acceleration/|commands/\\\")) | \\\"\\\\(.filename)\\\\t\\\\(.additions)\\\\t\\\\(.deletions)\\\"'\"}",
+      "source_message_uuid": "036016d9-9f02-40d2-92b4-237c5e8afead",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.5345,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.36011645197868347,
+      "tokens": 12,
+      "text": "Now let me fetch all the key file patches in parallel.",
+      "source_message_uuid": "c98465c4-3e4f-4125-a945-771248334c1f",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3601,
+          "repetition_score": 0.6299,
+          "confidence": 0.5,
+          "semantic_similarity": 0.8986,
+          "lexical_similarity": 0.3182,
+          "entity_similarity": 0.3529,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.6471
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll start by fetching the file list and then retrieve the patches for all key files in parallel."
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5801872611045837,
+      "tokens": 50,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/acceleration/quick_analyser.py\\\") | .patch'\"}",
+      "source_message_uuid": "c98465c4-3e4f-4125-a945-771248334c1f",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5802,
+          "repetition_score": 0.6166,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7856,
+          "lexical_similarity": 0.5294,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename | test(\\\"acceleration/|commands/\\\")) | \\\"\\\\(.filename)\\\\t\\\\(.additions)\\\\t\\\\(.deletions)\\\"'\"}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5940351486206055,
+      "tokens": 46,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/acceleration/cache.py\\\") | .patch'\"}",
+      "source_message_uuid": "6213fd23-4546-4c5c-8961-6de5a17b9c19",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.594,
+          "repetition_score": 0.7411,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9689,
+          "lexical_similarity": 0.8333,
+          "entity_similarity": 0.8,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/acceleration/quick_analyser.py\\\") | .patch'\"}"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5727208852767944,
+      "tokens": 48,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/acceleration/session_watcher.py\\\") | .patch'\"}",
+      "source_message_uuid": "6213fd23-4546-4c5c-8961-6de5a17b9c19",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5727,
+          "repetition_score": 0.7377,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9593,
+          "lexical_similarity": 0.8333,
+          "entity_similarity": 0.8,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/acceleration/quick_analyser.py\\\") | .patch'\"}"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.566265881061554,
+      "tokens": 47,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/acceleration/parallel.py\\\") | .patch'\"}",
+      "source_message_uuid": "6213fd23-4546-4c5c-8961-6de5a17b9c19",
+      "source_lines": [
+        12
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5663,
+          "repetition_score": 0.7383,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9612,
+          "lexical_similarity": 0.8333,
+          "entity_similarity": 0.8,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/acceleration/quick_analyser.py\\\") | .patch'\"}"
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5844335556030273,
+      "tokens": 47,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/acceleration/hashing.py\\\") | .patch'\"}",
+      "source_message_uuid": "6213fd23-4546-4c5c-8961-6de5a17b9c19",
+      "source_lines": [
+        14
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5844,
+          "repetition_score": 0.7414,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9699,
+          "lexical_similarity": 0.8333,
+          "entity_similarity": 0.8,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/acceleration/quick_analyser.py\\\") | .patch'\"}"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5359926223754883,
+      "tokens": 45,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/commands/watch.py\\\") | .patch'\"}",
+      "source_message_uuid": "6213fd23-4546-4c5c-8961-6de5a17b9c19",
+      "source_lines": [
+        15
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.536,
+          "repetition_score": 0.7325,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9448,
+          "lexical_similarity": 0.8333,
+          "entity_similarity": 0.8,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/acceleration/session_watcher.py\\\") | .patch'\"}"
+      }
+    },
+    {
+      "position": 9,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.529456377029419,
+      "tokens": 45,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/commands/context.py\\\") | .patch'\"}",
+      "source_message_uuid": "6213fd23-4546-4c5c-8961-6de5a17b9c19",
+      "source_lines": [
+        17
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5295,
+          "repetition_score": 0.7356,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9535,
+          "lexical_similarity": 0.8333,
+          "entity_similarity": 0.8,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/commands/watch.py\\\") | .patch'\"}"
+      }
+    },
+    {
+      "position": 10,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5542508363723755,
+      "tokens": 46,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/commands/analyze.py\\\") | .patch'\"}",
+      "source_message_uuid": "6213fd23-4546-4c5c-8961-6de5a17b9c19",
+      "source_lines": [
+        19
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5543,
+          "repetition_score": 0.7423,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9724,
+          "lexical_similarity": 0.8333,
+          "entity_similarity": 0.8,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/commands/context.py\\\") | .patch'\"}"
+      }
+    },
+    {
+      "position": 11,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.54673171043396,
+      "tokens": 46,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/commands/hook.py\\\") | .patch'\"}",
+      "source_message_uuid": "6213fd23-4546-4c5c-8961-6de5a17b9c19",
+      "source_lines": [
+        20
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5467,
+          "repetition_score": 0.7453,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9809,
+          "lexical_similarity": 0.8333,
+          "entity_similarity": 0.8,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 10,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/commands/analyze.py\\\") | .patch'\"}"
+      }
+    },
+    {
+      "position": 12,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.2182503491640091,
+      "tokens": 18,
+      "text": "Now let me also fetch the `__init__.py` files and remaining command files.",
+      "source_message_uuid": "9b1d6a10-b11a-48a8-a7d2-b0f3cb79577d",
+      "source_lines": [
+        25
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2183,
+          "repetition_score": 0.1927,
+          "confidence": 0.5,
+          "semantic_similarity": 0.2562,
+          "lexical_similarity": 0.2778,
+          "entity_similarity": 0.2667,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.7333
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Now let me fetch all the key file patches in parallel."
+      }
+    },
+    {
+      "position": 13,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5845293402671814,
+      "tokens": 48,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/acceleration/__init__.py\\\") | .patch'\"}",
+      "source_message_uuid": "9b1d6a10-b11a-48a8-a7d2-b0f3cb79577d",
+      "source_lines": [
+        26
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5845,
+          "repetition_score": 0.7454,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9813,
+          "lexical_similarity": 0.8333,
+          "entity_similarity": 0.8,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/acceleration/quick_analyser.py\\\") | .patch'\"}"
+      }
+    },
+    {
+      "position": 14,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5500119924545288,
+      "tokens": 46,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/commands/listing.py\\\") | .patch'\"}",
+      "source_message_uuid": "9b1d6a10-b11a-48a8-a7d2-b0f3cb79577d",
+      "source_lines": [
+        28
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.55,
+          "repetition_score": 0.7456,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9818,
+          "lexical_similarity": 0.8333,
+          "entity_similarity": 0.8,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 10,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/commands/analyze.py\\\") | .patch'\"}"
+      }
+    },
+    {
+      "position": 15,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5183546543121338,
+      "tokens": 46,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/commands/budget.py\\\") | .patch'\"}",
+      "source_message_uuid": "9b1d6a10-b11a-48a8-a7d2-b0f3cb79577d",
+      "source_lines": [
+        29
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5184,
+          "repetition_score": 0.7387,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9622,
+          "lexical_similarity": 0.8333,
+          "entity_similarity": 0.8,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 10,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/commands/analyze.py\\\") | .patch'\"}"
+      }
+    },
+    {
+      "position": 16,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5581677556037903,
+      "tokens": 45,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/commands/report.py\\\") | .patch'\"}",
+      "source_message_uuid": "9b1d6a10-b11a-48a8-a7d2-b0f3cb79577d",
+      "source_lines": [
+        31
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5582,
+          "repetition_score": 0.7438,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9765,
+          "lexical_similarity": 0.8333,
+          "entity_similarity": 0.8,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 10,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/commands/analyze.py\\\") | .patch'\"}"
+      }
+    },
+    {
+      "position": 17,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5532262325286865,
+      "tokens": 46,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/commands/benchmark.py\\\") | .patch'\"}",
+      "source_message_uuid": "9b1d6a10-b11a-48a8-a7d2-b0f3cb79577d",
+      "source_lines": [
+        32
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5532,
+          "repetition_score": 0.7385,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9616,
+          "lexical_similarity": 0.8333,
+          "entity_similarity": 0.8,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 10,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/commands/analyze.py\\\") | .patch'\"}"
+      }
+    },
+    {
+      "position": 18,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5520158410072327,
+      "tokens": 47,
+      "text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/commands/benchmark_compare.py\\\") | .patch'\"}",
+      "source_message_uuid": "9b1d6a10-b11a-48a8-a7d2-b0f3cb79577d",
+      "source_lines": [
+        34
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.552,
+          "repetition_score": 0.7473,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9865,
+          "lexical_similarity": 0.8333,
+          "entity_similarity": 0.8,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 17,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \\\"src/ter_calculator/commands/benchmark.py\\\") | .patch'\"}"
+      }
+    },
+    {
+      "position": 19,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.34986838698387146,
+      "tokens": 1211,
+      "text": "Now I have all the patches. Let me analyze them systematically for the issues the user asked about.\n\nLet me go through each file and identify issues:\n\n## 1. acceleration/__init__.py\n\nLooking at the `parallel_embed` wrapper:\n\n```python\ndef parallel_embed(texts, *, model_name=\"all-MiniLM-L6-v2\", n_workers=None):\n    \"\"\"Compatibility facade that keeps monkeypatchable fallback hooks.\"\"\"\n    original = _parallel._embed_single_process\n    _parallel._embed_single_process = globals()[\"_embed_single_process\"]\n    try:\n        return _parallel.parallel_embed(\n            texts,\n            model_name=model_name,\n            n_workers=n_workers,\n        )\n    finally:\n        _parallel._embed_single_process = original\n```\n\nThis approach has a race condition\u2014it's mutating a module-level attribute that could be accessed concurrently by multiple threads, causing unpredictable behavior. Additionally, `__all__` is exporting standard library modules like `multiprocessing` and `time`, which shouldn't be public API.\n\n## 2. acceleration/cache\n\nThe cache implementation uses `pickle.load` to deserialize stored data, which creates a security vulnerability if an attacker gains write access to the cache directory. While the code suppresses the security warning, there's no integrity checking like HMAC signatures, and file permissions aren't explicitly set. The writes are also non-atomic\u2014if the process crashes between writing the pickle file and the metadata file, the cache becomes corrupted with orphaned or mismatched entries. This should use atomic write patterns with a temporary file and rename operation.\n\nThread safety is another issue since `_hit_count` and `_miss_count` are incremented without synchronization, causing race conditions in multi-threaded scenarios, though this is minor since they're just statistics. The file also contains a large block of unused constants like `_STOP_WORDS` and `_DEFAULT_THRESHOLDS` that are duplicated across the acceleration package but never referenced in the cache module.\n\nLooking at `quick_analyser.py`, I notice imports happening inside loop bodies\u2014specifically importing `estimate_tokens` from the embedding cache module repeatedly for each span processed in the static method. While Python caches imports, this still involves unnecessary dictionary lookups on every iteration.\n\nThe keyword overlap scoring is using substring matching rather than word-level matching, which could cause false positives. A keyword like \"test\" would incorrectly match within \"testing\", \"fastest\", or \"contest\", which is a correctness issue worth addressing.\n\nMoving to the session watcher file, the `_running` flag uses a plain bool instead of a threading.Event, which isn't guaranteed to be atomic outside of CPython's GIL. The file also has the same duplicated constants block and lacks debouncing for file events\u2014if a file is being actively written, every poll cycle fires a MODIFIED_SESSION event. There's also a time-of-check-time-of-use issue in the `_snapshot` method.\n\nNow looking at the parallel embedding module, I see that `os.environ.setdefault()` is called in worker functions, which mutates the process environment. In multiprocessing this is fine since each worker is separate, but `_embed_single_process` runs in the main process and permanently modifies global state. Additionally, each multiprocessing worker independently loads the sentence-transformers model, which is extremely expensive since the model is hundreds of megabytes.\n\nFor a pool of 4 workers, this means loading the model 4 times with 4x the memory overhead, likely making parallelization counterproductive since model loading dominates the actual embedding time. The pool cleanup is handled correctly with a context manager.\n\nIn the watch command module, there's a potential resource leak with a log file handle opened around line 160. While there's a `finally` block at the end that closes it, there are earlier `return` statements that might skip cleanup, though checking the exception handler shows it does attempt to close the handle. Tracing through the control flow to verify the file handle gets closed properly in all paths\u2014the first try block closes it on failure, and the finally block ensures it closes after the second try block regardless of success or exception.\n\nBut there's a threading issue: the display thread is only joined when a KeyboardInterrupt occurs inside the dashboard block. If `monitor.run()` completes normally, the `stop_event` never gets set, leaving the daemon thread spinning on the `latest_signal` list at regular intervals even after the main program should have exited. I need to ensure `stop_event.set()` is called in the normal exit path too.\n\nThere's also a fragility issue with accessing `monitor._monitors`, a private attribute that could break if the internal implementation changes. And the module-level `_last_was_live` variable creates mutable global state that isn't thread-safe.\n\nMoving to the context.py file, I see resource cleanup is handled manually with `store.close()` and `graph.close()` calls. The `--latest` flag also mutates the args object directly, which could cause issues if args gets reused elsewhere. In hook.py, the stdin parsing looks straightforward, though reading all of stdin could theoretically block if it's a TTY without input, though that's expected behavior for a hook receiving piped data. Across the codebase, there's a massive duplication problem\u2014every file in the acceleration package contains the same ~90-line block of constants like cache directories, TTL settings, and embedding dimensions. uses `_DEFAULT_THRESHOLDS`, `_PHASE_WEIGHTS`, `_MIN_KEYWORD_LEN`, and `_STOP_WORDS`. The `__init__.py` file imports these constants from `hashing.py` and re-exports them, but each module still maintains its own duplicate copy\u2014a clear sign this code was split from a monolithic file without properly centralizing the constants. This creates a real maintainability issue since any changes need to be made in multiple places.\n\nI'm also noticing empty `TYPE_CHECKING` blocks in a couple of files that aren't doing anything useful. Let me pull together the complete list of issues I've found.",
+      "source_message_uuid": "61d6d9f4-5edb-457a-9e08-4fc2b6f8125a",
+      "source_lines": [
+        38
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3499,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 20,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5168993473052979,
+      "intent_similarity": 0.5168993473052979,
+      "tokens": 2440,
+      "text": "Now I have all the file patches. Let me compile my findings into a structured review.\n\n---\n\n## Code Review Findings: `acceleration/` and `commands/` subpackages (PR #27)\n\n### CRITICAL\n\n**1. Pickle deserialization without integrity verification**\n- **File**: `acceleration/cache.py`, line ~310 (`_read` method)\n- **Severity**: Critical (Security)\n- **Description**: `pickle.load(f)` deserializes cached artifacts from disk with no integrity check (no HMAC, signature, or checksum). If an attacker can write to `~/.cache/ter/analysis/` (e.g., symlink attack, shared system, malware), they achieve arbitrary code execution. The `# noqa: S301` suppresses the linter warning but does not mitigate the risk. At minimum, store an HMAC alongside the pickle and verify it before deserializing, or switch to a safe serialization format (JSON, msgpack) for the data types being cached.\n\n**2. Race condition in `__init__.py` monkeypatch wrapper**\n- **File**: `acceleration/__init__.py`, lines 28-38 (`parallel_embed` wrapper)\n- **Severity**: Critical (Thread Safety)\n- **Description**: The `parallel_embed` compatibility facade temporarily mutates the module-level attribute `_parallel._embed_single_process`, then restores it in a `finally` block. If two threads call this function concurrently, they will race on the global, causing one thread to restore the wrong original value or use the wrong fallback function. This needs a lock or should be restructured to avoid mutating shared state.\n\n```python\ndef parallel_embed(texts, *, model_name=\"all-MiniLM-L6-v2\", n_workers=None):\n    original = _parallel._embed_single_process          # RACE: read\n    _parallel._embed_single_process = globals()[\"_embed_single_process\"]  # RACE: write\n    try:\n        return _parallel.parallel_embed(...)\n    finally:\n        _parallel._embed_single_process = original      # RACE: restore\n```\n\n### HIGH\n\n**3. Non-atomic cache writes risk corruption**\n- **File**: `acceleration/cache.py`, lines ~335-350 (`_write` method)\n- **Severity**: High (Data Integrity)\n- **Description**: `_write` first writes the `.pkl` file, then writes the `.meta` sidecar. If the process is killed between the two writes, the cache entry is left in an inconsistent state (pkl without meta, which causes future reads to return `None` since `_read` checks both). Use write-to-temp-then-rename for atomic writes.\n\n**4. Resource leak in `commands/context.py` -- no try/finally for store/graph cleanup**\n- **File**: `commands/context.py`, all handler functions (`_cmd_context_store`, `_cmd_context_graph`, `_cmd_context_optimize`, `_cmd_context_delta`, `_cmd_context_check`)\n- **Severity**: High (Resource Leak)\n- **Description**: Every handler creates `FragmentStore()` and/or `ContextGraph()` objects and calls `.close()` at the end. If any exception occurs between creation and close, the resources leak (database connections, file handles). All five handlers have this pattern. They should use `try/finally` or context managers.\n\n```python\n# Current (every handler):\nstore = FragmentStore()\n# ... work that can throw ...\nstore.close()   # skipped on exception\n\n# Should be:\nstore = FragmentStore()\ntry:\n    # ... work ...\nfinally:\n    store.close()\n```\n\n**5. Dashboard thread never stopped on normal exit**\n- **File**: `commands/watch.py`, lines ~235-265 (dashboard mode)\n- **Severity**: High (Resource Leak / Thread Safety)\n- **Description**: The `display_thread` is a daemon thread that loops every 0.25s calling `live.update()`. `stop_event.set()` and `display_thread.join()` are only called inside the `KeyboardInterrupt` handler. If `monitor.run()` returns normally (no interrupt), the thread is never stopped and the `stop_event` is never set. While daemon threads die on process exit, the thread will spin and potentially call `live.update()` after the `Live` context manager has exited, causing `rich` rendering errors.\n\n### MEDIUM\n\n**6. Massive duplicated constants block across all acceleration files**\n- **Files**: `acceleration/hashing.py`, `acceleration/cache.py`, `acceleration/quick_analyser.py`, `acceleration/session_watcher.py`, `acceleration/parallel.py`\n- **Severity**: Medium (Maintainability)\n- **Description**: All five files contain an identical ~90-line block defining `DEFAULT_CACHE_DIR`, `CACHE_VERSION`, `DEFAULT_TTL_HOURS`, `DEFAULT_WATCH_INTERVAL`, `DEFAULT_WATCH_DIR`, `EMBEDDING_DIM`, `_DEFAULT_THRESHOLDS`, `_PHASE_WEIGHTS`, `_MIN_KEYWORD_LEN`, and the ~70-line `_STOP_WORDS` frozenset. Most files use only a subset (e.g., `hashing.py` and `parallel.py` use none of them). This is clearly an extraction artifact from splitting a monolithic module. If a constant is updated in one file, the others will silently diverge. These should be defined once (e.g., in a `_constants.py` or in `hashing.py` as the canonical location) and imported where needed.\n\n**7. Parallel embedding may be counterproductive -- model loaded per worker**\n- **File**: `acceleration/parallel.py`, lines ~110-130 (`_embed_worker`)\n- **Severity**: Medium (Performance)\n- **Description**: Each multiprocessing worker independently loads the sentence-transformers model (~80-400MB depending on model). With 4 workers, this means 4x model loading time and 4x memory. For the default `all-MiniLM-L6-v2` model, the encoding is typically fast enough that the model-loading overhead will dominate, making parallelization counterproductive except for very large inputs (thousands of texts). The 100-text threshold for parallel mode is likely too low. Consider model sharing via shared memory or raising the threshold significantly.\n\n**8. `os.environ` mutation in main process**\n- **File**: `acceleration/parallel.py`, lines ~220-230 (`_embed_single_process`)\n- **Severity**: Medium (Side Effect)\n- **Description**: `_embed_single_process` calls `os.environ.setdefault()` for `HF_HUB_DISABLE_PROGRESS_BARS`, `TRANSFORMERS_VERBOSITY`, and `HF_HUB_VERBOSITY`. This permanently mutates the main process environment. While `setdefault` won't overwrite existing values, it's a side effect that could affect other parts of the application or subprocesses. These should be set via the model's API or via a context-local mechanism rather than global env vars.\n\n**9. Keyword overlap uses substring matching, not word-boundary matching**\n- **File**: `acceleration/quick_analyser.py`, lines ~285-295 (`_keyword_overlap_score`)\n- **Severity**: Medium (Correctness)\n- **Description**: The scoring function uses `if kw in text_lower` which is substring matching. A keyword like `\"test\"` would match inside `\"fastest\"`, `\"contest\"`, `\"testing\"`, inflating alignment scores. For a \"quick approximate\" analyser this may be acceptable, but it introduces systematic bias toward higher alignment scores, particularly for short keywords. Consider using word-boundary regex or tokenizing the text first.\n\n**10. `_cmd_analyze` mutates `args` object**\n- **File**: `commands/analyze.py`, line ~14\n- **Severity**: Medium (Side Effect)\n- **Description**: When `--latest` is used, the function mutates `args.session_path = str(find_latest_session(...))`. If the `args` namespace is reused or inspected after this call, it will reflect the resolved path rather than the original argument. This is a pattern seen in other command files too (`report.py` line ~14).\n\n**11. Accessing private attribute `monitor._monitors`**\n- **File**: `commands/watch.py`, lines ~245-250 (dashboard `update_display` closure)\n- **Severity**: Medium (Fragility)\n- **Description**: The `update_display` function accesses `monitor._monitors` (a private attribute of `LiveDashboard`) and then accesses `.state.recent_ter_values` on the first monitor. This couples the command layer tightly to internal implementation details. If `LiveDashboard` refactors its internals, this will break silently.\n\n### LOW\n\n**12. Dead `TYPE_CHECKING` blocks**\n- **Files**: `acceleration/quick_analyser.py` lines 10-12, `acceleration/session_watcher.py` lines 10-12\n- **Severity**: Low (Dead Code)\n- **Description**: Both files import `TYPE_CHECKING` and then have `if TYPE_CHECKING: pass` -- an empty block that does nothing. This is dead code remaining from the extraction.\n\n**13. `__all__` exports standard library modules**\n- **File**: `acceleration/__init__.py`, lines 56-57\n- **Severity**: Low (API Hygiene)\n- **Description**: `__all__` includes `\"multiprocessing\"` and `\"time\"`, which are standard library modules imported at the top of `__init__.py`. These should not be part of the package's public API. They appear to be included to maintain backward compatibility with code that was doing `from ter_calculator.acceleration import multiprocessing`, which itself was likely unintentional.\n\n**14. No debouncing in SessionWatcher**\n- **File**: `acceleration/session_watcher.py`, `_poll` method\n- **Severity**: Low (UX / Performance)\n- **Description**: Every poll cycle fires a `MODIFIED_SESSION` event if the mtime has changed. When a session file is being actively written (e.g., during a long Claude Code interaction), this fires an event every `interval` seconds, each triggering a full re-analysis. There is no debouncing (e.g., waiting for mtime to stabilize for N seconds) to avoid analysing partially-written files.\n\n**15. Repeated inline import of `estimate_tokens` in loop**\n- **File**: `acceleration/quick_analyser.py`, lines ~210 and ~255 (inside `_parse_session`)\n- **Severity**: Low (Performance)\n- **Description**: `from ter_calculator.embedding_cache import estimate_tokens` appears twice inside `_parse_session`, both inside code paths that execute per-content-block. While Python caches module imports, the `importlib` lookup on each iteration is unnecessary overhead. Move the import to the top of the method.\n\n**16. `_cmd_list` calls `stat()` twice per file**\n- **File**: `commands/listing.py`, lines ~52-60\n- **Severity**: Low (Performance)\n- **Description**: For each jsonl file, `jsonl_file.stat().st_size` and `jsonl_file.stat().st_mtime` are called separately, issuing two syscalls per file when one would suffice by caching the `stat` result.\n\n### Summary\n\n| Severity | Count | Key themes |\n|----------|-------|------------|\n| Critical | 2 | Pickle deserialization without integrity check; thread-unsafe monkeypatching |\n| High | 3 | Non-atomic cache writes; resource leaks in context commands; orphaned dashboard thread |\n| Medium | 6 | Duplicated constants (5 copies); counterproductive parallelization; env mutation; substring matching bias; args mutation; private attribute access |\n| Low | 5 | Dead code; API hygiene; no debouncing; repeated inline imports; redundant stat calls |",
+      "source_message_uuid": "61d6d9f4-5edb-457a-9e08-4fc2b6f8125a",
+      "source_lines": [
+        39
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5169,
+          "repetition_score": 0.2223,
+          "confidence": 0.5169,
+          "semantic_similarity": 0.3825,
+          "lexical_similarity": 0.0156,
+          "entity_similarity": 0.0141,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9859
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 12,
+        "matched_prior_text": "Now let me also fetch the `__init__.py` files and remaining command files."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "context_restatement",
+        "tokens_wasted": 12,
+        "description": "Response restates prior content (similarity: 0.90)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Context Restatement",
+        "tokens": 12,
+        "percentage": 100.0,
+        "cost_usd": 0.00018,
+        "count": 1,
+        "pricing": "output"
+      }
+    ],
+    "total_tokens": 12,
+    "total_cost_usd": 0.00018
+  },
+  "economics": {
+    "total_input_tokens": 7,
+    "total_output_tokens": 41,
+    "total_cache_creation_tokens": 31049,
+    "total_cache_read_tokens": 107967,
+    "input_output_ratio": 0.17,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.1495,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 7,
+      "mid_span_count": 7,
+      "late_span_count": 7
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        13121,
+        15837,
+        16917,
+        21738,
+        40361
+      ],
+      "growth_rate": 3.08,
+      "is_superlinear": true,
+      "context_bloat_detected": true
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 425,
+      "user_result_tokens": 20386,
+      "model_reasoning_tokens": 1211,
+      "model_tool_tokens": 761,
+      "model_generation_tokens": 2490,
+      "total_user_tokens": 20811,
+      "total_model_tokens": 4462,
+      "user_ratio": 0.8234
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.5144,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "I'm reviewing GitHub PR #27 on the TER repository (lgriffin/TER). This is a \"Prepare TER 2.0.0 public release\" PR \u2014 155 files, single commit.\n\nYour job: review the new `acceleration/` subpackage and `commands/` subpackage for correctness, security, and quality.\n\nFetch file patches with:\n```\ngh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename | test(\"acceleration/|commands/\")) | \"\\(.filename)\\t\\(.additions)\\t\\(.deletions)\"'\n```\n\nThen for each file:\n```\ngh api repos/lgriffin/TER/pulls/27/files --paginate --jq '.[] | select(.filename == \"FILE\") | .patch'\n```\n\nKey files:\n- `src/ter_calculator/acceleration/quick_analyser.py` (471 additions)\n- `src/ter_calculator/acceleration/cache.py` (368 additions)\n- `src/ter_calculator/acceleration/session_watcher.py` (281 additions)\n- `src/ter_calculator/acceleration/parallel.py` (247 additions)\n- `src/ter_calculator/acceleration/hashing.py` (149 additions)\n- `src/ter_calculator/commands/watch.py` (301 additions)\n- `src/ter_calculator/commands/context.py` (263 additions)\n- `src/ter_calculator/commands/analyze.py` (185 additions)\n- `src/ter_calculator/commands/hook.py` (65 additions)\n\nLook for:\n1. Race conditions or thread safety issues (especially in parallel.py, session_watcher.py)\n2. Cache invalidation bugs (cache.py, hashing.py)\n3. File system operations without proper error handling\n4. Security issues (path traversal, injection, etc.)\n5. Resource leaks (file handles, threads)\n6. Dead code or incomplete implementations\n\nReport findings as a structured list with file, line context, severity, and description.",
+          "response_text": "I'll start by fetching the file list and then retrieve the patches for all key files in parallel. Now let me fetch all the key file patches in parallel. Now let me also fetch the `__init__.py` files and remaining command files. Now I have all the file patches. Let me compile my findings into a structured review.\n\n---\n\n## Code Review Findings: `acceleration/` and `commands/` subpackages (PR #27)\n\n### CRITICAL\n\n**1. Pickle deserialization without integrity verification**\n- **File**: `acceleration/cache.py`, line ~310 (`_read` method)\n- **Severity**: Critical (Security)\n- **Description**: `pickle.load(f)` deserializes cached artifacts from disk with no integrity check (no HMAC, signature, or checksum). If an attacker can write to `~/.cache/ter/analysis/` (e.g., symlink attack, shared system, malware), they achieve arbitrary code execution. The `# noqa: S301` suppresses the linter warning but does not mitigate the risk. At minimum, store an HMAC alongside the pickle and verify it before deserializing, or switch to a safe serialization format (JSON, msgpack) for the data types being cached.\n\n**2. Race condition in `__init__.py` monkeypatch wrapper**\n- **File**: `acceleration/__init__.py`, lines 28-38 (`parallel_embed` wrapper)\n- **Severity**: Critical (Thread Safety)\n- **Description**: The `parallel_embed` compatibility facade temporarily mutates the module-level attribute `_parallel._embed_single_process`, then restores it in a `finally` block. If two threads call this function concurrently, they will race on the global, causing one thread to restore the wrong original value or use the wrong fallback function. This needs a lock or should be restructured to avoid mutating shared state.\n\n```python\ndef parallel_embed(texts, *, model_name=\"all-MiniLM-L6-v2\", n_workers=None):\n    original = _parallel._embed_single_process          # RACE: read\n    _parallel._embed_single_process = globals()[\"_embed_single_process\"]  # RACE: write\n    try:\n        return _parallel.parallel_embed(...)\n    finally:\n        _parallel._embed_single_process = original      # RACE: restore\n```\n\n### HIGH\n\n**3. Non-atomic cache writes risk corruption**\n- **File**: `acceleration/cache.py`, lines ~335-350 (`_write` method)\n- **Severity**: High (Data Integrity)\n- **Description**: `_write` first writes the `.pkl` file, then writes the `.meta` sidecar. If the process is killed between the two writes, the cache entry is left in an inconsistent state (pkl without meta, which causes future reads to return `None` since `_read` checks both). Use write-to-temp-then-rename for atomic writes.\n\n**4. Resource leak in `commands/context.py` -- no try/finally for store/graph cleanup**\n- **File**: `commands/context.py`, all handler functions (`_cmd_context_store`, `_cmd_context_graph`, `_cmd_context_optimize`, `_cmd_context_delta`, `_cmd_context_check`)\n- **Severity**: High (Resource Leak)\n- **Description**: Every handler creates `FragmentStore()` and/or `ContextGraph()` objects and calls `.close()` at the end. If any exception occurs between creation and close, the resources leak (database connections, file handles). All five handlers have this pattern. They should use `try/finally` or context managers.\n\n```python\n# Current (every handler):\nstore = FragmentStore()\n# ... work that can throw ...\nstore.close()   # skipped on exception\n\n# Should be:\nstore = FragmentStore()\ntry:\n    # ... work ...\nfinally:\n    store.close()\n```\n\n**5. Dashboard thread never stopped on normal exit**\n- **File**: `commands/watch.py`, lines ~235-265 (dashboard mode)\n- **Severity**: High (Resource Leak / Thread Safety)\n- **Description**: The `display_thread` is a daemon thread that loops every 0.25s calling `live.update()`. `stop_event.set()` and `display_thread.join()` are only called inside the `KeyboardInterrupt` handler. If `monitor.run()` returns normally (no interrupt), the thread is never stopped and the `stop_event` is never set. While daemon threads die on process exit, the thread will spin and potentially call `live.update()` after the `Live` context manager has exited, causing `rich` rendering errors.\n\n### MEDIUM\n\n**6. Massive duplicated constants block across all acceleration files**\n- **Files**: `acceleration/hashing.py`, `acceleration/cache.py`, `acceleration/quick_analyser.py`, `acceleration/session_watcher.py`, `acceleration/parallel.py`\n- **Severity**: Medium (Maintainability)\n- **Description**: All five files contain an identical ~90-line block defining `DEFAULT_CACHE_DIR`, `CACHE_VERSION`, `DEFAULT_TTL_HOURS`, `DEFAULT_WATCH_INTERVAL`, `DEFAULT_WATCH_DIR`, `EMBEDDING_DIM`, `_DEFAULT_THRESHOLDS`, `_PHASE_WEIGHTS`, `_MIN_KEYWORD_LEN`, and the ~70-line `_STOP_WORDS` frozenset. Most files use only a subset (e.g., `hashing.py` and `parallel.py` use none of them). This is clearly an extraction artifact from splitting a monolithic module. If a constant is updated in one file, the others will silently diverge. These should be defined once (e.g., in a `_constants.py` or in `hashing.py` as the canonical location) and imported where needed.\n\n**7. Parallel embedding may be counterproductive -- model loaded per worker**\n- **File**: `acceleration/parallel.py`, lines ~110-130 (`_embed_worker`)\n- **Severity**: Medium (Performance)\n- **Description**: Each multiprocessing worker independently loads the sentence-transformers model (~80-400MB depending on model). With 4 workers, this means 4x model loading time and 4x memory. For the default `all-MiniLM-L6-v2` model, the encoding is typically fast enough that the model-loading overhead will dominate, making parallelization counterproductive except for very large inputs (thousands of texts). The 100-text threshold for parallel mode is likely too low. Consider model sharing via shared memory or raising the threshold significantly.\n\n**8. `os.environ` mutation in main process**\n- **File**: `acceleration/parallel.py`, lines ~220-230 (`_embed_single_process`)\n- **Severity**: Medium (Side Effect)\n- **Description**: `_embed_single_process` calls `os.environ.setdefault()` for `HF_HUB_DISABLE_PROGRESS_BARS`, `TRANSFORMERS_VERBOSITY`, and `HF_HUB_VERBOSITY`. This permanently mutates the main process environment. While `setdefault` won't overwrite existing values, it's a side effect that could affect other parts of the application or subprocesses. These should be set via the model's API or via a context-local mechanism rather than global env vars.\n\n**9. Keyword overlap uses substring matching, not word-boundary matching**\n- **File**: `acceleration/quick_analyser.py`, lines ~285-295 (`_keyword_overlap_score`)\n- **Severity**: Medium (Correctness)\n- **Description**: The scoring function uses `if kw in text_lower` which is substring matching. A keyword like `\"test\"` would match inside `\"fastest\"`, `\"contest\"`, `\"testing\"`, inflating alignment scores. For a \"quick approximate\" analyser this may be acceptable, but it introduces systematic bias toward higher alignment scores, particularly for short keywords. Consider using word-boundary regex or tokenizing the text first.\n\n**10. `_cmd_analyze` mutates `args` object**\n- **File**: `commands/analyze.py`, line ~14\n- **Severity**: Medium (Side Effect)\n- **Description**: When `--latest` is used, the function mutates `args.session_path = str(find_latest_session(...))`. If the `args` namespace is reused or inspected after this call, it will reflect the resolved path rather than the original argument. This is a pattern seen in other command files too (`report.py` line ~14).\n\n**11. Accessing private attribute `monitor._monitors`**\n- **File**: `commands/watch.py`, lines ~245-250 (dashboard `update_display` closure)\n- **Severity**: Medium (Fragility)\n- **Description**: The `update_display` function accesses `monitor._monitors` (a private attribute of `LiveDashboard`) and then accesses `.state.recent_ter_values` on the first monitor. This couples the command layer tightly to internal implementation details. If `LiveDashboard` refactors its internals, this will break silently.\n\n### LOW\n\n**12. Dead `TYPE_CHECKING` blocks**\n- **Files**: `acceleration/quick_analyser.py` lines 10-12, `acceleration/session_watcher.py` lines 10-12\n- **Severity**: Low (Dead Code)\n- **Description**: Both files import `TYPE_CHECKING` and then have `if TYPE_CHECKING: pass` -- an empty block that does nothing. This is dead code remaining from the extraction.\n\n**13. `__all__` exports standard library modules**\n- **File**: `acceleration/__init__.py`, lines 56-57\n- **Severity**: Low (API Hygiene)\n- **Description**: `__all__` includes `\"multiprocessing\"` and `\"time\"`, which are standard library modules imported at the top of `__init__.py`. These should not be part of the package's public API. They appear to be included to maintain backward compatibility with code that was doing `from ter_calculator.acceleration import multiprocessing`, which itself was likely unintentional.\n\n**14. No debouncing in SessionWatcher**\n- **File**: `acceleration/session_watcher.py`, `_poll` method\n- **Severity**: Low (UX / Performance)\n- **Description**: Every poll cycle fires a `MODIFIED_SESSION` event if the mtime has changed. When a session file is being actively written (e.g., during a long Claude Code interaction), this fires an event every `interval` seconds, each triggering a full re-analysis. There is no debouncing (e.g., waiting for mtime to stabilize for N seconds) to avoid analysing partially-written files.\n\n**15. Repeated inline import of `estimate_tokens` in loop**\n- **File**: `acceleration/quick_analyser.py`, lines ~210 and ~255 (inside `_parse_session`)\n- **Severity**: Low (Performance)\n- **Description**: `from ter_calculator.embedding_cache import estimate_tokens` appears twice inside `_parse_session`, both inside code paths that execute per-content-block. While Python caches module imports, the `importlib` lookup on each iteration is unnecessary overhead. Move the import to the top of the method.\n\n**16. `_cmd_list` calls `stat()` twice per file**\n- **File**: `commands/listing.py`, lines ~52-60\n- **Severity**: Low (Performance)\n- **Description**: For each jsonl file, `jsonl_file.stat().st_size` and `jsonl_file.stat().st_mtime` are called separately, issuing two syscalls per file when one would suffice by caching the `stat` result.\n\n### Summary\n\n| Severity | Count | Key themes |\n|----------|-------|------------|\n| Critical | 2 | Pickle deserialization without integrity check; thread-unsafe monkeypatching |\n| High | 3 | Non-atomic cache writes; resource leaks in context commands; orphaned dashboard thread |\n| Medium | 6 | Duplicated constants (5 copies); counterproductive parallelization; env mutation; substring matching bias; args mutation; private attribute access |\n| Low | 5 | Dead code; API hygiene; no debouncing; repeated inline imports; redundant stat calls |",
+          "alignment": 0.5144
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "e0cd3457-3774-47bf-ade8-372891f95dec",
+    "source_file": "data/D--code-TER__agent-a7b489b7658c433b0.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

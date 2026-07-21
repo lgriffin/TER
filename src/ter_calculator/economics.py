@@ -10,7 +10,6 @@ from .models import (
     PositionalBreakdown,
     Session,
     SessionEconomics,
-    SpanLabel,
 )
 
 
@@ -27,7 +26,9 @@ def compute_economics(
     io_ratio = input_tok / output_tok if output_tok > 0 else 0.0
     cost = _estimate_cost(input_tok, output_tok, cache_read, cache_create, model)
     waste_cost, cal_ratio = _estimate_waste_cost(
-        classified_spans, model, billed_output_tokens=output_tok,
+        classified_spans,
+        model,
+        billed_output_tokens=output_tok,
     )
     positional = _compute_positional_breakdown(classified_spans)
     growth = _compute_input_growth(session)
@@ -97,7 +98,8 @@ def _estimate_cost(
 def _assistant_span_token_total(classified_spans: list[ClassifiedSpan]) -> int:
     """Heuristic token count for assistant-origin spans (matches billed output scope)."""
     return sum(
-        cs.span.token_count for cs in classified_spans
+        cs.span.token_count
+        for cs in classified_spans
         if cs.span.source_role == "assistant"
     )
 
@@ -105,7 +107,8 @@ def _assistant_span_token_total(classified_spans: list[ClassifiedSpan]) -> int:
 def _assistant_waste_tokens(classified_spans: list[ClassifiedSpan]) -> int:
     """Waste tokens attributed to assistant messages only."""
     return sum(
-        cs.span.token_count for cs in classified_spans
+        cs.span.token_count
+        for cs in classified_spans
         if cs.label not in ALIGNED_LABELS and cs.span.source_role == "assistant"
     )
 
@@ -147,8 +150,12 @@ def _compute_positional_breakdown(
     n = len(classified_spans)
     if n == 0:
         return PositionalBreakdown(
-            early_ter=1.0, mid_ter=1.0, late_ter=1.0,
-            early_span_count=0, mid_span_count=0, late_span_count=0,
+            early_ter=1.0,
+            mid_ter=1.0,
+            late_ter=1.0,
+            early_span_count=0,
+            mid_span_count=0,
+            late_span_count=0,
         )
 
     third = n // 3
@@ -157,8 +164,8 @@ def _compute_positional_breakdown(
         third = 1
 
     early = classified_spans[:third]
-    mid = classified_spans[third:2 * third]
-    late = classified_spans[2 * third:]
+    mid = classified_spans[third : 2 * third]
+    late = classified_spans[2 * third :]
 
     return PositionalBreakdown(
         early_ter=round(_segment_ter(early), 4),
@@ -175,9 +182,7 @@ def _segment_ter(spans: list[ClassifiedSpan]) -> float:
     total = sum(cs.span.token_count for cs in spans)
     if total == 0:
         return 1.0
-    aligned = sum(
-        cs.span.token_count for cs in spans if cs.label in ALIGNED_LABELS
-    )
+    aligned = sum(cs.span.token_count for cs in spans if cs.label in ALIGNED_LABELS)
     return aligned / total
 
 
@@ -217,10 +222,7 @@ def _compute_input_growth(session: Session) -> InputGrowth:
             turn_contexts[i + 1] - turn_contexts[i]
             for i in range(len(turn_contexts) - 1)
         ]
-        second_deltas = [
-            deltas[i + 1] - deltas[i]
-            for i in range(len(deltas) - 1)
-        ]
+        second_deltas = [deltas[i + 1] - deltas[i] for i in range(len(deltas) - 1)]
         avg_second = sum(second_deltas) / len(second_deltas)
         is_superlinear = avg_second > 0
 

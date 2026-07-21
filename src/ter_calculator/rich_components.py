@@ -9,6 +9,12 @@ Components accept primitive types (not TERResult/TERSignal) so both can use them
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from rich.panel import Panel
+    from rich.table import Table
+
 
 def ter_color(value: float) -> str:
     """Return Rich color name for a TER score.
@@ -54,10 +60,7 @@ def format_sparkline(values: list[float], width: int = 10) -> str:
         return "▄" * len(recent)
 
     # Normalize to 0-8 range
-    normalized = [
-        int((v - min_val) / (max_val - min_val) * 8)
-        for v in recent
-    ]
+    normalized = [int((v - min_val) / (max_val - min_val) * 8) for v in recent]
 
     return "".join(blocks[n] for n in normalized)
 
@@ -112,22 +115,29 @@ def create_ter_header_panel(
         (f"{ter_score:.2f}", ter_color(ter_score)),
         ("  |  ", "dim"),
         ("Waste: ", "bold"),
-        (f"{waste_pct:.1f}%", "red" if waste_pct > 10 else "yellow" if waste_pct > 5 else "green"),
+        (
+            f"{waste_pct:.1f}%",
+            "red" if waste_pct > 10 else "yellow" if waste_pct > 5 else "green",
+        ),
     ]
 
     if cost_usd is not None:
-        parts.extend([
-            ("  |  ", "dim"),
-            ("Cost: ", "bold"),
-            (f"${cost_usd:.2f}", ""),
-        ])
+        parts.extend(
+            [
+                ("  |  ", "dim"),
+                ("Cost: ", "bold"),
+                (f"${cost_usd:.2f}", ""),
+            ]
+        )
 
     if waste_cost_usd is not None and waste_cost_usd > 0:
-        parts.extend([
-            ("  |  ", "dim"),
-            ("Waste $: ", "bold"),
-            (f"${waste_cost_usd:.4f}", "red"),
-        ])
+        parts.extend(
+            [
+                ("  |  ", "dim"),
+                ("Waste $: ", "bold"),
+                (f"${waste_cost_usd:.4f}", "red"),
+            ]
+        )
 
     # Add subtitle if provided
     if subtitle_text:
@@ -161,7 +171,9 @@ def create_phases_table(
     from rich.table import Table
     from rich.text import Text
 
-    table = Table(show_header=True, show_edge=False, box=None, padding=(0, 2), expand=False)
+    table = Table(
+        show_header=True, show_edge=False, box=None, padding=(0, 2), expand=False
+    )
     table.add_column("Phases", style="bold", width=width)
     table.add_column("Reasoning", justify="center", width=width)
     table.add_column("Tool Use", justify="center", width=width)
@@ -220,7 +232,9 @@ def create_tokens_table(
     from rich.table import Table
     from rich.text import Text
 
-    table = Table(show_header=False, show_edge=False, box=None, padding=(0, 2), expand=False)
+    table = Table(
+        show_header=False, show_edge=False, box=None, padding=(0, 2), expand=False
+    )
     table.add_column("Label", style="bold", width=12)
     table.add_column("Value", width=70)
 
@@ -236,7 +250,7 @@ def create_tokens_table(
             ("  │  ", "dim"),
             ("Waste: ", ""),
             (f"{waste_tokens:,}", "red"),
-        )
+        ),
     )
 
     # Input/cache row (if data available)
@@ -244,26 +258,34 @@ def create_tokens_table(
         parts = []
 
         if input_tokens is not None:
-            parts.extend([
-                ("Input: ", ""),
-                (f"{input_tokens:,}", "cyan"),
-                ("  │  ", "dim"),
-            ])
+            parts.extend(
+                [
+                    ("Input: ", ""),
+                    (f"{input_tokens:,}", "cyan"),
+                    ("  │  ", "dim"),
+                ]
+            )
 
         if cache_read_tokens is not None:
-            parts.extend([
-                ("Cache: ", ""),
-                (f"{cache_read_tokens:,}", "cyan"),
-                ("  │  ", "dim"),
-            ])
+            parts.extend(
+                [
+                    ("Cache: ", ""),
+                    (f"{cache_read_tokens:,}", "cyan"),
+                    ("  │  ", "dim"),
+                ]
+            )
 
         if cache_hit_rate is not None:
             cache_pct = cache_hit_rate * 100
-            cache_color = "green" if cache_pct > 90 else "yellow" if cache_pct > 50 else "red"
-            parts.extend([
-                ("Hit: ", ""),
-                (f"{cache_pct:.1f}%", cache_color),
-            ])
+            cache_color = (
+                "green" if cache_pct > 90 else "yellow" if cache_pct > 50 else "red"
+            )
+            parts.extend(
+                [
+                    ("Hit: ", ""),
+                    (f"{cache_pct:.1f}%", cache_color),
+                ]
+            )
 
         if parts:
             table.add_row("", Text.assemble(*parts))
@@ -293,9 +315,13 @@ def create_context_section(
         return None
 
     bloat_indicator = "  ⚠️  BLOAT" if bloat_detected else ""
-    growth_color = "red" if bloat_detected else "yellow" if growth_rate > 2.0 else "green"
+    growth_color = (
+        "red" if bloat_detected else "yellow" if growth_rate > 2.0 else "green"
+    )
 
-    table = Table(show_header=False, show_edge=False, box=None, padding=(0, 2), expand=False)
+    table = Table(
+        show_header=False, show_edge=False, box=None, padding=(0, 2), expand=False
+    )
     table.add_column("Label", style="bold", width=12)
     table.add_column("Value", width=70)
 
@@ -306,7 +332,7 @@ def create_context_section(
             (f"{growth_rate:.1f}x", growth_color),
             (f" over {message_count} turns", ""),
             (bloat_indicator, "red" if bloat_detected else ""),
-        )
+        ),
     )
 
     return table
@@ -327,7 +353,9 @@ def create_warnings_section(warnings: list[str]) -> "Table | None":
     if not warnings:
         return None
 
-    table = Table(show_header=False, show_edge=False, box=None, padding=(0, 2), expand=False)
+    table = Table(
+        show_header=False, show_edge=False, box=None, padding=(0, 2), expand=False
+    )
     table.add_column("Label", style="bold", width=12)
     table.add_column("Value", width=70)
 
@@ -359,7 +387,9 @@ def create_tools_section(
     if total_tool_calls == 0:
         return None
 
-    table = Table(show_header=False, show_edge=False, box=None, padding=(0, 2), expand=False)
+    table = Table(
+        show_header=False, show_edge=False, box=None, padding=(0, 2), expand=False
+    )
     table.add_column("Label", style="bold", width=12)
     table.add_column("Value", width=70)
 
@@ -371,11 +401,13 @@ def create_tools_section(
         (f"{unique_tool_types}", "cyan"),
     ]
     if waste_tool_tokens > 0:
-        parts.extend([
-            ("  │  ", "dim"),
-            ("Waste: ", ""),
-            (f"{waste_tool_tokens:,} tok", "red"),
-        ])
+        parts.extend(
+            [
+                ("  │  ", "dim"),
+                ("Waste: ", ""),
+                (f"{waste_tool_tokens:,} tok", "red"),
+            ]
+        )
 
     table.add_row("Tools", Text.assemble(*parts))
     return table
@@ -400,18 +432,24 @@ def create_waste_patterns_section(
     if not waste_sources:
         return None
 
-    table = Table(show_header=False, show_edge=False, box=None, padding=(0, 2), expand=False)
+    table = Table(
+        show_header=False, show_edge=False, box=None, padding=(0, 2), expand=False
+    )
     table.add_column("Label", style="bold", width=12)
     table.add_column("Value", width=70)
 
     # Sort by token count and take top N
-    sorted_sources = sorted(waste_sources.items(), key=lambda x: x[1], reverse=True)[:top_n]
+    sorted_sources = sorted(waste_sources.items(), key=lambda x: x[1], reverse=True)[
+        :top_n
+    ]
 
     for i, (source, tokens) in enumerate(sorted_sources):
         label = "Top Waste" if i == 0 else ""
         table.add_row(
             label,
-            Text.assemble(("• ", ""), (f"{source}: ", ""), (f"{tokens:,} tokens", "red"))
+            Text.assemble(
+                ("• ", ""), (f"{source}: ", ""), (f"{tokens:,} tokens", "red")
+            ),
         )
 
     return table

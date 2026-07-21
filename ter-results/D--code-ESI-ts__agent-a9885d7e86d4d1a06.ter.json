@@ -1,0 +1,316 @@
+{
+  "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 2924,
+  "aligned_tokens": 2924,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6124,
+    "token_weighted_confidence": 0.6269,
+    "low_confidence_tokens": 2395,
+    "low_confidence_share": 0.8191,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 6,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "waste_patterns": [
+    {
+      "type": "context_restatement",
+      "start_position": 2,
+      "end_position": 2,
+      "spans_involved": 1,
+      "tokens_wasted": 11,
+      "description": "Response restates prior content (similarity: 0.91)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.27451205253601074,
+      "tokens": 16,
+      "text": "\n\nI'll create both files. Let me first verify the parent directories exist.",
+      "source_message_uuid": "e4a15e87-c6bb-4760-8cf0-5483c7bad4f4",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.2745,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.28334957361221313,
+      "tokens": 63,
+      "text": "Bash {\"command\":\"ls \\\"D:/code/ESI.ts/tests/bdd/features/core\\\" 2>/dev/null; echo \\\"---\\\"; ls \\\"D:/code/ESI.ts/tests/bdd/step-definitions/core\\\" 2>/dev/null\",\"description\":\"Check if target directories exist\"}",
+      "source_message_uuid": "e4a15e87-c6bb-4760-8cf0-5483c7bad4f4",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.2833,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.26564836502075195,
+      "tokens": 11,
+      "text": "Both directories exist. Now I'll create both files.",
+      "source_message_uuid": "fc2d764f-0b5d-4308-ae96-b86af04708ff",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2656,
+          "repetition_score": 0.6939,
+          "confidence": 0.5,
+          "semantic_similarity": 0.9051,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.4545,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.5455
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "\n\nI'll create both files. Let me first verify the parent directories exist."
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.7694281935691833,
+      "intent_similarity": 0.7694281935691833,
+      "tokens": 400,
+      "text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/features/core/etag-caching.feature\",\"content\":\"Feature: ETag Caching System\\n\\n  Scenario: First-time API request caches response\\n    Given a fresh client with no cached data\\n    When I make an API request that returns an ETag\\n    Then the response should be cached for future use\\n\\n  Scenario: Subsequent request with unchanged data returns cached response\\n    Given cached data with an ETag\\n    When I make the same request and server returns 304 Not Modified\\n    Then I should receive the cached data without a new download\\n\\n  Scenario: Data changes trigger cache update\\n    Given cached data with an ETag for update\\n    When the server returns new data with a different ETag\\n    Then the cache should be updated with the new data\\n\\n  Scenario: Cache statistics provide insight into performance\\n    Given multiple cached responses exist\\n    When I request cache statistics\\n    Then I should receive detailed information about cache usage\\n\\n  Scenario: Cache can be manually cleared\\n    Given a cache with stored responses\\n    When I clear the cache\\n    Then all cached data should be removed\\n\\n  Scenario: Cache configuration can be updated at runtime\\n    Given a client with initial cache settings\\n    When I update the cache configuration\\n    Then the new settings should take effect\\n\\n  Scenario: Handle server errors gracefully with caching\\n    Given a cached response exists\\n    When the server returns an error\\n    Then the stale cached data should be served\\n\\n  Scenario: Handle missing ETag headers gracefully\\n    Given a server response without ETag headers\\n    When I make requests without ETag\\n    Then the system should work normally without caching\\n\\n  Scenario: Client works normally with caching disabled\\n    Given a client with ETag caching disabled\\n    When I make API requests without cache\\n    Then responses should be returned normally without caching\\n\"}",
+      "source_message_uuid": "fc2d764f-0b5d-4308-ae96-b86af04708ff",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.7694,
+          "repetition_score": 0.0159,
+          "confidence": 0.7694,
+          "semantic_similarity": 0.23,
+          "lexical_similarity": 0.0093,
+          "entity_similarity": 0.0101,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"ls \\\"D:/code/ESI.ts/tests/bdd/features/core\\\" 2>/dev/null; echo \\\"---\\\"; ls \\\"D:/code/ESI.ts/tests/bdd/step-definitions/core\\\" 2>/dev/null\",\"description\":\"Check if target directories exist\"}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5610528588294983,
+      "tokens": 2305,
+      "text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/step-definitions/core/etag-caching.steps.ts\",\"content\":\"import { defineFeature, loadFeature } from 'jest-cucumber';\\nimport { EsiClient } from '../../../../src/EsiClient';\\nimport fetchMock from 'jest-fetch-mock';\\n\\nfetchMock.enableMocks();\\n\\nconst feature = loadFeature('tests/bdd/features/core/etag-caching.feature');\\n\\ndefineFeature(feature, (test) => {\\n  let client: EsiClient;\\n\\n  beforeEach(() => {\\n    fetchMock.resetMocks();\\n\\n    client = new EsiClient({\\n      clientId: 'test-client',\\n      baseUrl: 'https://esi.evetech.net',\\n      enableETagCache: true,\\n      etagCacheConfig: {\\n        maxEntries: 50,\\n        defaultTtl: 300000,\\n      },\\n    });\\n  });\\n\\n  afterEach(() => {\\n    client.shutdown();\\n  });\\n\\n  test('First-time API request caches response', ({ given, when, then }) => {\\n    let result: any;\\n    const allianceData = [\\n      {\\n        alliance_id: 99005338,\\n        name: 'Goonswarm Federation',\\n        ticker: 'CONDI',\\n      },\\n      { alliance_id: 99005551, name: 'Pandemic Horde', ticker: 'REKTD' },\\n    ];\\n    const etag = '\\\"1234567890abcdef\\\"';\\n\\n    given('a fresh client with no cached data', () => {\\n      fetchMock.mockResponseOnce(JSON.stringify(allianceData), {\\n        headers: {\\n          ETag: etag,\\n          'Content-Type': 'application/json',\\n          'Cache-Control': 'public, max-age=300',\\n        },\\n      });\\n    });\\n\\n    when('I make an API request that returns an ETag', async () => {\\n      result = await client.alliance.getAlliances();\\n    });\\n\\n    then('the response should be cached for future use', async () => {\\n      expect(result).toEqual(allianceData);\\n\\n      const cacheStats = client.getCacheStats();\\n      expect(cacheStats).toBeDefined();\\n      expect(cacheStats!.totalEntries).toBe(1);\\n\\n      // Second request within spec-aware TTL returns cached data without HTTP call\\n      const cachedResult = await client.alliance.getAlliances();\\n      expect(cachedResult).toEqual(allianceData);\\n      expect(fetchMock).toHaveBeenCalledTimes(1);\\n    });\\n  });\\n\\n  test('Subsequent request with unchanged data returns cached response', ({ given, when, then }) => {\\n    let cachedResult: any;\\n    const allianceData = [\\n      { alliance_id: 99005338, name: 'Goonswarm Federation' },\\n    ];\\n    const etag = '\\\"cached123\\\"';\\n\\n    given('cached data with an ETag', async () => {\\n      fetchMock.mockResponseOnce(JSON.stringify(allianceData), {\\n        headers: { ETag: etag, 'Content-Type': 'application/json' },\\n      });\\n\\n      await client.alliance.getAlliances();\\n    });\\n\\n    when('I make the same request and server returns 304 Not Modified', async () => {\\n      cachedResult = await client.alliance.getAlliances();\\n    });\\n\\n    then('I should receive the cached data without a new download', () => {\\n      expect(cachedResult).toEqual(allianceData);\\n      expect(fetchMock).toHaveBeenCalledTimes(1);\\n    });\\n  });\\n\\n  test('Data changes trigger cache update', ({ given, when, then }) => {\\n    let updatedResult: any;\\n    const oldData = [{ alliance_id: 1, name: 'Old Alliance' }];\\n    const oldETag = '\\\"old-etag-123\\\"';\\n\\n    given('cached data with an ETag for update', async () => {\\n      fetchMock.mockResponseOnce(JSON.stringify(oldData), {\\n        headers: { ETag: oldETag },\\n      });\\n\\n      const firstResult = await client.alliance.getAlliances();\\n      expect(firstResult).toEqual(oldData);\\n    });\\n\\n    when('the server returns new data with a different ETag', async () => {\\n      updatedResult = await client.alliance.getAlliances();\\n    });\\n\\n    then('the cache should be updated with the new data', () => {\\n      // Spec-aware cache returns original data (TTL not expired)\\n      expect(updatedResult).toEqual(oldData);\\n      expect(fetchMock).toHaveBeenCalledTimes(1);\\n    });\\n  });\\n\\n  test('Cache statistics provide insight into performance', ({ given, when, then }) => {\\n    let stats: any;\\n\\n    given('multiple cached responses exist', async () => {\\n      const endpoints = [\\n        { endpoint: 'alliances', data: [{ id: 1 }] },\\n        { endpoint: 'status', data: { status: 'ok' } },\\n      ];\\n\\n      for (let i = 0; i < endpoints.length; i++) {\\n        fetchMock.mockResponseOnce(JSON.stringify(endpoints[i].data), {\\n          headers: { ETag: `\\\"etag-${i}\\\"` },\\n        });\\n      }\\n\\n      await client.alliance.getAlliances();\\n      await client.status.getStatus();\\n    });\\n\\n    when('I request cache statistics', () => {\\n      stats = client.getCacheStats();\\n    });\\n\\n    then('I should receive detailed information about cache usage', () => {\\n      expect(stats).toBeDefined();\\n      expect(stats!.totalEntries).toBe(2);\\n      expect(stats!.maxEntries).toBe(50);\\n      expect(stats!.oldestEntry).toBeDefined();\\n      expect(stats!.newestEntry).toBeDefined();\\n    });\\n  });\\n\\n  test('Cache can be manually cleared', ({ given, when, then }) => {\\n    given('a cache with stored responses', async () => {\\n      fetchMock.mockResponseOnce(JSON.stringify([]), {\\n        headers: { ETag: '\\\"test-etag\\\"' },\\n      });\\n\\n      await client.alliance.getAlliances();\\n      expect(client.getCacheStats()!.totalEntries).toBe(1);\\n    });\\n\\n    when('I clear the cache', () => {\\n      client.clearCache();\\n    });\\n\\n    then('all cached data should be removed', () => {\\n      expect(client.getCacheStats()!.totalEntries).toBe(0);\\n    });\\n  });\\n\\n  test('Cache configuration can be updated at runtime', ({ given, when, then }) => {\\n    given('a client with initial cache settings', () => {\\n      const initialStats = client.getCacheStats();\\n      expect(initialStats!.maxEntries).toBe(50);\\n    });\\n\\n    when('I update the cache configuration', () => {\\n      client.updateCacheConfig({\\n        maxEntries: 100,\\n        defaultTtl: 600000,\\n      });\\n    });\\n\\n    then('the new settings should take effect', () => {\\n      const updatedStats = client.getCacheStats();\\n      expect(updatedStats!.maxEntries).toBe(100);\\n    });\\n  });\\n\\n  test('Handle server errors gracefully with caching', ({ given, when, then }) => {\\n    let errorResult: any;\\n    const validData = [{ alliance_id: 1, name: 'Test Alliance' }];\\n    const etag = '\\\"valid-etag\\\"';\\n\\n    given('a cached response exists', async () => {\\n      fetchMock.mockResponseOnce(JSON.stringify(validData), {\\n        headers: { ETag: etag },\\n      });\\n\\n      const firstResult = await client.alliance.getAlliances();\\n      expect(firstResult).toEqual(validData);\\n    });\\n\\n    when('the server returns an error', async () => {\\n      fetchMock.mockResponseOnce('Server Error', { status: 500 });\\n\\n      errorResult = await client.alliance.getAlliances();\\n    });\\n\\n    then('the stale cached data should be served', () => {\\n      expect(errorResult).toEqual(validData);\\n    });\\n  });\\n\\n  test('Handle missing ETag headers gracefully', ({ given, when, then }) => {\\n    let result: any;\\n    const data = [{ alliance_id: 1, name: 'Test Alliance' }];\\n\\n    given('a server response without ETag headers', () => {\\n      fetchMock.mockResponseOnce(JSON.stringify(data), {\\n        headers: { 'Content-Type': 'application/json' },\\n      });\\n    });\\n\\n    when('I make requests without ETag', async () => {\\n      result = await client.alliance.getAlliances();\\n    });\\n\\n    then('the system should work normally without caching', () => {\\n      expect(result).toEqual(data);\\n      expect(client.getCacheStats()!.totalEntries).toBe(0);\\n    });\\n  });\\n\\n  test('Client works normally with caching disabled', ({ given, when, then }) => {\\n    let clientWithoutCache: EsiClient;\\n    let result: any;\\n    const data = [{ alliance_id: 1, name: 'Test Alliance' }];\\n\\n    given('a client with ETag caching disabled', () => {\\n      clientWithoutCache = new EsiClient({\\n        enableETagCache: false,\\n      });\\n\\n      fetchMock.mockResponseOnce(JSON.stringify(data), {\\n        headers: { ETag: '\\\"should-not-be-cached\\\"' },\\n      });\\n    });\\n\\n    when('I make API requests without cache', async () => {\\n      result = await clientWithoutCache.alliance.getAlliances();\\n    });\\n\\n    then('responses should be returned normally without caching', () => {\\n      expect(result).toEqual(data);\\n      expect(clientWithoutCache.getCacheStats()).toBeNull();\\n\\n      clientWithoutCache.shutdown();\\n    });\\n  });\\n});\\n\"}",
+      "source_message_uuid": "fc2d764f-0b5d-4308-ae96-b86af04708ff",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5611,
+          "repetition_score": 0.5244,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5817,
+          "lexical_similarity": 0.4071,
+          "entity_similarity": 0.4307,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/features/core/etag-caching.feature\",\"content\":\"Feature: ETag Caching System\\n\\n  Scenario: First-time API request caches response\\n    Given a fresh client with no cached data\\n    When I make an"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.7048583626747131,
+      "intent_similarity": 0.7048583626747131,
+      "tokens": 129,
+      "text": "Both files have been created successfully:\n\n1. **`D:/code/ESI.ts/tests/bdd/features/core/etag-caching.feature`** -- Gherkin feature file with 9 scenarios covering ETag caching behavior (first-time caching, 304 responses, cache updates, statistics, clearing, runtime config, error handling, missing ETags, and disabled caching).\n\n2. **`D:/code/ESI.ts/tests/bdd/step-definitions/core/etag-caching.steps.ts`** -- jest-cucumber step definitions implementing all 9 scenarios using `jest-fetch-mock` and the `EsiClient` class.",
+      "source_message_uuid": "ec5d0490-5eaa-4f4b-b1ca-483efc00f75f",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.7049,
+          "repetition_score": 0.1919,
+          "confidence": 0.7049,
+          "semantic_similarity": 0.3148,
+          "lexical_similarity": 0.0357,
+          "entity_similarity": 0.0784,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9216
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "\n\nI'll create both files. Let me first verify the parent directories exist."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "context_restatement",
+        "tokens_wasted": 11,
+        "description": "Response restates prior content (similarity: 0.91)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Context Restatement",
+        "tokens": 11,
+        "percentage": 100.0,
+        "cost_usd": 0.000165,
+        "count": 1,
+        "pricing": "output"
+      }
+    ],
+    "total_tokens": 11,
+    "total_cost_usd": 0.000165
+  },
+  "economics": {
+    "total_input_tokens": 5,
+    "total_output_tokens": 162,
+    "total_cache_creation_tokens": 9023,
+    "total_cache_read_tokens": 48885,
+    "input_output_ratio": 0.03,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.0509,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 2,
+      "mid_span_count": 2,
+      "late_span_count": 2
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        12725,
+        17569,
+        18596
+      ],
+      "growth_rate": 1.46,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 2347,
+      "user_result_tokens": 303,
+      "model_reasoning_tokens": 0,
+      "model_tool_tokens": 2768,
+      "model_generation_tokens": 156,
+      "total_user_tokens": 2650,
+      "total_model_tokens": 2924,
+      "user_ratio": 0.4754
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.7197,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "Create two files for the ESI.ts project BDD test conversion. The project is at D:/code/ESI.ts.\n\nFILE 1: D:/code/ESI.ts/tests/bdd/features/core/etag-caching.feature\n\n```\nFeature: ETag Caching System\n\n  Scenario: First-time API request caches response\n    Given a fresh client with no cached data\n    When I make an API request that returns an ETag\n    Then the response should be cached for future use\n\n  Scenario: Subsequent request with unchanged data returns cached response\n    Given cached data with an ETag\n    When I make the same request and server returns 304 Not Modified\n    Then I should receive the cached data without a new download\n\n  Scenario: Data changes trigger cache update\n    Given cached data with an ETag for update\n    When the server returns new data with a different ETag\n    Then the cache should be updated with the new data\n\n  Scenario: Cache statistics provide insight into performance\n    Given multiple cached responses exist\n    When I request cache statistics\n    Then I should receive detailed information about cache usage\n\n  Scenario: Cache can be manually cleared\n    Given a cache with stored responses\n    When I clear the cache\n    Then all cached data should be removed\n\n  Scenario: Cache configuration can be updated at runtime\n    Given a client with initial cache settings\n    When I update the cache configuration\n    Then the new settings should take effect\n\n  Scenario: Handle server errors gracefully with caching\n    Given a cached response exists\n    When the server returns an error\n    Then the stale cached data should be served\n\n  Scenario: Handle missing ETag headers gracefully\n    Given a server response without ETag headers\n    When I make requests without ETag\n    Then the system should work normally without caching\n\n  Scenario: Client works normally with caching disabled\n    Given a client with ETag caching disabled\n    When I make API requests without cache\n    Then responses should be returned normally without caching\n```\n\nFILE 2: D:/code/ESI.ts/tests/bdd/step-definitions/core/etag-caching.steps.ts\n\n```typescript\nimport { defineFeature, loadFeature } from 'jest-cucumber';\nimport { EsiClient } from '../../../../src/EsiClient';\nimport fetchMock from 'jest-fetch-mock';\n\nfetchMock.enableMocks();\n\nconst feature = loadFeature('tests/bdd/features/core/etag-caching.feature');\n\ndefineFeature(feature, (test) => {\n  let client: EsiClient;\n\n  beforeEach(() => {\n    fetchMock.resetMocks();\n\n    client = new EsiClient({\n      clientId: 'test-client',\n      baseUrl: 'https://esi.evetech.net',\n      enableETagCache: true,\n      etagCacheConfig: {\n        maxEntries: 50,\n        defaultTtl: 300000,\n      },\n    });\n  });\n\n  afterEach(() => {\n    client.shutdown();\n  });\n\n  test('First-time API request caches response', ({ given, when, then }) => {\n    let result: any;\n    const allianceData = [\n      {\n        alliance_id: 99005338,\n        name: 'Goonswarm Federation',\n        ticker: 'CONDI',\n      },\n      { alliance_id: 99005551, name: 'Pandemic Horde', ticker: 'REKTD' },\n    ];\n    const etag = '\"1234567890abcdef\"';\n\n    given('a fresh client with no cached data', () => {\n      fetchMock.mockResponseOnce(JSON.stringify(allianceData), {\n        headers: {\n          ETag: etag,\n          'Content-Type': 'application/json',\n          'Cache-Control': 'public, max-age=300',\n        },\n      });\n    });\n\n    when('I make an API request that returns an ETag', async () => {\n      result = await client.alliance.getAlliances();\n    });\n\n    then('the response should be cached for future use', async () => {\n      expect(result).toEqual(allianceData);\n\n      const cacheStats = client.getCacheStats();\n      expect(cacheStats).toBeDefined();\n      expect(cacheStats!.totalEntries).toBe(1);\n\n      // Second request within spec-aware TTL returns cached data without HTTP call\n      const cachedResult = await client.alliance.getAlliances();\n      expect(cachedResult).toEqual(allianceData);\n      expect(fetchMock).toHaveBeenCalledTimes(1);\n    });\n  });\n\n  test('Subsequent request with unchanged data returns cached response', ({ given, when, then }) => {\n    let cachedResult: any;\n    const allianceData = [\n      { alliance_id: 99005338, name: 'Goonswarm Federation' },\n    ];\n    const etag = '\"cached123\"';\n\n    given('cached data with an ETag', async () => {\n      fetchMock.mockResponseOnce(JSON.stringify(allianceData), {\n        headers: { ETag: etag, 'Content-Type': 'application/json' },\n      });\n\n      await client.alliance.getAlliances();\n    });\n\n    when('I make the same request and server returns 304 Not Modified', async () => {\n      cachedResult = await client.alliance.getAlliances();\n    });\n\n    then('I should receive the cached data without a new download', () => {\n      expect(cachedResult).toEqual(allianceData);\n      expect(fetchMock).toHaveBeenCalledTimes(1);\n    });\n  });\n\n  test('Data changes trigger cache update', ({ given, when, then }) => {\n    let updatedResult: any;\n    const oldData = [{ alliance_id: 1, name: 'Old Alliance' }];\n    const oldETag = '\"old-etag-123\"';\n\n    given('cached data with an ETag for update', async () => {\n      fetchMock.mockResponseOnce(JSON.stringify(oldData), {\n        headers: { ETag: oldETag },\n      });\n\n      const firstResult = await client.alliance.getAlliances();\n      expect(firstResult).toEqual(oldData);\n    });\n\n    when('the server returns new data with a different ETag', async () => {\n      updatedResult = await client.alliance.getAlliances();\n    });\n\n    then('the cache should be updated with the new data', () => {\n      // Spec-aware cache returns original data (TTL not expired)\n      expect(updatedResult).toEqual(oldData);\n      expect(fetchMock).toHaveBeenCalledTimes(1);\n    });\n  });\n\n  test('Cache statistics provide insight into performance', ({ given, when, then }) => {\n    let stats: any;\n\n    given('multiple cached responses exist', async () => {\n      const endpoints = [\n        { endpoint: 'alliances', data: [{ id: 1 }] },\n        { endpoint: 'status', data: { status: 'ok' } },\n      ];\n\n      for (let i = 0; i < endpoints.length; i++) {\n        fetchMock.mockResponseOnce(JSON.stringify(endpoints[i].data), {\n          headers: { ETag: `\"etag-${i}\"` },\n        });\n      }\n\n      await client.alliance.getAlliances();\n      await client.status.getStatus();\n    });\n\n    when('I request cache statistics', () => {\n      stats = client.getCacheStats();\n    });\n\n    then('I should receive detailed information about cache usage', () => {\n      expect(stats).toBeDefined();\n      expect(stats!.totalEntries).toBe(2);\n      expect(stats!.maxEntries).toBe(50);\n      expect(stats!.oldestEntry).toBeDefined();\n      expect(stats!.newestEntry).toBeDefined();\n    });\n  });\n\n  test('Cache can be manually cleared', ({ given, when, then }) => {\n    given('a cache with stored responses', async () => {\n      fetchMock.mockResponseOnce(JSON.stringify([]), {\n        headers: { ETag: '\"test-etag\"' },\n      });\n\n      await client.alliance.getAlliances();\n      expect(client.getCacheStats()!.totalEntries).toBe(1);\n    });\n\n    when('I clear the cache', () => {\n      client.clearCache();\n    });\n\n    then('all cached data should be removed', () => {\n      expect(client.getCacheStats()!.totalEntries).toBe(0);\n    });\n  });\n\n  test('Cache configuration can be updated at runtime', ({ given, when, then }) => {\n    given('a client with initial cache settings', () => {\n      const initialStats = client.getCacheStats();\n      expect(initialStats!.maxEntries).toBe(50);\n    });\n\n    when('I update the cache configuration', () => {\n      client.updateCacheConfig({\n        maxEntries: 100,\n        defaultTtl: 600000,\n      });\n    });\n\n    then('the new settings should take effect', () => {\n      const updatedStats = client.getCacheStats();\n      expect(updatedStats!.maxEntries).toBe(100);\n    });\n  });\n\n  test('Handle server errors gracefully with caching', ({ given, when, then }) => {\n    let errorResult: any;\n    const validData = [{ alliance_id: 1, name: 'Test Alliance' }];\n    const etag = '\"valid-etag\"';\n\n    given('a cached response exists', async () => {\n      fetchMock.mockResponseOnce(JSON.stringify(validData), {\n        headers: { ETag: etag },\n      });\n\n      const firstResult = await client.alliance.getAlliances();\n      expect(firstResult).toEqual(validData);\n    });\n\n    when('the server returns an error', async () => {\n      fetchMock.mockResponseOnce('Server Error', { status: 500 });\n\n      errorResult = await client.alliance.getAlliances();\n    });\n\n    then('the stale cached data should be served', () => {\n      expect(errorResult).toEqual(validData);\n    });\n  });\n\n  test('Handle missing ETag headers gracefully', ({ given, when, then }) => {\n    let result: any;\n    const data = [{ alliance_id: 1, name: 'Test Alliance' }];\n\n    given('a server response without ETag headers', () => {\n      fetchMock.mockResponseOnce(JSON.stringify(data), {\n        headers: { 'Content-Type': 'application/json' },\n      });\n    });\n\n    when('I make requests without ETag', async () => {\n      result = await client.alliance.getAlliances();\n    });\n\n    then('the system should work normally without caching', () => {\n      expect(result).toEqual(data);\n      expect(client.getCacheStats()!.totalEntries).toBe(0);\n    });\n  });\n\n  test('Client works normally with caching disabled', ({ given, when, then }) => {\n    let clientWithoutCache: EsiClient;\n    let result: any;\n    const data = [{ alliance_id: 1, name: 'Test Alliance' }];\n\n    given('a client with ETag caching disabled', () => {\n      clientWithoutCache = new EsiClient({\n        enableETagCache: false,\n      });\n\n      fetchMock.mockResponseOnce(JSON.stringify(data), {\n        headers: { ETag: '\"should-not-be-cached\"' },\n      });\n    });\n\n    when('I make API requests without cache', async () => {\n      result = await clientWithoutCache.alliance.getAlliances();\n    });\n\n    then('responses should be returned normally without caching', () => {\n      expect(result).toEqual(data);\n      expect(clientWithoutCache.getCacheStats()).toBeNull();\n\n      clientWithoutCache.shutdown();\n    });\n  });\n});\n```\n\nWrite both files exactly as shown above.",
+          "response_text": "\n\nI'll create both files. Let me first verify the parent directories exist. Both directories exist. Now I'll create both files. Both files have been created successfully:\n\n1. **`D:/code/ESI.ts/tests/bdd/features/core/etag-caching.feature`** -- Gherkin feature file with 9 scenarios covering ETag caching behavior (first-time caching, 304 responses, cache updates, statistics, clearing, runtime config, error handling, missing ETags, and disabled caching).\n\n2. **`D:/code/ESI.ts/tests/bdd/step-definitions/core/etag-caching.steps.ts`** -- jest-cucumber step definitions implementing all 9 scenarios using `jest-fetch-mock` and the `EsiClient` class.",
+          "alignment": 0.7197
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+    "source_file": "data/D--code-ESI-ts__agent-a9885d7e86d4d1a06.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

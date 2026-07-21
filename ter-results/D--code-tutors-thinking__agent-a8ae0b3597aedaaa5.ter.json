@@ -1,0 +1,162 @@
+{
+  "session_id": "3f7422c4-d8b9-4fd7-b0e2-b527ea71c92d",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 993,
+  "aligned_tokens": 993,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.8236,
+    "token_weighted_confidence": 0.8448,
+    "low_confidence_tokens": 0,
+    "low_confidence_share": 0.0,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 2,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.7999610304832458,
+      "intent_similarity": 0.7999610304832458,
+      "tokens": 50,
+      "text": "The user wants a concise technical research report on browser-based idle and focus detection for educational platforms. This is a technical knowledge question I can answer directly from my training data \u2014 these are well-established Web APIs. Let me provide a thorough but concise response.",
+      "source_message_uuid": "06633547-bbc9-4f41-b334-d0f45c716a16",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.8,
+          "repetition_score": 0.0,
+          "confidence": 0.8
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.8471436500549316,
+      "intent_similarity": 0.8471436500549316,
+      "tokens": 943,
+      "text": "## Browser-Based Idle and Focus Detection for Educational Platforms\n\n### 1. Page Visibility API\n\nUse `document.addEventListener('visibilitychange', callback)` and check `document.visibilityState` (returns `\"visible\"` or `\"hidden\"`). Also available: `document.hidden` (boolean). Supported in all modern browsers since ~2013 (Chrome 33+, Firefox 18+, Safari 7+, Edge 12+). No prefix needed today.\n\nReliability: very high for tab switches and window minimization. Does **not** fire when the user covers the browser with another OS window on some platforms (macOS is better here than Windows). It is the single most reliable signal for \"user left this tab.\"\n\n### 2. User Activity Detection\n\nTrack these events on `document` or `window`:\n\n- `mousemove`, `mousedown`, `click` \u2014 pointer engagement\n- `keydown` \u2014 typing or keyboard navigation\n- `scroll` \u2014 reading/scrolling content (critical for education)\n- `touchstart`, `touchmove` \u2014 mobile equivalents\n- `pointerdown` \u2014 unified pointer events (modern approach)\n\n**Throttle `mousemove`/`scroll` to once per 2-3 seconds** \u2014 you only need \"activity happened recently,\" not coordinates. Use a simple flag-reset pattern: any event sets `lastActivityTimestamp = Date.now()`, checked by a single `setInterval`.\n\nDo **not** track `pointermove` at high frequency \u2014 it fires hundreds of times per second and drains battery.\n\n### 3. Focus/Blur Events\n\n```js\nwindow.addEventListener('focus', () => { /* user returned */ });\nwindow.addEventListener('blur', () => { /* user left window */ });\n```\n\nThese fire when the browser window itself loses OS-level focus. More aggressive than Visibility API \u2014 `blur` fires even when the user clicks the browser's address bar. Combine both: `visibilitychange` for tab-level, `blur/focus` for window-level. Treat `hidden` as stronger signal than `blur`.\n\n### 4. Idle Timeout Thresholds for Education\n\n- **Active to Idle**: 5 minutes (not the typical 60-90 seconds for SaaS). Students read, watch embedded video, think. 2-3 minutes causes false positives during reading.\n- **Idle to Away**: 15 minutes of no activity **or** `visibilityState === 'hidden'` for 2+ minutes.\n- **Session timeout**: 30-45 minutes.\n\nAlso worth noting: the `IdleDetector` API (Chrome 94+, Chromium-only) provides OS-level idle detection but requires a permission prompt and has poor cross-browser support. Not recommended as primary mechanism.\n\n### 5. Privacy Considerations\n\n**Track**: presence state (active/idle/away), session duration, page-level engagement (which page, how long). **Do not track**: mouse coordinates, keystroke content, scroll position, specific click targets, clipboard events, or screen captures. These cross from engagement metrics into surveillance.\n\nGDPR requirements: inform users what is tracked in plain language, provide opt-out, store aggregated durations rather than raw event logs, set a data retention period (90 days is reasonable), include tracking details in your privacy policy. For minors (common in education), extra caution \u2014 minimize data collection per COPPA/GDPR-K provisions.\n\n### 6. SvelteKit Heartbeat Pattern\n\nThree states: `active` (events in last 5 min), `idle` (no events for 5-15 min, tab visible), `away` (tab hidden or no events for 15+ min).\n\nImplementation approach: a single `setInterval` at **30-second ticks** checks `lastActivityTimestamp` and `document.visibilityState`, then sends a heartbeat only on **state transitions** plus a keep-alive every **5 minutes** while active. This means 12 requests/hour maximum during active use \u2014 minimal battery/network impact.\n\nOn mobile, use `navigator.sendBeacon()` for the final heartbeat on `visibilitychange` to `hidden` \u2014 it survives page unload reliably. Avoid `setInterval` ticks shorter than 15 seconds; iOS Safari throttles background timers aggressively and you will get unreliable firing.\n\nIn SvelteKit, implement as a layout-level component (`+layout.svelte`) or a Svelte action so it mounts once and covers all routes. Clean up listeners in `onDestroy`.\n\n**Key thresholds summary**: activity throttle 2-3s, heartbeat interval 30s, active-to-idle 5min, idle-to-away 15min, use `sendBeacon` on unload.",
+      "source_message_uuid": "06633547-bbc9-4f41-b334-d0f45c716a16",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.8471,
+          "repetition_score": 0.0,
+          "confidence": 0.8471
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 3,
+    "total_output_tokens": 11,
+    "total_cache_creation_tokens": 15232,
+    "total_cache_read_tokens": 0,
+    "input_output_ratio": 0.27,
+    "cache_hit_rate": 0.0,
+    "estimated_cost_usd": 0.0573,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 0
+    },
+    "input_growth": {
+      "turn_input_tokens": [],
+      "growth_rate": 1.0,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 249,
+      "user_result_tokens": 0,
+      "model_reasoning_tokens": 50,
+      "model_tool_tokens": 0,
+      "model_generation_tokens": 943,
+      "total_user_tokens": 249,
+      "total_model_tokens": 993,
+      "user_ratio": 0.2005
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.8471,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "Research browser-based idle and focus detection patterns for educational platforms. I need practical implementation details for:\n\n1. **Page Visibility API** \u2014 how to use document.visibilitychange to detect tab switching. What are the browser support details? How reliable is it?\n\n2. **User activity detection** \u2014 what events should be tracked to distinguish \"actively engaged\" from \"tab open but idle\"? Consider: mouse movement, scroll, keyboard input, click events. What's the right debounce/throttle interval?\n\n3. **Focus/blur events** \u2014 window.focus and window.blur for detecting when the student leaves the app entirely.\n\n4. **Idle timeout patterns** \u2014 what's considered best practice for idle detection in web apps? What timeout thresholds work for educational contexts (where reading for several minutes is valid engagement)?\n\n5. **Privacy considerations** \u2014 what's the line between useful engagement tracking and surveillance? What should NOT be tracked? GDPR/privacy implications?\n\n6. **Implementation pattern** \u2014 a practical approach for a SvelteKit app that sends heartbeats: \"active\", \"idle\", \"away\" states. How to implement this efficiently without draining battery on mobile?\n\nReport in under 500 words with specific APIs, event names, and recommended thresholds.",
+          "response_text": "## Browser-Based Idle and Focus Detection for Educational Platforms\n\n### 1. Page Visibility API\n\nUse `document.addEventListener('visibilitychange', callback)` and check `document.visibilityState` (returns `\"visible\"` or `\"hidden\"`). Also available: `document.hidden` (boolean). Supported in all modern browsers since ~2013 (Chrome 33+, Firefox 18+, Safari 7+, Edge 12+). No prefix needed today.\n\nReliability: very high for tab switches and window minimization. Does **not** fire when the user covers the browser with another OS window on some platforms (macOS is better here than Windows). It is the single most reliable signal for \"user left this tab.\"\n\n### 2. User Activity Detection\n\nTrack these events on `document` or `window`:\n\n- `mousemove`, `mousedown`, `click` \u2014 pointer engagement\n- `keydown` \u2014 typing or keyboard navigation\n- `scroll` \u2014 reading/scrolling content (critical for education)\n- `touchstart`, `touchmove` \u2014 mobile equivalents\n- `pointerdown` \u2014 unified pointer events (modern approach)\n\n**Throttle `mousemove`/`scroll` to once per 2-3 seconds** \u2014 you only need \"activity happened recently,\" not coordinates. Use a simple flag-reset pattern: any event sets `lastActivityTimestamp = Date.now()`, checked by a single `setInterval`.\n\nDo **not** track `pointermove` at high frequency \u2014 it fires hundreds of times per second and drains battery.\n\n### 3. Focus/Blur Events\n\n```js\nwindow.addEventListener('focus', () => { /* user returned */ });\nwindow.addEventListener('blur', () => { /* user left window */ });\n```\n\nThese fire when the browser window itself loses OS-level focus. More aggressive than Visibility API \u2014 `blur` fires even when the user clicks the browser's address bar. Combine both: `visibilitychange` for tab-level, `blur/focus` for window-level. Treat `hidden` as stronger signal than `blur`.\n\n### 4. Idle Timeout Thresholds for Education\n\n- **Active to Idle**: 5 minutes (not the typical 60-90 seconds for SaaS). Students read, watch embedded video, think. 2-3 minutes causes false positives during reading.\n- **Idle to Away**: 15 minutes of no activity **or** `visibilityState === 'hidden'` for 2+ minutes.\n- **Session timeout**: 30-45 minutes.\n\nAlso worth noting: the `IdleDetector` API (Chrome 94+, Chromium-only) provides OS-level idle detection but requires a permission prompt and has poor cross-browser support. Not recommended as primary mechanism.\n\n### 5. Privacy Considerations\n\n**Track**: presence state (active/idle/away), session duration, page-level engagement (which page, how long). **Do not track**: mouse coordinates, keystroke content, scroll position, specific click targets, clipboard events, or screen captures. These cross from engagement metrics into surveillance.\n\nGDPR requirements: inform users what is tracked in plain language, provide opt-out, store aggregated durations rather than raw event logs, set a data retention period (90 days is reasonable), include tracking details in your privacy policy. For minors (common in education), extra caution \u2014 minimize data collection per COPPA/GDPR-K provisions.\n\n### 6. SvelteKit Heartbeat Pattern\n\nThree states: `active` (events in last 5 min), `idle` (no events for 5-15 min, tab visible), `away` (tab hidden or no events for 15+ min).\n\nImplementation approach: a single `setInterval` at **30-second ticks** checks `lastActivityTimestamp` and `document.visibilityState`, then sends a heartbeat only on **state transitions** plus a keep-alive every **5 minutes** while active. This means 12 requests/hour maximum during active use \u2014 minimal battery/network impact.\n\nOn mobile, use `navigator.sendBeacon()` for the final heartbeat on `visibilitychange` to `hidden` \u2014 it survives page unload reliably. Avoid `setInterval` ticks shorter than 15 seconds; iOS Safari throttles background timers aggressively and you will get unreliable firing.\n\nIn SvelteKit, implement as a layout-level component (`+layout.svelte`) or a Svelte action so it mounts once and covers all routes. Clean up listeners in `onDestroy`.\n\n**Key thresholds summary**: activity throttle 2-3s, heartbeat interval 30s, active-to-idle 5min, idle-to-away 15min, use `sendBeacon` on unload.",
+          "alignment": 0.8471
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "3f7422c4-d8b9-4fd7-b0e2-b527ea71c92d",
+    "source_file": "data/D--code-tutors-thinking__agent-a8ae0b3597aedaaa5.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

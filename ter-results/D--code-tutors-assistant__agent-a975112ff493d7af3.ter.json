@@ -1,0 +1,1992 @@
+{
+  "session_id": "994b69e8-ce8d-4eb4-8133-d1bb963cd5f9",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 7671,
+  "aligned_tokens": 7671,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6001,
+    "token_weighted_confidence": 0.7306,
+    "low_confidence_tokens": 3508,
+    "low_confidence_share": 0.4573,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 60,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "high"
+  },
+  "waste_patterns": [
+    {
+      "type": "bash_antipattern",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 6,
+      "tokens_wasted": 10490,
+      "description": "6 Bash calls should use dedicated tools (10,490 tokens)"
+    },
+    {
+      "type": "failed_tool_retry",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 1,
+      "tokens_wasted": 30,
+      "description": "1 failed tool calls (30 wasted tokens)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.7670671939849854,
+      "intent_similarity": 0.7670671939849854,
+      "tokens": 44,
+      "text": "The user wants me to research the tutors-sdk ecosystem to understand the course folder structure. Let me explore the GitHub repos they mentioned using `gh` CLI and web fetching.\n\nLet me start by exploring both repos in parallel.",
+      "source_message_uuid": "e61b487d-30ef-4928-8955-74a48af49199",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.7671,
+          "repetition_score": 0.0,
+          "confidence": 0.7671
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.15519292652606964,
+      "tokens": 14,
+      "text": "I'll research all three aspects in parallel to build a comprehensive picture.",
+      "source_message_uuid": "e61b487d-30ef-4928-8955-74a48af49199",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.1552,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3446435034275055,
+      "tokens": 106,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-course/git/trees/main?recursive=1 2>/dev/null | python -c \\\"import json,sys; data=json.load(sys.stdin); [print(t['path']) for t in data['tree']]\\\" 2>/dev/null || gh api repos/tutors-sdk/tutors-reference-course/git/trees/main?recursive=1 --jq '.tree[].path'\",\"description\":\"Get full directory tree of tutors-reference-course\",\"timeout\":30000}",
+      "source_message_uuid": "e61b487d-30ef-4928-8955-74a48af49199",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3446,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3578442633152008,
+      "tokens": 66,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-apps/git/trees/main?recursive=1 --jq '.tree[] | select(.type==\\\"blob\\\") | .path' 2>/dev/null | head -200\",\"description\":\"Get directory tree of tutors-apps repo\",\"timeout\":30000}",
+      "source_message_uuid": "e61b487d-30ef-4928-8955-74a48af49199",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3578,
+          "repetition_score": 0.609,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8252,
+          "lexical_similarity": 0.425,
+          "entity_similarity": 0.3824,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-course/git/trees/main?recursive=1 2>/dev/null | python -c \\\"import json,sys; data=json.load(sys.stdin); [print(t['path']) for t in data['tree']]\\\" 2>/dev/null || gh api repos/tutors-"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.29138073325157166,
+      "tokens": 36,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-course --jq '.description'\",\"description\":\"Get repo description for tutors-reference-course\",\"timeout\":15000}",
+      "source_message_uuid": "e61b487d-30ef-4928-8955-74a48af49199",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2914,
+          "repetition_score": 0.5478,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7075,
+          "lexical_similarity": 0.3103,
+          "entity_similarity": 0.3077,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-apps/git/trees/main?recursive=1 --jq '.tree[] | select(.type==\\\"blob\\\") | .path' 2>/dev/null | head -200\",\"description\":\"Get directory tree of tutors-apps repo\",\"timeout\":30000}"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.6888986229896545,
+      "intent_similarity": 0.6888986229896545,
+      "tokens": 58,
+      "text": "Good, I got the full tree of the reference course. Now let me fetch the key files: properties.yaml, course.md, and explore the tutors-apps repo (which returned 404 - maybe different default branch or wrong repo name). Let me also look at the actual content files.",
+      "source_message_uuid": "2b108fc2-1fdf-4356-aa68-599be5fe9f71",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6889,
+          "repetition_score": 0.4569,
+          "confidence": 0.6889,
+          "semantic_similarity": 0.7429,
+          "lexical_similarity": 0.0806,
+          "entity_similarity": 0.1154,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8846
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "The user wants me to research the tutors-sdk ecosystem to understand the course folder structure. Let me explore the GitHub repos they mentioned using `gh` CLI and web fetching.\n\nLet me start by exploring both repos in parallel."
+      }
+    },
+    {
+      "position": 6,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5490055680274963,
+      "intent_similarity": 0.5490055680274963,
+      "tokens": 21,
+      "text": "Now let me fetch the key content files from the reference course and find the correct tutors-apps repo.",
+      "source_message_uuid": "2b108fc2-1fdf-4356-aa68-599be5fe9f71",
+      "source_lines": [
+        12
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.549,
+          "repetition_score": 0.073,
+          "confidence": 0.549,
+          "semantic_similarity": 0.1272,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.0,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 1,
+        "matched_prior_text": "I'll research all three aspects in parallel to build a comprehensive picture."
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.37958934903144836,
+      "tokens": 40,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-course/contents/properties.yaml --jq '.content' | base64 -d\",\"description\":\"Get properties.yaml from reference course\"}",
+      "source_message_uuid": "2b108fc2-1fdf-4356-aa68-599be5fe9f71",
+      "source_lines": [
+        13
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3796,
+          "repetition_score": 0.5822,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7833,
+          "lexical_similarity": 0.3333,
+          "entity_similarity": 0.3684,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-course --jq '.description'\",\"description\":\"Get repo description for tutors-reference-course\",\"timeout\":15000}"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4160374701023102,
+      "tokens": 39,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-course/contents/course.md --jq '.content' | base64 -d\",\"description\":\"Get course.md from reference course\"}",
+      "source_message_uuid": "2b108fc2-1fdf-4356-aa68-599be5fe9f71",
+      "source_lines": [
+        15
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.416,
+          "repetition_score": 0.7095,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9217,
+          "lexical_similarity": 0.7647,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-course/contents/properties.yaml --jq '.content' | base64 -d\",\"description\":\"Get properties.yaml from reference course\"}"
+      }
+    },
+    {
+      "position": 9,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.29637637734413147,
+      "tokens": 42,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-course/contents/vercel.json --jq '.content' | base64 -d\",\"description\":\"Get vercel.json from reference course\"}",
+      "source_message_uuid": "2b108fc2-1fdf-4356-aa68-599be5fe9f71",
+      "source_lines": [
+        16
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2964,
+          "repetition_score": 0.6926,
+          "confidence": 0.6,
+          "semantic_similarity": 0.874,
+          "lexical_similarity": 0.7647,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-course/contents/course.md --jq '.content' | base64 -d\",\"description\":\"Get course.md from reference course\"}"
+      }
+    },
+    {
+      "position": 10,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2340850532054901,
+      "tokens": 42,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-course/contents/.github/workflows/publish-html.yml --jq '.content' | base64 -d\",\"description\":\"Get publish workflow\"}",
+      "source_message_uuid": "2b108fc2-1fdf-4356-aa68-599be5fe9f71",
+      "source_lines": [
+        19
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2341,
+          "repetition_score": 0.6282,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8237,
+          "lexical_similarity": 0.5556,
+          "entity_similarity": 0.4375,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-course/contents/properties.yaml --jq '.content' | base64 -d\",\"description\":\"Get properties.yaml from reference course\"}"
+      }
+    },
+    {
+      "position": 11,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3157843053340912,
+      "tokens": 44,
+      "text": "Bash {\"command\":\"# Try different repo names for the tutors apps/CLI\\ngh api orgs/tutors-sdk/repos --jq '.[].name' | sort\",\"description\":\"List all repos in tutors-sdk org\"}",
+      "source_message_uuid": "2b108fc2-1fdf-4356-aa68-599be5fe9f71",
+      "source_lines": [
+        21
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3158,
+          "repetition_score": 0.5546,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7602,
+          "lexical_similarity": 0.2414,
+          "entity_similarity": 0.2593,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-course --jq '.description'\",\"description\":\"Get repo description for tutors-reference-course\",\"timeout\":15000}"
+      }
+    },
+    {
+      "position": 12,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3808135688304901,
+      "tokens": 54,
+      "text": "Bash {\"command\":\"# Get topic markdown files to understand structure\\ngh api repos/tutors-sdk/tutors-reference-course/contents/topic-01-typical/typical.md --jq '.content' | base64 -d\",\"description\":\"Get topic-01 markdown\"}",
+      "source_message_uuid": "2b108fc2-1fdf-4356-aa68-599be5fe9f71",
+      "source_lines": [
+        22
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3808,
+          "repetition_score": 0.5801,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7634,
+          "lexical_similarity": 0.375,
+          "entity_similarity": 0.3684,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-course/contents/course.md --jq '.content' | base64 -d\",\"description\":\"Get course.md from reference course\"}"
+      }
+    },
+    {
+      "position": 13,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.6782980561256409,
+      "intent_similarity": 0.6782980561256409,
+      "tokens": 28,
+      "text": "Now let me explore the tutors-apps repo, the tutors repo (the CLI tool), and get more content files from the reference course.",
+      "source_message_uuid": "a73ff3e7-60b9-4dc5-944e-6f6a4b23eedd",
+      "source_lines": [
+        25
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6783,
+          "repetition_score": 0.571,
+          "confidence": 0.6783,
+          "semantic_similarity": 0.8274,
+          "lexical_similarity": 0.25,
+          "entity_similarity": 0.3243,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.6757
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Good, I got the full tree of the reference course. Now let me fetch the key files: properties.yaml, course.md, and explore the tutors-apps repo (which returned 404 - maybe different default branch or wrong repo name). Let me also look at th"
+      }
+    },
+    {
+      "position": 14,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5343770980834961,
+      "intent_similarity": 0.5343770980834961,
+      "tokens": 14,
+      "text": "Now let me explore the main tutors CLI tool and more content files.",
+      "source_message_uuid": "a73ff3e7-60b9-4dc5-944e-6f6a4b23eedd",
+      "source_lines": [
+        26
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5344,
+          "repetition_score": 0.442,
+          "confidence": 0.5344,
+          "semantic_similarity": 0.626,
+          "lexical_similarity": 0.2609,
+          "entity_similarity": 0.3333,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.6667
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Now let me fetch the key content files from the reference course and find the correct tutors-apps repo."
+      }
+    },
+    {
+      "position": 15,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.34915295243263245,
+      "tokens": 31,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors --jq '{description, default_branch, language}'\",\"description\":\"Get tutors repo info\"}",
+      "source_message_uuid": "a73ff3e7-60b9-4dc5-944e-6f6a4b23eedd",
+      "source_lines": [
+        27
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3492,
+          "repetition_score": 0.6314,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8753,
+          "lexical_similarity": 0.4444,
+          "entity_similarity": 0.4118,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-reference-course --jq '.description'\",\"description\":\"Get repo description for tutors-reference-course\",\"timeout\":15000}"
+      }
+    },
+    {
+      "position": 16,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3406887650489807,
+      "tokens": 55,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors/git/trees/main?recursive=1 --jq '.tree[] | select(.type==\\\"blob\\\") | .path' 2>/dev/null | head -150\",\"description\":\"Get tutors repo tree\"}",
+      "source_message_uuid": "a73ff3e7-60b9-4dc5-944e-6f6a4b23eedd",
+      "source_lines": [
+        29
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3407,
+          "repetition_score": 0.7034,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9591,
+          "lexical_similarity": 0.6429,
+          "entity_similarity": 0.6522,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-apps/git/trees/main?recursive=1 --jq '.tree[] | select(.type==\\\"blob\\\") | .path' 2>/dev/null | head -200\",\"description\":\"Get directory tree of tutors-apps repo\",\"timeout\":30000}"
+      }
+    },
+    {
+      "position": 17,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2846352159976959,
+      "tokens": 155,
+      "text": "Bash {\"command\":\"# Get the various talk/note/book markdown files to understand structure\\nfor f in \\\"topic-01-typical/unit-1/talk-1-intro/introduction.md\\\" \\\"topic-01-typical/unit-2/note-1/note.md\\\" \\\"topic-01-typical/unit-1/book-a/00.Lab-01.md\\\" \\\"topic-01-typical/unit-1/book-a/01.01.md\\\"; do\\n  echo \\\"=== $f ===\\\"\\n  gh api \\\"repos/tutors-sdk/tutors-reference-course/contents/$f\\\" --jq '.content' | base64 -d\\n  echo -e \\\"\\\\n\\\"\\ndone\",\"description\":\"Get talk/note/book markdown content\"}",
+      "source_message_uuid": "a73ff3e7-60b9-4dc5-944e-6f6a4b23eedd",
+      "source_lines": [
+        31
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2846,
+          "repetition_score": 0.5666,
+          "confidence": 0.6,
+          "semantic_similarity": 0.705,
+          "lexical_similarity": 0.4,
+          "entity_similarity": 0.4231,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 12,
+        "matched_prior_text": "Bash {\"command\":\"# Get topic markdown files to understand structure\\ngh api repos/tutors-sdk/tutors-reference-course/contents/topic-01-typical/typical.md --jq '.content' | base64 -d\",\"description\":\"Get topic-01 markdown\"}"
+      }
+    },
+    {
+      "position": 18,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.29951441287994385,
+      "tokens": 123,
+      "text": "Bash {\"command\":\"# Get unit markdown files\\nfor f in \\\"topic-01-typical/unit-1/main-lesson.md\\\" \\\"topic-01-typical/unit-2/supporting-resources.md\\\" \\\"topic-02-side/side-unit/topic-labs.md\\\" \\\"topic-02-side/topic.md\\\"; do\\n  echo \\\"=== $f ===\\\"\\n  gh api \\\"repos/tutors-sdk/tutors-reference-course/contents/$f\\\" --jq '.content' | base64 -d\\n  echo -e \\\"\\\\n\\\"\\ndone\",\"description\":\"Get unit and topic markdown content\"}",
+      "source_message_uuid": "a73ff3e7-60b9-4dc5-944e-6f6a4b23eedd",
+      "source_lines": [
+        32
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2995,
+          "repetition_score": 0.6255,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8146,
+          "lexical_similarity": 0.5526,
+          "entity_similarity": 0.4483,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 17,
+        "matched_prior_text": "Bash {\"command\":\"# Get the various talk/note/book markdown files to understand structure\\nfor f in \\\"topic-01-typical/unit-1/talk-1-intro/introduction.md\\\" \\\"topic-01-typical/unit-2/note-1/note.md\\\" \\\"topic-01-typical/unit-1/book-a/00.Lab-0"
+      }
+    },
+    {
+      "position": 19,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.1607714295387268,
+      "tokens": 150,
+      "text": "Bash {\"command\":\"# Get web link and archive content\\nfor f in \\\"topic-01-typical/unit-2/web-1/tutors-web-site.md\\\" \\\"topic-01-typical/unit-2/web-1/weburl\\\" \\\"topic-01-typical/unit-2/archive/archive.md\\\" \\\"topic-07-reference/github-1-template-1/github.md\\\" \\\"topic-07-reference/github-1-template-1/githubid\\\"; do\\n  echo \\\"=== $f ===\\\"\\n  gh api \\\"repos/tutors-sdk/tutors-reference-course/contents/$f\\\" --jq '.content' | base64 -d\\n  echo -e \\\"\\\\n\\\"\\ndone\",\"description\":\"Get web/archive/github content files\"}",
+      "source_message_uuid": "a73ff3e7-60b9-4dc5-944e-6f6a4b23eedd",
+      "source_lines": [
+        33
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1608,
+          "repetition_score": 0.5938,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7201,
+          "lexical_similarity": 0.5676,
+          "entity_similarity": 0.4483,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 18,
+        "matched_prior_text": "Bash {\"command\":\"# Get unit markdown files\\nfor f in \\\"topic-01-typical/unit-1/main-lesson.md\\\" \\\"topic-01-typical/unit-2/supporting-resources.md\\\" \\\"topic-02-side/side-unit/topic-labs.md\\\" \\\"topic-02-side/topic.md\\\"; do\\n  echo \\\"=== $f =="
+      }
+    },
+    {
+      "position": 20,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.08967369049787521,
+      "tokens": 144,
+      "text": "Bash {\"command\":\"# Get panelvideo and panelnote content\\nfor f in \\\"topic-03-media/panelvideo-1/video-main.md\\\" \\\"topic-03-media/panelvideo-1/videoid\\\" \\\"topic-03-media/unit-1/book-a/videoid\\\" \\\"topic-04-panel-note/panelnote/note.md\\\" \\\"topic-05-panel-talk/paneltalk/talk.md\\\"; do\\n  echo \\\"=== $f ===\\\"\\n  gh api \\\"repos/tutors-sdk/tutors-reference-course/contents/$f\\\" --jq '.content' | base64 -d\\n  echo -e \\\"\\\\n\\\"\\ndone\",\"description\":\"Get panel content files\"}",
+      "source_message_uuid": "a73ff3e7-60b9-4dc5-944e-6f6a4b23eedd",
+      "source_lines": [
+        34
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.0897,
+          "repetition_score": 0.5734,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6539,
+          "lexical_similarity": 0.5833,
+          "entity_similarity": 0.4643,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 18,
+        "matched_prior_text": "Bash {\"command\":\"# Get unit markdown files\\nfor f in \\\"topic-01-typical/unit-1/main-lesson.md\\\" \\\"topic-01-typical/unit-2/supporting-resources.md\\\" \\\"topic-02-side/side-unit/topic-labs.md\\\" \\\"topic-02-side/topic.md\\\"; do\\n  echo \\\"=== $f =="
+      }
+    },
+    {
+      "position": 21,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6012017130851746,
+      "intent_similarity": 0.6012017130851746,
+      "tokens": 18,
+      "text": "Now let me explore the tutors CLI tool (the course generator) and get more details.",
+      "source_message_uuid": "4aec448c-f823-4c13-8f2c-5fd24594d112",
+      "source_lines": [
+        39
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6012,
+          "repetition_score": 0.6727,
+          "confidence": 0.6012,
+          "semantic_similarity": 0.8492,
+          "lexical_similarity": 0.5882,
+          "entity_similarity": 0.5625,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.4375
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 14,
+        "matched_prior_text": "Now let me explore the main tutors CLI tool and more content files."
+      }
+    },
+    {
+      "position": 22,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3397049903869629,
+      "tokens": 55,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors/git/trees/development?recursive=1 --jq '.tree[] | select(.type==\\\"blob\\\") | .path' | head -300\",\"description\":\"Get tutors repo tree (development branch)\"}",
+      "source_message_uuid": "4aec448c-f823-4c13-8f2c-5fd24594d112",
+      "source_lines": [
+        40
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3397,
+          "repetition_score": 0.7201,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9907,
+          "lexical_similarity": 0.68,
+          "entity_similarity": 0.6667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 16,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors/git/trees/main?recursive=1 --jq '.tree[] | select(.type==\\\"blob\\\") | .path' 2>/dev/null | head -150\",\"description\":\"Get tutors repo tree\"}"
+      }
+    },
+    {
+      "position": 23,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3741927444934845,
+      "tokens": 42,
+      "text": "Bash {\"command\":\"# Get the tutors-apps repo tree\\ngh api repos/tutors-sdk/tutors-apps --jq '{description, default_branch}'\",\"description\":\"Get tutors-apps repo info\"}",
+      "source_message_uuid": "4aec448c-f823-4c13-8f2c-5fd24594d112",
+      "source_lines": [
+        42
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3742,
+          "repetition_score": 0.6622,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9102,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5625,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 15,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors --jq '{description, default_branch, language}'\",\"description\":\"Get tutors repo info\"}"
+      }
+    },
+    {
+      "position": 24,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.19960956275463104,
+      "tokens": 123,
+      "text": "Bash {\"command\":\"# Get topic-03-media topic.md and hidden topic info\\nfor f in \\\"topic-03-media/topic.md\\\" \\\"topic-10-hidden/topic.md\\\" \\\"topic-08-ordering/topic.md\\\" \\\"topic-09-svg/topic.md\\\" \\\"topic-09-podcasts/topic.md\\\"; do\\n  echo \\\"=== $f ===\\\"\\n  gh api \\\"repos/tutors-sdk/tutors-reference-course/contents/$f\\\" --jq '.content' | base64 -d\\n  echo -e \\\"\\\\n\\\"\\ndone\",\"description\":\"Get more topic markdown files\"}",
+      "source_message_uuid": "4aec448c-f823-4c13-8f2c-5fd24594d112",
+      "source_lines": [
+        44
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1996,
+          "repetition_score": 0.6305,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7997,
+          "lexical_similarity": 0.6053,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 18,
+        "matched_prior_text": "Bash {\"command\":\"# Get unit markdown files\\nfor f in \\\"topic-01-typical/unit-1/main-lesson.md\\\" \\\"topic-01-typical/unit-2/supporting-resources.md\\\" \\\"topic-02-side/side-unit/topic-labs.md\\\" \\\"topic-02-side/topic.md\\\"; do\\n  echo \\\"=== $f =="
+      }
+    },
+    {
+      "position": 25,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.28455492854118347,
+      "tokens": 102,
+      "text": "Bash {\"command\":\"# Look at podcast folder\\nfor f in \\\"topic-09-podcasts/unit-1/podcast/podcast.md\\\" \\\"topic-09-podcasts/unit-1/podcast/episode\\\"; do\\n  echo \\\"=== $f ===\\\"\\n  gh api \\\"repos/tutors-sdk/tutors-reference-course/contents/$f\\\" --jq '.content' | base64 -d\\n  echo -e \\\"\\\\n\\\"\\ndone\",\"description\":\"Get podcast content\"}",
+      "source_message_uuid": "4aec448c-f823-4c13-8f2c-5fd24594d112",
+      "source_lines": [
+        45
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2846,
+          "repetition_score": 0.5866,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7449,
+          "lexical_similarity": 0.4872,
+          "entity_similarity": 0.3667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 24,
+        "matched_prior_text": "Bash {\"command\":\"# Get topic-03-media topic.md and hidden topic info\\nfor f in \\\"topic-03-media/topic.md\\\" \\\"topic-10-hidden/topic.md\\\" \\\"topic-08-ordering/topic.md\\\" \\\"topic-09-svg/topic.md\\\" \\\"topic-09-podcasts/topic.md\\\"; do\\n  echo \\\"=="
+      }
+    },
+    {
+      "position": 26,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3242078125476837,
+      "tokens": 114,
+      "text": "Bash {\"command\":\"# Get tutorial markdown content\\nfor f in \\\"topic-01-typical/unit-2/tutorial-1/problem-sheet-1.md\\\" \\\"topic-07-reference/tutorial-1/problem-sheet-1.md\\\" \\\"topic-07-reference/web-1/web.md\\\"; do\\n  echo \\\"=== $f ===\\\"\\n  gh api \\\"repos/tutors-sdk/tutors-reference-course/contents/$f\\\" --jq '.content' | base64 -d\\n  echo -e \\\"\\\\n\\\"\\ndone\",\"description\":\"Get tutorial content\"}",
+      "source_message_uuid": "4aec448c-f823-4c13-8f2c-5fd24594d112",
+      "source_lines": [
+        46
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3242,
+          "repetition_score": 0.6629,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8844,
+          "lexical_similarity": 0.625,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 18,
+        "matched_prior_text": "Bash {\"command\":\"# Get unit markdown files\\nfor f in \\\"topic-01-typical/unit-1/main-lesson.md\\\" \\\"topic-01-typical/unit-2/supporting-resources.md\\\" \\\"topic-02-side/side-unit/topic-labs.md\\\" \\\"topic-02-side/topic.md\\\"; do\\n  echo \\\"=== $f =="
+      }
+    },
+    {
+      "position": 27,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5427547693252563,
+      "intent_similarity": 0.5427547693252563,
+      "tokens": 16,
+      "text": "Now let me explore the tutors-apps repo and the tutors CLI generator code.",
+      "source_message_uuid": "f91361a5-8f21-4fa7-b3a0-56a8f959522e",
+      "source_lines": [
+        50
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5428,
+          "repetition_score": 0.6422,
+          "confidence": 0.5428,
+          "semantic_similarity": 0.8361,
+          "lexical_similarity": 0.5294,
+          "entity_similarity": 0.5,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 21,
+        "matched_prior_text": "Now let me explore the tutors CLI tool (the course generator) and get more details."
+      }
+    },
+    {
+      "position": 28,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3702532947063446,
+      "tokens": 54,
+      "text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-apps/git/trees/development?recursive=1 --jq '.tree[] | select(.type==\\\"blob\\\") | .path' | head -200\",\"description\":\"Get tutors-apps tree\"}",
+      "source_message_uuid": "f91361a5-8f21-4fa7-b3a0-56a8f959522e",
+      "source_lines": [
+        51
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3703,
+          "repetition_score": 0.7074,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9766,
+          "lexical_similarity": 0.625,
+          "entity_similarity": 0.65,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 16,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors/git/trees/main?recursive=1 --jq '.tree[] | select(.type==\\\"blob\\\") | .path' 2>/dev/null | head -150\",\"description\":\"Get tutors repo tree\"}"
+      }
+    },
+    {
+      "position": 29,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.40318840742111206,
+      "tokens": 51,
+      "text": "Bash {\"command\":\"# Look for the tutors CLI / course generator - check jsr registry\\ngh search repos \\\"tutors-sdk tutors\\\" --owner tutors-sdk --json name,description | head -30\",\"description\":\"Search for tutors CLI repos\"}",
+      "source_message_uuid": "f91361a5-8f21-4fa7-b3a0-56a8f959522e",
+      "source_lines": [
+        53
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4032,
+          "repetition_score": 0.5614,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8195,
+          "lexical_similarity": 0.1613,
+          "entity_similarity": 0.2,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 23,
+        "matched_prior_text": "Bash {\"command\":\"# Get the tutors-apps repo tree\\ngh api repos/tutors-sdk/tutors-apps --jq '{description, default_branch}'\",\"description\":\"Get tutors-apps repo info\"}"
+      }
+    },
+    {
+      "position": 30,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3409787118434906,
+      "tokens": 44,
+      "text": "Bash {\"command\":\"# Look at the tutors-doc or tutors-docs repos for documentation\\ngh api repos/tutors-sdk/tutors-doc --jq '{description, default_branch}'\",\"description\":\"Check tutors-doc repo\"}",
+      "source_message_uuid": "f91361a5-8f21-4fa7-b3a0-56a8f959522e",
+      "source_lines": [
+        54
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.341,
+          "repetition_score": 0.6247,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8803,
+          "lexical_similarity": 0.375,
+          "entity_similarity": 0.4091,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 23,
+        "matched_prior_text": "Bash {\"command\":\"# Get the tutors-apps repo tree\\ngh api repos/tutors-sdk/tutors-apps --jq '{description, default_branch}'\",\"description\":\"Get tutors-apps repo info\"}"
+      }
+    },
+    {
+      "position": 31,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3888244032859802,
+      "tokens": 52,
+      "text": "Bash {\"command\":\"# Look for starter courses to understand minimal structures\\ngh api repos/tutors-sdk/starter-one/git/trees/main?recursive=1 --jq '.tree[].path' 2>/dev/null\",\"description\":\"Get starter-one tree\"}",
+      "source_message_uuid": "f91361a5-8f21-4fa7-b3a0-56a8f959522e",
+      "source_lines": [
+        55
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3888,
+          "repetition_score": 0.5778,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8045,
+          "lexical_similarity": 0.2941,
+          "entity_similarity": 0.2759,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 22,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors/git/trees/development?recursive=1 --jq '.tree[] | select(.type==\\\"blob\\\") | .path' | head -300\",\"description\":\"Get tutors repo tree (development branch)\"}"
+      }
+    },
+    {
+      "position": 32,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.37849161028862,
+      "tokens": 57,
+      "text": "Bash {\"command\":\"# Get tutors-apps CLI source code - the course generator\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/deno.json?ref=development --jq '.content' | base64 -d\",\"description\":\"Get CLI deno.json\"}",
+      "source_message_uuid": "3c88146c-c0dc-444c-b4bf-888270596395",
+      "source_lines": [
+        59
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3785,
+          "repetition_score": 0.6049,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8479,
+          "lexical_similarity": 0.3462,
+          "entity_similarity": 0.3462,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 23,
+        "matched_prior_text": "Bash {\"command\":\"# Get the tutors-apps repo tree\\ngh api repos/tutors-sdk/tutors-apps --jq '{description, default_branch}'\",\"description\":\"Get tutors-apps repo info\"}"
+      }
+    },
+    {
+      "position": 33,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.25607213377952576,
+      "tokens": 76,
+      "text": "Bash {\"command\":\"# List CLI source files\\ngh api repos/tutors-sdk/tutors-apps/git/trees/development?recursive=1 --jq '.tree[] | select(.path | startswith(\\\"cli/\\\")) | select(.type==\\\"blob\\\") | .path' | grep -v \\\"fixtures\\\"\",\"description\":\"List CLI source files excluding fixtures\"}",
+      "source_message_uuid": "3c88146c-c0dc-444c-b4bf-888270596395",
+      "source_lines": [
+        61
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2561,
+          "repetition_score": 0.6059,
+          "confidence": 0.6,
+          "semantic_similarity": 0.796,
+          "lexical_similarity": 0.4483,
+          "entity_similarity": 0.44,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 28,
+        "matched_prior_text": "Bash {\"command\":\"gh api repos/tutors-sdk/tutors-apps/git/trees/development?recursive=1 --jq '.tree[] | select(.type==\\\"blob\\\") | .path' | head -200\",\"description\":\"Get tutors-apps tree\"}"
+      }
+    },
+    {
+      "position": 34,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2630135416984558,
+      "tokens": 110,
+      "text": "Bash {\"command\":\"# Get starters\\nfor s in starter-one starter-two starter-three; do\\n  echo \\\"=== $s ===\\\"\\n  gh api \\\"repos/tutors-sdk/$s\\\" --jq '{description, default_branch}' 2>/dev/null\\n  gh api \\\"repos/tutors-sdk/$s/git/trees/main?recursive=1\\\" --jq '.tree[].path' 2>/dev/null || echo \\\"(no main branch)\\\"\\n  echo \\\"\\\"\\ndone\",\"description\":\"Get starter course structures\"}",
+      "source_message_uuid": "3c88146c-c0dc-444c-b4bf-888270596395",
+      "source_lines": [
+        63
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.263,
+          "repetition_score": 0.6147,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8599,
+          "lexical_similarity": 0.3659,
+          "entity_similarity": 0.3871,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 31,
+        "matched_prior_text": "Bash {\"command\":\"# Look for starter courses to understand minimal structures\\ngh api repos/tutors-sdk/starter-one/git/trees/main?recursive=1 --jq '.tree[].path' 2>/dev/null\",\"description\":\"Get starter-one tree\"}"
+      }
+    },
+    {
+      "position": 35,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4079422056674957,
+      "tokens": 65,
+      "text": "Bash {\"command\":\"# Get the model types - this defines learning object types\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-model-lib/src/types/learning-objects.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get learning-objects type definitions\"}",
+      "source_message_uuid": "c22d75ef-2302-4d13-a921-bfdeb749d97f",
+      "source_lines": [
+        65
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4079,
+          "repetition_score": 0.6059,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8244,
+          "lexical_similarity": 0.4194,
+          "entity_similarity": 0.3548,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 32,
+        "matched_prior_text": "Bash {\"command\":\"# Get tutors-apps CLI source code - the course generator\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/deno.json?ref=development --jq '.content' | base64 -d\",\"description\":\"Get CLI deno.json\"}"
+      }
+    },
+    {
+      "position": 36,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4952690899372101,
+      "tokens": 61,
+      "text": "Bash {\"command\":\"# Get the course builder - how it parses folders\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-gen-lib/src/services/course-builder.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get course-builder.ts source\"}",
+      "source_message_uuid": "c22d75ef-2302-4d13-a921-bfdeb749d97f",
+      "source_lines": [
+        66
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4953,
+          "repetition_score": 0.6515,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8822,
+          "lexical_similarity": 0.5357,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 32,
+        "matched_prior_text": "Bash {\"command\":\"# Get tutors-apps CLI source code - the course generator\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/deno.json?ref=development --jq '.content' | base64 -d\",\"description\":\"Get CLI deno.json\"}"
+      }
+    },
+    {
+      "position": 37,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.38157185912132263,
+      "tokens": 68,
+      "text": "Bash {\"command\":\"# Get the lo-tree.ts - how it builds the LO tree from folder structure\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-model-lib/src/services/lo-tree.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get lo-tree.ts source\"}",
+      "source_message_uuid": "c22d75ef-2302-4d13-a921-bfdeb749d97f",
+      "source_lines": [
+        69
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3816,
+          "repetition_score": 0.6385,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8369,
+          "lexical_similarity": 0.5333,
+          "entity_similarity": 0.5417,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 36,
+        "matched_prior_text": "Bash {\"command\":\"# Get the course builder - how it parses folders\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-gen-lib/src/services/course-builder.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get course-builder"
+      }
+    },
+    {
+      "position": 38,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3608483374118805,
+      "tokens": 57,
+      "text": "Bash {\"command\":\"# Get type-utils and type index\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-model-lib/src/types/type-utils.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get type-utils.ts\"}",
+      "source_message_uuid": "c22d75ef-2302-4d13-a921-bfdeb749d97f",
+      "source_lines": [
+        71
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3608,
+          "repetition_score": 0.6532,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9241,
+          "lexical_similarity": 0.4643,
+          "entity_similarity": 0.44,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 35,
+        "matched_prior_text": "Bash {\"command\":\"# Get the model types - this defines learning object types\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-model-lib/src/types/learning-objects.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get lea"
+      }
+    },
+    {
+      "position": 39,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.3664029538631439,
+      "tokens": 23,
+      "text": "Now let me get the resource builder which shows how folder names map to LO types, and some remaining key files.",
+      "source_message_uuid": "5a8470e4-fd86-4737-a19d-f77970f9a59f",
+      "source_lines": [
+        73
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3664,
+          "repetition_score": 0.2327,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3391,
+          "lexical_similarity": 0.2143,
+          "entity_similarity": 0.2,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 14,
+        "matched_prior_text": "Now let me explore the main tutors CLI tool and more content files."
+      }
+    },
+    {
+      "position": 40,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.40720173716545105,
+      "tokens": 64,
+      "text": "Bash {\"command\":\"# Get resource-builder.ts - this is what maps folder names to types\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-gen-lib/src/services/resource-builder.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get resource-builder.ts\"}",
+      "source_message_uuid": "5a8470e4-fd86-4737-a19d-f77970f9a59f",
+      "source_lines": [
+        74
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4072,
+          "repetition_score": 0.6273,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8844,
+          "lexical_similarity": 0.375,
+          "entity_similarity": 0.4231,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 36,
+        "matched_prior_text": "Bash {\"command\":\"# Get the course builder - how it parses folders\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-gen-lib/src/services/course-builder.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get course-builder"
+      }
+    },
+    {
+      "position": 41,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.35876819491386414,
+      "tokens": 56,
+      "text": "Bash {\"command\":\"# Get lr-utils.ts\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-gen-lib/src/utils/lr-utils.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get lr-utils.ts\"}",
+      "source_message_uuid": "5a8470e4-fd86-4737-a19d-f77970f9a59f",
+      "source_lines": [
+        75
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3588,
+          "repetition_score": 0.6812,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9028,
+          "lexical_similarity": 0.6,
+          "entity_similarity": 0.6875,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 38,
+        "matched_prior_text": "Bash {\"command\":\"# Get type-utils and type index\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-model-lib/src/types/type-utils.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get type-utils.ts\"}"
+      }
+    },
+    {
+      "position": 42,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3322410583496094,
+      "tokens": 59,
+      "text": "Bash {\"command\":\"# Get lo-utils.ts for filtering functions\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-model-lib/src/utils/lo-utils.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get lo-utils.ts\"}",
+      "source_message_uuid": "5a8470e4-fd86-4737-a19d-f77970f9a59f",
+      "source_lines": [
+        78
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3322,
+          "repetition_score": 0.6957,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9333,
+          "lexical_similarity": 0.6316,
+          "entity_similarity": 0.6875,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 41,
+        "matched_prior_text": "Bash {\"command\":\"# Get lr-utils.ts\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-gen-lib/src/utils/lr-utils.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get lr-utils.ts\"}"
+      }
+    },
+    {
+      "position": 43,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.35038238763809204,
+      "tokens": 60,
+      "text": "Bash {\"command\":\"# Get types/types.ts from tutors-gen-lib\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-gen-lib/src/types/types.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get types.ts from gen-lib\"}",
+      "source_message_uuid": "5a8470e4-fd86-4737-a19d-f77970f9a59f",
+      "source_lines": [
+        80
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3504,
+          "repetition_score": 0.6668,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9472,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.4545,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 38,
+        "matched_prior_text": "Bash {\"command\":\"# Get type-utils and type index\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-model-lib/src/types/type-utils.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get type-utils.ts\"}"
+      }
+    },
+    {
+      "position": 44,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.33101287484169006,
+      "tokens": 101,
+      "text": "Bash {\"command\":\"# Get the main CLI entry point\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors/main.ts?ref=development --jq '.content' | base64 -d\\necho \\\"=== tutors deno.json ===\\\"\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors/deno.json?ref=development --jq '.content' | base64 -d\",\"description\":\"Get tutors CLI main.ts and deno.json\"}",
+      "source_message_uuid": "5a8470e4-fd86-4737-a19d-f77970f9a59f",
+      "source_lines": [
+        82
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.331,
+          "repetition_score": 0.6242,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8484,
+          "lexical_similarity": 0.4615,
+          "entity_similarity": 0.4167,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 41,
+        "matched_prior_text": "Bash {\"command\":\"# Get lr-utils.ts\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-gen-lib/src/utils/lr-utils.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get lr-utils.ts\"}"
+      }
+    },
+    {
+      "position": 45,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.39652466773986816,
+      "tokens": 67,
+      "text": "Bash {\"command\":\"# Get the tutors-gen-lib tutors.ts (parseCourse + generateDynamicCourse)\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-gen-lib/src/tutors.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get tutors.ts from gen-lib\"}",
+      "source_message_uuid": "c69235ff-f973-452d-93b1-6c8d85f63111",
+      "source_lines": [
+        84
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3965,
+          "repetition_score": 0.6891,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9122,
+          "lexical_similarity": 0.6522,
+          "entity_similarity": 0.6667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 43,
+        "matched_prior_text": "Bash {\"command\":\"# Get types/types.ts from tutors-gen-lib\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-gen-lib/src/types/types.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get types.ts from gen-lib\"}"
+      }
+    },
+    {
+      "position": 46,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.40755680203437805,
+      "tokens": 59,
+      "text": "Bash {\"command\":\"# Get the course-emitter.ts\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-gen-lib/src/services/course-emitter.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get course-emitter.ts\"}",
+      "source_message_uuid": "c69235ff-f973-452d-93b1-6c8d85f63111",
+      "source_lines": [
+        86
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4076,
+          "repetition_score": 0.696,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9232,
+          "lexical_similarity": 0.7059,
+          "entity_similarity": 0.625,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 41,
+        "matched_prior_text": "Bash {\"command\":\"# Get lr-utils.ts\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-gen-lib/src/utils/lr-utils.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get lr-utils.ts\"}"
+      }
+    },
+    {
+      "position": 47,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.24222849309444427,
+      "tokens": 113,
+      "text": "Bash {\"command\":\"# Get icon-types and media-types\\nfor f in \\\"cli/tutors-model-lib/src/types/icon-types.ts\\\" \\\"cli/tutors-model-lib/src/types/media-types.ts\\\" \\\"cli/tutors-model-lib/src/types/index.ts\\\"; do\\n  echo \\\"=== $f ===\\\"\\n  gh api \\\"repos/tutors-sdk/tutors-apps/contents/$f?ref=development\\\" --jq '.content' | base64 -d\\n  echo -e \\\"\\\\n\\\"\\ndone\",\"description\":\"Get remaining type files\"}",
+      "source_message_uuid": "c69235ff-f973-452d-93b1-6c8d85f63111",
+      "source_lines": [
+        88
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2422,
+          "repetition_score": 0.5598,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6988,
+          "lexical_similarity": 0.3714,
+          "entity_similarity": 0.4074,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 38,
+        "matched_prior_text": "Bash {\"command\":\"# Get type-utils and type index\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-model-lib/src/types/type-utils.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get type-utils.ts\"}"
+      }
+    },
+    {
+      "position": 48,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4343859851360321,
+      "tokens": 59,
+      "text": "Bash {\"command\":\"# Get course-utils.ts for loadPropertyFlags\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-model-lib/src/utils/course-utils.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get course-utils.ts\"}",
+      "source_message_uuid": "c69235ff-f973-452d-93b1-6c8d85f63111",
+      "source_lines": [
+        89
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4344,
+          "repetition_score": 0.7017,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9385,
+          "lexical_similarity": 0.6667,
+          "entity_similarity": 0.6875,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 41,
+        "matched_prior_text": "Bash {\"command\":\"# Get lr-utils.ts\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-gen-lib/src/utils/lr-utils.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get lr-utils.ts\"}"
+      }
+    },
+    {
+      "position": 49,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.27704688906669617,
+      "tokens": 16,
+      "text": "Now let me get the tutors-lite entry point and check for any more starters.",
+      "source_message_uuid": "8d7e6608-8f5c-4e87-8251-f5b1c3153d3d",
+      "source_lines": [
+        92
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.277,
+          "repetition_score": 0.3843,
+          "confidence": 0.5,
+          "semantic_similarity": 0.5452,
+          "lexical_similarity": 0.2857,
+          "entity_similarity": 0.3,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.7
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 14,
+        "matched_prior_text": "Now let me explore the main tutors CLI tool and more content files."
+      }
+    },
+    {
+      "position": 50,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3899608254432678,
+      "tokens": 53,
+      "text": "Bash {\"command\":\"# Get tutors-lite main.ts\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-lite/main.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get tutors-lite main.ts\"}",
+      "source_message_uuid": "8d7e6608-8f5c-4e87-8251-f5b1c3153d3d",
+      "source_lines": [
+        93
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.39,
+          "repetition_score": 0.6988,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9311,
+          "lexical_similarity": 0.7059,
+          "entity_similarity": 0.625,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 41,
+        "matched_prior_text": "Bash {\"command\":\"# Get lr-utils.ts\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-gen-lib/src/utils/lr-utils.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get lr-utils.ts\"}"
+      }
+    },
+    {
+      "position": 51,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.26312127709388733,
+      "tokens": 54,
+      "text": "Bash {\"command\":\"# Get starter repos on master branch\\ngh api repos/tutors-sdk/starter-one/git/trees/master?recursive=1 --jq '.tree[].path' 2>/dev/null\",\"description\":\"Get starter-one tree (master branch)\"}",
+      "source_message_uuid": "8d7e6608-8f5c-4e87-8251-f5b1c3153d3d",
+      "source_lines": [
+        95
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2631,
+          "repetition_score": 0.5199,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6616,
+          "lexical_similarity": 0.25,
+          "entity_similarity": 0.25,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 50,
+        "matched_prior_text": "Bash {\"command\":\"# Get tutors-lite main.ts\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-lite/main.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get tutors-lite main.ts\"}"
+      }
+    },
+    {
+      "position": 52,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.39525818824768066,
+      "tokens": 52,
+      "text": "Bash {\"command\":\"# Get the README for tutors-apps\\ngh api repos/tutors-sdk/tutors-apps/contents/README.md?ref=development --jq '.content' | base64 -d\",\"description\":\"Get tutors-apps README\"}",
+      "source_message_uuid": "8d7e6608-8f5c-4e87-8251-f5b1c3153d3d",
+      "source_lines": [
+        97
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3953,
+          "repetition_score": 0.6687,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8635,
+          "lexical_similarity": 0.6842,
+          "entity_similarity": 0.5789,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 46,
+        "matched_prior_text": "Bash {\"command\":\"# Get the course-emitter.ts\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-gen-lib/src/services/course-emitter.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get course-emitter.ts\"}"
+      }
+    },
+    {
+      "position": 53,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.27159810066223145,
+      "tokens": 64,
+      "text": "Bash {\"command\":\"# Check topic-09-svg for SVG icon support - talk-3 uses SVG\\ngh api repos/tutors-sdk/tutors-reference-course/contents/topic-09-svg/talk-3/talk.md --jq '.content' | base64 -d\",\"description\":\"Get talk with SVG icon\"}",
+      "source_message_uuid": "8d7e6608-8f5c-4e87-8251-f5b1c3153d3d",
+      "source_lines": [
+        99
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2716,
+          "repetition_score": 0.5487,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6606,
+          "lexical_similarity": 0.4231,
+          "entity_similarity": 0.36,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 48,
+        "matched_prior_text": "Bash {\"command\":\"# Get course-utils.ts for loadPropertyFlags\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-model-lib/src/utils/course-utils.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get course-utils.ts\"}"
+      }
+    },
+    {
+      "position": 54,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.33360251784324646,
+      "tokens": 52,
+      "text": "Bash {\"command\":\"# Get hidden topic details\\ngh api repos/tutors-sdk/tutors-reference-course/contents/topic-10-hidden/talk-2/talk.md --jq '.content' | base64 -d\",\"description\":\"Get hidden topic talk\"}",
+      "source_message_uuid": "8d7e6608-8f5c-4e87-8251-f5b1c3153d3d",
+      "source_lines": [
+        100
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3336,
+          "repetition_score": 0.61,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7945,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.4211,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 46,
+        "matched_prior_text": "Bash {\"command\":\"# Get the course-emitter.ts\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-gen-lib/src/services/course-emitter.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get course-emitter.ts\"}"
+      }
+    },
+    {
+      "position": 55,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.32980838418006897,
+      "tokens": 16,
+      "text": "Now let me get a few more details about the file-utils and icon-types.",
+      "source_message_uuid": "a80d5ad3-b40e-4f73-bc25-9199c6677075",
+      "source_lines": [
+        103
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3298,
+          "repetition_score": 0.3204,
+          "confidence": 0.5,
+          "semantic_similarity": 0.4692,
+          "lexical_similarity": 0.2143,
+          "entity_similarity": 0.24,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.76
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 39,
+        "matched_prior_text": "Now let me get the resource builder which shows how folder names map to LO types, and some remaining key files."
+      }
+    },
+    {
+      "position": 56,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3567858040332794,
+      "tokens": 55,
+      "text": "Bash {\"command\":\"# Get file-utils.ts\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-gen-lib/src/utils/file-utils.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get file-utils.ts\"}",
+      "source_message_uuid": "a80d5ad3-b40e-4f73-bc25-9199c6677075",
+      "source_lines": [
+        104
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3568,
+          "repetition_score": 0.6993,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9406,
+          "lexical_similarity": 0.6667,
+          "entity_similarity": 0.6471,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 48,
+        "matched_prior_text": "Bash {\"command\":\"# Get course-utils.ts for loadPropertyFlags\\ngh api repos/tutors-sdk/tutors-apps/contents/cli/tutors-model-lib/src/utils/course-utils.ts?ref=development --jq '.content' | base64 -d\",\"description\":\"Get course-utils.ts\"}"
+      }
+    },
+    {
+      "position": 57,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.24802978336811066,
+      "tokens": 48,
+      "text": "Bash {\"command\":\"# Get starter-two tree\\ngh api repos/tutors-sdk/starter-two/git/trees/master?recursive=1 --jq '.tree[].path' 2>/dev/null\",\"description\":\"Get starter-two tree\"}",
+      "source_message_uuid": "a80d5ad3-b40e-4f73-bc25-9199c6677075",
+      "source_lines": [
+        106
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.248,
+          "repetition_score": 0.6918,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9528,
+          "lexical_similarity": 0.5909,
+          "entity_similarity": 0.6111,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 51,
+        "matched_prior_text": "Bash {\"command\":\"# Get starter repos on master branch\\ngh api repos/tutors-sdk/starter-one/git/trees/master?recursive=1 --jq '.tree[].path' 2>/dev/null\",\"description\":\"Get starter-one tree (master branch)\"}"
+      }
+    },
+    {
+      "position": 58,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2893202006816864,
+      "tokens": 96,
+      "text": "Bash {\"command\":\"# Get starter-one properties.yaml and course.md\\nfor f in \\\"properties.yaml\\\" \\\"course.md\\\" \\\"topic-01-simple/topic.md\\\"; do\\n  echo \\\"=== $f ===\\\"\\n  gh api \\\"repos/tutors-sdk/starter-one/contents/$f?ref=master\\\" --jq '.content' | base64 -d\\n  echo -e \\\"\\\\n\\\"\\ndone\",\"description\":\"Get starter-one content files\"}",
+      "source_message_uuid": "a80d5ad3-b40e-4f73-bc25-9199c6677075",
+      "source_lines": [
+        108
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2893,
+          "repetition_score": 0.5945,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7234,
+          "lexical_similarity": 0.5833,
+          "entity_similarity": 0.4194,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 47,
+        "matched_prior_text": "Bash {\"command\":\"# Get icon-types and media-types\\nfor f in \\\"cli/tutors-model-lib/src/types/icon-types.ts\\\" \\\"cli/tutors-model-lib/src/types/media-types.ts\\\" \\\"cli/tutors-model-lib/src/types/index.ts\\\"; do\\n  echo \\\"=== $f ===\\\"\\n  gh api "
+      }
+    },
+    {
+      "position": 59,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.8472003936767578,
+      "intent_similarity": 0.8472003936767578,
+      "tokens": 4033,
+      "text": "I now have a comprehensive picture of the tutors-sdk ecosystem. Here is my complete report.\n\n---\n\n## Tutors-SDK Course Folder Structure -- Comprehensive Breakdown\n\n### 1. COURSE ROOT FILES (Required)\n\nEvery tutors course requires these files at the root:\n\n**`course.md`** (REQUIRED) -- The course title and description. The first line (after optional frontmatter) is treated as the title (leading `#` is stripped). The second non-empty line becomes the summary. The full body is the course's \"info\" content.\n\n```markdown\n# My Course Title\n\nA short description of the course.\n```\n\n**`course.png`** (or `.jpg`, `.jpeg`, `.gif`, `.svg`) -- The course card image. This is the visual thumbnail shown in course listings.\n\n**`properties.yaml`** (OPTIONAL but standard) -- Course-level configuration. Key properties:\n\n```yaml\ncredits: Author name or credits line\nslack: https://slack-url\nmoodle: https://moodle-url\nyoutube: https://youtube-playlist-url\nteams: https://teams-url\nzoom: https://zoom-url\nparent: course/parent-course-id\nauth: 0                    # 0=public, 1+=requires auth\nlabStepsAutoNumber: false  # auto-number lab steps\nllm: 2                     # LLM integration level\nignorepin: 4321            # PIN to reveal hidden topics\nportfolio: false           # treat as portfolio of courses\nprivate: 0                 # 1=private course\nhideVideos: false\ndefaultPdfReader: adobe    # or \"mozilla\"\npdfOrientation: landscape  # or \"portrait\"\nfooter: \"Footer text\"\n\nignore:                    # list of topic folder IDs to hide\n  - topic-10-hidden\n\ncompanions:                # custom companion links\n  piazza:\n    link: https://piazza.com/\n    title: Piazza Q & A for this course\n    icon:\n      type: academicons:piazza\n      color: info\n\niconset:                   # custom icon overrides\n  moodle:\n    type: fa-solid:graduation-cap\n    color: warning\n```\n\n**`calendar.yaml`** (OPTIONAL) -- Defines a week-by-week calendar overlay.\n\n**`enrollment.yaml`** (OPTIONAL) -- Enrollment/access control data.\n\n**`vercel.json`** (OPTIONAL) -- For Vercel deployment:\n```json\n{\n  \"version\": 2,\n  \"buildCommand\": \"npx -y deno-bin@latest run -A jsr:@tutors/tutors\",\n  \"outputDirectory\": \"json\",\n  \"framework\": null\n}\n```\n\n---\n\n### 2. LEARNING OBJECT TYPES -- The Complete Taxonomy\n\nThe system recognizes learning objects by **folder name prefix**. The `findLastMatchingString` function in `resource-builder.ts` scans each folder path segment from right to left, matching against these prefixes:\n\n**Simple types** (leaf content):\n- `note` -- Rich markdown note\n- `archive` -- Downloadable zip file link\n- `web` -- External web link\n- `github` -- GitHub repository link\n- `panelnote` -- Note displayed at topic level as a panel card\n- `paneltalk` -- Talk displayed at topic level as a panel card\n- `panelvideo` -- Video displayed at topic level as a panel card\n- `podcast` -- Podcast episode embed\n- `talk` -- Presentation/lecture (PDF slides)\n- `book` -- (alias for `lab`) Multi-step lab\n- `lab` -- Multi-step lab walkthrough\n- `tutorial` -- Tutorial with optional PDF\n\n**Composite types** (containers that hold other LOs):\n- `unit` -- A named section within a topic (rendered inline)\n- `side` -- A sidebar section within a topic (rendered in sidebar)\n- `topic` -- A major course section (top-level card on course page)\n- `course` -- The root (implicit, not a folder prefix)\n\n**Sort order** when displayed (from `preOrder` map):\ncourse(0), unit(1), side(2), topic(3), talk(4), tutorial(5), book/lab(6/7), note(8), web(9), github(10), archive(11), panelnote(12), paneltalk(13), panelvideo(14), podcast(15)\n\n---\n\n### 3. FOLDER STRUCTURE FOR EACH LEARNING OBJECT TYPE\n\n#### TOPIC\nThe primary structural unit. Folder name must start with `topic`.\n\n```\ntopic-01-typical/\n  typical.md          # Title (first # line) + summary (second line)\n  typical.png         # Card image (any image extension works)\n  unit-1/             # Units inside\n  unit-2/\n```\n\nOr with frontmatter for custom Iconify icon (instead of image):\n```\ntopic-09-svg/\n  topic.md            # Can use frontmatter for icon\n  topic.png           # OR an image file (icon overrides image)\n```\n\nThe `.md` file can use YAML frontmatter:\n```markdown\n---\nicon:\n  type: emojione:owl\n  color: blue\norder: 3              # explicit sort order\n---\n# Topic Title\n\nSummary text here\n```\n\n#### UNIT\nGroups content within a topic. Folder name starts with `unit`.\n\n```\nunit-1/\n  main-lesson.md      # Unit title/description\n  talk-1-intro/       # Talks inside\n  talk-2-explore/\n  book-a/             # Labs inside\n```\n\nThe unit `.md` file is simple -- just the title:\n```markdown\nMain Lesson\n```\n\n#### SIDE (Sidebar Unit)\nLike a unit but rendered in a sidebar. Folder name starts with `side`.\n\n```\nside-unit/\n  topic-labs.md       # Side title\n  book-a/             # Labs\n  book-b/\n  book-c/\n```\n\n#### TALK (Presentation/Lecture)\nFolder name starts with `talk`. Requires:\n\n```\ntalk-1-intro/\n  introduction.md     # Title (first line) + summary\n  introduction.pdf    # The PDF slides (required for rendering)\n  introduction.png    # Card image\n  videoid             # OPTIONAL: YouTube video ID\n```\n\nThe `.md` content:\n```markdown\nLecture 1\n\nA short summary of the talk, no more than two sentences.\n```\n\nThe `videoid` file (when present) contains just the YouTube ID:\n```\nx09E7b2ESE8\n```\n\nYou can also add `?start=1370&1802` for start/end times.\n\nFrontmatter for custom icons:\n```markdown\n---\nicon:\n  type: bi:filetype-pptx\n  color: green\n---\nHidden Lecture\n\nThis lecture should not appear in the wall\n```\n\n#### LAB / BOOK (Multi-step Walkthrough)\nFolder name starts with `book` (internally mapped to type `lab`). This is the most complex type.\n\n```\nbook-a/\n  00.Lab-01.md        # Step 0 (title step - first # line becomes lab title)\n  01.01.md            # Step 1\n  02.02.md            # Step 2\n  03.03.md            # Step 3\n  ...\n  07.Exercises.md     # Last step\n  img/                # Images referenced in steps\n    main.png          # Lab card image (MUST be named \"main.xxx\")\n    01.png\n    02.png\n  archives/           # Optional downloadable archives\n    archive.zip\n  videoid             # OPTIONAL: associated video\n```\n\nStep naming convention: `NN.title.md` where:\n- `NN` is a two-digit sort prefix (00, 01, 02...)\n- The text between the first `.` and last `.` becomes the step's `shortTitle`\n- The first `# Heading` inside the file becomes the step's full title\n- Files are sorted alphabetically, so numeric prefixes control order\n\nThe `img/main.png` file is special -- it becomes the lab's card image.\n\n#### NOTE\nFolder name starts with `note`. Rich markdown content.\n\n```\nnote-1/\n  note.md             # Full markdown content (title from first # line)\n  note.png            # Card image\n  img/                # Images used in the note\n    01.png\n    02.png\n  archives/           # Optional downloadable zip\n    archive.zip\n```\n\nNotes support full markdown: images, code blocks with syntax highlighting, math notation (LaTeX), tables, embedded videos (`::video[src=\"...\"]::`) and podcasts (`::podcast[src=\"...\"]::`)\n\nThe `.md` file can have any name, but it must be the ONLY `.md` file in the folder (the system picks the first `.md` file found).\n\n#### PANELNOTE\nIdentical structure to `note`, but folder starts with `panelnote`. Displayed as a panel card directly on the topic page rather than inside a unit.\n\n```\npanelnote/\n  note.md\n  note.png\n  img/\n    01.png\n```\n\n#### PANELTALK\nIdentical to `talk` but displayed as a panel card on the topic page.\n\n```\npaneltalk/\n  talk.md\n  talk.pdf\n  talk.png\n```\n\n#### PANELVIDEO\nVideo panel displayed at topic level. Requires:\n\n```\npanelvideo-1/\n  video-main.md       # Title/description\n  videoid             # YouTube video ID (just the ID string)\n```\n\nThe `videoid` file contains the YouTube ID:\n```\nx09E7b2ESE8\n```\n\nFor HEAnet/VIMP video services:\n```\nheanet=MEDIA_ID\n```\nor\n```\nvimp=MEDIA_KEY\n```\n\n#### WEB (External Link)\nFolder name starts with `web`. Links out to a URL.\n\n```\nweb-1/\n  tutors-web-site.md  # Title + summary\n  tutors-web-site.png # Card image\n  weburl              # File containing the URL (first line)\n```\n\nThe `weburl` file is a plain text file with the URL on the first line:\n```\nhttps://tutors.dev/\n```\n\n#### GITHUB (Repository Link)\nFolder name starts with `github`. Links to a GitHub repo.\n\n```\ngithub-1-template-1/\n  github.md           # Title + summary\n  github.png          # Card image\n  githubid            # File containing the GitHub URL\n```\n\nThe `githubid` file:\n```\nhttps://github.com/tutors-sdk/tutors\n```\n\n#### ARCHIVE (Downloadable Resource)\nFolder name starts with `archive`. Provides a zip download.\n\n```\narchive/\n  archive.md          # Title + summary\n  archive.png         # Card image\n  archive.zip         # The downloadable file\n```\n\n#### TUTORIAL\nFolder name starts with `tutorial`. Simple tutorial content with optional PDF.\n\n```\ntutorial-1/\n  problem-sheet-1.md  # Title + content\n  problem-sheet-1.pdf # Optional PDF\n  problem-sheet-1.png # Card image\n```\n\n#### PODCAST\nFolder name starts with `podcast`. Embeds a podcast episode.\n\n```\npodcast/\n  podcast.md          # Title + description\n  episode             # Service identifier file\n```\n\nThe `episode` file format:\n```\nspotify=3cqFe6wRbaadmPosSwckXh\n```\n\n---\n\n### 4. FULL EXAMPLE -- HIERARCHICAL COURSE LAYOUT\n\n```\nmy-course/\n  course.md                              # Course title + description\n  course.png                             # Course card image\n  properties.yaml                        # Course configuration\n  calendar.yaml                          # Optional calendar\n  \n  topic-01-introduction/\n    topic.md                             # \"# Introduction\\nOverview of...\"\n    topic.png                            # Topic card image\n    unit-1/\n      main-lesson.md                     # \"Main Lesson\" (unit title)\n      talk-1-welcome/\n        welcome.md                       # \"Welcome\\nOpening remarks\"\n        welcome.pdf\n        welcome.png\n      talk-2-overview/\n        overview.md\n        overview.pdf\n        overview.png\n      book-a/\n        00.Lab-01.md                     # \"# Objectives\\nGetting started...\"\n        01.Setup.md\n        02.First-Steps.md\n        03.Exercises.md\n        img/\n          main.png                       # Lab card image\n          01.png\n        archives/\n          archive.zip\n    unit-2/\n      resources.md                       # \"Supporting Resources\"\n      note-1/\n        note.md\n        note.png\n        img/\n          01.png\n      web-1/\n        web.md                           # \"Useful Links\\nRelevant sites\"\n        web.png\n        weburl                           # \"https://example.com\"\n      archive/\n        archive.md\n        archive.png\n        archive.zip\n\n  topic-02-advanced/\n    topic.md\n    topic.png\n    panelvideo-1/                        # Panel-level video\n      video.md\n      videoid                            # \"dQw4w9WgXcQ\"\n    panelnote/                           # Panel-level note\n      note.md\n      note.png\n      img/\n        01.png\n    unit-1/\n      lectures.md\n      talk-1/\n        talk.md\n        talk.pdf\n        talk.png\n    side-unit/                           # Sidebar with labs\n      topic-labs.md                      # \"# Labs for this Topic\"\n      book-a/\n        00.Lab-02.md\n        01.01.md\n        02.02.md\n        img/\n          main.png\n```\n\n---\n\n### 5. THE GENERATOR TOOLCHAIN\n\nThe course folder is converted to a deployable course by the **tutors CLI**, published to JSR as `@tutors/tutors`. The toolchain is in the `tutors-sdk/tutors-apps` repo under `cli/`.\n\n**Architecture:**\n\n1. **`@tutors/tutors-model-lib`** (JSR package) -- Defines all TypeScript types: `Lo`, `Lab`, `Talk`, `Note`, `Topic`, `Unit`, `Side`, `Course`, `Composite`, etc. Also contains the `decorateCourseTree()` function that enriches the parsed tree with breadcrumbs, panels/units classification, wall indexes, and HTML conversion.\n\n2. **`@tutors/tutors-gen-lib`** (JSR package) -- Contains:\n   - `resource-builder.ts` -- `buildTree(dir)`: Recursively walks the filesystem, identifies each folder's LO type by matching folder name against prefixes, and builds a `LearningResource` tree\n   - `course-builder.ts` -- `buildCourse(lr)`: Walks the `LearningResource` tree and builds the `Course` object model, reading markdown files, extracting frontmatter, PDFs, images, video IDs, web URLs, etc.\n   - `course-emitter.ts` -- Generates static HTML output (for tutors-lite)\n   - Template engine (vento templates) for static HTML generation\n\n3. **`@tutors/tutors`** (JSR CLI, v5.0.0) -- The primary generator. Run with:\n   ```bash\n   deno run -A jsr:@tutors/tutors\n   ```\n   Outputs `json/tutors.json` -- a single JSON file containing the entire course tree. This JSON is consumed by the **Tutors Reader** (SvelteKit app at `tutors-sdk/tutors`).\n\n4. **`@tutors/tutors-lite`** (JSR CLI) -- A secondary generator producing standalone static HTML:\n   ```bash\n   deno run -A jsr:@tutors/tutors-lite\n   ```\n   Outputs to `html/` directory. Deployed via GitHub Pages.\n\n**How the generator determines LO type from folder names:**\n\nThe `findLastMatchingString()` function scans path segments from right to left. For each segment, it checks if it starts with any of the known type prefixes: `note`, `archive`, `web`, `github`, `panelnote`, `paneltalk`, `panelvideo`, `podcast`, `talk`, `book`, `lab`, `tutorial`, `unit`, `side`, `topic`, `course`. The first match wins. `book` is immediately aliased to `lab`.\n\n**Deployment options:**\n- **Vercel**: Uses `vercel.json` with build command `npx -y deno-bin@latest run -A jsr:@tutors/tutors`. Output is `json/` directory served by the Tutors Reader at `tutors.dev/course/<repo-owner>/<repo-name>`.\n- **GitHub Pages** (tutors-lite): Uses the publish-html workflow with `deno run -A jsr:@tutors/tutors-lite`. Outputs static HTML to `html/`.\n- **Netlify**: The generator also creates a `netlify.toml` redirect file.\n\n---\n\n### 6. KEY NAMING RULES FOR VALID COURSE SKELETONS\n\n1. **Course root must contain `course.md`** -- the generator checks for this file first and exits if not found.\n\n2. **Folder prefix determines type** -- The folder name must START with the type prefix. Anything after the prefix is a human-readable identifier (e.g., `topic-01-introduction`, `talk-1-welcome`, `book-a`, `unit-2`, `side-extras`).\n\n3. **Each LO folder must contain a `.md` file** -- This provides the title (first line) and summary (second non-blank line). The `.md` filename can be anything.\n\n4. **Image files provide card thumbnails** -- Any `.png`, `.jpg`, `.jpeg`, `.gif`, or `.svg` file in the LO folder becomes its card image. For labs, `img/main.png` is used specifically.\n\n5. **Special marker files**:\n   - `weburl` -- Plain text file with URL (for `web` type)\n   - `githubid` -- Plain text file with GitHub URL (for `github` type)\n   - `videoid` -- Plain text file with YouTube ID or `service=id` (for video-enabled types)\n   - `episode` -- Plain text file with `spotify=ID` or `service=ID` (for `podcast` type)\n\n6. **Frontmatter in `.md` files** is optional but supports:\n   - `icon.type` and `icon.color` -- Iconify icon override (replaces image)\n   - `order` -- Explicit sort order number\n\n7. **Topics appear at course root level** (as direct children). Within topics, content is organized in `unit-*` and/or `side-*` folders, or placed directly (which makes them \"standardLos\"). Panel types (`panelvideo`, `paneltalk`, `panelnote`) also go directly inside topics.\n\n8. **Lab step files** must follow the `NN.title.md` pattern and are sorted alphabetically. The `00` prefix is conventionally the objectives/intro step.",
+      "source_message_uuid": "a7837a71-6c47-418f-93f5-400420bb5677",
+      "source_lines": [
+        110
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.8472,
+          "repetition_score": 0.385,
+          "confidence": 0.8472,
+          "semantic_similarity": 0.6634,
+          "lexical_similarity": 0.0116,
+          "entity_similarity": 0.0175,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9825
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 21,
+        "matched_prior_text": "Now let me explore the tutors CLI tool (the course generator) and get more details."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "bash_antipattern",
+        "tokens_wasted": 10490,
+        "description": "6 Bash calls should use dedicated tools (10,490 tokens)"
+      },
+      {
+        "type": "failed_tool_retry",
+        "tokens_wasted": 30,
+        "description": "1 failed tool calls (30 wasted tokens)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Bash Anti-Patterns",
+        "tokens": 10490,
+        "percentage": 99.7,
+        "cost_usd": 0.03147,
+        "count": 1,
+        "pricing": "input"
+      },
+      {
+        "source": "Failed Tool Retries",
+        "tokens": 30,
+        "percentage": 0.3,
+        "cost_usd": 9e-05,
+        "count": 1,
+        "pricing": "input"
+      }
+    ],
+    "total_tokens": 10520,
+    "total_cost_usd": 0.03156
+  },
+  "economics": {
+    "total_input_tokens": 14,
+    "total_output_tokens": 4700,
+    "total_cache_creation_tokens": 180069,
+    "total_cache_read_tokens": 427914,
+    "input_output_ratio": 0.0,
+    "cache_hit_rate": 1.0,
+    "estimated_cost_usd": 0.8742,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 20,
+      "mid_span_count": 20,
+      "late_span_count": 20
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        19282,
+        28571,
+        36965,
+        43913,
+        50465,
+        53332,
+        59238,
+        65720,
+        70437
+      ],
+      "growth_rate": 3.65,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 181,
+      "user_result_tokens": 37043,
+      "model_reasoning_tokens": 130,
+      "model_tool_tokens": 3370,
+      "model_generation_tokens": 4171,
+      "total_user_tokens": 37224,
+      "total_model_tokens": 7671,
+      "user_ratio": 0.8291
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.7803,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "Research the tutors-sdk ecosystem to understand what a \"tutors course\" folder structure looks like. I need to understand:\n\n1. From https://github.com/tutors-sdk/tutors-reference-course \u2014 what is the folder structure? What files and folders make up a course? Look at the directory layout, any properties.yaml or markdown files, how topics/labs/units/talks/notes are organized.\n\n2. From https://github.com/tutors-sdk/tutors-apps \u2014 what tool converts a course folder into a deployed course? How does it work?\n\n3. What are the key content types (topics, labs, units, talks, notes, panels, etc.) and their required files/structure?\n\nUse `gh` CLI and web fetching to explore these repos thoroughly. Give me a comprehensive breakdown of the folder structure with examples. Report in detail \u2014 I need enough to generate valid course skeletons.",
+          "response_text": "I'll research all three aspects in parallel to build a comprehensive picture. Now let me fetch the key content files from the reference course and find the correct tutors-apps repo. Now let me explore the main tutors CLI tool and more content files. Now let me explore the tutors CLI tool (the course generator) and get more details. Now let me explore the tutors-apps repo and the tutors CLI generator code. Now let me get the resource builder which shows how folder names map to LO types, and some remaining key files. Now let me get the tutors-lite entry point and check for any more starters. Now let me get a few more details about the file-utils and icon-types. I now have a comprehensive picture of the tutors-sdk ecosystem. Here is my complete report.\n\n---\n\n## Tutors-SDK Course Folder Structure -- Comprehensive Breakdown\n\n### 1. COURSE ROOT FILES (Required)\n\nEvery tutors course requires these files at the root:\n\n**`course.md`** (REQUIRED) -- The course title and description. The first line (after optional frontmatter) is treated as the title (leading `#` is stripped). The second non-empty line becomes the summary. The full body is the course's \"info\" content.\n\n```markdown\n# My Course Title\n\nA short description of the course.\n```\n\n**`course.png`** (or `.jpg`, `.jpeg`, `.gif`, `.svg`) -- The course card image. This is the visual thumbnail shown in course listings.\n\n**`properties.yaml`** (OPTIONAL but standard) -- Course-level configuration. Key properties:\n\n```yaml\ncredits: Author name or credits line\nslack: https://slack-url\nmoodle: https://moodle-url\nyoutube: https://youtube-playlist-url\nteams: https://teams-url\nzoom: https://zoom-url\nparent: course/parent-course-id\nauth: 0                    # 0=public, 1+=requires auth\nlabStepsAutoNumber: false  # auto-number lab steps\nllm: 2                     # LLM integration level\nignorepin: 4321            # PIN to reveal hidden topics\nportfolio: false           # treat as portfolio of courses\nprivate: 0                 # 1=private course\nhideVideos: false\ndefaultPdfReader: adobe    # or \"mozilla\"\npdfOrientation: landscape  # or \"portrait\"\nfooter: \"Footer text\"\n\nignore:                    # list of topic folder IDs to hide\n  - topic-10-hidden\n\ncompanions:                # custom companion links\n  piazza:\n    link: https://piazza.com/\n    title: Piazza Q & A for this course\n    icon:\n      type: academicons:piazza\n      color: info\n\niconset:                   # custom icon overrides\n  moodle:\n    type: fa-solid:graduation-cap\n    color: warning\n```\n\n**`calendar.yaml`** (OPTIONAL) -- Defines a week-by-week calendar overlay.\n\n**`enrollment.yaml`** (OPTIONAL) -- Enrollment/access control data.\n\n**`vercel.json`** (OPTIONAL) -- For Vercel deployment:\n```json\n{\n  \"version\": 2,\n  \"buildCommand\": \"npx -y deno-bin@latest run -A jsr:@tutors/tutors\",\n  \"outputDirectory\": \"json\",\n  \"framework\": null\n}\n```\n\n---\n\n### 2. LEARNING OBJECT TYPES -- The Complete Taxonomy\n\nThe system recognizes learning objects by **folder name prefix**. The `findLastMatchingString` function in `resource-builder.ts` scans each folder path segment from right to left, matching against these prefixes:\n\n**Simple types** (leaf content):\n- `note` -- Rich markdown note\n- `archive` -- Downloadable zip file link\n- `web` -- External web link\n- `github` -- GitHub repository link\n- `panelnote` -- Note displayed at topic level as a panel card\n- `paneltalk` -- Talk displayed at topic level as a panel card\n- `panelvideo` -- Video displayed at topic level as a panel card\n- `podcast` -- Podcast episode embed\n- `talk` -- Presentation/lecture (PDF slides)\n- `book` -- (alias for `lab`) Multi-step lab\n- `lab` -- Multi-step lab walkthrough\n- `tutorial` -- Tutorial with optional PDF\n\n**Composite types** (containers that hold other LOs):\n- `unit` -- A named section within a topic (rendered inline)\n- `side` -- A sidebar section within a topic (rendered in sidebar)\n- `topic` -- A major course section (top-level card on course page)\n- `course` -- The root (implicit, not a folder prefix)\n\n**Sort order** when displayed (from `preOrder` map):\ncourse(0), unit(1), side(2), topic(3), talk(4), tutorial(5), book/lab(6/7), note(8), web(9), github(10), archive(11), panelnote(12), paneltalk(13), panelvideo(14), podcast(15)\n\n---\n\n### 3. FOLDER STRUCTURE FOR EACH LEARNING OBJECT TYPE\n\n#### TOPIC\nThe primary structural unit. Folder name must start with `topic`.\n\n```\ntopic-01-typical/\n  typical.md          # Title (first # line) + summary (second line)\n  typical.png         # Card image (any image extension works)\n  unit-1/             # Units inside\n  unit-2/\n```\n\nOr with frontmatter for custom Iconify icon (instead of image):\n```\ntopic-09-svg/\n  topic.md            # Can use frontmatter for icon\n  topic.png           # OR an image file (icon overrides image)\n```\n\nThe `.md` file can use YAML frontmatter:\n```markdown\n---\nicon:\n  type: emojione:owl\n  color: blue\norder: 3              # explicit sort order\n---\n# Topic Title\n\nSummary text here\n```\n\n#### UNIT\nGroups content within a topic. Folder name starts with `unit`.\n\n```\nunit-1/\n  main-lesson.md      # Unit title/description\n  talk-1-intro/       # Talks inside\n  talk-2-explore/\n  book-a/             # Labs inside\n```\n\nThe unit `.md` file is simple -- just the title:\n```markdown\nMain Lesson\n```\n\n#### SIDE (Sidebar Unit)\nLike a unit but rendered in a sidebar. Folder name starts with `side`.\n\n```\nside-unit/\n  topic-labs.md       # Side title\n  book-a/             # Labs\n  book-b/\n  book-c/\n```\n\n#### TALK (Presentation/Lecture)\nFolder name starts with `talk`. Requires:\n\n```\ntalk-1-intro/\n  introduction.md     # Title (first line) + summary\n  introduction.pdf    # The PDF slides (required for rendering)\n  introduction.png    # Card image\n  videoid             # OPTIONAL: YouTube video ID\n```\n\nThe `.md` content:\n```markdown\nLecture 1\n\nA short summary of the talk, no more than two sentences.\n```\n\nThe `videoid` file (when present) contains just the YouTube ID:\n```\nx09E7b2ESE8\n```\n\nYou can also add `?start=1370&1802` for start/end times.\n\nFrontmatter for custom icons:\n```markdown\n---\nicon:\n  type: bi:filetype-pptx\n  color: green\n---\nHidden Lecture\n\nThis lecture should not appear in the wall\n```\n\n#### LAB / BOOK (Multi-step Walkthrough)\nFolder name starts with `book` (internally mapped to type `lab`). This is the most complex type.\n\n```\nbook-a/\n  00.Lab-01.md        # Step 0 (title step - first # line becomes lab title)\n  01.01.md            # Step 1\n  02.02.md            # Step 2\n  03.03.md            # Step 3\n  ...\n  07.Exercises.md     # Last step\n  img/                # Images referenced in steps\n    main.png          # Lab card image (MUST be named \"main.xxx\")\n    01.png\n    02.png\n  archives/           # Optional downloadable archives\n    archive.zip\n  videoid             # OPTIONAL: associated video\n```\n\nStep naming convention: `NN.title.md` where:\n- `NN` is a two-digit sort prefix (00, 01, 02...)\n- The text between the first `.` and last `.` becomes the step's `shortTitle`\n- The first `# Heading` inside the file becomes the step's full title\n- Files are sorted alphabetically, so numeric prefixes control order\n\nThe `img/main.png` file is special -- it becomes the lab's card image.\n\n#### NOTE\nFolder name starts with `note`. Rich markdown content.\n\n```\nnote-1/\n  note.md             # Full markdown content (title from first # line)\n  note.png            # Card image\n  img/                # Images used in the note\n    01.png\n    02.png\n  archives/           # Optional downloadable zip\n    archive.zip\n```\n\nNotes support full markdown: images, code blocks with syntax highlighting, math notation (LaTeX), tables, embedded videos (`::video[src=\"...\"]::`) and podcasts (`::podcast[src=\"...\"]::`)\n\nThe `.md` file can have any name, but it must be the ONLY `.md` file in the folder (the system picks the first `.md` file found).\n\n#### PANELNOTE\nIdentical structure to `note`, but folder starts with `panelnote`. Displayed as a panel card directly on the topic page rather than inside a unit.\n\n```\npanelnote/\n  note.md\n  note.png\n  img/\n    01.png\n```\n\n#### PANELTALK\nIdentical to `talk` but displayed as a panel card on the topic page.\n\n```\npaneltalk/\n  talk.md\n  talk.pdf\n  talk.png\n```\n\n#### PANELVIDEO\nVideo panel displayed at topic level. Requires:\n\n```\npanelvideo-1/\n  video-main.md       # Title/description\n  videoid             # YouTube video ID (just the ID string)\n```\n\nThe `videoid` file contains the YouTube ID:\n```\nx09E7b2ESE8\n```\n\nFor HEAnet/VIMP video services:\n```\nheanet=MEDIA_ID\n```\nor\n```\nvimp=MEDIA_KEY\n```\n\n#### WEB (External Link)\nFolder name starts with `web`. Links out to a URL.\n\n```\nweb-1/\n  tutors-web-site.md  # Title + summary\n  tutors-web-site.png # Card image\n  weburl              # File containing the URL (first line)\n```\n\nThe `weburl` file is a plain text file with the URL on the first line:\n```\nhttps://tutors.dev/\n```\n\n#### GITHUB (Repository Link)\nFolder name starts with `github`. Links to a GitHub repo.\n\n```\ngithub-1-template-1/\n  github.md           # Title + summary\n  github.png          # Card image\n  githubid            # File containing the GitHub URL\n```\n\nThe `githubid` file:\n```\nhttps://github.com/tutors-sdk/tutors\n```\n\n#### ARCHIVE (Downloadable Resource)\nFolder name starts with `archive`. Provides a zip download.\n\n```\narchive/\n  archive.md          # Title + summary\n  archive.png         # Card image\n  archive.zip         # The downloadable file\n```\n\n#### TUTORIAL\nFolder name starts with `tutorial`. Simple tutorial content with optional PDF.\n\n```\ntutorial-1/\n  problem-sheet-1.md  # Title + content\n  problem-sheet-1.pdf # Optional PDF\n  problem-sheet-1.png # Card image\n```\n\n#### PODCAST\nFolder name starts with `podcast`. Embeds a podcast episode.\n\n```\npodcast/\n  podcast.md          # Title + description\n  episode             # Service identifier file\n```\n\nThe `episode` file format:\n```\nspotify=3cqFe6wRbaadmPosSwckXh\n```\n\n---\n\n### 4. FULL EXAMPLE -- HIERARCHICAL COURSE LAYOUT\n\n```\nmy-course/\n  course.md                              # Course title + description\n  course.png                             # Course card image\n  properties.yaml                        # Course configuration\n  calendar.yaml                          # Optional calendar\n  \n  topic-01-introduction/\n    topic.md                             # \"# Introduction\\nOverview of...\"\n    topic.png                            # Topic card image\n    unit-1/\n      main-lesson.md                     # \"Main Lesson\" (unit title)\n      talk-1-welcome/\n        welcome.md                       # \"Welcome\\nOpening remarks\"\n        welcome.pdf\n        welcome.png\n      talk-2-overview/\n        overview.md\n        overview.pdf\n        overview.png\n      book-a/\n        00.Lab-01.md                     # \"# Objectives\\nGetting started...\"\n        01.Setup.md\n        02.First-Steps.md\n        03.Exercises.md\n        img/\n          main.png                       # Lab card image\n          01.png\n        archives/\n          archive.zip\n    unit-2/\n      resources.md                       # \"Supporting Resources\"\n      note-1/\n        note.md\n        note.png\n        img/\n          01.png\n      web-1/\n        web.md                           # \"Useful Links\\nRelevant sites\"\n        web.png\n        weburl                           # \"https://example.com\"\n      archive/\n        archive.md\n        archive.png\n        archive.zip\n\n  topic-02-advanced/\n    topic.md\n    topic.png\n    panelvideo-1/                        # Panel-level video\n      video.md\n      videoid                            # \"dQw4w9WgXcQ\"\n    panelnote/                           # Panel-level note\n      note.md\n      note.png\n      img/\n        01.png\n    unit-1/\n      lectures.md\n      talk-1/\n        talk.md\n        talk.pdf\n        talk.png\n    side-unit/                           # Sidebar with labs\n      topic-labs.md                      # \"# Labs for this Topic\"\n      book-a/\n        00.Lab-02.md\n        01.01.md\n        02.02.md\n        img/\n          main.png\n```\n\n---\n\n### 5. THE GENERATOR TOOLCHAIN\n\nThe course folder is converted to a deployable course by the **tutors CLI**, published to JSR as `@tutors/tutors`. The toolchain is in the `tutors-sdk/tutors-apps` repo under `cli/`.\n\n**Architecture:**\n\n1. **`@tutors/tutors-model-lib`** (JSR package) -- Defines all TypeScript types: `Lo`, `Lab`, `Talk`, `Note`, `Topic`, `Unit`, `Side`, `Course`, `Composite`, etc. Also contains the `decorateCourseTree()` function that enriches the parsed tree with breadcrumbs, panels/units classification, wall indexes, and HTML conversion.\n\n2. **`@tutors/tutors-gen-lib`** (JSR package) -- Contains:\n   - `resource-builder.ts` -- `buildTree(dir)`: Recursively walks the filesystem, identifies each folder's LO type by matching folder name against prefixes, and builds a `LearningResource` tree\n   - `course-builder.ts` -- `buildCourse(lr)`: Walks the `LearningResource` tree and builds the `Course` object model, reading markdown files, extracting frontmatter, PDFs, images, video IDs, web URLs, etc.\n   - `course-emitter.ts` -- Generates static HTML output (for tutors-lite)\n   - Template engine (vento templates) for static HTML generation\n\n3. **`@tutors/tutors`** (JSR CLI, v5.0.0) -- The primary generator. Run with:\n   ```bash\n   deno run -A jsr:@tutors/tutors\n   ```\n   Outputs `json/tutors.json` -- a single JSON file containing the entire course tree. This JSON is consumed by the **Tutors Reader** (SvelteKit app at `tutors-sdk/tutors`).\n\n4. **`@tutors/tutors-lite`** (JSR CLI) -- A secondary generator producing standalone static HTML:\n   ```bash\n   deno run -A jsr:@tutors/tutors-lite\n   ```\n   Outputs to `html/` directory. Deployed via GitHub Pages.\n\n**How the generator determines LO type from folder names:**\n\nThe `findLastMatchingString()` function scans path segments from right to left. For each segment, it checks if it starts with any of the known type prefixes: `note`, `archive`, `web`, `github`, `panelnote`, `paneltalk`, `panelvideo`, `podcast`, `talk`, `book`, `lab`, `tutorial`, `unit`, `side`, `topic`, `course`. The first match wins. `book` is immediately aliased to `lab`.\n\n**Deployment options:**\n- **Vercel**: Uses `vercel.json` with build command `npx -y deno-bin@latest run -A jsr:@tutors/tutors`. Output is `json/` directory served by the Tutors Reader at `tutors.dev/course/<repo-owner>/<repo-name>`.\n- **GitHub Pages** (tutors-lite): Uses the publish-html workflow with `deno run -A jsr:@tutors/tutors-lite`. Outputs static HTML to `html/`.\n- **Netlify**: The generator also creates a `netlify.toml` redirect file.\n\n---\n\n### 6. KEY NAMING RULES FOR VALID COURSE SKELETONS\n\n1. **Course root must contain `course.md`** -- the generator checks for this file first and exits if not found.\n\n2. **Folder prefix determines type** -- The folder name must START with the type prefix. Anything after the prefix is a human-readable identifier (e.g., `topic-01-introduction`, `talk-1-welcome`, `book-a`, `unit-2`, `side-extras`).\n\n3. **Each LO folder must contain a `.md` file** -- This provides the title (first line) and summary (second non-blank line). The `.md` filename can be anything.\n\n4. **Image files provide card thumbnails** -- Any `.png`, `.jpg`, `.jpeg`, `.gif`, or `.svg` file in the LO folder becomes its card image. For labs, `img/main.png` is used specifically.\n\n5. **Special marker files**:\n   - `weburl` -- Plain text file with URL (for `web` type)\n   - `githubid` -- Plain text file with GitHub URL (for `github` type)\n   - `videoid` -- Plain text file with YouTube ID or `service=id` (for video-enabled types)\n   - `episode` -- Plain text file with `spotify=ID` or `service=ID` (for `podcast` type)\n\n6. **Frontmatter in `.md` files** is optional but supports:\n   - `icon.type` and `icon.color` -- Iconify icon override (replaces image)\n   - `order` -- Explicit sort order number\n\n7. **Topics appear at course root level** (as direct children). Within topics, content is organized in `unit-*` and/or `side-*` folders, or placed directly (which makes them \"standardLos\"). Panel types (`panelvideo`, `paneltalk`, `panelnote`) also go directly inside topics.\n\n8. **Lab step files** must follow the `NN.title.md` pattern and are sorted alphabetically. The `00` prefix is conventionally the objectives/intro step.",
+          "alignment": 0.7803
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "994b69e8-ce8d-4eb4-8133-d1bb963cd5f9",
+    "source_file": "data/D--code-tutors-assistant__agent-a975112ff493d7af3.jsonl",
+    "finding_count": 1,
+    "severity_counts": {
+      "medium": 1
+    },
+    "signal_counts": {
+      "repeated_failure": 1
+    },
+    "findings": [
+      {
+        "signal_type": "repeated_failure",
+        "title": "Repeated failure pattern",
+        "severity": "medium",
+        "confidence": 0.88,
+        "summary": "A similar failure appeared 2 times: .env.example .github/codeowners .github/holopin.yml .gitignore .mcp.json .npmrc .prettierignore .prettierrc .\u2026",
+        "recommendation": "Stop retrying mechanically; summarize the failure, inspect prerequisites, and produce a revised plan.",
+        "evidence": [
+          {
+            "message_index": 14,
+            "message_uuid": "649334e3-fbfd-43c9-8100-48ee9fb8e84e",
+            "block_index": 0,
+            "source_lines": [
+              30
+            ],
+            "excerpt": ".env.example .github/CODEOWNERS .github/holopin.yml .gitignore .mcp.json .npmrc .prettierignore .prettierrc .tessl/RULES.md .tessl/tiles/tessl/cli-setup/steering/query_library_docs.md .tessl/tiles/tessl/cli-setup/tile.j\u2026"
+          },
+          {
+            "message_index": 20,
+            "message_uuid": "1d8da882-4298-49d0-9526-c9a69cad9eb1",
+            "block_index": 0,
+            "source_lines": [
+              41
+            ],
+            "excerpt": ".env.example .github/CODEOWNERS .github/holopin.yml .gitignore .mcp.json .npmrc .prettierignore .prettierrc .tessl/RULES.md .tessl/tiles/tessl/cli-setup/steering/query_library_docs.md .tessl/tiles/tessl/cli-setup/tile.j\u2026"
+          }
+        ],
+        "occurrences": 2
+      }
+    ]
+  }
+}

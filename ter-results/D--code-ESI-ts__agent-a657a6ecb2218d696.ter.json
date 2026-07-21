@@ -1,0 +1,2234 @@
+{
+  "session_id": "4d32fea7-03a4-4e63-ba12-aea9bb7a9e5d",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 5517,
+  "aligned_tokens": 5517,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5945,
+    "token_weighted_confidence": 0.8126,
+    "low_confidence_tokens": 1507,
+    "low_confidence_share": 0.2732,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 68,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "high"
+  },
+  "waste_patterns": [
+    {
+      "type": "context_restatement",
+      "start_position": 16,
+      "end_position": 16,
+      "spans_involved": 1,
+      "tokens_wasted": 24,
+      "description": "Response restates prior content (similarity: 0.86)"
+    },
+    {
+      "type": "bash_antipattern",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 25,
+      "tokens_wasted": 2548,
+      "description": "25 Bash calls should use dedicated tools (2,548 tokens)"
+    },
+    {
+      "type": "failed_tool_retry",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 1,
+      "tokens_wasted": 19,
+      "description": "1 failed tool calls (19 wasted tokens)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.8236709833145142,
+      "intent_similarity": 0.8236709833145142,
+      "tokens": 39,
+      "text": "I'll conduct a thorough exploration of the test patterns, type definitions, and core utilities in this ESI.ts project. Let me start by examining the directory structure and then reading the key files.",
+      "source_message_uuid": "260358bb-056f-4291-96b9-2229a355815b",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.8237,
+          "repetition_score": 0.0,
+          "confidence": 0.8237
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.34840989112854004,
+      "tokens": 38,
+      "text": "Bash {\"command\":\"find /d/code/ESI.ts -type f -name \\\"*.ts\\\" | grep -E \\\"(test|spec)\\\" | head -20\"}",
+      "source_message_uuid": "260358bb-056f-4291-96b9-2229a355815b",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3484,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.34712353348731995,
+      "tokens": 10,
+      "text": "Let me search specifically in the project test directories:",
+      "source_message_uuid": "19131fd1-7dab-4291-a24f-5417b728e1ea",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3471,
+          "repetition_score": 0.2963,
+          "confidence": 0.5,
+          "semantic_similarity": 0.4322,
+          "lexical_similarity": 0.1471,
+          "entity_similarity": 0.1538,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.8462
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll conduct a thorough exploration of the test patterns, type definitions, and core utilities in this ESI.ts project. Let me start by examining the directory structure and then reading the key files."
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5128241777420044,
+      "tokens": 21,
+      "text": "Glob {\"pattern\":\"**/tests/**/*.test.ts\",\"path\":\"/d/code/ESI.ts\"}",
+      "source_message_uuid": "19131fd1-7dab-4291-a24f-5417b728e1ea",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5128,
+          "repetition_score": 0.0434,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5961,
+          "lexical_similarity": 0.0526,
+          "entity_similarity": 0.1333,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts -type f -name \\\"*.ts\\\" | grep -E \\\"(test|spec)\\\" | head -20\"}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5155735611915588,
+      "tokens": 21,
+      "text": "Glob {\"pattern\":\"**/tests/**/*.spec.ts\",\"path\":\"/d/code/ESI.ts\"}",
+      "source_message_uuid": "19131fd1-7dab-4291-a24f-5417b728e1ea",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5156,
+          "repetition_score": 0.7238,
+          "confidence": 0.6,
+          "semantic_similarity": 0.979,
+          "lexical_similarity": 0.7143,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Glob {\"pattern\":\"**/tests/**/*.test.ts\",\"path\":\"/d/code/ESI.ts\"}"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.27645790576934814,
+      "tokens": 27,
+      "text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/tests/ 2>/dev/null | head -20\"}",
+      "source_message_uuid": "19131fd1-7dab-4291-a24f-5417b728e1ea",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2765,
+          "repetition_score": 0.5304,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6914,
+          "lexical_similarity": 0.2105,
+          "entity_similarity": 0.3077,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts -type f -name \\\"*.ts\\\" | grep -E \\\"(test|spec)\\\" | head -20\"}"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.4426721930503845,
+      "tokens": 11,
+      "text": "Good! Now let me explore the actual test structure:",
+      "source_message_uuid": "5eb64084-e621-4288-bcf4-eef615e6531b",
+      "source_lines": [
+        13
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4427,
+          "repetition_score": 0.3826,
+          "confidence": 0.5,
+          "semantic_similarity": 0.5299,
+          "lexical_similarity": 0.2857,
+          "entity_similarity": 0.25,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.75
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Let me search specifically in the project test directories:"
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2949081063270569,
+      "tokens": 24,
+      "text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/tests/tdd/ | head -30\"}",
+      "source_message_uuid": "5eb64084-e621-4288-bcf4-eef615e6531b",
+      "source_lines": [
+        14
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2949,
+          "repetition_score": 0.639,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9017,
+          "lexical_similarity": 0.4545,
+          "entity_similarity": 0.375,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/tests/ 2>/dev/null | head -20\"}"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3357948660850525,
+      "tokens": 26,
+      "text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/tests/bdd-scenarios/ | head -30\"}",
+      "source_message_uuid": "5eb64084-e621-4288-bcf4-eef615e6531b",
+      "source_lines": [
+        16
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3358,
+          "repetition_score": 0.7028,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9184,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.6667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/tests/tdd/ | head -30\"}"
+      }
+    },
+    {
+      "position": 9,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.28079015016555786,
+      "tokens": 23,
+      "text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/src/types/ | head -30\"}",
+      "source_message_uuid": "5eb64084-e621-4288-bcf4-eef615e6531b",
+      "source_lines": [
+        18
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2808,
+          "repetition_score": 0.6911,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8854,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.6667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/tests/tdd/ | head -30\"}"
+      }
+    },
+    {
+      "position": 10,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.19620251655578613,
+      "tokens": 23,
+      "text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/src/core/ | head -30\"}",
+      "source_message_uuid": "5eb64084-e621-4288-bcf4-eef615e6531b",
+      "source_lines": [
+        19
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1962,
+          "repetition_score": 0.7157,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9547,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.6667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/src/types/ | head -30\"}"
+      }
+    },
+    {
+      "position": 11,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5150570869445801,
+      "intent_similarity": 0.5150570869445801,
+      "tokens": 19,
+      "text": "Perfect! Now let me search for sovereignty test files and read them along with other key files:",
+      "source_message_uuid": "f90ca32b-2ea9-4af3-852e-c33fef282fb6",
+      "source_lines": [
+        22
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5151,
+          "repetition_score": 0.3614,
+          "confidence": 0.5151,
+          "semantic_similarity": 0.5454,
+          "lexical_similarity": 0.1818,
+          "entity_similarity": 0.15,
+          "action_similarity": 0.3333,
+          "parameter_novelty": 0.85
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Good! Now let me explore the actual test structure:"
+      }
+    },
+    {
+      "position": 12,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5050995349884033,
+      "tokens": 29,
+      "text": "Bash {\"command\":\"find /d/code/ESI.ts/tests/tdd -name \\\"*sovereignty*\\\" -type f\"}",
+      "source_message_uuid": "f90ca32b-2ea9-4af3-852e-c33fef282fb6",
+      "source_lines": [
+        23
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5051,
+          "repetition_score": 0.5836,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7697,
+          "lexical_similarity": 0.375,
+          "entity_similarity": 0.3846,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts -type f -name \\\"*.ts\\\" | grep -E \\\"(test|spec)\\\" | head -20\"}"
+      }
+    },
+    {
+      "position": 13,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.49238479137420654,
+      "tokens": 31,
+      "text": "Bash {\"command\":\"find /d/code/ESI.ts/tests/bdd-scenarios -name \\\"*sovereignty*\\\" -type f\"}",
+      "source_message_uuid": "f90ca32b-2ea9-4af3-852e-c33fef282fb6",
+      "source_lines": [
+        25
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4924,
+          "repetition_score": 0.7146,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9239,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.75,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 12,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts/tests/tdd -name \\\"*sovereignty*\\\" -type f\"}"
+      }
+    },
+    {
+      "position": 14,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3351278007030487,
+      "tokens": 21,
+      "text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/tests/tdd/core/\"}",
+      "source_message_uuid": "f90ca32b-2ea9-4af3-852e-c33fef282fb6",
+      "source_lines": [
+        27
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3351,
+          "repetition_score": 0.6505,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9283,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.3333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/tests/tdd/ | head -30\"}"
+      }
+    },
+    {
+      "position": 15,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.35907667875289917,
+      "tokens": 23,
+      "text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/tests/bdd-scenarios/core/\"}",
+      "source_message_uuid": "f90ca32b-2ea9-4af3-852e-c33fef282fb6",
+      "source_lines": [
+        29
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3591,
+          "repetition_score": 0.678,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9131,
+          "lexical_similarity": 0.6667,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 14,
+        "matched_prior_text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/tests/tdd/core/\"}"
+      }
+    },
+    {
+      "position": 16,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5915563106536865,
+      "intent_similarity": 0.5915563106536865,
+      "tokens": 24,
+      "text": "Now let me read the key files. I'll start with the sovereignty test and type file, then read other examples:",
+      "source_message_uuid": "abc49151-b8da-471d-abfc-d0edd4d9bc00",
+      "source_lines": [
+        31
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5916,
+          "repetition_score": 0.6706,
+          "confidence": 0.5916,
+          "semantic_similarity": 0.8643,
+          "lexical_similarity": 0.3846,
+          "entity_similarity": 0.4762,
+          "action_similarity": 0.6667,
+          "parameter_novelty": 0.5238
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 11,
+        "matched_prior_text": "Perfect! Now let me search for sovereignty test files and read them along with other key files:"
+      }
+    },
+    {
+      "position": 17,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5359283685684204,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/tests/bdd-scenarios/core/bdd-sovereignty.test.ts\"}",
+      "source_message_uuid": "abc49151-b8da-471d-abfc-d0edd4d9bc00",
+      "source_lines": [
+        32
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5359,
+          "repetition_score": 0.0454,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6732,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.0,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 13,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts/tests/bdd-scenarios -name \\\"*sovereignty*\\\" -type f\"}"
+      }
+    },
+    {
+      "position": 18,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5041924715042114,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/tests/bdd-scenarios/core/bdd-incursions.test.ts\"}",
+      "source_message_uuid": "abc49151-b8da-471d-abfc-d0edd4d9bc00",
+      "source_lines": [
+        34
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5042,
+          "repetition_score": 0.6766,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9648,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 17,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/tests/bdd-scenarios/core/bdd-sovereignty.test.ts\"}"
+      }
+    },
+    {
+      "position": 19,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5062046647071838,
+      "tokens": 19,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/types/sovereignty.ts\"}",
+      "source_message_uuid": "abc49151-b8da-471d-abfc-d0edd4d9bc00",
+      "source_lines": [
+        36
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5062,
+          "repetition_score": 0.629,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8306,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 17,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/tests/bdd-scenarios/core/bdd-sovereignty.test.ts\"}"
+      }
+    },
+    {
+      "position": 20,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.41327518224716187,
+      "tokens": 17,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/types/incursions.ts\"}",
+      "source_message_uuid": "abc49151-b8da-471d-abfc-d0edd4d9bc00",
+      "source_lines": [
+        38
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4133,
+          "repetition_score": 0.6453,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8764,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 19,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/types/sovereignty.ts\"}"
+      }
+    },
+    {
+      "position": 21,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.28314724564552307,
+      "tokens": 17,
+      "text": "Now let me read more type files and check the endpoint patterns and base client structure:",
+      "source_message_uuid": "1ee25e43-ca0a-4bc1-a514-d678ceca6fa1",
+      "source_lines": [
+        40
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2831,
+          "repetition_score": 0.2766,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3624,
+          "lexical_similarity": 0.2593,
+          "entity_similarity": 0.3043,
+          "action_similarity": 0.3333,
+          "parameter_novelty": 0.6957
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 16,
+        "matched_prior_text": "Now let me read the key files. I'll start with the sovereignty test and type file, then read other examples:"
+      }
+    },
+    {
+      "position": 22,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.39683598279953003,
+      "tokens": 18,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/types/dogma.ts\"}",
+      "source_message_uuid": "1ee25e43-ca0a-4bc1-a514-d678ceca6fa1",
+      "source_lines": [
+        41
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3968,
+          "repetition_score": 0.6356,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8492,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 19,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/types/sovereignty.ts\"}"
+      }
+    },
+    {
+      "position": 23,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.16416281461715698,
+      "tokens": 25,
+      "text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/src/core/endpoints/ | head -20\"}",
+      "source_message_uuid": "1ee25e43-ca0a-4bc1-a514-d678ceca6fa1",
+      "source_lines": [
+        43
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1642,
+          "repetition_score": 0.6554,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9025,
+          "lexical_similarity": 0.5556,
+          "entity_similarity": 0.4286,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 10,
+        "matched_prior_text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/src/core/ | head -30\"}"
+      }
+    },
+    {
+      "position": 24,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2228180319070816,
+      "tokens": 28,
+      "text": "Bash {\"command\":\"find /d/code/ESI.ts/src/core/endpoints -name \\\"*.ts\\\" | head -10\"}",
+      "source_message_uuid": "1ee25e43-ca0a-4bc1-a514-d678ceca6fa1",
+      "source_lines": [
+        45
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2228,
+          "repetition_score": 0.5957,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8568,
+          "lexical_similarity": 0.25,
+          "entity_similarity": 0.3333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 23,
+        "matched_prior_text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/src/core/endpoints/ | head -20\"}"
+      }
+    },
+    {
+      "position": 25,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4375060200691223,
+      "tokens": 31,
+      "text": "Grep {\"pattern\":\"access.*list|ACL|permission\",\"path\":\"/d/code/ESI.ts/src/types\",\"output_mode\":\"files_with_matches\"}",
+      "source_message_uuid": "1ee25e43-ca0a-4bc1-a514-d678ceca6fa1",
+      "source_lines": [
+        47
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4375,
+          "repetition_score": 0.0365,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5411,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.0,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 19,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/types/sovereignty.ts\"}"
+      }
+    },
+    {
+      "position": 26,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.23846133053302765,
+      "tokens": 12,
+      "text": "Let me read the endpoint definition pattern and some endpoint examples:",
+      "source_message_uuid": "6ab06226-7e75-4153-a0ea-ef08a66c5761",
+      "source_lines": [
+        49
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2385,
+          "repetition_score": 0.5068,
+          "confidence": 0.5,
+          "semantic_similarity": 0.7121,
+          "lexical_similarity": 0.3158,
+          "entity_similarity": 0.2778,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.7222
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 21,
+        "matched_prior_text": "Now let me read more type files and check the endpoint patterns and base client structure:"
+      }
+    },
+    {
+      "position": 27,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.32868692278862,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/endpoints/EndpointDefinition.ts\"}",
+      "source_message_uuid": "6ab06226-7e75-4153-a0ea-ef08a66c5761",
+      "source_lines": [
+        50
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3287,
+          "repetition_score": 0.6353,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8484,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 19,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/types/sovereignty.ts\"}"
+      }
+    },
+    {
+      "position": 28,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.30507662892341614,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/endpoints/incursionEndpoints.ts\"}",
+      "source_message_uuid": "6ab06226-7e75-4153-a0ea-ef08a66c5761",
+      "source_lines": [
+        52
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3051,
+          "repetition_score": 0.6667,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9368,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 27,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/endpoints/EndpointDefinition.ts\"}"
+      }
+    },
+    {
+      "position": 29,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.36065009236335754,
+      "tokens": 24,
+      "text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/src/core/endpoints/ | grep sovereignty\"}",
+      "source_message_uuid": "6ab06226-7e75-4153-a0ea-ef08a66c5761",
+      "source_lines": [
+        54
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3607,
+          "repetition_score": 0.6094,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7727,
+          "lexical_similarity": 0.5556,
+          "entity_similarity": 0.4286,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 23,
+        "matched_prior_text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/src/core/endpoints/ | head -20\"}"
+      }
+    },
+    {
+      "position": 30,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.17142145335674286,
+      "tokens": 25,
+      "text": "Bash {\"command\":\"find /d/code/ESI.ts/src/core/endpoints -name \\\"*sov*\\\"\"}",
+      "source_message_uuid": "6ab06226-7e75-4153-a0ea-ef08a66c5761",
+      "source_lines": [
+        55
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1714,
+          "repetition_score": 0.6606,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8735,
+          "lexical_similarity": 0.5556,
+          "entity_similarity": 0.625,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 24,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts/src/core/endpoints -name \\\"*.ts\\\" | head -10\"}"
+      }
+    },
+    {
+      "position": 31,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3874906897544861,
+      "tokens": 22,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/endpoints/sovereigntyEndpoints.ts\"}",
+      "source_message_uuid": "138777c4-eb8f-4957-b555-1e264b74e42f",
+      "source_lines": [
+        58
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3875,
+          "repetition_score": 0.6683,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9415,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 27,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/endpoints/EndpointDefinition.ts\"}"
+      }
+    },
+    {
+      "position": 32,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3015866279602051,
+      "tokens": 21,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/endpoints/dogmaEndpoints.ts\"}",
+      "source_message_uuid": "138777c4-eb8f-4957-b555-1e264b74e42f",
+      "source_lines": [
+        60
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3016,
+          "repetition_score": 0.6604,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9191,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 22,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/types/dogma.ts\"}"
+      }
+    },
+    {
+      "position": 33,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.32148945331573486,
+      "tokens": 17,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/ApiClient.ts\"}",
+      "source_message_uuid": "138777c4-eb8f-4957-b555-1e264b74e42f",
+      "source_lines": [
+        62
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3215,
+          "repetition_score": 0.6419,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8668,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 27,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/endpoints/EndpointDefinition.ts\"}"
+      }
+    },
+    {
+      "position": 34,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.1348387897014618,
+      "tokens": 13,
+      "text": "Now let me check the core clients and the ApiClientBuilder:",
+      "source_message_uuid": "42889be3-16a4-4fae-a017-ee087d8e73e9",
+      "source_lines": [
+        64
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1348,
+          "repetition_score": 0.4149,
+          "confidence": 0.5,
+          "semantic_similarity": 0.5622,
+          "lexical_similarity": 0.3333,
+          "entity_similarity": 0.2941,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.7059
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 21,
+        "matched_prior_text": "Now let me read more type files and check the endpoint patterns and base client structure:"
+      }
+    },
+    {
+      "position": 35,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.33098241686820984,
+      "tokens": 18,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/ApiClientBuilder.ts\"}",
+      "source_message_uuid": "42889be3-16a4-4fae-a017-ee087d8e73e9",
+      "source_lines": [
+        65
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.331,
+          "repetition_score": 0.6769,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9657,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 33,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/ApiClient.ts\"}"
+      }
+    },
+    {
+      "position": 36,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3191143274307251,
+      "tokens": 23,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/ApiRequestHandler.ts\",\"limit\":100}",
+      "source_message_uuid": "42889be3-16a4-4fae-a017-ee087d8e73e9",
+      "source_lines": [
+        67
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3191,
+          "repetition_score": 0.5979,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8354,
+          "lexical_similarity": 0.3333,
+          "entity_similarity": 0.3333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 33,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/ApiClient.ts\"}"
+      }
+    },
+    {
+      "position": 37,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2615324854850769,
+      "tokens": 29,
+      "text": "Bash {\"command\":\"find /d/code/ESI.ts/src -name \\\"*Client.ts\\\" -type f | head -10\"}",
+      "source_message_uuid": "42889be3-16a4-4fae-a017-ee087d8e73e9",
+      "source_lines": [
+        69
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2615,
+          "repetition_score": 0.5736,
+          "confidence": 0.6,
+          "semantic_similarity": 0.76,
+          "lexical_similarity": 0.3333,
+          "entity_similarity": 0.3636,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 30,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts/src/core/endpoints -name \\\"*sov*\\\"\"}"
+      }
+    },
+    {
+      "position": 38,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.31553664803504944,
+      "tokens": 12,
+      "text": "Let me read the base client and check the sovereignty client:",
+      "source_message_uuid": "0e2583c4-d183-4d74-bbe5-f03ac230fd26",
+      "source_lines": [
+        71
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3155,
+          "repetition_score": 0.4507,
+          "confidence": 0.5,
+          "semantic_similarity": 0.5223,
+          "lexical_similarity": 0.4706,
+          "entity_similarity": 0.4667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.5333
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 21,
+        "matched_prior_text": "Now let me read more type files and check the endpoint patterns and base client structure:"
+      }
+    },
+    {
+      "position": 39,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.32878172397613525,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/clients/BaseEsiClient.ts\"}",
+      "source_message_uuid": "0e2583c4-d183-4d74-bbe5-f03ac230fd26",
+      "source_lines": [
+        72
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3288,
+          "repetition_score": 0.6479,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8837,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 33,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/ApiClient.ts\"}"
+      }
+    },
+    {
+      "position": 40,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2964859902858734,
+      "tokens": 26,
+      "text": "Bash {\"command\":\"find /d/code/ESI.ts/src/clients -name \\\"*Sovereignty*\\\"\"}",
+      "source_message_uuid": "0e2583c4-d183-4d74-bbe5-f03ac230fd26",
+      "source_lines": [
+        74
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2965,
+          "repetition_score": 0.6213,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8087,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 30,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts/src/core/endpoints -name \\\"*sov*\\\"\"}"
+      }
+    },
+    {
+      "position": 41,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.16056378185749054,
+      "tokens": 26,
+      "text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/src/clients/ | grep -i sov\"}",
+      "source_message_uuid": "0e2583c4-d183-4d74-bbe5-f03ac230fd26",
+      "source_lines": [
+        75
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1606,
+          "repetition_score": 0.5921,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7423,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.4286,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 29,
+        "matched_prior_text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/src/core/endpoints/ | grep sovereignty\"}"
+      }
+    },
+    {
+      "position": 42,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4247302711009979,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/clients/SovereigntyClient.ts\"}",
+      "source_message_uuid": "77c14b71-045b-4efd-925f-550ccca162a1",
+      "source_lines": [
+        78
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4247,
+          "repetition_score": 0.6575,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9108,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 31,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/endpoints/sovereigntyEndpoints.ts\"}"
+      }
+    },
+    {
+      "position": 43,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.20426133275032043,
+      "tokens": 25,
+      "text": "Bash {\"command\":\"find /d/code/ESI.ts/src/clients -name \\\"*Incursions*\\\"\"}",
+      "source_message_uuid": "77c14b71-045b-4efd-925f-550ccca162a1",
+      "source_lines": [
+        80
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2043,
+          "repetition_score": 0.6926,
+          "confidence": 0.6,
+          "semantic_similarity": 0.891,
+          "lexical_similarity": 0.7143,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 40,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts/src/clients -name \\\"*Sovereignty*\\\"\"}"
+      }
+    },
+    {
+      "position": 44,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.16444557905197144,
+      "tokens": 25,
+      "text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/src/clients/ | grep -i incur\"}",
+      "source_message_uuid": "77c14b71-045b-4efd-925f-550ccca162a1",
+      "source_lines": [
+        81
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1644,
+          "repetition_score": 0.7087,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9258,
+          "lexical_similarity": 0.7778,
+          "entity_similarity": 0.6667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 41,
+        "matched_prior_text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/src/clients/ | grep -i sov\"}"
+      }
+    },
+    {
+      "position": 45,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.34927448630332947,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/clients/IncursionsClient.ts\"}",
+      "source_message_uuid": "e6929c11-dfae-4d60-a2ce-4b826db95b25",
+      "source_lines": [
+        84
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3493,
+          "repetition_score": 0.643,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8701,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 33,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/ApiClient.ts\"}"
+      }
+    },
+    {
+      "position": 46,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2778693735599518,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/clients/DogmaClient.ts\"}",
+      "source_message_uuid": "e6929c11-dfae-4d60-a2ce-4b826db95b25",
+      "source_lines": [
+        86
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2779,
+          "repetition_score": 0.6399,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8612,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 39,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/clients/BaseEsiClient.ts\"}"
+      }
+    },
+    {
+      "position": 47,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.43126675486564636,
+      "tokens": 23,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/tests/tdd/dogma/dogma.test.ts\"}",
+      "source_message_uuid": "e6929c11-dfae-4d60-a2ce-4b826db95b25",
+      "source_lines": [
+        88
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4313,
+          "repetition_score": 0.6466,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8802,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 46,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/clients/DogmaClient.ts\"}"
+      }
+    },
+    {
+      "position": 48,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.32796889543533325,
+      "tokens": 25,
+      "text": "Bash {\"command\":\"find /d/code/ESI.ts/tests/tdd -name \\\"*dogma*\\\"\"}",
+      "source_message_uuid": "8dbe3bba-d7c9-4afe-a378-269f39f495a8",
+      "source_lines": [
+        90
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.328,
+          "repetition_score": 0.6144,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7892,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 43,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts/src/clients -name \\\"*Incursions*\\\"\"}"
+      }
+    },
+    {
+      "position": 49,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3042486906051636,
+      "tokens": 23,
+      "text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/tests/tdd/dogma/\"}",
+      "source_message_uuid": "8dbe3bba-d7c9-4afe-a378-269f39f495a8",
+      "source_lines": [
+        92
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3042,
+          "repetition_score": 0.5903,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8615,
+          "lexical_similarity": 0.2222,
+          "entity_similarity": 0.2857,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 48,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts/tests/tdd -name \\\"*dogma*\\\"\"}"
+      }
+    },
+    {
+      "position": 50,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.39020535349845886,
+      "tokens": 24,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/tests/tdd/dogma/DogmaClient.test.ts\"}",
+      "source_message_uuid": "c968626a-eaec-47b6-b85d-4ddeb83805aa",
+      "source_lines": [
+        94
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3902,
+          "repetition_score": 0.6819,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9798,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 47,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/tests/tdd/dogma/dogma.test.ts\"}"
+      }
+    },
+    {
+      "position": 51,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.49298083782196045,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/tests/bdd-scenarios/core/bdd-dogma.test.ts\"}",
+      "source_message_uuid": "c968626a-eaec-47b6-b85d-4ddeb83805aa",
+      "source_lines": [
+        96
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.493,
+          "repetition_score": 0.6499,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8894,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 47,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/tests/tdd/dogma/dogma.test.ts\"}"
+      }
+    },
+    {
+      "position": 52,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.32264444231987,
+      "tokens": 25,
+      "text": "Bash {\"command\":\"find /d/code/ESI.ts/tests/tdd -name \\\"*incur*\\\"\"}",
+      "source_message_uuid": "c968626a-eaec-47b6-b85d-4ddeb83805aa",
+      "source_lines": [
+        98
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3226,
+          "repetition_score": 0.6899,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8832,
+          "lexical_similarity": 0.7143,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 48,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts/tests/tdd -name \\\"*dogma*\\\"\"}"
+      }
+    },
+    {
+      "position": 53,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3469851016998291,
+      "tokens": 22,
+      "text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/tests/tdd/incursions/\"}",
+      "source_message_uuid": "00491cd1-c426-441b-bd77-41bf8af7f702",
+      "source_lines": [
+        100
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.347,
+          "repetition_score": 0.6674,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8835,
+          "lexical_similarity": 0.6667,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 49,
+        "matched_prior_text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/tests/tdd/dogma/\"}"
+      }
+    },
+    {
+      "position": 54,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.46207690238952637,
+      "tokens": 23,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/tests/tdd/incursions/IncursionsClient.test.ts\"}",
+      "source_message_uuid": "00491cd1-c426-441b-bd77-41bf8af7f702",
+      "source_lines": [
+        102
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4621,
+          "repetition_score": 0.6574,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9105,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 45,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/clients/IncursionsClient.ts\"}"
+      }
+    },
+    {
+      "position": 55,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3085675537586212,
+      "tokens": 29,
+      "text": "Bash {\"command\":\"find /d/code/ESI.ts/src/core -type f -name \\\"*.ts\\\" | head -20\"}",
+      "source_message_uuid": "00491cd1-c426-441b-bd77-41bf8af7f702",
+      "source_lines": [
+        104
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3086,
+          "repetition_score": 0.5764,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7597,
+          "lexical_similarity": 0.3333,
+          "entity_similarity": 0.4,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 48,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts/tests/tdd -name \\\"*dogma*\\\"\"}"
+      }
+    },
+    {
+      "position": 56,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.25614243745803833,
+      "tokens": 12,
+      "text": "Let me check the getBody utility function and TestDataFactory:",
+      "source_message_uuid": "648c1d94-454b-4885-8238-ffbaddcdbb58",
+      "source_lines": [
+        106
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2561,
+          "repetition_score": 0.2733,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3018,
+          "lexical_similarity": 0.3846,
+          "entity_similarity": 0.3333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.6667
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 34,
+        "matched_prior_text": "Now let me check the core clients and the ApiClientBuilder:"
+      }
+    },
+    {
+      "position": 57,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.328998863697052,
+      "tokens": 23,
+      "text": "Bash {\"command\":\"find /d/code/ESI.ts/src -name \\\"*testHelpers*\\\"\"}",
+      "source_message_uuid": "648c1d94-454b-4885-8238-ffbaddcdbb58",
+      "source_lines": [
+        107
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.329,
+          "repetition_score": 0.6423,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8681,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 52,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts/tests/tdd -name \\\"*incur*\\\"\"}"
+      }
+    },
+    {
+      "position": 58,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.32741665840148926,
+      "tokens": 23,
+      "text": "Bash {\"command\":\"find /d/code/ESI.ts/src -name \\\"*TestDataFactory*\\\"\"}",
+      "source_message_uuid": "648c1d94-454b-4885-8238-ffbaddcdbb58",
+      "source_lines": [
+        109
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3274,
+          "repetition_score": 0.7142,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9519,
+          "lexical_similarity": 0.7143,
+          "entity_similarity": 0.7143,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 57,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts/src -name \\\"*testHelpers*\\\"\"}"
+      }
+    },
+    {
+      "position": 59,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2737351059913635,
+      "tokens": 32,
+      "text": "Bash {\"command\":\"find /d/code/ESI.ts/src -path \\\"*/util/*\\\" -name \\\"*.ts\\\" | head -10\"}",
+      "source_message_uuid": "648c1d94-454b-4885-8238-ffbaddcdbb58",
+      "source_lines": [
+        111
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2737,
+          "repetition_score": 0.6547,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9454,
+          "lexical_similarity": 0.4286,
+          "entity_similarity": 0.4167,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 55,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts/src/core -type f -name \\\"*.ts\\\" | head -20\"}"
+      }
+    },
+    {
+      "position": 60,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4685831069946289,
+      "tokens": 18,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/util/testHelpers.ts\"}",
+      "source_message_uuid": "164b32f3-d32d-4e0f-8dd5-e80b6f745b43",
+      "source_lines": [
+        113
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4686,
+          "repetition_score": 0.6401,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8619,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 54,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/tests/tdd/incursions/IncursionsClient.test.ts\"}"
+      }
+    },
+    {
+      "position": 61,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.46012142300605774,
+      "tokens": 18,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/testing/TestDataFactory.ts\"}",
+      "source_message_uuid": "164b32f3-d32d-4e0f-8dd5-e80b6f745b43",
+      "source_lines": [
+        115
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4601,
+          "repetition_score": 0.6709,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9487,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 60,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/util/testHelpers.ts\"}"
+      }
+    },
+    {
+      "position": 62,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.302264928817749,
+      "tokens": 30,
+      "text": "Bash {\"command\":\"grep -r \\\"getBody\\\" /d/code/ESI.ts/tests/tdd/incursions/IncursionsClient.test.ts\"}",
+      "source_message_uuid": "164b32f3-d32d-4e0f-8dd5-e80b6f745b43",
+      "source_lines": [
+        117
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3023,
+          "repetition_score": 0.5391,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7065,
+          "lexical_similarity": 0.2222,
+          "entity_similarity": 0.3333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 53,
+        "matched_prior_text": "Bash {\"command\":\"ls -la /d/code/ESI.ts/tests/tdd/incursions/\"}"
+      }
+    },
+    {
+      "position": 63,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.18066944181919098,
+      "tokens": 30,
+      "text": "Perfect! Now let me check for any existing access control or ACL patterns. Let me also look at a more complex client to see the full pattern:",
+      "source_message_uuid": "6ebd6003-df79-419b-9a93-4adfb3823012",
+      "source_lines": [
+        119
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1807,
+          "repetition_score": 0.3395,
+          "confidence": 0.5,
+          "semantic_similarity": 0.4669,
+          "lexical_similarity": 0.2121,
+          "entity_similarity": 0.2593,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.7407
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 21,
+        "matched_prior_text": "Now let me read more type files and check the endpoint patterns and base client structure:"
+      }
+    },
+    {
+      "position": 64,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.29372134804725647,
+      "tokens": 43,
+      "text": "Bash {\"command\":\"find /d/code/ESI.ts/src -type f -name \\\"*.ts\\\" | xargs grep -l \\\"access\\\\|acl\\\\|permission\\\" | head -10\"}",
+      "source_message_uuid": "6ebd6003-df79-419b-9a93-4adfb3823012",
+      "source_lines": [
+        120
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2937,
+          "repetition_score": 0.5984,
+          "confidence": 0.6,
+          "semantic_similarity": 0.77,
+          "lexical_similarity": 0.4444,
+          "entity_similarity": 0.4667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 59,
+        "matched_prior_text": "Bash {\"command\":\"find /d/code/ESI.ts/src -path \\\"*/util/*\\\" -name \\\"*.ts\\\" | head -10\"}"
+      }
+    },
+    {
+      "position": 65,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.30795902013778687,
+      "tokens": 23,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/endpoints/createClient.ts\",\"limit\":80}",
+      "source_message_uuid": "6ebd6003-df79-419b-9a93-4adfb3823012",
+      "source_lines": [
+        122
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.308,
+          "repetition_score": 0.5605,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7298,
+          "lexical_similarity": 0.3333,
+          "entity_similarity": 0.3333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 60,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/util/testHelpers.ts\"}"
+      }
+    },
+    {
+      "position": 66,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.26653239130973816,
+      "tokens": 23,
+      "text": "Read {\"file_path\":\"/d/code/ESI.ts/src/clients/CharacterClient.ts\",\"limit\":100}",
+      "source_message_uuid": "6ebd6003-df79-419b-9a93-4adfb3823012",
+      "source_lines": [
+        124
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2665,
+          "repetition_score": 0.6103,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8175,
+          "lexical_similarity": 0.4286,
+          "entity_similarity": 0.4286,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 65,
+        "matched_prior_text": "Read {\"file_path\":\"/d/code/ESI.ts/src/core/endpoints/createClient.ts\",\"limit\":80}"
+      }
+    },
+    {
+      "position": 67,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.8965833783149719,
+      "intent_similarity": 0.8965833783149719,
+      "tokens": 3971,
+      "text": "Excellent! I have gathered comprehensive information about the test patterns, type definitions, and core utilities. Let me create a final summary report by compiling all the findings:\n\n## Comprehensive Exploration Report: ESI.ts Project Patterns\n\n### 1. TEST PATTERNS\n\n#### BDD-Style Test Structure (Sovereignty Example)\n**File**: `/d/code/ESI.ts/tests/bdd-scenarios/core/bdd-sovereignty.test.ts`\n\nThe sovereignty BDD test demonstrates the consistent pattern used across all feature tests:\n\n```\ndescribe('BDD: [Feature]', () => {\n  let client: EsiClient;\n  \n  beforeEach(() => {\n    client = new EsiClient({\n      clientId: 'test-client',\n      baseUrl: 'https://esi.evetech.net',\n      timeout: 5000,\n    });\n  });\n  \n  describe('Feature: [Feature Name]', () => {\n    describe('Scenario: [Scenario Description]', () => {\n      it('Given [precondition], When [action], Then [expected result]', async () => {\n        // Given - Setup mocks and test data\n        jest.spyOn(client.sovereignty, 'getSovereigntyMap').mockResolvedValue(expectedMap as any);\n        \n        // When - Execute the action\n        const result = await client.sovereignty.getSovereigntyMap();\n        \n        // Then - Assert expectations\n        expect(result).toBeDefined();\n        expect(result).toHaveLength(3);\n      });\n    });\n  });\n});\n```\n\n**Pattern Consistency**: Verified in `/d/code/ESI.ts/tests/bdd-scenarios/core/bdd-incursions.test.ts` and `/d/code/ESI.ts/tests/bdd-scenarios/core/bdd-dogma.test.ts` - all follow identical Given/When/Then structure.\n\n#### Unit Test Structure (TDD Style)\n**File**: `/d/code/ESI.ts/tests/tdd/dogma/DogmaClient.test.ts`\n\nUnit tests follow a direct testing pattern:\n\n```\ndescribe('DogmaClient', () => {\n  let dogmaClient: DogmaClient;\n  \n  beforeEach(() => {\n    fetchMock.resetMocks();\n    const config = getConfig();\n    const client = new ApiClientBuilder()\n      .setClientId(config.projectName)\n      .setLink(config.link)\n      .build();\n    dogmaClient = new DogmaClient(client);\n  });\n  \n  describe('getAttributes', () => {\n    it('should return an array of attribute IDs', async () => {\n      const mockResponse = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];\n      fetchMock.mockResponseOnce(JSON.stringify(mockResponse));\n      const result = await getBody(() => dogmaClient.getAttributes());\n      \n      expect(Array.isArray(result)).toBe(true);\n      expect(result).toHaveLength(10);\n      expect(fetchMock.mock.calls[0][0]).toBe('https://esi.evetech.net/latest/dogma/attributes');\n    });\n  });\n});\n```\n\n**Key Elements**:\n- Mock setup with `jest-fetch-mock`\n- `getBody()` utility helper for extracting response bodies\n- Direct URL verification in assertions\n- Test organized by method name\n\n### 2. TYPE DEFINITION PATTERNS\n\n#### Sovereignty Types\n**File**: `/d/code/ESI.ts/src/types/sovereignty.ts`\n\n```typescript\nexport interface SovereigntyCampaign {\n  campaign_id: number;\n  structure_id: number;\n  solar_system_id: number;\n  constellation_id: number;\n  event_type: 'tcu_defense' | 'ihub_defense' | 'station_defense' | 'station_freeport';\n  start_time: string;\n  defender_id?: number;\n  defender_score?: number;\n  attackers_score?: number;\n  participants?: { alliance_id: number; score: number }[];\n}\n\nexport interface SovereigntyMap {\n  system_id: number;\n  alliance_id?: number;\n  corporation_id?: number;\n  faction_id?: number;\n}\n\nexport interface SovereigntyStructure {\n  alliance_id: number;\n  solar_system_id: number;\n  structure_id: number;\n  structure_type_id: number;\n  vulnerability_occupancy_level?: number;\n  vulnerable_start_time?: string;\n  vulnerable_end_time?: string;\n}\n```\n\n**Pattern**: Minimal, focused interfaces with optional fields using `?` notation. No base types inherited - pure data contracts.\n\n#### Incursions Type (Simplified Example)\n**File**: `/d/code/ESI.ts/src/types/incursions.ts`\n\n```typescript\nexport interface Incursion {\n  type: string;\n  state: 'withdrawing' | 'mobilizing' | 'established';\n  staging_solar_system_id: number;\n  constellation_id: number;\n  infested_solar_systems: number[];\n  has_boss: boolean;\n  faction_id: number;\n  influence: number;\n}\n```\n\n#### Dogma Types (Complex Example)\n**File**: `/d/code/ESI.ts/src/types/dogma.ts`\n\n```typescript\nexport interface DogmaAttribute {\n  attribute_id: number;\n  name: string;\n  description?: string;\n  icon_id?: number;\n  default_value?: number;\n  published?: boolean;\n  display_name?: string;\n  unit_id?: number;\n  stackable?: boolean;\n  high_is_good?: boolean;\n}\n\nexport interface DogmaEffect {\n  effect_id: number;\n  name: string;\n  description?: string;\n  icon_id?: number;\n  display_name?: string;\n  published?: boolean;\n  effect_category?: number;\n  is_assistance?: boolean;\n  is_offensive?: boolean;\n  is_warp_safe?: boolean;\n  disallow_auto_repeat?: boolean;\n}\n\nexport interface DogmaDynamicItem {\n  created_by: number;\n  dogma_attributes: { attribute_id: number; value: number }[];\n  dogma_effects: { effect_id: number; is_default: boolean }[];\n  mutator_type_id: number;\n  source_type_id: number;\n}\n```\n\n**ACL/Permission Search Results**: No existing ACL or permission-related types found in the `/d/code/ESI.ts/src/types/` directory.\n\n### 3. ENDPOINT DEFINITION PATTERNS\n\n#### EndpointDefinition Interface\n**File**: `/d/code/ESI.ts/src/core/endpoints/EndpointDefinition.ts`\n\n```typescript\nexport type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';\n\nexport interface DeprecationInfo {\n  message?: string;\n  replacedBy?: string;\n  sunsetDate?: string;\n}\n\nexport interface EndpointDefinition {\n  /** URL template with placeholders, e.g. 'alliances/{allianceId}/' */\n  path: string;\n  /** HTTP method */\n  method: HttpMethod;\n  /** Whether the endpoint requires an auth token */\n  requiresAuth: boolean;\n  /** Path parameter names in method signature order */\n  pathParams?: readonly string[];\n  /** Maps method param name to query string key, e.g. { typeId: 'type_id' } */\n  queryParams?: Record<string, string>;\n  /** Whether the method accepts a body parameter (for POST/PUT/DELETE) */\n  hasBody?: boolean;\n  /** Custom body builder for endpoints that construct body from individual params */\n  bodyBuilder?: (...args: any[]) => unknown;\n  /** Whether this endpoint uses cursor-based pagination (before/after tokens) */\n  cursorPagination?: boolean;\n  /** Mark an endpoint as deprecated with optional migration guidance */\n  deprecated?: DeprecationInfo;\n}\n\nexport type EndpointMap = Record<string, EndpointDefinition>;\n```\n\n#### Sovereignty Endpoints Example\n**File**: `/d/code/ESI.ts/src/core/endpoints/sovereigntyEndpoints.ts`\n\n```typescript\nimport { EndpointMap } from './EndpointDefinition';\n\nexport const sovereigntyEndpoints = {\n  getSovereigntyCampaigns: {\n    path: 'sovereignty/campaigns',\n    method: 'GET',\n    requiresAuth: false,\n  },\n  getSovereigntyMap: {\n    path: 'sovereignty/map',\n    method: 'GET',\n    requiresAuth: false,\n  },\n  getSovereigntyStructures: {\n    path: 'sovereignty/structures',\n    method: 'GET',\n    requiresAuth: false,\n  },\n} as const satisfies EndpointMap;\n```\n\n#### Dogma Endpoints Example (With Path Parameters)\n**File**: `/d/code/ESI.ts/src/core/endpoints/dogmaEndpoints.ts`\n\n```typescript\nexport const dogmaEndpoints = {\n  getAttributes: {\n    path: 'dogma/attributes',\n    method: 'GET',\n    requiresAuth: false,\n  },\n  getAttributeById: {\n    path: 'dogma/attributes/{attributeId}',\n    method: 'GET',\n    requiresAuth: false,\n    pathParams: ['attributeId'],\n  },\n  getEffects: {\n    path: 'dogma/effects',\n    method: 'GET',\n    requiresAuth: false,\n  },\n  getEffectById: {\n    path: 'dogma/effects/{effectId}',\n    method: 'GET',\n    requiresAuth: false,\n    pathParams: ['effectId'],\n  },\n  getDynamicItemInfo: {\n    path: 'dogma/dynamic/items/{typeId}/{itemId}',\n    method: 'GET',\n    requiresAuth: false,\n    pathParams: ['typeId', 'itemId'],\n  },\n} as const satisfies EndpointMap;\n```\n\n#### Incursion Endpoints Example (Minimal)\n**File**: `/d/code/ESI.ts/src/core/endpoints/incursionEndpoints.ts`\n\n```typescript\nexport const incursionEndpoints = {\n  getIncursions: {\n    path: 'incursions',\n    method: 'GET',\n    requiresAuth: false,\n  },\n} as const satisfies EndpointMap;\n```\n\n### 4. BASE CLIENT & ARCHITECTURE\n\n#### BaseEsiClient\n**File**: `/d/code/ESI.ts/src/clients/BaseEsiClient.ts`\n\n```typescript\nimport { ApiClient } from '../core/ApiClient';\nimport {\n  createClient,\n  CreateClientOptions,\n  WithMetadata,\n} from '../core/endpoints/createClient';\nimport { EndpointMap } from '../core/endpoints/EndpointDefinition';\n\ntype ClientMethods<T extends EndpointMap> = ReturnType<typeof createClient<T>>;\n\nexport abstract class BaseEsiClient<T extends EndpointMap> {\n  protected api: ClientMethods<T>;\n  protected _client: ApiClient;\n  private _endpoints: T;\n  private _metaApi?: ClientMethods<T>;\n\n  constructor(client: ApiClient, endpoints: T) {\n    this._client = client;\n    this._endpoints = endpoints;\n    this.api = createClient(client, endpoints);\n  }\n\n  withMetadata(): WithMetadata<Omit<this, 'withMetadata'>> {\n    if (!this._metaApi) {\n      this._metaApi = createClient(this._client, this._endpoints, {\n        returnMetadata: true,\n      } as CreateClientOptions);\n    }\n    return this._metaApi as unknown as WithMetadata<Omit<this, 'withMetadata'>>;\n  }\n}\n```\n\n**Pattern**: Generic base class parameterized by EndpointMap. All clients inherit from this. The `withMetadata()` method provides optional response metadata.\n\n#### SovereigntyClient Implementation\n**File**: `/d/code/ESI.ts/src/clients/SovereigntyClient.ts`\n\n```typescript\nimport { ApiClient } from '../core/ApiClient';\nimport { BaseEsiClient } from './BaseEsiClient';\nimport { sovereigntyEndpoints } from '../core/endpoints/sovereigntyEndpoints';\nimport {\n  SovereigntyCampaign,\n  SovereigntyMap,\n  SovereigntyStructure,\n} from '../types/api-responses';\n\nexport class SovereigntyClient extends BaseEsiClient<\n  typeof sovereigntyEndpoints\n> {\n  constructor(client: ApiClient) {\n    super(client, sovereigntyEndpoints);\n  }\n\n  /**\n   * Retrieves all active sovereignty campaigns, including command node contests and station freeports.\n   *\n   * @returns A list of active sovereignty campaigns\n   */\n  getSovereigntyCampaigns(): Promise<SovereigntyCampaign[]> {\n    return this.api.getSovereigntyCampaigns() as Promise<SovereigntyCampaign[]>;\n  }\n\n  /**\n   * Retrieves the sovereignty ownership map showing which alliance holds each solar system.\n   *\n   * @returns A list of solar systems and their sovereignty holders\n   */\n  getSovereigntyMap(): Promise<SovereigntyMap[]> {\n    return this.api.getSovereigntyMap() as Promise<SovereigntyMap[]>;\n  }\n\n  /**\n   * Retrieves all sovereignty structures (TCUs, IHubs) and their vulnerability windows.\n   *\n   * @returns A list of sovereignty structures with their reinforcement and vulnerability details\n   */\n  getSovereigntyStructures(): Promise<SovereigntyStructure[]> {\n    return this.api.getSovereigntyStructures() as Promise<\n      SovereigntyStructure[]\n    >;\n  }\n}\n```\n\n#### IncursionsClient (Minimal)\n**File**: `/d/code/ESI.ts/src/clients/IncursionsClient.ts`\n\n```typescript\nimport { ApiClient } from '../core/ApiClient';\nimport { BaseEsiClient } from './BaseEsiClient';\nimport { incursionEndpoints } from '../core/endpoints/incursionEndpoints';\nimport { Incursion } from '../types/api-responses';\n\nexport class IncursionsClient extends BaseEsiClient<typeof incursionEndpoints> {\n  constructor(client: ApiClient) {\n    super(client, incursionEndpoints);\n  }\n\n  /**\n   * Retrieves all currently active incursions, including their staging systems and influence levels.\n   *\n   * @returns An array of active incursions\n   */\n  getIncursions(): Promise<Incursion[]> {\n    return this.api.getIncursions() as Promise<Incursion[]>;\n  }\n}\n```\n\n### 5. CORE INFRASTRUCTURE\n\n#### ApiClient (Base HTTP Client)\n**File**: `/d/code/ESI.ts/src/core/ApiClient.ts`\n\nKey features:\n- Manages HTTP link, access tokens, and datasource\n- Manages cache, rate limiter, circuit breaker, deduplicator\n- Supports middleware (request/response interceptors)\n- Handles token refresh with in-flight deduplication\n- Configuration via builder pattern\n\n#### ApiClientBuilder\n**File**: `/d/code/ESI.ts/src/core/ApiClientBuilder.ts`\n\nFluent builder for ApiClient configuration:\n```\n.setClientId()\n.setLink()\n.setAccessToken()\n.setRateLimiter()\n.setCache()\n.setCircuitBreaker()\n.setTimeout()\n.build()\n```\n\n#### createClient Function\n**File**: `/d/code/ESI.ts/src/core/endpoints/createClient.ts` (excerpt)\n\n```typescript\nexport interface CursorOptions {\n  before?: string;\n  after?: string;\n}\n\nexport interface CursorResult<T = unknown> {\n  data: T[];\n  cursors: CursorTokens;\n}\n\nexport interface CreateClientOptions {\n  returnMetadata?: boolean;\n}\n\ntype ClientMethods<T extends EndpointMap> = {\n  [K in keyof T]: (...args: EndpointArgs<T[K]>) => Promise<unknown>;\n};\n\nexport type WithMetadata<T> = {\n  [K in keyof T]: T[K] extends (...args: infer A) => Promise<infer R>\n    ? (...args: A) => Promise<EsiResponse<R>>\n    : T[K];\n};\n\nexport function createClient<T extends EndpointMap>(\n  apiClient: ApiClient,\n  endpoints: T,\n  options?: CreateClientOptions,\n): ClientMethods<T>\n```\n\nDynamically generates methods from endpoint definitions.\n\n### 6. TEST UTILITIES\n\n#### getBody Helper\n**File**: `/d/code/ESI.ts/src/core/util/testHelpers.ts`\n\n```typescript\nexport const getBody = async (apiCall: () => Promise<any>): Promise<any> => {\n  return apiCall();\n};\n\nexport const getHeaders = async (\n  apiCall: () => Promise<any>,\n): Promise<Record<string, string>> => {\n  const response = await apiCall();\n  return response.headers;\n};\n\nexport const mockApiCall = (\n  apiCall: (...args: any[]) => Promise<any>,\n  mockResponse: object,\n  mockHeaders: Record<string, string> = {},\n) => {\n  fetchMock.mockResponseOnce(JSON.stringify(mockResponse), {\n    headers: mockHeaders,\n  });\n  return apiCall;\n};\n```\n\n#### TestDataFactory\n**File**: `/d/code/ESI.ts/src/testing/TestDataFactory.ts`\n\nComprehensive factory with methods for creating test data:\n- `createAllianceInfo(overrides)`\n- `createCharacterInfo(overrides)`\n- `createCorporationInfo(overrides)`\n- `createError(statusCode, message)`\n- `createMarketOrder(overrides)`\n- `createWalletTransaction(overrides)`\n- `createContract(overrides)`\n- `createPerformanceTestData(size)`\n- `createRealisticTestData()`\n- Many more domain-specific factories\n\nAll accept partial overrides for customization.\n\n### 7. DIRECTORY STRUCTURE\n\n```\ntests/\n  tdd/                          # Unit tests with direct API testing\n    dogma/\n      DogmaClient.test.ts       # Direct client tests\n    incursions/\n      IncursionsClient.test.ts\n    core/                       # Core infrastructure tests\n      AsyncPaginationIterator.test.ts\n      CursorPaginationHandler.test.ts\n      ...\n  bdd-scenarios/               # BDD Given/When/Then tests\n    core/\n      bdd-sovereignty.test.ts\n      bdd-incursions.test.ts\n      bdd-dogma.test.ts\n      ...\n  integration/                 # Integration tests\n  performance/                 # Performance tests\n\nsrc/\n  types/                       # Type definitions\n    sovereignty.ts\n    incursions.ts\n    dogma.ts\n    ...\n  core/\n    ApiClient.ts              # Base HTTP client\n    ApiClientBuilder.ts\n    ApiRequestHandler.ts      # Request execution\n    endpoints/\n      EndpointDefinition.ts   # Type definitions for endpoints\n      sovereigntyEndpoints.ts\n      incursionEndpoints.ts\n      dogmaEndpoints.ts\n      createClient.ts         # Dynamic client generator\n    util/\n      testHelpers.ts\n      error.ts\n      headersUtil.ts\n      validation.ts\n    cache/\n    rateLimiter/\n    circuitBreaker/\n    pagination/\n    middleware/\n  clients/\n    BaseEsiClient.ts          # Abstract base for all clients\n    SovereigntyClient.ts\n    IncursionsClient.ts\n    DogmaClient.ts\n    ...\n  testing/\n    TestDataFactory.ts        # Test data generation\n```\n\n### KEY PATTERNS SUMMARY\n\n1. **Test Organization**: BDD tests use Given/When/Then structure; TDD tests use direct assertions\n2. **Types**: Simple, focused interfaces with optional fields; no inheritance\n3. **Endpoints**: Declarative definitions with path, method, auth requirement, and parameter metadata\n4. **Clients**: All extend BaseEsiClient, wrapping auto-generated API methods with typed return values\n5. **Utilities**: Shared test helpers (getBody, getHeaders), comprehensive TestDataFactory\n6. **Architecture**: Generic, metadata-supporting approach via `createClient()` function\n7. **No ACL/Permission Types**: Project currently lacks access control list or permission system types",
+      "source_message_uuid": "1da3d695-feb7-4c91-b0a1-94957e5fea2e",
+      "source_lines": [
+        126
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.8966,
+          "repetition_score": 0.2917,
+          "confidence": 0.8966,
+          "semantic_similarity": 0.494,
+          "lexical_similarity": 0.0192,
+          "entity_similarity": 0.0193,
+          "action_similarity": 0.125,
+          "parameter_novelty": 0.9807
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 16,
+        "matched_prior_text": "Now let me read the key files. I'll start with the sovereignty test and type file, then read other examples:"
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "bash_antipattern",
+        "tokens_wasted": 2548,
+        "description": "25 Bash calls should use dedicated tools (2,548 tokens)"
+      },
+      {
+        "type": "context_restatement",
+        "tokens_wasted": 24,
+        "description": "Response restates prior content (similarity: 0.86)"
+      },
+      {
+        "type": "failed_tool_retry",
+        "tokens_wasted": 19,
+        "description": "1 failed tool calls (19 wasted tokens)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Bash Anti-Patterns",
+        "tokens": 2548,
+        "percentage": 98.3,
+        "cost_usd": 0.007644,
+        "count": 1,
+        "pricing": "input"
+      },
+      {
+        "source": "Context Restatement",
+        "tokens": 24,
+        "percentage": 0.9,
+        "cost_usd": 0.00036,
+        "count": 1,
+        "pricing": "output"
+      },
+      {
+        "source": "Failed Tool Retries",
+        "tokens": 19,
+        "percentage": 0.7,
+        "cost_usd": 5.7e-05,
+        "count": 1,
+        "pricing": "input"
+      }
+    ],
+    "total_tokens": 2591,
+    "total_cost_usd": 0.008061
+  },
+  "economics": {
+    "total_input_tokens": 110,
+    "total_output_tokens": 5289,
+    "total_cache_creation_tokens": 49690,
+    "total_cache_read_tokens": 660368,
+    "input_output_ratio": 0.02,
+    "cache_hit_rate": 0.9998,
+    "estimated_cost_usd": 0.4641,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 22,
+      "mid_span_count": 22,
+      "late_span_count": 24
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        13199,
+        15042,
+        16000,
+        18729,
+        21615,
+        24186,
+        32020,
+        33625,
+        35009,
+        37151,
+        39413,
+        40215,
+        41060,
+        42359,
+        42661,
+        48044,
+        49751,
+        50178,
+        60221
+      ],
+      "growth_rate": 4.56,
+      "is_superlinear": true,
+      "context_bloat_detected": true
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 249,
+      "user_result_tokens": 31295,
+      "model_reasoning_tokens": 0,
+      "model_tool_tokens": 1347,
+      "model_generation_tokens": 4170,
+      "total_user_tokens": 31544,
+      "total_model_tokens": 5517,
+      "user_ratio": 0.8511
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.8808,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "Very thorough exploration of test patterns and type definition patterns in this ESI.ts project.\n\n1. **Test patterns**: Read a complete test file for sovereignty (search in `tests/tdd/` for sovereignty). Also read one other test file (e.g., incursions or dogma) to confirm the pattern is consistent.\n\n2. **BDD scenarios**: Check `tests/bdd-scenarios/` for sovereignty scenarios. Read any that exist.\n\n3. **Type patterns**: Read `src/types/sovereignty.ts` fully. Also read another type file (e.g., `src/types/incursions.ts`) to see the pattern.\n\n4. **Base/shared utilities**: Search for any base client class, HTTP client, or shared request utilities that clients inherit from. Check `src/core/` for base classes or utility functions.\n\n5. **Endpoint definition pattern**: Read `src/core/endpoints/` \u2014 how are endpoint objects structured? What fields do they have (path, method, version, etc.)?\n\n6. **Access list related types**: Search for any existing ACL, access list, or permission-related types in the `src/types/` directory.\n\nReport full file contents for the test files and type files you find.",
+          "response_text": "I'll conduct a thorough exploration of the test patterns, type definitions, and core utilities in this ESI.ts project. Let me start by examining the directory structure and then reading the key files. Let me search specifically in the project test directories: Good! Now let me explore the actual test structure: Perfect! Now let me search for sovereignty test files and read them along with other key files: Now let me read the key files. I'll start with the sovereignty test and type file, then read other examples: Now let me read more type files and check the endpoint patterns and base client structure: Let me read the endpoint definition pattern and some endpoint examples: Now let me check the core clients and the ApiClientBuilder: Let me read the base client and check the sovereignty client: Let me check the getBody utility function and TestDataFactory: Perfect! Now let me check for any existing access control or ACL patterns. Let me also look at a more complex client to see the full pattern: Excellent! I have gathered comprehensive information about the test patterns, type definitions, and core utilities. Let me create a final summary report by compiling all the findings:\n\n## Comprehensive Exploration Report: ESI.ts Project Patterns\n\n### 1. TEST PATTERNS\n\n#### BDD-Style Test Structure (Sovereignty Example)\n**File**: `/d/code/ESI.ts/tests/bdd-scenarios/core/bdd-sovereignty.test.ts`\n\nThe sovereignty BDD test demonstrates the consistent pattern used across all feature tests:\n\n```\ndescribe('BDD: [Feature]', () => {\n  let client: EsiClient;\n  \n  beforeEach(() => {\n    client = new EsiClient({\n      clientId: 'test-client',\n      baseUrl: 'https://esi.evetech.net',\n      timeout: 5000,\n    });\n  });\n  \n  describe('Feature: [Feature Name]', () => {\n    describe('Scenario: [Scenario Description]', () => {\n      it('Given [precondition], When [action], Then [expected result]', async () => {\n        // Given - Setup mocks and test data\n        jest.spyOn(client.sovereignty, 'getSovereigntyMap').mockResolvedValue(expectedMap as any);\n        \n        // When - Execute the action\n        const result = await client.sovereignty.getSovereigntyMap();\n        \n        // Then - Assert expectations\n        expect(result).toBeDefined();\n        expect(result).toHaveLength(3);\n      });\n    });\n  });\n});\n```\n\n**Pattern Consistency**: Verified in `/d/code/ESI.ts/tests/bdd-scenarios/core/bdd-incursions.test.ts` and `/d/code/ESI.ts/tests/bdd-scenarios/core/bdd-dogma.test.ts` - all follow identical Given/When/Then structure.\n\n#### Unit Test Structure (TDD Style)\n**File**: `/d/code/ESI.ts/tests/tdd/dogma/DogmaClient.test.ts`\n\nUnit tests follow a direct testing pattern:\n\n```\ndescribe('DogmaClient', () => {\n  let dogmaClient: DogmaClient;\n  \n  beforeEach(() => {\n    fetchMock.resetMocks();\n    const config = getConfig();\n    const client = new ApiClientBuilder()\n      .setClientId(config.projectName)\n      .setLink(config.link)\n      .build();\n    dogmaClient = new DogmaClient(client);\n  });\n  \n  describe('getAttributes', () => {\n    it('should return an array of attribute IDs', async () => {\n      const mockResponse = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];\n      fetchMock.mockResponseOnce(JSON.stringify(mockResponse));\n      const result = await getBody(() => dogmaClient.getAttributes());\n      \n      expect(Array.isArray(result)).toBe(true);\n      expect(result).toHaveLength(10);\n      expect(fetchMock.mock.calls[0][0]).toBe('https://esi.evetech.net/latest/dogma/attributes');\n    });\n  });\n});\n```\n\n**Key Elements**:\n- Mock setup with `jest-fetch-mock`\n- `getBody()` utility helper for extracting response bodies\n- Direct URL verification in assertions\n- Test organized by method name\n\n### 2. TYPE DEFINITION PATTERNS\n\n#### Sovereignty Types\n**File**: `/d/code/ESI.ts/src/types/sovereignty.ts`\n\n```typescript\nexport interface SovereigntyCampaign {\n  campaign_id: number;\n  structure_id: number;\n  solar_system_id: number;\n  constellation_id: number;\n  event_type: 'tcu_defense' | 'ihub_defense' | 'station_defense' | 'station_freeport';\n  start_time: string;\n  defender_id?: number;\n  defender_score?: number;\n  attackers_score?: number;\n  participants?: { alliance_id: number; score: number }[];\n}\n\nexport interface SovereigntyMap {\n  system_id: number;\n  alliance_id?: number;\n  corporation_id?: number;\n  faction_id?: number;\n}\n\nexport interface SovereigntyStructure {\n  alliance_id: number;\n  solar_system_id: number;\n  structure_id: number;\n  structure_type_id: number;\n  vulnerability_occupancy_level?: number;\n  vulnerable_start_time?: string;\n  vulnerable_end_time?: string;\n}\n```\n\n**Pattern**: Minimal, focused interfaces with optional fields using `?` notation. No base types inherited - pure data contracts.\n\n#### Incursions Type (Simplified Example)\n**File**: `/d/code/ESI.ts/src/types/incursions.ts`\n\n```typescript\nexport interface Incursion {\n  type: string;\n  state: 'withdrawing' | 'mobilizing' | 'established';\n  staging_solar_system_id: number;\n  constellation_id: number;\n  infested_solar_systems: number[];\n  has_boss: boolean;\n  faction_id: number;\n  influence: number;\n}\n```\n\n#### Dogma Types (Complex Example)\n**File**: `/d/code/ESI.ts/src/types/dogma.ts`\n\n```typescript\nexport interface DogmaAttribute {\n  attribute_id: number;\n  name: string;\n  description?: string;\n  icon_id?: number;\n  default_value?: number;\n  published?: boolean;\n  display_name?: string;\n  unit_id?: number;\n  stackable?: boolean;\n  high_is_good?: boolean;\n}\n\nexport interface DogmaEffect {\n  effect_id: number;\n  name: string;\n  description?: string;\n  icon_id?: number;\n  display_name?: string;\n  published?: boolean;\n  effect_category?: number;\n  is_assistance?: boolean;\n  is_offensive?: boolean;\n  is_warp_safe?: boolean;\n  disallow_auto_repeat?: boolean;\n}\n\nexport interface DogmaDynamicItem {\n  created_by: number;\n  dogma_attributes: { attribute_id: number; value: number }[];\n  dogma_effects: { effect_id: number; is_default: boolean }[];\n  mutator_type_id: number;\n  source_type_id: number;\n}\n```\n\n**ACL/Permission Search Results**: No existing ACL or permission-related types found in the `/d/code/ESI.ts/src/types/` directory.\n\n### 3. ENDPOINT DEFINITION PATTERNS\n\n#### EndpointDefinition Interface\n**File**: `/d/code/ESI.ts/src/core/endpoints/EndpointDefinition.ts`\n\n```typescript\nexport type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';\n\nexport interface DeprecationInfo {\n  message?: string;\n  replacedBy?: string;\n  sunsetDate?: string;\n}\n\nexport interface EndpointDefinition {\n  /** URL template with placeholders, e.g. 'alliances/{allianceId}/' */\n  path: string;\n  /** HTTP method */\n  method: HttpMethod;\n  /** Whether the endpoint requires an auth token */\n  requiresAuth: boolean;\n  /** Path parameter names in method signature order */\n  pathParams?: readonly string[];\n  /** Maps method param name to query string key, e.g. { typeId: 'type_id' } */\n  queryParams?: Record<string, string>;\n  /** Whether the method accepts a body parameter (for POST/PUT/DELETE) */\n  hasBody?: boolean;\n  /** Custom body builder for endpoints that construct body from individual params */\n  bodyBuilder?: (...args: any[]) => unknown;\n  /** Whether this endpoint uses cursor-based pagination (before/after tokens) */\n  cursorPagination?: boolean;\n  /** Mark an endpoint as deprecated with optional migration guidance */\n  deprecated?: DeprecationInfo;\n}\n\nexport type EndpointMap = Record<string, EndpointDefinition>;\n```\n\n#### Sovereignty Endpoints Example\n**File**: `/d/code/ESI.ts/src/core/endpoints/sovereigntyEndpoints.ts`\n\n```typescript\nimport { EndpointMap } from './EndpointDefinition';\n\nexport const sovereigntyEndpoints = {\n  getSovereigntyCampaigns: {\n    path: 'sovereignty/campaigns',\n    method: 'GET',\n    requiresAuth: false,\n  },\n  getSovereigntyMap: {\n    path: 'sovereignty/map',\n    method: 'GET',\n    requiresAuth: false,\n  },\n  getSovereigntyStructures: {\n    path: 'sovereignty/structures',\n    method: 'GET',\n    requiresAuth: false,\n  },\n} as const satisfies EndpointMap;\n```\n\n#### Dogma Endpoints Example (With Path Parameters)\n**File**: `/d/code/ESI.ts/src/core/endpoints/dogmaEndpoints.ts`\n\n```typescript\nexport const dogmaEndpoints = {\n  getAttributes: {\n    path: 'dogma/attributes',\n    method: 'GET',\n    requiresAuth: false,\n  },\n  getAttributeById: {\n    path: 'dogma/attributes/{attributeId}',\n    method: 'GET',\n    requiresAuth: false,\n    pathParams: ['attributeId'],\n  },\n  getEffects: {\n    path: 'dogma/effects',\n    method: 'GET',\n    requiresAuth: false,\n  },\n  getEffectById: {\n    path: 'dogma/effects/{effectId}',\n    method: 'GET',\n    requiresAuth: false,\n    pathParams: ['effectId'],\n  },\n  getDynamicItemInfo: {\n    path: 'dogma/dynamic/items/{typeId}/{itemId}',\n    method: 'GET',\n    requiresAuth: false,\n    pathParams: ['typeId', 'itemId'],\n  },\n} as const satisfies EndpointMap;\n```\n\n#### Incursion Endpoints Example (Minimal)\n**File**: `/d/code/ESI.ts/src/core/endpoints/incursionEndpoints.ts`\n\n```typescript\nexport const incursionEndpoints = {\n  getIncursions: {\n    path: 'incursions',\n    method: 'GET',\n    requiresAuth: false,\n  },\n} as const satisfies EndpointMap;\n```\n\n### 4. BASE CLIENT & ARCHITECTURE\n\n#### BaseEsiClient\n**File**: `/d/code/ESI.ts/src/clients/BaseEsiClient.ts`\n\n```typescript\nimport { ApiClient } from '../core/ApiClient';\nimport {\n  createClient,\n  CreateClientOptions,\n  WithMetadata,\n} from '../core/endpoints/createClient';\nimport { EndpointMap } from '../core/endpoints/EndpointDefinition';\n\ntype ClientMethods<T extends EndpointMap> = ReturnType<typeof createClient<T>>;\n\nexport abstract class BaseEsiClient<T extends EndpointMap> {\n  protected api: ClientMethods<T>;\n  protected _client: ApiClient;\n  private _endpoints: T;\n  private _metaApi?: ClientMethods<T>;\n\n  constructor(client: ApiClient, endpoints: T) {\n    this._client = client;\n    this._endpoints = endpoints;\n    this.api = createClient(client, endpoints);\n  }\n\n  withMetadata(): WithMetadata<Omit<this, 'withMetadata'>> {\n    if (!this._metaApi) {\n      this._metaApi = createClient(this._client, this._endpoints, {\n        returnMetadata: true,\n      } as CreateClientOptions);\n    }\n    return this._metaApi as unknown as WithMetadata<Omit<this, 'withMetadata'>>;\n  }\n}\n```\n\n**Pattern**: Generic base class parameterized by EndpointMap. All clients inherit from this. The `withMetadata()` method provides optional response metadata.\n\n#### SovereigntyClient Implementation\n**File**: `/d/code/ESI.ts/src/clients/SovereigntyClient.ts`\n\n```typescript\nimport { ApiClient } from '../core/ApiClient';\nimport { BaseEsiClient } from './BaseEsiClient';\nimport { sovereigntyEndpoints } from '../core/endpoints/sovereigntyEndpoints';\nimport {\n  SovereigntyCampaign,\n  SovereigntyMap,\n  SovereigntyStructure,\n} from '../types/api-responses';\n\nexport class SovereigntyClient extends BaseEsiClient<\n  typeof sovereigntyEndpoints\n> {\n  constructor(client: ApiClient) {\n    super(client, sovereigntyEndpoints);\n  }\n\n  /**\n   * Retrieves all active sovereignty campaigns, including command node contests and station freeports.\n   *\n   * @returns A list of active sovereignty campaigns\n   */\n  getSovereigntyCampaigns(): Promise<SovereigntyCampaign[]> {\n    return this.api.getSovereigntyCampaigns() as Promise<SovereigntyCampaign[]>;\n  }\n\n  /**\n   * Retrieves the sovereignty ownership map showing which alliance holds each solar system.\n   *\n   * @returns A list of solar systems and their sovereignty holders\n   */\n  getSovereigntyMap(): Promise<SovereigntyMap[]> {\n    return this.api.getSovereigntyMap() as Promise<SovereigntyMap[]>;\n  }\n\n  /**\n   * Retrieves all sovereignty structures (TCUs, IHubs) and their vulnerability windows.\n   *\n   * @returns A list of sovereignty structures with their reinforcement and vulnerability details\n   */\n  getSovereigntyStructures(): Promise<SovereigntyStructure[]> {\n    return this.api.getSovereigntyStructures() as Promise<\n      SovereigntyStructure[]\n    >;\n  }\n}\n```\n\n#### IncursionsClient (Minimal)\n**File**: `/d/code/ESI.ts/src/clients/IncursionsClient.ts`\n\n```typescript\nimport { ApiClient } from '../core/ApiClient';\nimport { BaseEsiClient } from './BaseEsiClient';\nimport { incursionEndpoints } from '../core/endpoints/incursionEndpoints';\nimport { Incursion } from '../types/api-responses';\n\nexport class IncursionsClient extends BaseEsiClient<typeof incursionEndpoints> {\n  constructor(client: ApiClient) {\n    super(client, incursionEndpoints);\n  }\n\n  /**\n   * Retrieves all currently active incursions, including their staging systems and influence levels.\n   *\n   * @returns An array of active incursions\n   */\n  getIncursions(): Promise<Incursion[]> {\n    return this.api.getIncursions() as Promise<Incursion[]>;\n  }\n}\n```\n\n### 5. CORE INFRASTRUCTURE\n\n#### ApiClient (Base HTTP Client)\n**File**: `/d/code/ESI.ts/src/core/ApiClient.ts`\n\nKey features:\n- Manages HTTP link, access tokens, and datasource\n- Manages cache, rate limiter, circuit breaker, deduplicator\n- Supports middleware (request/response interceptors)\n- Handles token refresh with in-flight deduplication\n- Configuration via builder pattern\n\n#### ApiClientBuilder\n**File**: `/d/code/ESI.ts/src/core/ApiClientBuilder.ts`\n\nFluent builder for ApiClient configuration:\n```\n.setClientId()\n.setLink()\n.setAccessToken()\n.setRateLimiter()\n.setCache()\n.setCircuitBreaker()\n.setTimeout()\n.build()\n```\n\n#### createClient Function\n**File**: `/d/code/ESI.ts/src/core/endpoints/createClient.ts` (excerpt)\n\n```typescript\nexport interface CursorOptions {\n  before?: string;\n  after?: string;\n}\n\nexport interface CursorResult<T = unknown> {\n  data: T[];\n  cursors: CursorTokens;\n}\n\nexport interface CreateClientOptions {\n  returnMetadata?: boolean;\n}\n\ntype ClientMethods<T extends EndpointMap> = {\n  [K in keyof T]: (...args: EndpointArgs<T[K]>) => Promise<unknown>;\n};\n\nexport type WithMetadata<T> = {\n  [K in keyof T]: T[K] extends (...args: infer A) => Promise<infer R>\n    ? (...args: A) => Promise<EsiResponse<R>>\n    : T[K];\n};\n\nexport function createClient<T extends EndpointMap>(\n  apiClient: ApiClient,\n  endpoints: T,\n  options?: CreateClientOptions,\n): ClientMethods<T>\n```\n\nDynamically generates methods from endpoint definitions.\n\n### 6. TEST UTILITIES\n\n#### getBody Helper\n**File**: `/d/code/ESI.ts/src/core/util/testHelpers.ts`\n\n```typescript\nexport const getBody = async (apiCall: () => Promise<any>): Promise<any> => {\n  return apiCall();\n};\n\nexport const getHeaders = async (\n  apiCall: () => Promise<any>,\n): Promise<Record<string, string>> => {\n  const response = await apiCall();\n  return response.headers;\n};\n\nexport const mockApiCall = (\n  apiCall: (...args: any[]) => Promise<any>,\n  mockResponse: object,\n  mockHeaders: Record<string, string> = {},\n) => {\n  fetchMock.mockResponseOnce(JSON.stringify(mockResponse), {\n    headers: mockHeaders,\n  });\n  return apiCall;\n};\n```\n\n#### TestDataFactory\n**File**: `/d/code/ESI.ts/src/testing/TestDataFactory.ts`\n\nComprehensive factory with methods for creating test data:\n- `createAllianceInfo(overrides)`\n- `createCharacterInfo(overrides)`\n- `createCorporationInfo(overrides)`\n- `createError(statusCode, message)`\n- `createMarketOrder(overrides)`\n- `createWalletTransaction(overrides)`\n- `createContract(overrides)`\n- `createPerformanceTestData(size)`\n- `createRealisticTestData()`\n- Many more domain-specific factories\n\nAll accept partial overrides for customization.\n\n### 7. DIRECTORY STRUCTURE\n\n```\ntests/\n  tdd/                          # Unit tests with direct API testing\n    dogma/\n      DogmaClient.test.ts       # Direct client tests\n    incursions/\n      IncursionsClient.test.ts\n    core/                       # Core infrastructure tests\n      AsyncPaginationIterator.test.ts\n      CursorPaginationHandler.test.ts\n      ...\n  bdd-scenarios/               # BDD Given/When/Then tests\n    core/\n      bdd-sovereignty.test.ts\n      bdd-incursions.test.ts\n      bdd-dogma.test.ts\n      ...\n  integration/                 # Integration tests\n  performance/                 # Performance tests\n\nsrc/\n  types/                       # Type definitions\n    sovereignty.ts\n    incursions.ts\n    dogma.ts\n    ...\n  core/\n    ApiClient.ts              # Base HTTP client\n    ApiClientBuilder.ts\n    ApiRequestHandler.ts      # Request execution\n    endpoints/\n      EndpointDefinition.ts   # Type definitions for endpoints\n      sovereigntyEndpoints.ts\n      incursionEndpoints.ts\n      dogmaEndpoints.ts\n      createClient.ts         # Dynamic client generator\n    util/\n      testHelpers.ts\n      error.ts\n      headersUtil.ts\n      validation.ts\n    cache/\n    rateLimiter/\n    circuitBreaker/\n    pagination/\n    middleware/\n  clients/\n    BaseEsiClient.ts          # Abstract base for all clients\n    SovereigntyClient.ts\n    IncursionsClient.ts\n    DogmaClient.ts\n    ...\n  testing/\n    TestDataFactory.ts        # Test data generation\n```\n\n### KEY PATTERNS SUMMARY\n\n1. **Test Organization**: BDD tests use Given/When/Then structure; TDD tests use direct assertions\n2. **Types**: Simple, focused interfaces with optional fields; no inheritance\n3. **Endpoints**: Declarative definitions with path, method, auth requirement, and parameter metadata\n4. **Clients**: All extend BaseEsiClient, wrapping auto-generated API methods with typed return values\n5. **Utilities**: Shared test helpers (getBody, getHeaders), comprehensive TestDataFactory\n6. **Architecture**: Generic, metadata-supporting approach via `createClient()` function\n7. **No ACL/Permission Types**: Project currently lacks access control list or permission system types",
+          "alignment": 0.8808
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "4d32fea7-03a4-4e63-ba12-aea9bb7a9e5d",
+    "source_file": "data/D--code-ESI-ts__agent-a657a6ecb2218d696.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

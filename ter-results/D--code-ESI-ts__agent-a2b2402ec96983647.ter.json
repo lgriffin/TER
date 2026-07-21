@@ -1,0 +1,316 @@
+{
+  "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 4481,
+  "aligned_tokens": 4481,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5756,
+    "token_weighted_confidence": 0.6078,
+    "low_confidence_tokens": 3993,
+    "low_confidence_share": 0.8911,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 6,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "waste_patterns": [
+    {
+      "type": "context_restatement",
+      "start_position": 2,
+      "end_position": 2,
+      "spans_involved": 1,
+      "tokens_wasted": 13,
+      "description": "Response restates prior content (similarity: 0.85)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.29861336946487427,
+      "tokens": 16,
+      "text": "\n\nI'll create both files. Let me first verify the parent directories exist.",
+      "source_message_uuid": "74467c08-cb66-4640-84f1-12a82213c1ab",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.2986,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4132446348667145,
+      "tokens": 81,
+      "text": "Bash {\"command\":\"ls \\\"D:/code/ESI.ts/tests/bdd/features/core/\\\" 2>/dev/null && ls \\\"D:/code/ESI.ts/tests/bdd/step-definitions/core/\\\" 2>/dev/null || echo \\\"Checking which dirs exist...\\\" && ls \\\"D:/code/ESI.ts/tests/bdd/\\\" 2>/dev/null\"}",
+      "source_message_uuid": "74467c08-cb66-4640-84f1-12a82213c1ab",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4132,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.3472537100315094,
+      "tokens": 13,
+      "text": "The directories exist. Now I'll create both files in parallel.",
+      "source_message_uuid": "a9ea33f0-21cf-4b06-9fe4-f60a63449d9b",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3473,
+          "repetition_score": 0.663,
+          "confidence": 0.5,
+          "semantic_similarity": 0.8502,
+          "lexical_similarity": 0.4118,
+          "entity_similarity": 0.5,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "\n\nI'll create both files. Let me first verify the parent directories exist."
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6860365867614746,
+      "intent_similarity": 0.6860365867614746,
+      "tokens": 488,
+      "text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/features/core/wars.feature\",\"content\":\"Feature: Wars Management\\n\\n  Scenario: List all wars\\n    Given wars exist in the system\\n    When I request the list of wars\\n    Then I should receive an array of war IDs\\n\\n  Scenario: Wars are returned in descending order\\n    Given multiple wars exist in descending order\\n    When I request the war list\\n    Then war IDs should be in descending order\\n\\n  Scenario: Get details of an active war\\n    Given an active war exists\\n    When I request the war details\\n    Then I should receive complete war information\\n\\n  Scenario: Get details of a finished war\\n    Given a finished war exists\\n    When I request the finished war details\\n    Then the finished timestamp should be populated\\n\\n  Scenario: Get details of a mutual war\\n    Given a mutual war exists\\n    When I request the mutual war details\\n    Then the mutual flag should be true\\n\\n  Scenario: Get killmails for a war\\n    Given a war with killmails exists\\n    When I request the war killmails\\n    Then I should receive killmail summaries\\n\\n  Scenario: Get killmails for a war with no kills\\n    Given a war with no killmails exists\\n    When I request the war killmails for empty war\\n    Then I should receive an empty killmail array\\n\\n  Scenario: Request details for an invalid war ID (404)\\n    Given an invalid war ID for details\\n    When I request the invalid war details\\n    Then I should receive a 404 not found error for war details\\n\\n  Scenario: Request killmails for an invalid war ID (404)\\n    Given an invalid war ID for killmails\\n    When I request killmails for invalid war\\n    Then I should receive a 404 not found error for killmails\\n\\n  Scenario: Analyze war statistics by comparing aggressor and defender\\n    Given a war with combat data exists\\n    When I analyze the war stats\\n    Then I should determine the dominant side\\n\\n  Scenario: Complete war investigation workflow\\n    Given a war ID to investigate\\n    When I gather full war data including details and killmails\\n    Then I should build a complete picture of the conflict\\n\"}",
+      "source_message_uuid": "a9ea33f0-21cf-4b06-9fe4-f60a63449d9b",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.686,
+          "repetition_score": 0.0255,
+          "confidence": 0.686,
+          "semantic_similarity": 0.3747,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.0122,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"ls \\\"D:/code/ESI.ts/tests/bdd/features/core/\\\" 2>/dev/null && ls \\\"D:/code/ESI.ts/tests/bdd/step-definitions/core/\\\" 2>/dev/null || echo \\\"Checking which dirs exist...\\\" && ls \\\"D:/code/ESI.ts/tests/bdd/\\\" 2>/dev/null\"}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5539574027061462,
+      "tokens": 3758,
+      "text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/step-definitions/core/wars.steps.ts\",\"content\":\"import { defineFeature, loadFeature } from 'jest-cucumber';\\nimport { EsiClient } from '../../../../src/EsiClient';\\nimport { EsiError } from '../../../../src/core/util/error';\\nimport { TestDataFactory } from '../../../../src/testing/TestDataFactory';\\n\\nconst feature = loadFeature('tests/bdd/features/core/wars.feature');\\n\\ndefineFeature(feature, (test) => {\\n  let client: EsiClient;\\n\\n  beforeEach(() => {\\n    client = new EsiClient({\\n      clientId: 'test-wars-client',\\n      baseUrl: 'https://esi.evetech.net',\\n      timeout: 5000,\\n    });\\n  });\\n\\n  test('List all wars', ({ given, when, then }) => {\\n    let result: any;\\n\\n    given('wars exist in the system', () => {\\n      const expectedWarIds = [700001, 700002, 700003, 700004, 700005];\\n\\n      jest.spyOn(client.wars, 'getWars').mockResolvedValue(expectedWarIds);\\n    });\\n\\n    when('I request the list of wars', async () => {\\n      result = await client.wars.getWars();\\n    });\\n\\n    then('I should receive an array of war IDs', () => {\\n      expect(result).toBeInstanceOf(Array);\\n      expect(result.length).toBe(5);\\n      result.forEach((warId: number) => {\\n        expect(typeof warId).toBe('number');\\n        expect(warId).toBeGreaterThan(0);\\n      });\\n    });\\n  });\\n\\n  test('Wars are returned in descending order', ({ given, when, then }) => {\\n    let result: any;\\n\\n    given('multiple wars exist in descending order', () => {\\n      const expectedWarIds = [700010, 700009, 700008, 700007, 700006];\\n\\n      jest.spyOn(client.wars, 'getWars').mockResolvedValue(expectedWarIds);\\n    });\\n\\n    when('I request the war list', async () => {\\n      result = await client.wars.getWars();\\n    });\\n\\n    then('war IDs should be in descending order', () => {\\n      expect(result).toBeInstanceOf(Array);\\n      for (let i = 1; i < result.length; i++) {\\n        expect(result[i - 1]).toBeGreaterThan(result[i]);\\n      }\\n    });\\n  });\\n\\n  test('Get details of an active war', ({ given, when, then }) => {\\n    let result: any;\\n\\n    given('an active war exists', () => {\\n      const warId = 700001;\\n      const expectedWar = {\\n        id: warId,\\n        aggressor: {\\n          alliance_id: 99005338,\\n          isk_destroyed: 150000000000.0,\\n          ships_killed: 250,\\n        },\\n        defender: {\\n          alliance_id: 99000001,\\n          isk_destroyed: 75000000000.0,\\n          ships_killed: 120,\\n        },\\n        declared: '2024-01-10T00:00:00Z',\\n        started: '2024-01-11T00:00:00Z',\\n        finished: null,\\n        mutual: false,\\n        open_for_allies: true,\\n      };\\n\\n      jest\\n        .spyOn(client.wars, 'getWarById')\\n        .mockResolvedValue(expectedWar as any);\\n    });\\n\\n    when('I request the war details', async () => {\\n      result = await client.wars.getWarById(700001);\\n    });\\n\\n    then('I should receive complete war information', () => {\\n      expect(result).toBeDefined();\\n      expect(result.id).toBe(700001);\\n      expect(result).toHaveProperty('aggressor');\\n      expect(result).toHaveProperty('defender');\\n      expect(result).toHaveProperty('declared');\\n      expect(result).toHaveProperty('started');\\n      expect(result.aggressor).toHaveProperty('alliance_id');\\n      expect(result.aggressor).toHaveProperty('isk_destroyed');\\n      expect(result.aggressor).toHaveProperty('ships_killed');\\n      expect(result.defender).toHaveProperty('alliance_id');\\n      expect((result as any).finished).toBeNull();\\n    });\\n  });\\n\\n  test('Get details of a finished war', ({ given, when, then }) => {\\n    let result: any;\\n\\n    given('a finished war exists', () => {\\n      const warId = 700002;\\n      const expectedWar = {\\n        id: warId,\\n        aggressor: {\\n          alliance_id: 99005338,\\n          isk_destroyed: 500000000000.0,\\n          ships_killed: 800,\\n        },\\n        defender: {\\n          alliance_id: 99000002,\\n          isk_destroyed: 300000000000.0,\\n          ships_killed: 450,\\n        },\\n        declared: '2023-12-01T00:00:00Z',\\n        started: '2023-12-02T00:00:00Z',\\n        finished: '2024-01-01T00:00:00Z',\\n        mutual: false,\\n        open_for_allies: false,\\n      };\\n\\n      jest\\n        .spyOn(client.wars, 'getWarById')\\n        .mockResolvedValue(expectedWar as any);\\n    });\\n\\n    when('I request the finished war details', async () => {\\n      result = await client.wars.getWarById(700002);\\n    });\\n\\n    then('the finished timestamp should be populated', () => {\\n      expect(result).toBeDefined();\\n      expect((result as any).finished).not.toBeNull();\\n      expect((result as any).finished).toBe('2024-01-01T00:00:00Z');\\n\\n      const declared = new Date((result as any).declared).getTime();\\n      const started = new Date((result as any).started).getTime();\\n      const finished = new Date((result as any).finished).getTime();\\n      expect(declared).toBeLessThan(started);\\n      expect(started).toBeLessThan(finished);\\n    });\\n  });\\n\\n  test('Get details of a mutual war', ({ given, when, then }) => {\\n    let result: any;\\n\\n    given('a mutual war exists', () => {\\n      const warId = 700003;\\n      const expectedWar = {\\n        id: warId,\\n        aggressor: {\\n          alliance_id: 99005338,\\n          isk_destroyed: 200000000000.0,\\n          ships_killed: 350,\\n        },\\n        defender: {\\n          alliance_id: 99000003,\\n          isk_destroyed: 180000000000.0,\\n          ships_killed: 320,\\n        },\\n        declared: '2024-01-05T00:00:00Z',\\n        started: '2024-01-06T00:00:00Z',\\n        finished: null,\\n        mutual: true,\\n        open_for_allies: false,\\n      };\\n\\n      jest\\n        .spyOn(client.wars, 'getWarById')\\n        .mockResolvedValue(expectedWar as any);\\n    });\\n\\n    when('I request the mutual war details', async () => {\\n      result = await client.wars.getWarById(700003);\\n    });\\n\\n    then('the mutual flag should be true', () => {\\n      expect(result).toBeDefined();\\n      expect((result as any).mutual).toBe(true);\\n      expect(typeof (result as any).mutual).toBe('boolean');\\n    });\\n  });\\n\\n  test('Get killmails for a war', ({ given, when, then }) => {\\n    let result: any;\\n\\n    given('a war with killmails exists', () => {\\n      const expectedKillmails = [\\n        { killmail_id: 90000001, killmail_hash: 'abc123def456' },\\n        { killmail_id: 90000002, killmail_hash: 'ghi789jkl012' },\\n        { killmail_id: 90000003, killmail_hash: 'mno345pqr678' },\\n      ];\\n\\n      jest\\n        .spyOn(client.wars, 'getWarKillmails')\\n        .mockResolvedValue(expectedKillmails as any);\\n    });\\n\\n    when('I request the war killmails', async () => {\\n      result = await client.wars.getWarKillmails(700001);\\n    });\\n\\n    then('I should receive killmail summaries', () => {\\n      expect(result).toBeInstanceOf(Array);\\n      expect(result.length).toBe(3);\\n      result.forEach((killmail: any) => {\\n        expect(killmail).toHaveProperty('killmail_id');\\n        expect(killmail).toHaveProperty('killmail_hash');\\n        expect(typeof killmail.killmail_id).toBe('number');\\n        expect(typeof killmail.killmail_hash).toBe('string');\\n      });\\n    });\\n  });\\n\\n  test('Get killmails for a war with no kills', ({ given, when, then }) => {\\n    let result: any;\\n\\n    given('a war with no killmails exists', () => {\\n      jest.spyOn(client.wars, 'getWarKillmails').mockResolvedValue([]);\\n    });\\n\\n    when('I request the war killmails for empty war', async () => {\\n      result = await client.wars.getWarKillmails(700004);\\n    });\\n\\n    then('I should receive an empty killmail array', () => {\\n      expect(result).toBeInstanceOf(Array);\\n      expect(result.length).toBe(0);\\n    });\\n  });\\n\\n  test('Request details for an invalid war ID (404)', ({ given, when, then }) => {\\n    let caughtError: any;\\n\\n    given('an invalid war ID for details', () => {\\n      const notFoundError = TestDataFactory.createError(404);\\n\\n      jest.spyOn(client.wars, 'getWarById').mockRejectedValue(notFoundError);\\n    });\\n\\n    when('I request the invalid war details', async () => {\\n      try {\\n        await client.wars.getWarById(999999999);\\n      } catch (e) {\\n        caughtError = e;\\n      }\\n    });\\n\\n    then('I should receive a 404 not found error for war details', () => {\\n      expect(caughtError).toBeInstanceOf(EsiError);\\n    });\\n  });\\n\\n  test('Request killmails for an invalid war ID (404)', ({ given, when, then }) => {\\n    let caughtError: any;\\n\\n    given('an invalid war ID for killmails', () => {\\n      const notFoundError = TestDataFactory.createError(404);\\n\\n      jest\\n        .spyOn(client.wars, 'getWarKillmails')\\n        .mockRejectedValue(notFoundError);\\n    });\\n\\n    when('I request killmails for invalid war', async () => {\\n      try {\\n        await client.wars.getWarKillmails(999999999);\\n      } catch (e) {\\n        caughtError = e;\\n      }\\n    });\\n\\n    then('I should receive a 404 not found error for killmails', () => {\\n      expect(caughtError).toBeInstanceOf(EsiError);\\n    });\\n  });\\n\\n  test('Analyze war statistics by comparing aggressor and defender', ({ given, when, then }) => {\\n    let result: any;\\n\\n    given('a war with combat data exists', () => {\\n      const warDetails = {\\n        id: 700001,\\n        aggressor: {\\n          alliance_id: 99005338,\\n          isk_destroyed: 500000000000.0,\\n          ships_killed: 800,\\n        },\\n        defender: {\\n          alliance_id: 99000001,\\n          isk_destroyed: 200000000000.0,\\n          ships_killed: 300,\\n        },\\n        declared: '2024-01-10T00:00:00Z',\\n        started: '2024-01-11T00:00:00Z',\\n        finished: null,\\n        mutual: false,\\n        open_for_allies: true,\\n      };\\n\\n      jest\\n        .spyOn(client.wars, 'getWarById')\\n        .mockResolvedValue(warDetails as any);\\n    });\\n\\n    when('I analyze the war stats', async () => {\\n      result = await client.wars.getWarById(700001);\\n    });\\n\\n    then('I should determine the dominant side', () => {\\n      const aggressorIsk = (result as any).aggressor.isk_destroyed;\\n      const defenderIsk = (result as any).defender.isk_destroyed;\\n      const aggressorKills = (result as any).aggressor.ships_killed;\\n      const defenderKills = (result as any).defender.ships_killed;\\n\\n      expect(aggressorIsk).toBeGreaterThan(defenderIsk);\\n      expect(aggressorKills).toBeGreaterThan(defenderKills);\\n\\n      const totalIskDestroyed = aggressorIsk + defenderIsk;\\n      const aggressorEfficiency = aggressorIsk / totalIskDestroyed;\\n      expect(aggressorEfficiency).toBeGreaterThan(0.5);\\n    });\\n  });\\n\\n  test('Complete war investigation workflow', ({ given, when, then }) => {\\n    let details: any;\\n    let killmails: any;\\n\\n    given('a war ID to investigate', () => {\\n      const warId = 700001;\\n      const warDetails = {\\n        id: warId,\\n        aggressor: {\\n          alliance_id: 99005338,\\n          isk_destroyed: 150000000000.0,\\n          ships_killed: 250,\\n        },\\n        defender: {\\n          alliance_id: 99000001,\\n          isk_destroyed: 75000000000.0,\\n          ships_killed: 120,\\n        },\\n        declared: '2024-01-10T00:00:00Z',\\n        started: '2024-01-11T00:00:00Z',\\n        finished: null,\\n        mutual: false,\\n        open_for_allies: true,\\n      };\\n      const warKillmails = [\\n        { killmail_id: 90000001, killmail_hash: 'abc123' },\\n        { killmail_id: 90000002, killmail_hash: 'def456' },\\n      ];\\n\\n      jest\\n        .spyOn(client.wars, 'getWarById')\\n        .mockResolvedValue(warDetails as any);\\n      jest\\n        .spyOn(client.wars, 'getWarKillmails')\\n        .mockResolvedValue(warKillmails as any);\\n    });\\n\\n    when('I gather full war data including details and killmails', async () => {\\n      [details, killmails] = await Promise.all([\\n        client.wars.getWarById(700001),\\n        client.wars.getWarKillmails(700001),\\n      ]);\\n    });\\n\\n    then('I should build a complete picture of the conflict', () => {\\n      expect(details).toBeDefined();\\n      expect(details.id).toBe(700001);\\n      expect(killmails).toBeInstanceOf(Array);\\n      expect(killmails.length).toBe(2);\\n\\n      const totalShipsKilled =\\n        (details as any).aggressor.ships_killed +\\n        (details as any).defender.ships_killed;\\n      expect(totalShipsKilled).toBeGreaterThan(0);\\n\\n      expect((details as any).finished).toBeNull();\\n      expect((details as any).open_for_allies).toBe(true);\\n    });\\n  });\\n});\\n\"}",
+      "source_message_uuid": "a9ea33f0-21cf-4b06-9fe4-f60a63449d9b",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.554,
+          "repetition_score": 0.5068,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5844,
+          "lexical_similarity": 0.3062,
+          "entity_similarity": 0.3467,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/features/core/wars.feature\",\"content\":\"Feature: Wars Management\\n\\n  Scenario: List all wars\\n    Given wars exist in the system\\n    When I request the list of wars\\n    Then I should receive an"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5673314332962036,
+      "intent_similarity": 0.5673314332962036,
+      "tokens": 125,
+      "text": "Both files have been created successfully:\n\n1. **`D:/code/ESI.ts/tests/bdd/features/core/wars.feature`** -- Gherkin feature file with 11 scenarios covering war listing, details (active/finished/mutual), killmails, 404 errors, statistics analysis, and a complete investigation workflow.\n\n2. **`D:/code/ESI.ts/tests/bdd/step-definitions/core/wars.steps.ts`** -- Jest-cucumber step definitions implementing all 11 scenarios with mocked `EsiClient` calls, using `TestDataFactory` for error creation and comprehensive assertions.",
+      "source_message_uuid": "98779684-0502-409c-b9bf-7e5a9a823f02",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5673,
+          "repetition_score": 0.2286,
+          "confidence": 0.5673,
+          "semantic_similarity": 0.3875,
+          "lexical_similarity": 0.0172,
+          "entity_similarity": 0.0385,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9615
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "\n\nI'll create both files. Let me first verify the parent directories exist."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "context_restatement",
+        "tokens_wasted": 13,
+        "description": "Response restates prior content (similarity: 0.85)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Context Restatement",
+        "tokens": 13,
+        "percentage": 100.0,
+        "cost_usd": 0.000195,
+        "count": 1,
+        "pricing": "output"
+      }
+    ],
+    "total_tokens": 13,
+    "total_cost_usd": 0.000195
+  },
+  "economics": {
+    "total_input_tokens": 5,
+    "total_output_tokens": 150,
+    "total_cache_creation_tokens": 12040,
+    "total_cache_read_tokens": 51908,
+    "input_output_ratio": 0.03,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.063,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 2,
+      "mid_span_count": 2,
+      "late_span_count": 2
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        12725,
+        19111,
+        20077
+      ],
+      "growth_rate": 1.58,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 3744,
+      "user_result_tokens": 252,
+      "model_reasoning_tokens": 0,
+      "model_tool_tokens": 4327,
+      "model_generation_tokens": 154,
+      "total_user_tokens": 3996,
+      "total_model_tokens": 4481,
+      "user_ratio": 0.4714
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.6373,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "Create two files for the ESI.ts project BDD test conversion. The project is at D:/code/ESI.ts.\n\nFILE 1: D:/code/ESI.ts/tests/bdd/features/core/wars.feature\n\n```\nFeature: Wars Management\n\n  Scenario: List all wars\n    Given wars exist in the system\n    When I request the list of wars\n    Then I should receive an array of war IDs\n\n  Scenario: Wars are returned in descending order\n    Given multiple wars exist in descending order\n    When I request the war list\n    Then war IDs should be in descending order\n\n  Scenario: Get details of an active war\n    Given an active war exists\n    When I request the war details\n    Then I should receive complete war information\n\n  Scenario: Get details of a finished war\n    Given a finished war exists\n    When I request the finished war details\n    Then the finished timestamp should be populated\n\n  Scenario: Get details of a mutual war\n    Given a mutual war exists\n    When I request the mutual war details\n    Then the mutual flag should be true\n\n  Scenario: Get killmails for a war\n    Given a war with killmails exists\n    When I request the war killmails\n    Then I should receive killmail summaries\n\n  Scenario: Get killmails for a war with no kills\n    Given a war with no killmails exists\n    When I request the war killmails for empty war\n    Then I should receive an empty killmail array\n\n  Scenario: Request details for an invalid war ID (404)\n    Given an invalid war ID for details\n    When I request the invalid war details\n    Then I should receive a 404 not found error for war details\n\n  Scenario: Request killmails for an invalid war ID (404)\n    Given an invalid war ID for killmails\n    When I request killmails for invalid war\n    Then I should receive a 404 not found error for killmails\n\n  Scenario: Analyze war statistics by comparing aggressor and defender\n    Given a war with combat data exists\n    When I analyze the war stats\n    Then I should determine the dominant side\n\n  Scenario: Complete war investigation workflow\n    Given a war ID to investigate\n    When I gather full war data including details and killmails\n    Then I should build a complete picture of the conflict\n```\n\nFILE 2: D:/code/ESI.ts/tests/bdd/step-definitions/core/wars.steps.ts\n\n```typescript\nimport { defineFeature, loadFeature } from 'jest-cucumber';\nimport { EsiClient } from '../../../../src/EsiClient';\nimport { EsiError } from '../../../../src/core/util/error';\nimport { TestDataFactory } from '../../../../src/testing/TestDataFactory';\n\nconst feature = loadFeature('tests/bdd/features/core/wars.feature');\n\ndefineFeature(feature, (test) => {\n  let client: EsiClient;\n\n  beforeEach(() => {\n    client = new EsiClient({\n      clientId: 'test-wars-client',\n      baseUrl: 'https://esi.evetech.net',\n      timeout: 5000,\n    });\n  });\n\n  test('List all wars', ({ given, when, then }) => {\n    let result: any;\n\n    given('wars exist in the system', () => {\n      const expectedWarIds = [700001, 700002, 700003, 700004, 700005];\n\n      jest.spyOn(client.wars, 'getWars').mockResolvedValue(expectedWarIds);\n    });\n\n    when('I request the list of wars', async () => {\n      result = await client.wars.getWars();\n    });\n\n    then('I should receive an array of war IDs', () => {\n      expect(result).toBeInstanceOf(Array);\n      expect(result.length).toBe(5);\n      result.forEach((warId: number) => {\n        expect(typeof warId).toBe('number');\n        expect(warId).toBeGreaterThan(0);\n      });\n    });\n  });\n\n  test('Wars are returned in descending order', ({ given, when, then }) => {\n    let result: any;\n\n    given('multiple wars exist in descending order', () => {\n      const expectedWarIds = [700010, 700009, 700008, 700007, 700006];\n\n      jest.spyOn(client.wars, 'getWars').mockResolvedValue(expectedWarIds);\n    });\n\n    when('I request the war list', async () => {\n      result = await client.wars.getWars();\n    });\n\n    then('war IDs should be in descending order', () => {\n      expect(result).toBeInstanceOf(Array);\n      for (let i = 1; i < result.length; i++) {\n        expect(result[i - 1]).toBeGreaterThan(result[i]);\n      }\n    });\n  });\n\n  test('Get details of an active war', ({ given, when, then }) => {\n    let result: any;\n\n    given('an active war exists', () => {\n      const warId = 700001;\n      const expectedWar = {\n        id: warId,\n        aggressor: {\n          alliance_id: 99005338,\n          isk_destroyed: 150000000000.0,\n          ships_killed: 250,\n        },\n        defender: {\n          alliance_id: 99000001,\n          isk_destroyed: 75000000000.0,\n          ships_killed: 120,\n        },\n        declared: '2024-01-10T00:00:00Z',\n        started: '2024-01-11T00:00:00Z',\n        finished: null,\n        mutual: false,\n        open_for_allies: true,\n      };\n\n      jest\n        .spyOn(client.wars, 'getWarById')\n        .mockResolvedValue(expectedWar as any);\n    });\n\n    when('I request the war details', async () => {\n      result = await client.wars.getWarById(700001);\n    });\n\n    then('I should receive complete war information', () => {\n      expect(result).toBeDefined();\n      expect(result.id).toBe(700001);\n      expect(result).toHaveProperty('aggressor');\n      expect(result).toHaveProperty('defender');\n      expect(result).toHaveProperty('declared');\n      expect(result).toHaveProperty('started');\n      expect(result.aggressor).toHaveProperty('alliance_id');\n      expect(result.aggressor).toHaveProperty('isk_destroyed');\n      expect(result.aggressor).toHaveProperty('ships_killed');\n      expect(result.defender).toHaveProperty('alliance_id');\n      expect((result as any).finished).toBeNull();\n    });\n  });\n\n  test('Get details of a finished war', ({ given, when, then }) => {\n    let result: any;\n\n    given('a finished war exists', () => {\n      const warId = 700002;\n      const expectedWar = {\n        id: warId,\n        aggressor: {\n          alliance_id: 99005338,\n          isk_destroyed: 500000000000.0,\n          ships_killed: 800,\n        },\n        defender: {\n          alliance_id: 99000002,\n          isk_destroyed: 300000000000.0,\n          ships_killed: 450,\n        },\n        declared: '2023-12-01T00:00:00Z',\n        started: '2023-12-02T00:00:00Z',\n        finished: '2024-01-01T00:00:00Z',\n        mutual: false,\n        open_for_allies: false,\n      };\n\n      jest\n        .spyOn(client.wars, 'getWarById')\n        .mockResolvedValue(expectedWar as any);\n    });\n\n    when('I request the finished war details', async () => {\n      result = await client.wars.getWarById(700002);\n    });\n\n    then('the finished timestamp should be populated', () => {\n      expect(result).toBeDefined();\n      expect((result as any).finished).not.toBeNull();\n      expect((result as any).finished).toBe('2024-01-01T00:00:00Z');\n\n      const declared = new Date((result as any).declared).getTime();\n      const started = new Date((result as any).started).getTime();\n      const finished = new Date((result as any).finished).getTime();\n      expect(declared).toBeLessThan(started);\n      expect(started).toBeLessThan(finished);\n    });\n  });\n\n  test('Get details of a mutual war', ({ given, when, then }) => {\n    let result: any;\n\n    given('a mutual war exists', () => {\n      const warId = 700003;\n      const expectedWar = {\n        id: warId,\n        aggressor: {\n          alliance_id: 99005338,\n          isk_destroyed: 200000000000.0,\n          ships_killed: 350,\n        },\n        defender: {\n          alliance_id: 99000003,\n          isk_destroyed: 180000000000.0,\n          ships_killed: 320,\n        },\n        declared: '2024-01-05T00:00:00Z',\n        started: '2024-01-06T00:00:00Z',\n        finished: null,\n        mutual: true,\n        open_for_allies: false,\n      };\n\n      jest\n        .spyOn(client.wars, 'getWarById')\n        .mockResolvedValue(expectedWar as any);\n    });\n\n    when('I request the mutual war details', async () => {\n      result = await client.wars.getWarById(700003);\n    });\n\n    then('the mutual flag should be true', () => {\n      expect(result).toBeDefined();\n      expect((result as any).mutual).toBe(true);\n      expect(typeof (result as any).mutual).toBe('boolean');\n    });\n  });\n\n  test('Get killmails for a war', ({ given, when, then }) => {\n    let result: any;\n\n    given('a war with killmails exists', () => {\n      const expectedKillmails = [\n        { killmail_id: 90000001, killmail_hash: 'abc123def456' },\n        { killmail_id: 90000002, killmail_hash: 'ghi789jkl012' },\n        { killmail_id: 90000003, killmail_hash: 'mno345pqr678' },\n      ];\n\n      jest\n        .spyOn(client.wars, 'getWarKillmails')\n        .mockResolvedValue(expectedKillmails as any);\n    });\n\n    when('I request the war killmails', async () => {\n      result = await client.wars.getWarKillmails(700001);\n    });\n\n    then('I should receive killmail summaries', () => {\n      expect(result).toBeInstanceOf(Array);\n      expect(result.length).toBe(3);\n      result.forEach((killmail: any) => {\n        expect(killmail).toHaveProperty('killmail_id');\n        expect(killmail).toHaveProperty('killmail_hash');\n        expect(typeof killmail.killmail_id).toBe('number');\n        expect(typeof killmail.killmail_hash).toBe('string');\n      });\n    });\n  });\n\n  test('Get killmails for a war with no kills', ({ given, when, then }) => {\n    let result: any;\n\n    given('a war with no killmails exists', () => {\n      jest.spyOn(client.wars, 'getWarKillmails').mockResolvedValue([]);\n    });\n\n    when('I request the war killmails for empty war', async () => {\n      result = await client.wars.getWarKillmails(700004);\n    });\n\n    then('I should receive an empty killmail array', () => {\n      expect(result).toBeInstanceOf(Array);\n      expect(result.length).toBe(0);\n    });\n  });\n\n  test('Request details for an invalid war ID (404)', ({ given, when, then }) => {\n    let caughtError: any;\n\n    given('an invalid war ID for details', () => {\n      const notFoundError = TestDataFactory.createError(404);\n\n      jest.spyOn(client.wars, 'getWarById').mockRejectedValue(notFoundError);\n    });\n\n    when('I request the invalid war details', async () => {\n      try {\n        await client.wars.getWarById(999999999);\n      } catch (e) {\n        caughtError = e;\n      }\n    });\n\n    then('I should receive a 404 not found error for war details', () => {\n      expect(caughtError).toBeInstanceOf(EsiError);\n    });\n  });\n\n  test('Request killmails for an invalid war ID (404)', ({ given, when, then }) => {\n    let caughtError: any;\n\n    given('an invalid war ID for killmails', () => {\n      const notFoundError = TestDataFactory.createError(404);\n\n      jest\n        .spyOn(client.wars, 'getWarKillmails')\n        .mockRejectedValue(notFoundError);\n    });\n\n    when('I request killmails for invalid war', async () => {\n      try {\n        await client.wars.getWarKillmails(999999999);\n      } catch (e) {\n        caughtError = e;\n      }\n    });\n\n    then('I should receive a 404 not found error for killmails', () => {\n      expect(caughtError).toBeInstanceOf(EsiError);\n    });\n  });\n\n  test('Analyze war statistics by comparing aggressor and defender', ({ given, when, then }) => {\n    let result: any;\n\n    given('a war with combat data exists', () => {\n      const warDetails = {\n        id: 700001,\n        aggressor: {\n          alliance_id: 99005338,\n          isk_destroyed: 500000000000.0,\n          ships_killed: 800,\n        },\n        defender: {\n          alliance_id: 99000001,\n          isk_destroyed: 200000000000.0,\n          ships_killed: 300,\n        },\n        declared: '2024-01-10T00:00:00Z',\n        started: '2024-01-11T00:00:00Z',\n        finished: null,\n        mutual: false,\n        open_for_allies: true,\n      };\n\n      jest\n        .spyOn(client.wars, 'getWarById')\n        .mockResolvedValue(warDetails as any);\n    });\n\n    when('I analyze the war stats', async () => {\n      result = await client.wars.getWarById(700001);\n    });\n\n    then('I should determine the dominant side', () => {\n      const aggressorIsk = (result as any).aggressor.isk_destroyed;\n      const defenderIsk = (result as any).defender.isk_destroyed;\n      const aggressorKills = (result as any).aggressor.ships_killed;\n      const defenderKills = (result as any).defender.ships_killed;\n\n      expect(aggressorIsk).toBeGreaterThan(defenderIsk);\n      expect(aggressorKills).toBeGreaterThan(defenderKills);\n\n      const totalIskDestroyed = aggressorIsk + defenderIsk;\n      const aggressorEfficiency = aggressorIsk / totalIskDestroyed;\n      expect(aggressorEfficiency).toBeGreaterThan(0.5);\n    });\n  });\n\n  test('Complete war investigation workflow', ({ given, when, then }) => {\n    let details: any;\n    let killmails: any;\n\n    given('a war ID to investigate', () => {\n      const warId = 700001;\n      const warDetails = {\n        id: warId,\n        aggressor: {\n          alliance_id: 99005338,\n          isk_destroyed: 150000000000.0,\n          ships_killed: 250,\n        },\n        defender: {\n          alliance_id: 99000001,\n          isk_destroyed: 75000000000.0,\n          ships_killed: 120,\n        },\n        declared: '2024-01-10T00:00:00Z',\n        started: '2024-01-11T00:00:00Z',\n        finished: null,\n        mutual: false,\n        open_for_allies: true,\n      };\n      const warKillmails = [\n        { killmail_id: 90000001, killmail_hash: 'abc123' },\n        { killmail_id: 90000002, killmail_hash: 'def456' },\n      ];\n\n      jest\n        .spyOn(client.wars, 'getWarById')\n        .mockResolvedValue(warDetails as any);\n      jest\n        .spyOn(client.wars, 'getWarKillmails')\n        .mockResolvedValue(warKillmails as any);\n    });\n\n    when('I gather full war data including details and killmails', async () => {\n      [details, killmails] = await Promise.all([\n        client.wars.getWarById(700001),\n        client.wars.getWarKillmails(700001),\n      ]);\n    });\n\n    then('I should build a complete picture of the conflict', () => {\n      expect(details).toBeDefined();\n      expect(details.id).toBe(700001);\n      expect(killmails).toBeInstanceOf(Array);\n      expect(killmails.length).toBe(2);\n\n      const totalShipsKilled =\n        (details as any).aggressor.ships_killed +\n        (details as any).defender.ships_killed;\n      expect(totalShipsKilled).toBeGreaterThan(0);\n\n      expect((details as any).finished).toBeNull();\n      expect((details as any).open_for_allies).toBe(true);\n    });\n  });\n});\n```\n\nWrite both files exactly as shown above.",
+          "response_text": "\n\nI'll create both files. Let me first verify the parent directories exist. The directories exist. Now I'll create both files in parallel. Both files have been created successfully:\n\n1. **`D:/code/ESI.ts/tests/bdd/features/core/wars.feature`** -- Gherkin feature file with 11 scenarios covering war listing, details (active/finished/mutual), killmails, 404 errors, statistics analysis, and a complete investigation workflow.\n\n2. **`D:/code/ESI.ts/tests/bdd/step-definitions/core/wars.steps.ts`** -- Jest-cucumber step definitions implementing all 11 scenarios with mocked `EsiClient` calls, using `TestDataFactory` for error creation and comprehensive assertions.",
+          "alignment": 0.6373
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+    "source_file": "data/D--code-ESI-ts__agent-a2b2402ec96983647.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
     from sentence_transformers import SentenceTransformer
 
-    from ter_calculator.models import SpanPhase, TokenSpan
+    from ter_calculator.models import TokenSpan
 
 __all__ = [
     "MergedSpan",
@@ -85,9 +85,21 @@ def estimate_tokens(text: str) -> int:
     try:
         if _TIKTOKEN_ENC is None:
             import tiktoken
+
             _TIKTOKEN_ENC = tiktoken.get_encoding("cl100k_base")
         return max(1, len(_TIKTOKEN_ENC.encode(text)))
     except Exception:
+        # Broad on purpose: tiktoken's first call downloads cl100k_base.tiktoken
+        # over the network (openaipublic.blob.core.windows.net). On firewalled
+        # corporate networks, air-gapped CI, or restricted sandboxes this raises
+        # requests.exceptions.HTTPError / ConnectionError / Timeout - none of
+        # which were previously caught here, so the "fallback" never actually
+        # fired in those environments and the whole analysis crashed instead.
+        # The char/4 fallback is safe and cheap regardless of *why* tiktoken
+        # failed, so we don't enumerate exception types here.
+        logger.debug(
+            "tiktoken estimation failed; using character fallback", exc_info=True
+        )
         return max(1, len(text) // 4)
 
 
@@ -130,8 +142,9 @@ def get_embedding_model(model_name: str = DEFAULT_MODEL_NAME) -> Any:
         from sentence_transformers import SentenceTransformer
     except ImportError as exc:
         raise ImportError(
-            "sentence-transformers is required. Install with: "
-            "pip install sentence-transformers"
+            "Semantic embedding support is not installed. "
+            "Run `pip install sentence-transformers` or preferably "
+            "`python -m pip install -e '.[embeddings]'`."
         ) from exc
 
     # Suppress noisy model-loading output on first load.
@@ -225,11 +238,17 @@ def merge_adjacent_spans(
     group_texts: list[str] = [spans[0].text]
     group_indices: list[int] = [0]
     group_token_count: int = spans[0].token_count
-    current_phase: str = spans[0].phase.value if hasattr(spans[0].phase, "value") else str(spans[0].phase)
+    current_phase: str = (
+        spans[0].phase.value
+        if hasattr(spans[0].phase, "value")
+        else str(spans[0].phase)
+    )
 
     for i in range(1, len(spans)):
         span = spans[i]
-        phase_val = span.phase.value if hasattr(span.phase, "value") else str(span.phase)
+        phase_val = (
+            span.phase.value if hasattr(span.phase, "value") else str(span.phase)
+        )
 
         if phase_val == current_phase:
             # Same phase — accumulate into the current group.
@@ -309,7 +328,7 @@ class EmbeddingCache:
             try:
                 vec = np.load(npy_path)
                 logger.debug("Cache HIT for hash %s…", h[:12])
-                return vec
+                return np.asarray(vec, dtype=np.float32)
             except Exception:
                 logger.warning("Corrupt cache entry %s — will re-embed.", h[:12])
                 npy_path.unlink(missing_ok=True)
@@ -370,7 +389,8 @@ class EmbeddingCache:
         if self._index_path.exists():
             try:
                 with open(self._index_path, encoding="utf-8") as f:
-                    return json.load(f)
+                    data = json.load(f)
+                    return data if isinstance(data, dict) else {}
             except (json.JSONDecodeError, OSError):
                 logger.warning("Corrupt cache index — starting fresh.")
         return {}

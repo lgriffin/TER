@@ -1,0 +1,206 @@
+{
+  "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+  "aggregate_ter": 0.7,
+  "raw_ratio": 0.9734,
+  "phase_scores": {
+    "reasoning": 0.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 526,
+  "aligned_tokens": 512,
+  "waste_tokens": 14,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6,
+    "token_weighted_confidence": 0.6,
+    "low_confidence_tokens": 526,
+    "low_confidence_share": 1.0,
+    "ter_interval": [
+      0.7,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 3,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "redundant_reasoning",
+      "confidence": 0.6,
+      "intent_similarity": 0.25754648447036743,
+      "tokens": 14,
+      "text": "Let me fetch the content from the provided URL to extract relevant claims.",
+      "source_message_uuid": "49e4b488-e707-4f3c-a37f-712a24b95242",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "low_information_reasoning",
+        "summary": "The reasoning span is short and weakly aligned with the active intent.",
+        "signals": {
+          "intent_similarity": 0.2575,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.47753387689590454,
+      "tokens": 112,
+      "text": "WebFetch {\"url\":\"https://charpeni.com/blog/testing-typescript-types-part-2\",\"prompt\":\"Extract all key claims about TypeScript type-level testing, including: tools mentioned (tsd, expect-type, @ts-expect-error, dtslint), techniques for testing types at compile time, best practices for type-level testing, any comparison of tools, any mention of branded types, phantom types, discriminated unions, Result/Either patterns, OpenAPI SDK patterns, or static analysis. Include publish date. Provide direct quotes for each claim.\"}",
+      "source_message_uuid": "49e4b488-e707-4f3c-a37f-712a24b95242",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4775,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3740100860595703,
+      "tokens": 400,
+      "text": "StructuredOutput {\"claims\":[{\"claim\":\"The expect-type library enables compile-time type regression testing and can be integrated directly into existing test files rather than requiring separate type-test files, making it suitable for embedding type-level checks alongside unit tests in SDK projects.\",\"quote\":\"could be used directly within your existing test files\\u2014or any other type-checked files.\",\"importance\":\"central\"},{\"claim\":\"The tsd library uses a dedicated .test-d.ts file extension convention specifically for testing TypeScript type definitions (.d.ts files), and has been adopted by major projects including Puppeteer, Socket.IO, Bun, VueJS, and Prisma Client.\",\"quote\":\"This tool lets you write tests for your type definitions (i.e. your .d.ts files) by creating files with the .test-d.ts extension.\",\"importance\":\"central\"},{\"claim\":\"expect-type has been adopted by Type Fest, Apollo Client, Prisma Client, and tRPC for compile-time type testing, described as useful to prevent types from regressing into overly-permissive definitions as code changes over time.\",\"quote\":\"Compile-time tests for types. Useful to make sure types don't regress into being overly-permissive as changes go in over time.\",\"importance\":\"supporting\"},{\"claim\":\"The ts-expect library provides a generic expectType function that performs no runtime operation but leverages the TypeScript compiler for type validation, offering exact type equality checking via a TypeEqual utility.\",\"quote\":\"depends on the TypeScript compiler and a generic to test the type of a 'value' passed to expectType is assignable\",\"importance\":\"supporting\"},{\"claim\":\"type-plus provides over 200 type utilities for TypeScript and combines runtime assertion logic with type-level checking via assertType, serving both application-level and test-level type safety needs.\",\"quote\":\"more than 200 type utilises for TypeScript, useful not only for tests, but also at the application level\",\"importance\":\"tangential\"}],\"sourceQuality\":\"blog\",\"publishDate\":\"2023-08-09\"}",
+      "source_message_uuid": "28c26cba-9c74-4b9f-85f3-7cd2cf2cd3b1",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.374,
+          "repetition_score": 0.0362,
+          "confidence": 0.6,
+          "semantic_similarity": 0.498,
+          "lexical_similarity": 0.0588,
+          "entity_similarity": 0.0862,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "WebFetch {\"url\":\"https://charpeni.com/blog/testing-typescript-types-part-2\",\"prompt\":\"Extract all key claims about TypeScript type-level testing, including: tools mentioned (tsd, expect-type, @ts-expect-error, dtslint), techniques for testi"
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 14,
+    "waste_by_category": {
+      "Redundant Reasoning": 14
+    },
+    "waste_by_phase": {
+      "reasoning": 14
+    },
+    "top_patterns": [],
+    "explanation": "14 of 526 tokens (2.7%) were identified as waste. The largest waste category is Redundant Reasoning (14 tokens)."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Redundant Reasoning",
+        "tokens": 14,
+        "percentage": 100.0,
+        "cost_usd": 0.00021,
+        "count": 1,
+        "pricing": "output"
+      }
+    ],
+    "total_tokens": 14,
+    "total_cost_usd": 0.00021
+  },
+  "economics": {
+    "total_input_tokens": 4,
+    "total_output_tokens": 535,
+    "total_cache_creation_tokens": 4755,
+    "total_cache_read_tokens": 35101,
+    "input_output_ratio": 0.01,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.0364,
+    "estimated_waste_cost_usd": 0.0002,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 0.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 1
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        15648,
+        19457
+      ],
+      "growth_rate": 1.24,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 486,
+      "user_result_tokens": 638,
+      "model_reasoning_tokens": 14,
+      "model_tool_tokens": 512,
+      "model_generation_tokens": 0,
+      "total_user_tokens": 1124,
+      "total_model_tokens": 526,
+      "user_ratio": 0.6812
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.0,
+      "low_alignment_count": 0,
+      "pairs": []
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+    "source_file": "data/D--code-ESI-ts__agent-aa1d51b8dc52a9fb3.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

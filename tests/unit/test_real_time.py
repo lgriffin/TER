@@ -30,15 +30,18 @@ from ter_calculator.real_time import (
 # Mock model fixture — avoids loading sentence-transformers in unit tests
 # ---------------------------------------------------------------------------
 
+
 class _MockModel:
     """Deterministic mock embedding model for tests.
 
     Returns normalized vectors seeded on the text hash so identical inputs
     always produce identical vectors and similarity comparisons are stable.
     """
+
     def encode(self, text: str, normalize_embeddings: bool = True) -> np.ndarray:
         import hashlib
-        seed = int(hashlib.md5(text.encode()).hexdigest(), 16) % (2 ** 32)
+
+        seed = int(hashlib.md5(text.encode()).hexdigest(), 16) % (2**32)
         rng = np.random.RandomState(seed)
         vec = rng.randn(384).astype(np.float32)
         if normalize_embeddings:
@@ -180,13 +183,37 @@ class TestComputeRollingTER:
         prompt1 = "Fix the bug in main.py"
         prompt2 = "Now write tests for main.py"
 
-        compute_rolling_ter(state, [{"message": {"role": "user", "content": [{"type": "text", "text": prompt1}]}}], model=mock_model)
+        compute_rolling_ter(
+            state,
+            [
+                {
+                    "message": {
+                        "role": "user",
+                        "content": [{"type": "text", "text": prompt1}],
+                    }
+                }
+            ],
+            model=mock_model,
+        )
         emb1 = state.intent_embedding.copy()
 
-        compute_rolling_ter(state, [{"message": {"role": "user", "content": [{"type": "text", "text": prompt2}]}}], model=mock_model)
+        compute_rolling_ter(
+            state,
+            [
+                {
+                    "message": {
+                        "role": "user",
+                        "content": [{"type": "text", "text": prompt2}],
+                    }
+                }
+            ],
+            model=mock_model,
+        )
         emb2_raw = mock_model.encode(prompt2, normalize_embeddings=True)
 
-        expected = (INTENT_DECAY * emb2_raw + (1 - INTENT_DECAY) * emb1).astype(np.float32)
+        expected = (INTENT_DECAY * emb2_raw + (1 - INTENT_DECAY) * emb1).astype(
+            np.float32
+        )
         norm = np.linalg.norm(expected)
         if norm > 0:
             expected /= norm
@@ -210,7 +237,7 @@ class TestComputeRollingTER:
                         {"type": "thinking", "thinking": "Let me analyze the bug"},
                         {"type": "text", "text": "I'll fix it now"},
                     ],
-                }
+                },
             }
         ]
         signals = compute_rolling_ter(state, lines, model=mock_model)
@@ -236,14 +263,14 @@ class TestComputeRollingTER:
                 "message": {
                     "role": "assistant",
                     "content": [{"type": "text", "text": "response"}],
-                }
+                },
             },
             {
                 "requestId": "req-1",  # Duplicate
                 "message": {
                     "role": "assistant",
                     "content": [{"type": "text", "text": "response"}],
-                }
+                },
             },
         ]
         signals = compute_rolling_ter(state, lines, model=mock_model)
@@ -279,7 +306,9 @@ class TestToolCallDeduplication:
         _is_duplicate_tool_call("Read", '{"file_path": "bar.py"}', state, window=2)
         _is_duplicate_tool_call("Read", '{"file_path": "baz.py"}', state, window=2)
         # "foo.py" should have been evicted from window=2 history
-        assert not _is_duplicate_tool_call("Read", '{"file_path": "foo.py"}', state, window=2)
+        assert not _is_duplicate_tool_call(
+            "Read", '{"file_path": "foo.py"}', state, window=2
+        )
 
     def test_duplicate_detected_in_compute_rolling_ter(self, mock_model):
         state = RollingTERState()
@@ -290,9 +319,13 @@ class TestToolCallDeduplication:
             "message": {
                 "role": "assistant",
                 "content": [
-                    {"type": "tool_use", "name": "Bash", "input": {"command": "pytest"}},
+                    {
+                        "type": "tool_use",
+                        "name": "Bash",
+                        "input": {"command": "pytest"},
+                    },
                 ],
-            }
+            },
         }
         compute_rolling_ter(state, [duplicate_tool_line], model=mock_model)
         waste_before = state.waste_tokens
@@ -344,9 +377,13 @@ class TestBashAntipatternDetection:
             "message": {
                 "role": "assistant",
                 "content": [
-                    {"type": "tool_use", "name": "Bash", "input": {"command": "cat main.py"}},
+                    {
+                        "type": "tool_use",
+                        "name": "Bash",
+                        "input": {"command": "cat main.py"},
+                    },
                 ],
-            }
+            },
         }
         compute_rolling_ter(state, [line], model=mock_model)
         assert state.waste_tokens > 0
@@ -518,7 +555,7 @@ class TestIntegrationScenario:
                 "message": {
                     "role": "user",
                     "content": [{"type": "text", "text": "Fix the bug in main.py"}],
-                }
+                },
             }
         ]
         signals = compute_rolling_ter(state, user_lines, model=mock_model)
@@ -541,7 +578,7 @@ class TestIntegrationScenario:
                         },
                         {"type": "text", "text": "I'll fix the issue now"},
                     ],
-                }
+                },
             }
         ]
         signals = compute_rolling_ter(state, assistant_lines, model=mock_model)
@@ -560,7 +597,7 @@ class TestIntegrationScenario:
             "message": {
                 "role": "assistant",
                 "content": [{"type": "text", "text": "simple task execution"}],
-            }
+            },
         }
         compute_rolling_ter(state, [line1], model=mock_model)
 
@@ -571,7 +608,7 @@ class TestIntegrationScenario:
                 "content": [
                     {"type": "text", "text": "completely unrelated tangent discussion"}
                 ],
-            }
+            },
         }
         compute_rolling_ter(state, [line2], model=mock_model)
 

@@ -1,0 +1,969 @@
+{
+  "session_id": "d9883245-8956-4bdb-a766-9689ec76d1de",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 3315,
+  "aligned_tokens": 3315,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5836,
+    "token_weighted_confidence": 0.5918,
+    "low_confidence_tokens": 2977,
+    "low_confidence_share": 0.898,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 27,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "waste_patterns": [
+    {
+      "type": "edit_fragmentation",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 9,
+      "tokens_wasted": 0,
+      "description": "9 consecutive edits to ContractsClient.test.ts (0 fragmented tokens)"
+    },
+    {
+      "type": "failed_tool_retry",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 1,
+      "tokens_wasted": 35,
+      "description": "1 failed tool calls (35 wasted tokens)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.42562466859817505,
+      "tokens": 16,
+      "text": "I'll start by reading both files to understand the schemas and current mock data.",
+      "source_message_uuid": "d27e5f44-d00b-44af-876b-9db3c5aba130",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4256,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4149337112903595,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\contracts.ts\"}",
+      "source_message_uuid": "d27e5f44-d00b-44af-876b-9db3c5aba130",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4149,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.41173312067985535,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\"}",
+      "source_message_uuid": "d27e5f44-d00b-44af-876b-9db3c5aba130",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4117,
+          "repetition_score": 0.6389,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8963,
+          "lexical_similarity": 0.4167,
+          "entity_similarity": 0.4545,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\schemas\\\\contracts.ts\"}"
+      }
+    },
+    {
+      "position": 3,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5496242046356201,
+      "intent_similarity": 0.5496242046356201,
+      "tokens": 432,
+      "text": "Now I need to analyze the gaps between the schemas and the mock data.\n\n**ContractSchema required fields:**\n- `contract_id: z.number()` - required\n- `issuer_id: z.number()` - required\n- `issuer_corporation_id: z.number()` - required\n- `type: z.enum(...)` - required\n- `status: z.enum(...)` - required\n- `for_corporation: z.boolean()` - required\n- `availability: z.enum(...)` - required\n- `date_issued: z.string()` - required\n- `date_expired: z.string()` - required\n- `record_id: z.number()` - required\n- `type_id: z.number()` - required\n- `quantity: z.number()` - required\n- `is_singleton: z.boolean()` - required\n- `is_included: z.boolean()` - required\n- `bid_id: z.number()` - required\n- `bidder_id: z.number()` - required\n- `date_bid: z.string()` - required\n- `amount: z.number()` - required\n\nNow I'm identifying where the mock data doesn't align with these required fields.\n\nLooking at the contract mocks across the three endpoints, I'm seeing they only include `contract_id`, `issuer_id`, `start_location_id`, and `type`, but they're missing several fields like `issuer_corporation_id`, `status`, `for_corporation`, `availability`, `date_issued`, and `date_expired`. The contract bid mocks are similarly incomplete\u2014they have `bid_id`, `amount`, and `date_bid` but are missing `bidder_id`. The contract item mocks appear to be cut off, but they're likely missing required fields as well.\n\nI also notice that `item_id` isn't actually in the schema\u2014it should be `record_id` instead. Since `.passthrough()` is being used, this won't cause failures, but the missing required fields will. I need to check if there's a `getBody` helper function defined elsewhere, then update all nine mocks across the three contract endpoints.",
+      "source_message_uuid": "ef4096dd-2451-4905-972d-26a53b43e49f",
+      "source_lines": [
+        8
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.5496,
+          "repetition_score": 0.0,
+          "confidence": 0.5496
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 4,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5432235598564148,
+      "intent_similarity": 0.5432235598564148,
+      "tokens": 253,
+      "text": "Now I have a clear picture. Let me analyze the gaps:\n\n**ContractSchema required fields:** `contract_id`, `issuer_id`, `issuer_corporation_id`, `type`, `status`, `for_corporation`, `availability`, `date_issued`, `date_expired`\n\n**Current contract mocks have:** `contract_id`, `issuer_id`, `start_location_id` (optional), `type`\n**Missing:** `issuer_corporation_id`, `status`, `for_corporation`, `availability`, `date_issued`, `date_expired`\n\n**ContractBidSchema required fields:** `bid_id`, `bidder_id`, `date_bid`, `amount`\n**Current bid mocks have:** `bid_id`, `amount`, `date_bid`\n**Missing:** `bidder_id`\n\n**ContractItemSchema required fields:** `record_id`, `type_id`, `quantity`, `is_singleton`, `is_included`\n**Current item mocks have:** `item_id` (not in schema!), `type_id`, `quantity`\n**Missing:** `record_id`, `is_singleton`, `is_included`\n\nLet me fix all the mocks now. There are 3 contract mocks, 3 bid mocks, and 3 item mocks.",
+      "source_message_uuid": "ef4096dd-2451-4905-972d-26a53b43e49f",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5432,
+          "repetition_score": 0.2858,
+          "confidence": 0.5432,
+          "semantic_similarity": 0.477,
+          "lexical_similarity": 0.0606,
+          "entity_similarity": 0.0545,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9455
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll start by reading both files to understand the schemas and current mock data."
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.597821831703186,
+      "tokens": 252,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"old_string\":\"  it('should return valid structure for getContracts', async () => {\\n    const mockResponse = [\\n      {\\n        contract_id: 1,\\n        issuer_id: 123,\\n        start_location_id: 456,\\n        type: 'item_exchange',\\n      },\\n    ];\",\"new_string\":\"  it('should return valid structure for getContracts', async () => {\\n    const mockResponse = [\\n      {\\n        contract_id: 1,\\n        issuer_id: 123,\\n        issuer_corporation_id: 98000001,\\n        start_location_id: 456,\\n        type: 'item_exchange',\\n        status: 'outstanding',\\n        for_corporation: false,\\n        availability: 'personal',\\n        date_issued: '2024-07-01T12:00:00Z',\\n        date_expired: '2024-07-15T12:00:00Z',\\n      },\\n    ];\"}",
+      "source_message_uuid": "ef4096dd-2451-4905-972d-26a53b43e49f",
+      "source_lines": [
+        10
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5978,
+          "repetition_score": 0.0488,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6232,
+          "lexical_similarity": 0.1702,
+          "entity_similarity": 0.1905,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\"}"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5501049757003784,
+      "tokens": 192,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"old_string\":\"  it('should return valid structure for getContractBids', async () => {\\n    const mockResponse = [\\n      {\\n        bid_id: 1,\\n        amount: 1000000,\\n        date_bid: '2024-07-01T12:00:00Z',\\n      },\\n    ];\",\"new_string\":\"  it('should return valid structure for getContractBids', async () => {\\n    const mockResponse = [\\n      {\\n        bid_id: 1,\\n        bidder_id: 98000002,\\n        amount: 1000000,\\n        date_bid: '2024-07-01T12:00:00Z',\\n      },\\n    ];\"}",
+      "source_message_uuid": "ef4096dd-2451-4905-972d-26a53b43e49f",
+      "source_lines": [
+        12
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5501,
+          "repetition_score": 0.6616,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9131,
+          "lexical_similarity": 0.5283,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"old_string\":\"  it('should return valid structure for getContracts', async () => {\\n    const mockResponse = [\\n      {\\n        contra"
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5855394601821899,
+      "tokens": 173,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"old_string\":\"  it('should return valid structure for getContractItems', async () => {\\n    const mockResponse = [\\n      {\\n        item_id: 1,\\n        type_id: 2,\\n        quantity: 3,\\n      },\\n    ];\",\"new_string\":\"  it('should return valid structure for getContractItems', async () => {\\n    const mockResponse = [\\n      {\\n        record_id: 1,\\n        item_id: 1,\\n        type_id: 2,\\n        quantity: 3,\\n        is_singleton: false,\\n        is_included: true,\\n      },\\n    ];\"}",
+      "source_message_uuid": "ef4096dd-2451-4905-972d-26a53b43e49f",
+      "source_lines": [
+        14
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5855,
+          "repetition_score": 0.6605,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9589,
+          "lexical_similarity": 0.4286,
+          "entity_similarity": 0.4286,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"old_string\":\"  it('should return valid structure for getContracts', async () => {\\n    const mockResponse = [\\n      {\\n        contra"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5949375033378601,
+      "tokens": 254,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"old_string\":\"  it('should return valid structure for getPublicContracts', async () => {\\n    const mockResponse = [\\n      {\\n        contract_id: 1,\\n        issuer_id: 123,\\n        start_location_id: 456,\\n        type: 'item_exchange',\\n      },\\n    ];\",\"new_string\":\"  it('should return valid structure for getPublicContracts', async () => {\\n    const mockResponse = [\\n      {\\n        contract_id: 1,\\n        issuer_id: 123,\\n        issuer_corporation_id: 98000001,\\n        start_location_id: 456,\\n        type: 'item_exchange',\\n        status: 'outstanding',\\n        for_corporation: false,\\n        availability: 'public',\\n        date_issued: '2024-07-01T12:00:00Z',\\n        date_expired: '2024-07-15T12:00:00Z',\\n      },\\n    ];\"}",
+      "source_message_uuid": "ef4096dd-2451-4905-972d-26a53b43e49f",
+      "source_lines": [
+        16
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5949,
+          "repetition_score": 0.7635,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9808,
+          "lexical_similarity": 0.9167,
+          "entity_similarity": 0.907,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"old_string\":\"  it('should return valid structure for getContracts', async () => {\\n    const mockResponse = [\\n      {\\n        contra"
+      }
+    },
+    {
+      "position": 9,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5601134300231934,
+      "tokens": 194,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"old_string\":\"  it('should return valid structure for getPublicContractBids', async () => {\\n    const mockResponse = [\\n      {\\n        bid_id: 1,\\n        amount: 1000000,\\n        date_bid: '2024-07-01T12:00:00Z',\\n      },\\n    ];\",\"new_string\":\"  it('should return valid structure for getPublicContractBids', async () => {\\n    const mockResponse = [\\n      {\\n        bid_id: 1,\\n        bidder_id: 98000002,\\n        amount: 1000000,\\n        date_bid: '2024-07-01T12:00:00Z',\\n      },\\n    ];\"}",
+      "source_message_uuid": "ef4096dd-2451-4905-972d-26a53b43e49f",
+      "source_lines": [
+        18
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5601,
+          "repetition_score": 0.7716,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9875,
+          "lexical_similarity": 0.9444,
+          "entity_similarity": 0.9375,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"old_string\":\"  it('should return valid structure for getContractBids', async () => {\\n    const mockResponse = [\\n      {\\n        bid"
+      }
+    },
+    {
+      "position": 10,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5773512721061707,
+      "tokens": 175,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"old_string\":\"  it('should return valid structure for getPublicContractItems', async () => {\\n    const mockResponse = [\\n      {\\n        item_id: 1,\\n        type_id: 2,\\n        quantity: 3,\\n      },\\n    ];\",\"new_string\":\"  it('should return valid structure for getPublicContractItems', async () => {\\n    const mockResponse = [\\n      {\\n        record_id: 1,\\n        item_id: 1,\\n        type_id: 2,\\n        quantity: 3,\\n        is_singleton: false,\\n        is_included: true,\\n      },\\n    ];\"}",
+      "source_message_uuid": "ef4096dd-2451-4905-972d-26a53b43e49f",
+      "source_lines": [
+        20
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5774,
+          "repetition_score": 0.7707,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9863,
+          "lexical_similarity": 0.9429,
+          "entity_similarity": 0.9333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"old_string\":\"  it('should return valid structure for getContractItems', async () => {\\n    const mockResponse = [\\n      {\\n        it"
+      }
+    },
+    {
+      "position": 11,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5879157781600952,
+      "tokens": 260,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"old_string\":\"  it('should return valid structure for getCorporationContracts', async () => {\\n    const mockResponse = [\\n      {\\n        contract_id: 1,\\n        issuer_id: 123,\\n        start_location_id: 456,\\n        type: 'item_exchange',\\n      },\\n    ];\",\"new_string\":\"  it('should return valid structure for getCorporationContracts', async () => {\\n    const mockResponse = [\\n      {\\n        contract_id: 1,\\n        issuer_id: 123,\\n        issuer_corporation_id: 98000001,\\n        start_location_id: 456,\\n        type: 'item_exchange',\\n        status: 'outstanding',\\n        for_corporation: true,\\n        availability: 'corporation',\\n        date_issued: '2024-07-01T12:00:00Z',\\n        date_expired: '2024-07-15T12:00:00Z',\\n      },\\n    ];\"}",
+      "source_message_uuid": "ef4096dd-2451-4905-972d-26a53b43e49f",
+      "source_lines": [
+        22
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5879,
+          "repetition_score": 0.7571,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9735,
+          "lexical_similarity": 0.898,
+          "entity_similarity": 0.8864,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"old_string\":\"  it('should return valid structure for getPublicContracts', async () => {\\n    const mockResponse = [\\n      {\\n        "
+      }
+    },
+    {
+      "position": 12,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5580441355705261,
+      "tokens": 198,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"old_string\":\"  it('should return valid structure for getCorporationContractBids', async () => {\\n    const mockResponse = [\\n      {\\n        bid_id: 1,\\n        amount: 1000000,\\n        date_bid: '2024-07-01T12:00:00Z',\\n      },\\n    ];\",\"new_string\":\"  it('should return valid structure for getCorporationContractBids', async () => {\\n    const mockResponse = [\\n      {\\n        bid_id: 1,\\n        bidder_id: 98000002,\\n        amount: 1000000,\\n        date_bid: '2024-07-01T12:00:00Z',\\n      },\\n    ];\"}",
+      "source_message_uuid": "ef4096dd-2451-4905-972d-26a53b43e49f",
+      "source_lines": [
+        24
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.558,
+          "repetition_score": 0.7689,
+          "confidence": 0.6,
+          "semantic_similarity": 0.98,
+          "lexical_similarity": 0.9444,
+          "entity_similarity": 0.9375,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"old_string\":\"  it('should return valid structure for getPublicContractBids', async () => {\\n    const mockResponse = [\\n      {\\n     "
+      }
+    },
+    {
+      "position": 13,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5839781761169434,
+      "tokens": 179,
+      "text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"old_string\":\"  it('should return valid structure for getCorporationContractItems', async () => {\\n    const mockResponse = [\\n      {\\n        item_id: 1,\\n        type_id: 2,\\n        quantity: 3,\\n      },\\n    ];\",\"new_string\":\"  it('should return valid structure for getCorporationContractItems', async () => {\\n    const mockResponse = [\\n      {\\n        record_id: 1,\\n        item_id: 1,\\n        type_id: 2,\\n        quantity: 3,\\n        is_singleton: false,\\n        is_included: true,\\n      },\\n    ];\"}",
+      "source_message_uuid": "ef4096dd-2451-4905-972d-26a53b43e49f",
+      "source_lines": [
+        26
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.584,
+          "repetition_score": 0.7683,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9798,
+          "lexical_similarity": 0.9429,
+          "entity_similarity": 0.9333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Edit {\"replace_all\":false,\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"old_string\":\"  it('should return valid structure for getContractItems', async () => {\\n    const mockResponse = [\\n      {\\n        it"
+      }
+    },
+    {
+      "position": 14,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.29921695590019226,
+      "tokens": 42,
+      "text": "All 9 edits succeeded. Let me also check if there's a `getBody` helper defined elsewhere since it's used in the test but not defined in this file -- this could be another source of failure.",
+      "source_message_uuid": "31e3e581-5829-40c4-adff-fec878e3d210",
+      "source_lines": [
+        28
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2992,
+          "repetition_score": 0.2062,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3504,
+          "lexical_similarity": 0.0217,
+          "entity_similarity": 0.0303,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9697
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll start by reading both files to understand the schemas and current mock data."
+      }
+    },
+    {
+      "position": 15,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.21988430619239807,
+      "tokens": 27,
+      "text": "Grep {\"pattern\":\"function getBody|const getBody|export.*getBody\",\"path\":\"D:\\\\code\\\\ESI.ts\"}",
+      "source_message_uuid": "31e3e581-5829-40c4-adff-fec878e3d210",
+      "source_lines": [
+        29
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2199,
+          "repetition_score": 0.0357,
+          "confidence": 0.6,
+          "semantic_similarity": 0.4391,
+          "lexical_similarity": 0.1875,
+          "entity_similarity": 0.125,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\"}"
+      }
+    },
+    {
+      "position": 16,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.2576279044151306,
+      "tokens": 32,
+      "text": "Good, `getBody` is defined in the project. But I notice the test file doesn't import it. Let me check if it's set up globally.",
+      "source_message_uuid": "720470ce-4da2-4a04-8cdc-88ea6edf6f5f",
+      "source_lines": [
+        31
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2576,
+          "repetition_score": 0.4953,
+          "confidence": 0.5,
+          "semantic_similarity": 0.6728,
+          "lexical_similarity": 0.2955,
+          "entity_similarity": 0.2667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.7333
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 14,
+        "matched_prior_text": "All 9 edits succeeded. Let me also check if there's a `getBody` helper defined elsewhere since it's used in the test but not defined in this file -- this could be another source of failure."
+      }
+    },
+    {
+      "position": 17,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3164598345756531,
+      "tokens": 34,
+      "text": "Grep {\"pattern\":\"getBody\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "720470ce-4da2-4a04-8cdc-88ea6edf6f5f",
+      "source_lines": [
+        32
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3165,
+          "repetition_score": 0.4322,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7744,
+          "lexical_similarity": 0.4375,
+          "entity_similarity": 0.375,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.5
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 15,
+        "matched_prior_text": "Grep {\"pattern\":\"function getBody|const getBody|export.*getBody\",\"path\":\"D:\\\\code\\\\ESI.ts\"}"
+      }
+    },
+    {
+      "position": 18,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2742265462875366,
+      "tokens": 29,
+      "text": "Grep {\"pattern\":\"getBody|testHelpers\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\jest.config.ts\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "720470ce-4da2-4a04-8cdc-88ea6edf6f5f",
+      "source_lines": [
+        34
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2742,
+          "repetition_score": 0.468,
+          "confidence": 0.6,
+          "semantic_similarity": 0.831,
+          "lexical_similarity": 0.6,
+          "entity_similarity": 0.5,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.5
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 17,
+        "matched_prior_text": "Grep {\"pattern\":\"getBody\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 19,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.22206203639507294,
+      "tokens": 36,
+      "text": "Grep {\"pattern\":\"setupFiles|setupFilesAfterFramework|setup\",\"path\":\"D:\\\\code\\\\ESI.ts\",\"glob\":\"jest.config*\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "720470ce-4da2-4a04-8cdc-88ea6edf6f5f",
+      "source_lines": [
+        36
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2221,
+          "repetition_score": 0.5398,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6734,
+          "lexical_similarity": 0.3529,
+          "entity_similarity": 0.2941,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 15,
+        "matched_prior_text": "Grep {\"pattern\":\"function getBody|const getBody|export.*getBody\",\"path\":\"D:\\\\code\\\\ESI.ts\"}"
+      }
+    },
+    {
+      "position": 20,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.285973459482193,
+      "tokens": 19,
+      "text": "Glob {\"pattern\":\"jest.config*\",\"path\":\"D:\\\\code\\\\ESI.ts\"}",
+      "source_message_uuid": "3f936483-f94a-4b1e-8310-1661e659a764",
+      "source_lines": [
+        38
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.286,
+          "repetition_score": 0.0732,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7852,
+          "lexical_similarity": 0.5385,
+          "entity_similarity": 0.5385,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 19,
+        "matched_prior_text": "Grep {\"pattern\":\"setupFiles|setupFilesAfterFramework|setup\",\"path\":\"D:\\\\code\\\\ESI.ts\",\"glob\":\"jest.config*\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 21,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2433510273694992,
+      "tokens": 27,
+      "text": "Grep {\"pattern\":\"jest|getBody\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\package.json\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "4706c811-a729-4a0e-bf2a-c6b0cde83997",
+      "source_lines": [
+        40
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2434,
+          "repetition_score": 0.5076,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9106,
+          "lexical_similarity": 0.6923,
+          "entity_similarity": 0.6923,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.5
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 18,
+        "matched_prior_text": "Grep {\"pattern\":\"getBody|testHelpers\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\jest.config.ts\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 22,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.31076809763908386,
+      "tokens": 19,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\jest.unit.config.cjs\"}",
+      "source_message_uuid": "1ae52f63-7841-470d-9b64-b336f86197a5",
+      "source_lines": [
+        42
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3108,
+          "repetition_score": 0.0613,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7278,
+          "lexical_similarity": 0.3,
+          "entity_similarity": 0.3636,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 20,
+        "matched_prior_text": "Glob {\"pattern\":\"jest.config*\",\"path\":\"D:\\\\code\\\\ESI.ts\"}"
+      }
+    },
+    {
+      "position": 23,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.30169954895973206,
+      "tokens": 23,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\src\\\\config\\\\jest\\\\jest.setup.ts\"}",
+      "source_message_uuid": "c9e8a411-b54c-433b-9cb2-8545c8358bd9",
+      "source_lines": [
+        44
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3017,
+          "repetition_score": 0.6604,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8969,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.6,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 22,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\jest.unit.config.cjs\"}"
+      }
+    },
+    {
+      "position": 24,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.3121448755264282,
+      "tokens": 41,
+      "text": "Good -- `getBody` is set up globally via `jest.setup.ts`. The test file is fine in that regard.\n\nNow let me verify the final state of the file to make sure everything looks correct.",
+      "source_message_uuid": "ef27aa64-1dad-4299-af79-91253e239e5b",
+      "source_lines": [
+        46
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3121,
+          "repetition_score": 0.5056,
+          "confidence": 0.5,
+          "semantic_similarity": 0.7288,
+          "lexical_similarity": 0.2619,
+          "entity_similarity": 0.2667,
+          "action_similarity": 0.3333,
+          "parameter_novelty": 0.7333
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 16,
+        "matched_prior_text": "Good, `getBody` is defined in the project. But I notice the test file doesn't import it. Let me check if it's set up globally."
+      }
+    },
+    {
+      "position": 25,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.41173312067985535,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\tests\\\\tdd\\\\contracts\\\\ContractsClient.test.ts\"}",
+      "source_message_uuid": "ef27aa64-1dad-4299-af79-91253e239e5b",
+      "source_lines": [
+        47
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4117,
+          "repetition_score": 0.558,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6729,
+          "lexical_similarity": 0.5,
+          "entity_similarity": 0.3077,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 22,
+        "matched_prior_text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\jest.unit.config.cjs\"}"
+      }
+    },
+    {
+      "position": 26,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6656548976898193,
+      "intent_similarity": 0.6656548976898193,
+      "tokens": 338,
+      "text": "All edits look correct. Here is a summary of what was fixed in `D:\\code\\ESI.ts\\tests\\tdd\\contracts\\ContractsClient.test.ts`:\n\n**Contract mocks (3 instances: getContracts, getPublicContracts, getCorporationContracts):**\nAdded 6 missing required fields from `ContractSchema`:\n- `issuer_corporation_id: 98000001`\n- `status: 'outstanding'`\n- `for_corporation: false` (or `true` for the corporation variant)\n- `availability: 'personal'` / `'public'` / `'corporation'` (contextually appropriate per test)\n- `date_issued: '2024-07-01T12:00:00Z'`\n- `date_expired: '2024-07-15T12:00:00Z'`\n\n**Contract bid mocks (3 instances: getContractBids, getPublicContractBids, getCorporationContractBids):**\nAdded 1 missing required field from `ContractBidSchema`:\n- `bidder_id: 98000002`\n\n**Contract item mocks (3 instances: getContractItems, getPublicContractItems, getCorporationContractItems):**\nAdded 3 missing required fields from `ContractItemSchema`:\n- `record_id: 1` (the schema uses `record_id`, not `item_id`; kept `item_id` too since `.passthrough()` allows extra fields and existing assertions check for it)\n- `is_singleton: false`\n- `is_included: true`\n\nNo test assertions were modified -- only mock response data was updated.",
+      "source_message_uuid": "2bbdbfbb-00d1-4d06-992b-3df6f82571de",
+      "source_lines": [
+        49
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6657,
+          "repetition_score": 0.4325,
+          "confidence": 0.6657,
+          "semantic_similarity": 0.6543,
+          "lexical_similarity": 0.1304,
+          "entity_similarity": 0.2407,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.7593
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Now I have a clear picture. Let me analyze the gaps:\n\n**ContractSchema required fields:** `contract_id`, `issuer_id`, `issuer_corporation_id`, `type`, `status`, `for_corporation`, `availability`, `date_issued`, `date_expired`\n\n**Current con"
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "failed_tool_retry",
+        "tokens_wasted": 35,
+        "description": "1 failed tool calls (35 wasted tokens)"
+      },
+      {
+        "type": "edit_fragmentation",
+        "tokens_wasted": 0,
+        "description": "9 consecutive edits to ContractsClient.test.ts (0 fragmented tokens)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Failed Tool Retries",
+        "tokens": 35,
+        "percentage": 100.0,
+        "cost_usd": 0.000105,
+        "count": 1,
+        "pricing": "input"
+      },
+      {
+        "source": "Edit Fragmentation",
+        "tokens": 0,
+        "percentage": 0.0,
+        "cost_usd": 0.0,
+        "count": 1,
+        "pricing": "output"
+      }
+    ],
+    "total_tokens": 35,
+    "total_cost_usd": 0.000105
+  },
+  "economics": {
+    "total_input_tokens": 12,
+    "total_output_tokens": 657,
+    "total_cache_creation_tokens": 19561,
+    "total_cache_read_tokens": 232390,
+    "input_output_ratio": 0.02,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.153,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 9,
+      "mid_span_count": 9,
+      "late_span_count": 9
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        12881,
+        15385,
+        20316,
+        24583,
+        24745,
+        25356,
+        25450,
+        27373,
+        27949,
+        28364
+      ],
+      "growth_rate": 2.2,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 235,
+      "user_result_tokens": 8301,
+      "model_reasoning_tokens": 432,
+      "model_tool_tokens": 2161,
+      "model_generation_tokens": 722,
+      "total_user_tokens": 8536,
+      "total_model_tokens": 3315,
+      "user_ratio": 0.7203
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.5716,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "You're working on ESI.ts at D:\\code\\ESI.ts. We've added Zod runtime validation and now tests fail because mock data is incomplete.\n\nYour task: Fix `tests/tdd/contracts/ContractsClient.test.ts` so its mock data includes all required fields from the Zod schemas.\n\nSteps:\n1. Read `src/schemas/contracts.ts` to see all required fields for every schema exported\n2. Read `tests/tdd/contracts/ContractsClient.test.ts` to see the current mock data\n3. Compare each mock object against the corresponding schema and add any missing required fields with realistic values\n4. Do NOT change test assertions \u2014 only fix the mock response data\n\nThe key pattern: if a schema field uses `z.string()` (not `.optional()`), the mock data MUST include that field. If `.optional()`, it can be omitted.\n\nSpecific known issues:\n- Contract mocks likely need many required fields (contract_id, type, status, date_issued, etc.)\n- Contract bid mocks likely need required fields\n- Contract item mocks likely need required fields\n\nBe thorough \u2014 check every mock object in the file.",
+          "response_text": "I'll start by reading both files to understand the schemas and current mock data. Now I have a clear picture. Let me analyze the gaps:\n\n**ContractSchema required fields:** `contract_id`, `issuer_id`, `issuer_corporation_id`, `type`, `status`, `for_corporation`, `availability`, `date_issued`, `date_expired`\n\n**Current contract mocks have:** `contract_id`, `issuer_id`, `start_location_id` (optional), `type`\n**Missing:** `issuer_corporation_id`, `status`, `for_corporation`, `availability`, `date_issued`, `date_expired`\n\n**ContractBidSchema required fields:** `bid_id`, `bidder_id`, `date_bid`, `amount`\n**Current bid mocks have:** `bid_id`, `amount`, `date_bid`\n**Missing:** `bidder_id`\n\n**ContractItemSchema required fields:** `record_id`, `type_id`, `quantity`, `is_singleton`, `is_included`\n**Current item mocks have:** `item_id` (not in schema!), `type_id`, `quantity`\n**Missing:** `record_id`, `is_singleton`, `is_included`\n\nLet me fix all the mocks now. There are 3 contract mocks, 3 bid mocks, and 3 item mocks. All 9 edits succeeded. Let me also check if there's a `getBody` helper defined elsewhere since it's used in the test but not defined in this file -- this could be another source of failure. Good, `getBody` is defined in the project. But I notice the test file doesn't import it. Let me check if it's set up globally. Good -- `getBody` is set up globally via `jest.setup.ts`. The test file is fine in that regard.\n\nNow let me verify the final state of the file to make sure everything looks correct. All edits look correct. Here is a summary of what was fixed in `D:\\code\\ESI.ts\\tests\\tdd\\contracts\\ContractsClient.test.ts`:\n\n**Contract mocks (3 instances: getContracts, getPublicContracts, getCorporationContracts):**\nAdded 6 missing required fields from `ContractSchema`:\n- `issuer_corporation_id: 98000001`\n- `status: 'outstanding'`\n- `for_corporation: false` (or `true` for the corporation variant)\n- `availability: 'personal'` / `'public'` / `'corporation'` (contextually appropriate per test)\n- `date_issued: '2024-07-01T12:00:00Z'`\n- `date_expired: '2024-07-15T12:00:00Z'`\n\n**Contract bid mocks (3 instances: getContractBids, getPublicContractBids, getCorporationContractBids):**\nAdded 1 missing required field from `ContractBidSchema`:\n- `bidder_id: 98000002`\n\n**Contract item mocks (3 instances: getContractItems, getPublicContractItems, getCorporationContractItems):**\nAdded 3 missing required fields from `ContractItemSchema`:\n- `record_id: 1` (the schema uses `record_id`, not `item_id`; kept `item_id` too since `.passthrough()` allows extra fields and existing assertions check for it)\n- `is_singleton: false`\n- `is_included: true`\n\nNo test assertions were modified -- only mock response data was updated.",
+          "alignment": 0.5716
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "d9883245-8956-4bdb-a766-9689ec76d1de",
+    "source_file": "data/D--code-ESI-ts__agent-a74b95b3aafe0b6b3.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

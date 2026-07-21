@@ -1,0 +1,164 @@
+{
+  "session_id": "25e4b2d2-1a4d-4814-b097-59abb899f3b5",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 1726,
+  "aligned_tokens": 1726,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6524,
+    "token_weighted_confidence": 0.5238,
+    "low_confidence_tokens": 1591,
+    "low_confidence_share": 0.9218,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 2,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.8047621846199036,
+      "intent_similarity": 0.8047621846199036,
+      "tokens": 135,
+      "text": "The user wants me to generate a technical implementation document for a Red Hat patent idea about edge device self-mutation testing for security. Let me write this up following the specified format and writing style (no em dashes, no en dashes, natural engineering tone).\n\nLet me understand the invention: Edge devices run security-focused mutation tests against themselves in isolated environments, sign the results cryptographically, share them with neighbors to build fleet trust scores, and autonomously quarantine devices that fail to detect expected mutations.\n\nI need to be careful about the writing style: no em dashes (\u2014) or en dashes (\u2013), use commas, semicolons, colons, or separate sentences instead.",
+      "source_message_uuid": "c02bde04-620b-4d55-9676-c4bdbb0d4e06",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.8048,
+          "repetition_score": 0.0,
+          "confidence": 0.8048
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.3219466805458069,
+      "tokens": 1591,
+      "text": "## Novel Step\n\nExisting mutation testing frameworks operate exclusively within CI/CD pipelines to validate test suite quality before deployment. This invention moves security focused mutation testing onto each edge device at runtime, where devices periodically inject known vulnerability patterns into an isolated sandbox copy of their own services and verify that their local security controls detect every injected flaw. The cryptographically signed mutation results are then exchanged across neighboring nodes to produce a collective trust score, turning each device into both a self auditor and a witness for its peers, so that a compromised or stale node reveals itself through its inability to catch mutations it previously handled.\n\n## How It Works\n\nEach edge device runs a lightweight mutation engine as a privileged sidecar process. On a configurable schedule, the engine snapshots the running service binaries and configuration into an isolated execution environment, typically a lightweight virtual machine or a seccomp restricted container with no network egress. Within that sandbox the engine applies a rotating subset of security focused mutations drawn from a catalog that includes authentication bypass rewrites, certificate validation short circuits, privilege escalation path insertions, and API request tampering hooks. The sandbox then exercises the mutated code against the device's own security policy enforcement stack: firewall rules, admission controllers, TLS verifiers, and RBAC checks. Each mutation that the security stack correctly rejects is recorded as \"killed,\" while any mutation that passes undetected is recorded as \"survived.\"\n\nOnce a mutation cycle completes, the engine assembles a mutation attestation report containing the mutation identifiers applied, the kill or survival outcome for each, a timestamp, and a hardware rooted cryptographic signature produced by the device's TPM or secure enclave. This signature binds the results to a specific device identity and prevents retroactive falsification. The engine then publishes the signed attestation to a lightweight gossip protocol shared among neighboring edge nodes. Each node maintains a local trust ledger that tracks the recent attestation history of every peer it can observe.\n\nThe trust ledger computes a rolling trust score for each peer using a time weighted function. A device that consistently kills all expected mutations accumulates a high score. A device whose kill rate drops, whose attestations arrive late, or whose attestations stop entirely sees its score decay rapidly. The scoring function is deliberately asymmetric: trust builds slowly over many successful cycles but erodes quickly after even a single anomalous report. This design reflects the reality that a compromised device may attempt to replay old good results but will struggle to maintain perfect mutation detection once its security controls have been subverted.\n\nWhen a device's trust score falls below a configurable quarantine threshold, neighboring nodes autonomously initiate isolation. They withdraw the suspect device from service mesh routing, revoke its short lived mTLS certificates, and emit a fleet level alert to the central management plane. The quarantined device can only rejoin after a full re attestation cycle in which it must kill every mutation in the current catalog and have the results independently verified by a quorum of healthy peers. This quorum requirement prevents a cluster of compromised nodes from vouching for each other.\n\nThe central management plane, while not required for the quarantine decision itself, aggregates trust scores across the entire fleet for observability. Operators can inspect mutation survival trends to identify weakening security policies across device classes, firmware versions, or geographic regions. The system also supports catalog evolution: when a new vulnerability class is discovered, the central plane pushes updated mutation definitions to the fleet, and devices that fail to detect the new mutations surface immediately through their declining trust scores.\n\n## Enablement Example\n\n```yaml\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: mutation-engine-config\n  namespace: edge-security\ndata:\n  engine.yaml: |\n    schedule:\n      intervalMinutes: 30\n      jitterSeconds: 120\n    sandbox:\n      runtime: kata-containers\n      resourceLimits:\n        cpuMillis: 250\n        memoryMiB: 128\n      networkPolicy: none\n    mutationCatalog:\n      source: oci://registry.internal/mutation-catalog:2026.07\n      categories:\n        - auth-bypass\n        - cert-validation-skip\n        - privilege-escalation\n        - api-tampering\n      mutationsPerCycle: 8\n      selectionStrategy: weighted-random\n    attestation:\n      signingBackend: tpm2\n      pcrIndex: 14\n      hashAlgorithm: sha384\n    gossip:\n      protocol: swim\n      fanout: 3\n      publishIntervalSeconds: 60\n    trustScoring:\n      windowSize: 48h\n      decayHalfLife: 6h\n      quarantineThreshold: 0.4\n      rejoinQuorumSize: 3\n---\napiVersion: apps/v1\nkind: DaemonSet\nmetadata:\n  name: mutation-engine\n  namespace: edge-security\nspec:\n  selector:\n    matchLabels:\n      app: mutation-engine\n  template:\n    metadata:\n      labels:\n        app: mutation-engine\n    spec:\n      nodeSelector:\n        node-role.kubernetes.io/edge: \"\"\n      serviceAccountName: mutation-engine\n      containers:\n        - name: engine\n          image: registry.internal/edge-security/mutation-engine:1.4.0\n          volumeMounts:\n            - name: config\n              mountPath: /etc/mutation-engine\n            - name: tpm-device\n              mountPath: /dev/tpmrm0\n          securityContext:\n            privileged: false\n            capabilities:\n              add:\n                - SYS_ADMIN\n          resources:\n            requests:\n              cpu: 100m\n              memory: 64Mi\n            limits:\n              cpu: 500m\n              memory: 256Mi\n      volumes:\n        - name: config\n          configMap:\n            name: mutation-engine-config\n        - name: tpm-device\n          hostPath:\n            path: /dev/tpmrm0\n            type: CharDevice\n```\n\nThe ConfigMap defines the full operating parameters for the mutation engine on each edge node. The schedule block sets a 30 minute base interval with up to two minutes of random jitter so that nodes in the same cluster do not all execute their mutation cycles simultaneously, which would create a resource spike. The sandbox section specifies Kata Containers as the isolation runtime, giving each mutation cycle a dedicated lightweight VM with hard CPU and memory caps and no network access, ensuring that a surviving mutation cannot escape to affect production traffic.\n\nThe mutationCatalog section points to an OCI artifact containing the current mutation definitions, pulled from the internal registry. Each cycle selects eight mutations using a weighted random strategy that favors recently added or historically problematic mutation types while still cycling through the full catalog over time. The attestation block configures TPM 2.0 signing using PCR index 14 and SHA-384, binding each report to the measured state of the device firmware and OS kernel.\n\nThe gossip section configures the SWIM protocol with a fanout of three, meaning each node forwards its signed attestation to three randomly selected neighbors per publish interval. This ensures rapid dissemination across the local cluster without centralized coordination. The trustScoring block sets a 48 hour sliding window for score calculation with a six hour decay half life, a quarantine threshold of 0.4 (on a zero to one scale), and a quorum of three healthy peers required before a quarantined device can rejoin. These values reflect a balance between sensitivity to genuine compromise and tolerance for transient resource pressure that might cause a single cycle to run slowly.\n\nThe DaemonSet ensures that every node labeled as an edge worker runs exactly one instance of the mutation engine. The pod mounts the TPM device directly from the host to enable hardware rooted signing without requiring privileged mode for the entire container. The SYS_ADMIN capability is scoped narrowly to allow the engine to create the nested Kata sandbox for each mutation cycle.",
+      "source_message_uuid": "c02bde04-620b-4d55-9676-c4bdbb0d4e06",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3219,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 3,
+    "total_output_tokens": 1943,
+    "total_cache_creation_tokens": 735,
+    "total_cache_read_tokens": 6343,
+    "input_output_ratio": 0.0,
+    "cache_hit_rate": 0.9995,
+    "estimated_cost_usd": 0.0338,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 0
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        6346
+      ],
+      "growth_rate": 1.0,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 372,
+      "user_result_tokens": 0,
+      "model_reasoning_tokens": 135,
+      "model_tool_tokens": 0,
+      "model_generation_tokens": 1591,
+      "total_user_tokens": 372,
+      "total_model_tokens": 1726,
+      "user_ratio": 0.1773
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.3219,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "TASK: Generate Technical Implementation for a Red Hat patent.\r\n\r\nWRITING STYLE: Write naturally like a human engineer. Do NOT use em dashes or en dashes. Use commas, semicolons, colons, or separate sentences instead. Avoid hyphenated compound modifiers unless they are established technical terms. Never use the long dash character.\r\n\r\nINVENTION:\r\n---\r\ninvention-id: invention-20260710-102315\r\ncompany: RedHat\r\ncreated: 2026-07-10T10:23:17\r\n---\r\n\r\n# Invention Idea\r\n\r\nRather than only mutation testing software during CI/CD, each edge device periodically executes a small set of security-focused mutations (authentication bypasses, certificate validation failures, privilege escalation paths, API tampering) against itself in an isolated execution environment. The results are cryptographically signed and shared with neighboring edge nodes, which build a collective trust score for the fleet. Devices that suddenly stop detecting expected mutations may indicate compromise, stale security policies, or tampering, allowing autonomous quarantine before an exploit succeeds.\r\n\r\n\r\nOUTPUT FORMAT:\r\n\r\n## Novel Step\r\n[2-3 sentences describing what is new and why it matters technically]\r\n\r\n## How It Works\r\n[Write a flowing narrative (3-5 paragraphs) that explains the system architecture end to end. Introduce the key components naturally as you describe how the system operates, rather than listing them as separate bullet points. Cover the data and control flow within the narrative instead of as a separate numbered list. The reader should come away understanding what the components are, how they interact, and what happens at each stage of processing.]\r\n\r\n## Enablement Example\r\n```yaml\r\n# Kubernetes config\r\napiVersion: v1\r\nkind: ConfigMap\r\nmetadata:\r\n  name: example\r\n```\r\n\r\n[Explain what the configuration does and how it ties into the architecture above]",
+          "response_text": "## Novel Step\n\nExisting mutation testing frameworks operate exclusively within CI/CD pipelines to validate test suite quality before deployment. This invention moves security focused mutation testing onto each edge device at runtime, where devices periodically inject known vulnerability patterns into an isolated sandbox copy of their own services and verify that their local security controls detect every injected flaw. The cryptographically signed mutation results are then exchanged across neighboring nodes to produce a collective trust score, turning each device into both a self auditor and a witness for its peers, so that a compromised or stale node reveals itself through its inability to catch mutations it previously handled.\n\n## How It Works\n\nEach edge device runs a lightweight mutation engine as a privileged sidecar process. On a configurable schedule, the engine snapshots the running service binaries and configuration into an isolated execution environment, typically a lightweight virtual machine or a seccomp restricted container with no network egress. Within that sandbox the engine applies a rotating subset of security focused mutations drawn from a catalog that includes authentication bypass rewrites, certificate validation short circuits, privilege escalation path insertions, and API request tampering hooks. The sandbox then exercises the mutated code against the device's own security policy enforcement stack: firewall rules, admission controllers, TLS verifiers, and RBAC checks. Each mutation that the security stack correctly rejects is recorded as \"killed,\" while any mutation that passes undetected is recorded as \"survived.\"\n\nOnce a mutation cycle completes, the engine assembles a mutation attestation report containing the mutation identifiers applied, the kill or survival outcome for each, a timestamp, and a hardware rooted cryptographic signature produced by the device's TPM or secure enclave. This signature binds the results to a specific device identity and prevents retroactive falsification. The engine then publishes the signed attestation to a lightweight gossip protocol shared among neighboring edge nodes. Each node maintains a local trust ledger that tracks the recent attestation history of every peer it can observe.\n\nThe trust ledger computes a rolling trust score for each peer using a time weighted function. A device that consistently kills all expected mutations accumulates a high score. A device whose kill rate drops, whose attestations arrive late, or whose attestations stop entirely sees its score decay rapidly. The scoring function is deliberately asymmetric: trust builds slowly over many successful cycles but erodes quickly after even a single anomalous report. This design reflects the reality that a compromised device may attempt to replay old good results but will struggle to maintain perfect mutation detection once its security controls have been subverted.\n\nWhen a device's trust score falls below a configurable quarantine threshold, neighboring nodes autonomously initiate isolation. They withdraw the suspect device from service mesh routing, revoke its short lived mTLS certificates, and emit a fleet level alert to the central management plane. The quarantined device can only rejoin after a full re attestation cycle in which it must kill every mutation in the current catalog and have the results independently verified by a quorum of healthy peers. This quorum requirement prevents a cluster of compromised nodes from vouching for each other.\n\nThe central management plane, while not required for the quarantine decision itself, aggregates trust scores across the entire fleet for observability. Operators can inspect mutation survival trends to identify weakening security policies across device classes, firmware versions, or geographic regions. The system also supports catalog evolution: when a new vulnerability class is discovered, the central plane pushes updated mutation definitions to the fleet, and devices that fail to detect the new mutations surface immediately through their declining trust scores.\n\n## Enablement Example\n\n```yaml\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: mutation-engine-config\n  namespace: edge-security\ndata:\n  engine.yaml: |\n    schedule:\n      intervalMinutes: 30\n      jitterSeconds: 120\n    sandbox:\n      runtime: kata-containers\n      resourceLimits:\n        cpuMillis: 250\n        memoryMiB: 128\n      networkPolicy: none\n    mutationCatalog:\n      source: oci://registry.internal/mutation-catalog:2026.07\n      categories:\n        - auth-bypass\n        - cert-validation-skip\n        - privilege-escalation\n        - api-tampering\n      mutationsPerCycle: 8\n      selectionStrategy: weighted-random\n    attestation:\n      signingBackend: tpm2\n      pcrIndex: 14\n      hashAlgorithm: sha384\n    gossip:\n      protocol: swim\n      fanout: 3\n      publishIntervalSeconds: 60\n    trustScoring:\n      windowSize: 48h\n      decayHalfLife: 6h\n      quarantineThreshold: 0.4\n      rejoinQuorumSize: 3\n---\napiVersion: apps/v1\nkind: DaemonSet\nmetadata:\n  name: mutation-engine\n  namespace: edge-security\nspec:\n  selector:\n    matchLabels:\n      app: mutation-engine\n  template:\n    metadata:\n      labels:\n        app: mutation-engine\n    spec:\n      nodeSelector:\n        node-role.kubernetes.io/edge: \"\"\n      serviceAccountName: mutation-engine\n      containers:\n        - name: engine\n          image: registry.internal/edge-security/mutation-engine:1.4.0\n          volumeMounts:\n            - name: config\n              mountPath: /etc/mutation-engine\n            - name: tpm-device\n              mountPath: /dev/tpmrm0\n          securityContext:\n            privileged: false\n            capabilities:\n              add:\n                - SYS_ADMIN\n          resources:\n            requests:\n              cpu: 100m\n              memory: 64Mi\n            limits:\n              cpu: 500m\n              memory: 256Mi\n      volumes:\n        - name: config\n          configMap:\n            name: mutation-engine-config\n        - name: tpm-device\n          hostPath:\n            path: /dev/tpmrm0\n            type: CharDevice\n```\n\nThe ConfigMap defines the full operating parameters for the mutation engine on each edge node. The schedule block sets a 30 minute base interval with up to two minutes of random jitter so that nodes in the same cluster do not all execute their mutation cycles simultaneously, which would create a resource spike. The sandbox section specifies Kata Containers as the isolation runtime, giving each mutation cycle a dedicated lightweight VM with hard CPU and memory caps and no network access, ensuring that a surviving mutation cannot escape to affect production traffic.\n\nThe mutationCatalog section points to an OCI artifact containing the current mutation definitions, pulled from the internal registry. Each cycle selects eight mutations using a weighted random strategy that favors recently added or historically problematic mutation types while still cycling through the full catalog over time. The attestation block configures TPM 2.0 signing using PCR index 14 and SHA-384, binding each report to the measured state of the device firmware and OS kernel.\n\nThe gossip section configures the SWIM protocol with a fanout of three, meaning each node forwards its signed attestation to three randomly selected neighbors per publish interval. This ensures rapid dissemination across the local cluster without centralized coordination. The trustScoring block sets a 48 hour sliding window for score calculation with a six hour decay half life, a quarantine threshold of 0.4 (on a zero to one scale), and a quorum of three healthy peers required before a quarantined device can rejoin. These values reflect a balance between sensitivity to genuine compromise and tolerance for transient resource pressure that might cause a single cycle to run slowly.\n\nThe DaemonSet ensures that every node labeled as an edge worker runs exactly one instance of the mutation engine. The pod mounts the TPM device directly from the host to enable hardware rooted signing without requiring privileged mode for the entire container. The SYS_ADMIN capability is scoped narrowly to allow the engine to create the nested Kata sandbox for each mutation cycle.",
+          "alignment": 0.3219
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "25e4b2d2-1a4d-4814-b097-59abb899f3b5",
+    "source_file": "data/D--Patents-Automation__25e4b2d2-1a4d-4814-b097-59abb899f3b5.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

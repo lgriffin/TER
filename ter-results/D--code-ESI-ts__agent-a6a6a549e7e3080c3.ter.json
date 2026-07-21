@@ -1,0 +1,544 @@
+{
+  "session_id": "bf49e9cd-8018-4922-a8cc-d3a0df8e9a67",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 1777,
+  "aligned_tokens": 1777,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6431,
+    "token_weighted_confidence": 0.639,
+    "low_confidence_tokens": 1292,
+    "low_confidence_share": 0.7271,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 13,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "waste_patterns": [
+    {
+      "type": "context_restatement",
+      "start_position": 12,
+      "end_position": 12,
+      "spans_involved": 1,
+      "tokens_wasted": 139,
+      "description": "Response restates prior content (similarity: 0.86)"
+    },
+    {
+      "type": "bash_antipattern",
+      "start_position": 0,
+      "end_position": 0,
+      "spans_involved": 1,
+      "tokens_wasted": 100,
+      "description": "1 Bash calls should use dedicated tools (100 tokens)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.7004848122596741,
+      "intent_similarity": 0.7004848122596741,
+      "tokens": 36,
+      "text": "The user wants me to count GET endpoints with `responseSchema` and total GET endpoints across all files in src/core/endpoints/. Let me run grep commands to get both counts.",
+      "source_message_uuid": "19f27f5b-c3b3-43ab-9ed9-9dcca10c2265",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.7005,
+          "repetition_score": 0.0,
+          "confidence": 0.7005
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6634365916252136,
+      "intent_similarity": 0.6634365916252136,
+      "tokens": 35,
+      "text": "Grep {\"pattern\":\"method: 'GET'\",\"path\":\"D:/code/ESI.ts/src/core/endpoints\",\"output_mode\":\"count\",\"head_limit\":0}",
+      "source_message_uuid": "19f27f5b-c3b3-43ab-9ed9-9dcca10c2265",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6634,
+          "repetition_score": 0.0,
+          "confidence": 0.6634
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.714821457862854,
+      "intent_similarity": 0.714821457862854,
+      "tokens": 32,
+      "text": "Grep {\"pattern\":\"responseSchema\",\"path\":\"D:/code/ESI.ts/src/core/endpoints\",\"output_mode\":\"count\",\"head_limit\":0}",
+      "source_message_uuid": "19f27f5b-c3b3-43ab-9ed9-9dcca10c2265",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.7148,
+          "repetition_score": 0.7056,
+          "confidence": 0.7148,
+          "semantic_similarity": 0.9265,
+          "lexical_similarity": 0.7273,
+          "entity_similarity": 0.7,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Grep {\"pattern\":\"method: 'GET'\",\"path\":\"D:/code/ESI.ts/src/core/endpoints\",\"output_mode\":\"count\",\"head_limit\":0}"
+      }
+    },
+    {
+      "position": 3,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.7564152479171753,
+      "intent_similarity": 0.7564152479171753,
+      "tokens": 198,
+      "text": "The `responseSchema` count includes `EndpointDefinition.ts` (1 occurrence, which is likely the type definition) and `createClient.ts` (2 occurrences, which is likely the client code that reads the property). I should exclude those since the user asked about endpoint definition files specifically. Let me also note that `responseSchema` appears in non-GET endpoints too (POST, PUT, DELETE can also have responseSchema).\n\nActually, the user asked for GET endpoints that have a `responseSchema` property. The grep for `responseSchema` counts all occurrences, not just those on GET endpoints. I need to be more careful.\nI need to distinguish between GET endpoints with `responseSchema` versus other HTTP methods that might also have it. The raw grep counts don't separate by method type, so I'm looking at 177 total `responseSchema` occurrences across endpoint files, but I can't determine how many of those are specifically on GET endpoints without examining the actual structure.",
+      "source_message_uuid": "c50328c5-7b9e-435b-81e9-67b66671e38d",
+      "source_lines": [
+        8
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.7564,
+          "repetition_score": 0.4587,
+          "confidence": 0.7564,
+          "semantic_similarity": 0.7117,
+          "lexical_similarity": 0.1667,
+          "entity_similarity": 0.1852,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8148
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "The user wants me to count GET endpoints with `responseSchema` and total GET endpoints across all files in src/core/endpoints/. Let me run grep commands to get both counts."
+      }
+    },
+    {
+      "position": 4,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.801842212677002,
+      "intent_similarity": 0.801842212677002,
+      "tokens": 45,
+      "text": "The `responseSchema` count includes non-endpoint files (`EndpointDefinition.ts` and `createClient.ts`) and also potentially non-GET endpoints. Let me refine the analysis to count only GET endpoints with `responseSchema`.",
+      "source_message_uuid": "c50328c5-7b9e-435b-81e9-67b66671e38d",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.8018,
+          "repetition_score": 0.0,
+          "confidence": 0.8018
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6060627698898315,
+      "intent_similarity": 0.6060627698898315,
+      "tokens": 70,
+      "text": "Bash {\"command\":\"cd D:/code/ESI.ts && grep -c \\\"method: 'POST'\\\\|method: 'PUT'\\\\|method: 'DELETE'\\\" src/core/endpoints/*Endpoints.ts 2>/dev/null | grep -v ':0$'\",\"description\":\"Count non-GET methods in endpoint files\"}",
+      "source_message_uuid": "c50328c5-7b9e-435b-81e9-67b66671e38d",
+      "source_lines": [
+        10
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6061,
+          "repetition_score": 0.0525,
+          "confidence": 0.6061,
+          "semantic_similarity": 0.6932,
+          "lexical_similarity": 0.1379,
+          "entity_similarity": 0.1739,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Grep {\"pattern\":\"method: 'GET'\",\"path\":\"D:/code/ESI.ts/src/core/endpoints\",\"output_mode\":\"count\",\"head_limit\":0}"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.36636844277381897,
+      "tokens": 568,
+      "text": "Bash {\"command\":\"cd D:/code/ESI.ts && python3 -c \\\"\\nimport re, os, glob\\n\\nendpoint_dir = 'src/core/endpoints'\\ntotal_get = 0\\nget_with_schema = 0\\n\\nfor fpath in sorted(glob.glob(os.path.join(endpoint_dir, '*Endpoints.ts'))):\\n    with open(fpath, 'r', encoding='utf-8') as f:\\n        content = f.read()\\n    \\n    # Split into endpoint objects by finding each { ... } block in the array\\n    # Each endpoint is an object literal in an array\\n    # We look for blocks that contain method: 'GET' or method: 'POST' etc.\\n    # Simple approach: split on },\\\\n  { or similar patterns\\n    \\n    # Use regex to find all endpoint object blocks\\n    # Endpoints are objects in an array, separated by },\\n    blocks = re.split(r'\\\\},\\\\s*\\\\{', content)\\n    \\n    for block in blocks:\\n        if \\\\\\\"method: 'GET'\\\\\\\" in block:\\n            total_get += 1\\n            if 'responseSchema' in block:\\n                get_with_schema += 1\\n\\nprint(f'Total GET endpoints: {total_get}')\\nprint(f'GET endpoints with responseSchema: {get_with_schema}')\\nprint(f'GET endpoints WITHOUT responseSchema: {total_get - get_with_schema}')\\n\\\" 2>/dev/null || echo \\\"python3 not available, trying python...\\\"\\ncd D:/code/ESI.ts && python -c \\\"\\nimport re, os, glob\\n\\nendpoint_dir = 'src/core/endpoints'\\ntotal_get = 0\\nget_with_schema = 0\\n\\nfor fpath in sorted(glob.glob(os.path.join(endpoint_dir, '*Endpoints.ts'))):\\n    with open(fpath, 'r', encoding='utf-8') as f:\\n        content = f.read()\\n    \\n    blocks = re.split(r'\\\\},\\\\s*\\\\{', content)\\n    \\n    for block in blocks:\\n        if \\\\\\\"method: 'GET'\\\\\\\" in block:\\n            total_get += 1\\n            if 'responseSchema' in block:\\n                get_with_schema += 1\\n\\nprint(f'Total GET endpoints: {total_get}')\\nprint(f'GET endpoints with responseSchema: {get_with_schema}')\\nprint(f'GET endpoints WITHOUT responseSchema: {total_get - get_with_schema}')\\n\\\" 2>/dev/null\\n\",\"description\":\"Count GET endpoints with and without responseSchema using Python\"}",
+      "source_message_uuid": "27f214a5-6b6f-4491-a1a0-1970829f0ce3",
+      "source_lines": [
+        12
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3664,
+          "repetition_score": 0.4737,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5916,
+          "lexical_similarity": 0.1402,
+          "entity_similarity": 0.1429,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "Bash {\"command\":\"cd D:/code/ESI.ts && grep -c \\\"method: 'POST'\\\\|method: 'PUT'\\\\|method: 'DELETE'\\\" src/core/endpoints/*Endpoints.ts 2>/dev/null | grep -v ':0$'\",\"description\":\"Count non-GET methods in endpoint files\"}"
+      }
+    },
+    {
+      "position": 7,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.463092565536499,
+      "tokens": 55,
+      "text": "Hmm, that's giving 33 which matches the number of files. The regex split approach is probably not working correctly since it's splitting on `},{` which might not correctly delineate individual endpoint objects. Let me look at the file structure to understand how endpoints are defined.",
+      "source_message_uuid": "4a3d2433-5e54-4b8e-90b9-7b3dea4b0cc5",
+      "source_lines": [
+        14
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4631,
+          "repetition_score": 0.3321,
+          "confidence": 0.5,
+          "semantic_similarity": 0.5446,
+          "lexical_similarity": 0.0862,
+          "entity_similarity": 0.0833,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9167
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "The user wants me to count GET endpoints with `responseSchema` and total GET endpoints across all files in src/core/endpoints/. Let me run grep commands to get both counts."
+      }
+    },
+    {
+      "position": 8,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.21450215578079224,
+      "tokens": 31,
+      "text": "The splitting approach isn't working correctly \u2014 it's returning 33, which is the number of files. Let me look at the actual file structure first.",
+      "source_message_uuid": "4a3d2433-5e54-4b8e-90b9-7b3dea4b0cc5",
+      "source_lines": [
+        15
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2145,
+          "repetition_score": 0.168,
+          "confidence": 0.5,
+          "semantic_similarity": 0.2689,
+          "lexical_similarity": 0.0698,
+          "entity_similarity": 0.0909,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9091
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 4,
+        "matched_prior_text": "The `responseSchema` count includes non-endpoint files (`EndpointDefinition.ts` and `createClient.ts`) and also potentially non-GET endpoints. Let me refine the analysis to count only GET endpoints with `responseSchema`."
+      }
+    },
+    {
+      "position": 9,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5260317921638489,
+      "tokens": 25,
+      "text": "Read {\"file_path\":\"D:/code/ESI.ts/src/core/endpoints/allianceEndpoints.ts\",\"limit\":60}",
+      "source_message_uuid": "4a3d2433-5e54-4b8e-90b9-7b3dea4b0cc5",
+      "source_lines": [
+        16
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.526,
+          "repetition_score": 0.0397,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5885,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.0,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Grep {\"pattern\":\"method: 'GET'\",\"path\":\"D:/code/ESI.ts/src/core/endpoints\",\"output_mode\":\"count\",\"head_limit\":0}"
+      }
+    },
+    {
+      "position": 10,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.28819185495376587,
+      "tokens": 23,
+      "text": "Now I see the structure \u2014 each endpoint is a named property in an object. Let me write a proper parser.",
+      "source_message_uuid": "5d574f8f-fdab-44a5-bce4-a99b0bac335d",
+      "source_lines": [
+        18
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2882,
+          "repetition_score": 0.2018,
+          "confidence": 0.5,
+          "semantic_similarity": 0.322,
+          "lexical_similarity": 0.0789,
+          "entity_similarity": 0.1034,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8966
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 4,
+        "matched_prior_text": "The `responseSchema` count includes non-endpoint files (`EndpointDefinition.ts` and `createClient.ts`) and also potentially non-GET endpoints. Let me refine the analysis to count only GET endpoints with `responseSchema`."
+      }
+    },
+    {
+      "position": 11,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3654080927371979,
+      "tokens": 520,
+      "text": "Bash {\"command\":\"cd D:/code/ESI.ts && python -c \\\"\\nimport re, os, glob\\n\\nendpoint_dir = 'src/core/endpoints'\\ntotal_get = 0\\nget_with_schema = 0\\nfiles_detail = []\\n\\nfor fpath in sorted(glob.glob(os.path.join(endpoint_dir, '*Endpoints.ts'))):\\n    with open(fpath, 'r', encoding='utf-8') as f:\\n        lines = f.readlines()\\n    \\n    fname = os.path.basename(fpath)\\n    file_get = 0\\n    file_get_with_schema = 0\\n    \\n    # Track brace depth to identify endpoint blocks\\n    in_endpoint = False\\n    brace_depth = 0\\n    current_block = []\\n    \\n    for line in lines:\\n        # Count braces\\n        for ch in line:\\n            if ch == '{':\\n                brace_depth += 1\\n                if brace_depth == 2:\\n                    in_endpoint = True\\n                    current_block = [line]\\n                    break\\n            elif ch == '}':\\n                if brace_depth == 2 and in_endpoint:\\n                    current_block.append(line)\\n                    block_text = ''.join(current_block)\\n                    if \\\\\\\"method: 'GET'\\\\\\\" in block_text:\\n                        file_get += 1\\n                        if 'responseSchema' in block_text:\\n                            file_get_with_schema += 1\\n                    in_endpoint = False\\n                    current_block = []\\n                brace_depth -= 1\\n        else:\\n            if in_endpoint:\\n                current_block.append(line)\\n    \\n    total_get += file_get\\n    get_with_schema += file_get_with_schema\\n    if file_get > 0:\\n        files_detail.append((fname, file_get, file_get_with_schema))\\n\\nprint(f'Total GET endpoints: {total_get}')\\nprint(f'GET endpoints with responseSchema: {get_with_schema}')\\nprint(f'GET endpoints WITHOUT responseSchema: {total_get - get_with_schema}')\\nprint()\\nprint('Per-file breakdown:')\\nfor fname, g, gs in files_detail:\\n    marker = '' if g == gs else ' *** MISSING ***'\\n    print(f'  {fname}: {g} GET, {gs} with responseSchema{marker}')\\n\\\"\\n\",\"description\":\"Parse endpoint files to count GET endpoints with/without responseSchema\"}",
+      "source_message_uuid": "5d574f8f-fdab-44a5-bce4-a99b0bac335d",
+      "source_lines": [
+        19
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3654,
+          "repetition_score": 0.6575,
+          "confidence": 0.6,
+          "semantic_similarity": 0.988,
+          "lexical_similarity": 0.3759,
+          "entity_similarity": 0.3398,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Bash {\"command\":\"cd D:/code/ESI.ts && python3 -c \\\"\\nimport re, os, glob\\n\\nendpoint_dir = 'src/core/endpoints'\\ntotal_get = 0\\nget_with_schema = 0\\n\\nfor fpath in sorted(glob.glob(os.path.join(endpoint_dir, '*Endpoints.ts'))):\\n    with op"
+      }
+    },
+    {
+      "position": 12,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.8172267079353333,
+      "intent_similarity": 0.8172267079353333,
+      "tokens": 139,
+      "text": "Here are the results:\n\n- **Total GET endpoints** (`method: 'GET'`): **173** across 33 endpoint files in `src/core/endpoints/`\n- **GET endpoints with `responseSchema` defined**: **173**\n\nEvery single GET endpoint has a `responseSchema` property -- there is 100% coverage. No GET endpoint is missing a `responseSchema`.\n\nThe largest files by GET endpoint count are:\n- `universeEndpoints.ts` \u2014 29\n- `corporationEndpoints.ts` \u2014 22\n- `characterEndpoints.ts` \u2014 12\n- `marketEndpoints.ts` \u2014 11\n- `contractEndpoints.ts` \u2014 9",
+      "source_message_uuid": "bd632e06-a439-4736-ad19-af26c7e527bd",
+      "source_lines": [
+        21
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.8172,
+          "repetition_score": 0.5445,
+          "confidence": 0.8172,
+          "semantic_similarity": 0.8611,
+          "lexical_similarity": 0.1207,
+          "entity_similarity": 0.1702,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8298
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 4,
+        "matched_prior_text": "The `responseSchema` count includes non-endpoint files (`EndpointDefinition.ts` and `createClient.ts`) and also potentially non-GET endpoints. Let me refine the analysis to count only GET endpoints with `responseSchema`."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "context_restatement",
+        "tokens_wasted": 139,
+        "description": "Response restates prior content (similarity: 0.86)"
+      },
+      {
+        "type": "bash_antipattern",
+        "tokens_wasted": 100,
+        "description": "1 Bash calls should use dedicated tools (100 tokens)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Context Restatement",
+        "tokens": 139,
+        "percentage": 58.2,
+        "cost_usd": 0.002085,
+        "count": 1,
+        "pricing": "output"
+      },
+      {
+        "source": "Bash Anti-Patterns",
+        "tokens": 100,
+        "percentage": 41.8,
+        "cost_usd": 0.0003,
+        "count": 1,
+        "pricing": "input"
+      }
+    ],
+    "total_tokens": 239,
+    "total_cost_usd": 0.002385
+  },
+  "economics": {
+    "total_input_tokens": 8,
+    "total_output_tokens": 870,
+    "total_cache_creation_tokens": 24985,
+    "total_cache_read_tokens": 110040,
+    "input_output_ratio": 0.01,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.1398,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 4,
+      "mid_span_count": 4,
+      "late_span_count": 5
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        19613,
+        21571,
+        22264,
+        23004,
+        23593
+      ],
+      "growth_rate": 1.2,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 69,
+      "user_result_tokens": 1827,
+      "model_reasoning_tokens": 289,
+      "model_tool_tokens": 1250,
+      "model_generation_tokens": 238,
+      "total_user_tokens": 1896,
+      "total_model_tokens": 1777,
+      "user_ratio": 0.5162
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.7492,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "In the repo at D:\\code\\ESI.ts, count the total number of GET endpoints that have a `responseSchema` property defined, across all files in src/core/endpoints/. Also count the total number of GET endpoints (those with `method: 'GET'`). Report both numbers clearly. Use grep to search all endpoint files.",
+          "response_text": "The `responseSchema` count includes non-endpoint files (`EndpointDefinition.ts` and `createClient.ts`) and also potentially non-GET endpoints. Let me refine the analysis to count only GET endpoints with `responseSchema`. The splitting approach isn't working correctly \u2014 it's returning 33, which is the number of files. Let me look at the actual file structure first. Now I see the structure \u2014 each endpoint is a named property in an object. Let me write a proper parser. Here are the results:\n\n- **Total GET endpoints** (`method: 'GET'`): **173** across 33 endpoint files in `src/core/endpoints/`\n- **GET endpoints with `responseSchema` defined**: **173**\n\nEvery single GET endpoint has a `responseSchema` property -- there is 100% coverage. No GET endpoint is missing a `responseSchema`.\n\nThe largest files by GET endpoint count are:\n- `universeEndpoints.ts` \u2014 29\n- `corporationEndpoints.ts` \u2014 22\n- `characterEndpoints.ts` \u2014 12\n- `marketEndpoints.ts` \u2014 11\n- `contractEndpoints.ts` \u2014 9",
+          "alignment": 0.7492
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "bf49e9cd-8018-4922-a8cc-d3a0df8e9a67",
+    "source_file": "data/D--code-ESI-ts__agent-a6a6a549e7e3080c3.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

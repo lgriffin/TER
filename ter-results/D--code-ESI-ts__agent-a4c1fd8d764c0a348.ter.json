@@ -1,0 +1,1186 @@
+{
+  "session_id": "a4e701aa-0dce-4f48-867d-8ac45b40f603",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 4380,
+  "aligned_tokens": 4380,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5622,
+    "token_weighted_confidence": 0.5501,
+    "low_confidence_tokens": 4380,
+    "low_confidence_share": 1.0,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 36,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5272281765937805,
+      "intent_similarity": 0.5272281765937805,
+      "tokens": 18,
+      "text": "Let me systematically find all endpoint definition files and all example files, then cross-reference them.",
+      "source_message_uuid": "9430f0a2-5873-4512-b1c7-4b2f752b81ab",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.5272,
+          "repetition_score": 0.0,
+          "confidence": 0.5272
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6219100952148438,
+      "intent_similarity": 0.6219100952148438,
+      "tokens": 23,
+      "text": "Glob {\"pattern\":\"src/core/endpoints/*Endpoints.ts\",\"path\":\"D:\\\\code\\\\ESI.ts\"}",
+      "source_message_uuid": "9430f0a2-5873-4512-b1c7-4b2f752b81ab",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.6219,
+          "repetition_score": 0.0,
+          "confidence": 0.6219
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5695086121559143,
+      "tokens": 19,
+      "text": "Glob {\"pattern\":\"examples/*.ts\",\"path\":\"D:\\\\code\\\\ESI.ts\"}",
+      "source_message_uuid": "9430f0a2-5873-4512-b1c7-4b2f752b81ab",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5695,
+          "repetition_score": 0.6724,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8918,
+          "lexical_similarity": 0.6,
+          "entity_similarity": 0.625,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Glob {\"pattern\":\"src/core/endpoints/*Endpoints.ts\",\"path\":\"D:\\\\code\\\\ESI.ts\"}"
+      }
+    },
+    {
+      "position": 3,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.47047021985054016,
+      "tokens": 151,
+      "text": "I need to read all 35 endpoint files and all 43 example files. Let me launch agents to do this in parallel - one to read all endpoint files and extract method names, and another to read all example files and extract which methods they call.\n\nActually, given the volume of files (35 + 43 = 78 files), let me use agents to handle this systematically. I'll split the work.\n\nLet me think about the best approach. I need to:\n1. Read all endpoint definition files to get all method names, paths, HTTP methods, and auth requirements\n2. Read all example files to see which methods they call\n3. Cross-reference\nI'll spin up two agents in parallel to tackle the endpoints and examples simultaneously.",
+      "source_message_uuid": "0cfdae7a-d60e-453f-bb30-e3c2dd8c4075",
+      "source_lines": [
+        8
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4705,
+          "repetition_score": 0.3528,
+          "confidence": 0.5,
+          "semantic_similarity": 0.5454,
+          "lexical_similarity": 0.1304,
+          "entity_similarity": 0.1818,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8182
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "Let me systematically find all endpoint definition files and all example files, then cross-reference them."
+      }
+    },
+    {
+      "position": 4,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6029218435287476,
+      "intent_similarity": 0.6029218435287476,
+      "tokens": 317,
+      "text": "Agent {\"description\":\"Read all endpoint definition files\",\"prompt\":\"Read every file matching D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\*Endpoints.ts (there are 35 files). For each file, extract ALL method names (the keys in the exported object), along with each method's `path`, `method` (HTTP verb), and whether it requires auth (`requiresAuth: true` or has security/scopes). \\n\\nReturn a structured list organized by file, with every single method listed. Do not skip any file or any method. This is critical - completeness matters.\\n\\nThe files are:\\n- routeEndpoints.ts\\n- accessListEndpoints.ts\\n- calendarEndpoints.ts\\n- contractEndpoints.ts\\n- factionEndpoints.ts\\n- fittingEndpoints.ts\\n- fleetEndpoints.ts\\n- freelanceJobsEndpoints.ts\\n- incursionEndpoints.ts\\n- industryEndpoints.ts\\n- insuranceEndpoints.ts\\n- killmailEndpoints.ts\\n- locationEndpoints.ts\\n- loyaltyEndpoints.ts\\n- mercenaryEndpoints.ts\\n- skyhookEndpoints.ts\\n- statusEndpoints.ts\\n- contactEndpoints.ts\\n- sovereigntyEndpoints.ts\\n- uiEndpoints.ts\\n- searchEndpoints.ts\\n- metaEndpoints.ts\\n- allianceEndpoints.ts\\n- assetEndpoints.ts\\n- characterEndpoints.ts\\n- cloneEndpoints.ts\\n- corporationEndpoints.ts\\n- dogmaEndpoints.ts\\n- mailEndpoints.ts\\n- marketEndpoints.ts\\n- piEndpoints.ts\\n- skillEndpoints.ts\\n- universeEndpoints.ts\\n- walletEndpoints.ts\\n- warEndpoints.ts\",\"run_in_background\":false}",
+      "source_message_uuid": "0cfdae7a-d60e-453f-bb30-e3c2dd8c4075",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6029,
+          "repetition_score": 0.0397,
+          "confidence": 0.6029,
+          "semantic_similarity": 0.564,
+          "lexical_similarity": 0.0459,
+          "entity_similarity": 0.0421,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Glob {\"pattern\":\"src/core/endpoints/*Endpoints.ts\",\"path\":\"D:\\\\code\\\\ESI.ts\"}"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5519250631332397,
+      "intent_similarity": 0.5519250631332397,
+      "tokens": 26,
+      "text": "Now I need to read all 43 example files to find which endpoint methods they call. Let me launch an agent for that.",
+      "source_message_uuid": "79d0d475-772c-4afc-886d-178dd8042391",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5519,
+          "repetition_score": 0.5308,
+          "confidence": 0.5519,
+          "semantic_similarity": 0.7777,
+          "lexical_similarity": 0.2254,
+          "entity_similarity": 0.2281,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.7719
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 3,
+        "matched_prior_text": "I need to read all 35 endpoint files and all 43 example files. Let me launch agents to do this in parallel - one to read all endpoint files and extract method names, and another to read all example files and extract which methods they call."
+      }
+    },
+    {
+      "position": 6,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.36928895115852356,
+      "tokens": 14,
+      "text": "Now let me read all example files to find which methods they call.",
+      "source_message_uuid": "79d0d475-772c-4afc-886d-178dd8042391",
+      "source_lines": [
+        12
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3693,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 7,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6015969514846802,
+      "intent_similarity": 0.6015969514846802,
+      "tokens": 318,
+      "text": "Agent {\"description\":\"Read all example files for methods\",\"prompt\":\"Read ALL 43 example .ts files in D:\\\\code\\\\ESI.ts\\\\examples\\\\ and extract every ESI client method call found in each file. The method calls typically look like `client.something.methodName(...)` or similar patterns. I need to know the exact method names called.\\n\\nThe files are:\\nstatus.ts, character-lookup.ts, universe-info.ts, market-prices.ts, alliance-info.ts, wars.ts, industry.ts, incursions.ts, character-profile.ts, rate-limiting.ts, retry-timeout-metadata.ts, contracts-browser.ts, dogma.ts, mercenary.ts, route-planner.ts, skyhooks.ts, sovereignty.ts, streaming-pagination.ts, access-lists.ts, calendar-search.ts, character-details.ts, corp-contracts-wallet.ts, corporation-details.ts, cursor-pagination.ts, dogma-meta-sov.ts, faction-warfare-details.ts, freelance-jobs.ts, industry-mining.ts, loyalty-pi.ts, market-orders.ts, universe-encyclopedia.ts, universe-post-helpers.ts, write-operations.ts, skills-overview.ts, wallet-overview.ts, mail-inbox.ts, contacts.ts, fittings-clones.ts, assets-inventory.ts, killmails.ts, location-tracker.ts, fleet-operations.ts, token-refresh.ts\\n\\nFor each example file, list all endpoint method names that are called. Be thorough - look for every method call pattern. Return a complete list organized by file.\",\"run_in_background\":false}",
+      "source_message_uuid": "79d0d475-772c-4afc-886d-178dd8042391",
+      "source_lines": [
+        13
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6016,
+          "repetition_score": 0.5482,
+          "confidence": 0.6016,
+          "semantic_similarity": 0.7932,
+          "lexical_similarity": 0.1732,
+          "entity_similarity": 0.1319,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Agent {\"description\":\"Read all endpoint definition files\",\"prompt\":\"Read every file matching D:\\\\code\\\\ESI.ts\\\\src\\\\core\\\\endpoints\\\\*Endpoints.ts (there are 35 files). For each file, extract ALL method names (the keys in the exported objec"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5133239030838013,
+      "intent_similarity": 0.5133239030838013,
+      "tokens": 904,
+      "text": "Now I need to cross-reference the endpoint definition method names with the example method calls. The example calls use slightly different names in some cases (e.g., the client wraps the endpoint methods). Let me map them carefully.\n\nLet me compare the endpoint definition keys with what's called in examples.\n\nEndpoint definitions (keys in the *Endpoints.ts objects):\n\n**allianceEndpoints.ts:**\n- getAllianceById\n- getCorporations\n- getIcons\n- getAlliances\n\nExample calls (alliance namespace):\n- getAllianceById \u2713\n- getAlliances \u2713\n- getCorporations \u2713\n- getIcons \u2713\nAll covered.\n\n**accessListEndpoints.ts:**\n- getAccessList\n\nExample calls:\n- getAccessList \u2713\nCovered.\n\n**assetEndpoints.ts:**\n- getCharacterAssets\n- getCorporationAssets\n- postCharacterAssetLocations\n- postCharacterAssetNames\n- postCorporationAssetLocations\n- postCorporationAssetNames\n\nExample calls show getCharacterAssets, getCorporationAssets, and postCharacterAssetNames, but I'm missing coverage for the two asset location posting methods.\n\n**calendarEndpoints.ts:**\n- getCalendarEvents\n- getCalendarEventById\n- getEventAttendees\n- respondToCalendarEvent\n\nExample calls cover the first three, but respondToCalendarEvent still needs an example.\n\n**characterEndpoints.ts:**\n- getCharacterPublicInfo\n- getAgentsResearch\n- getBlueprints\n- getRoles\n- getStandings\n- getTitles\n- getContactNotifications\n- getCorporationHistory\n- getJumpFatigue\n- getMedals\n- getNotifications\n- getPortrait\n- postCharacterAffiliation\n- calculateCspaChargeCost\n\nI'm checking which of these have example calls covered. getCharacterFatigue, getMedals, getNotifications, and postCharacterAffiliation are all mapped correctly. I'm also checking the clones and implants endpoints\u2014both getClones and getImplants are covered. Now moving through the contact endpoints to verify getAllianceContacts, character and corporation contact methods are all accounted for. Continuing through the corporation endpoints, I'm checking off the remaining methods like alliance history, blueprints, divisions, facilities, and member-related functions, along with shareholder and standing data. Most of these are covered, though I'm still verifying a few like getCorporationAllianceHistory and the NPC corporations endpoint.\n\nNow moving into the dogma endpoints, I'm working through attributes, effects, and dynamic item info\u2014I've confirmed calls for attributes and effects are working, but getDynamicItemInfo still needs to be covered.\n\nChecking the action endpoints next\u2014all the leaderboard and stats functions are mapped and verified. The fitting endpoints are complete, and I'm starting on fleet endpoints which include member management, squad operations, and fleet invitations.\n\nLooking at the fleet endpoints, I can see that while some functions like getCharacterFleetInfo and getFleetMembers are covered, there's a significant gap with the mutation operations\u2014updateFleet, createFleetInvitation, kickFleetMember, moveFleetMember, and all the squad and wing management functions aren't implemented yet. The freelance jobs, incursion, industry, insurance, killmail, location, and loyalty endpoints are all accounted for, and I'm moving into the mail endpoints now. Looking at the examples more carefully, I see that streamMarketOrders and streamMarketTypes are streaming helper functions, not the direct endpoint methods. The question is whether getMarketOrders and getMarketTypes are actually called as client methods in the examples, and from what I can see in the streaming-pagination.ts file, they're using the streaming wrappers instead of calling the base endpoint methods directly. So getMarketOrders and getMarketTypes aren't being called directly in any examples\u2014only their streaming counterparts are used. Looking through the remaining endpoint files, mercenary, meta, pi, route, and search all have their methods covered in the examples. I'm checking skill endpoints now to see what's left uncovered.\n\nMoving through the universe endpoints, most are accounted for, but I'm noticing something odd with getCategories\u2014the example calls getItemCategories but the endpoint key is just getCategories. This might be a naming mismatch I need to clarify. Looking at the actual client implementations to understand how the method names map to the endpoint keys, since there's clearly a naming discrepancy between what the examples show and what the endpoint definitions use.",
+      "source_message_uuid": "14c4a993-d725-466e-b0b9-5701693d1846",
+      "source_lines": [
+        15
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5133,
+          "repetition_score": 0.3606,
+          "confidence": 0.5133,
+          "semantic_similarity": 0.6112,
+          "lexical_similarity": 0.0328,
+          "entity_similarity": 0.0417,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9583
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "Let me systematically find all endpoint definition files and all example files, then cross-reference them."
+      }
+    },
+    {
+      "position": 9,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.3319052457809448,
+      "tokens": 37,
+      "text": "Now I need to verify the exact mapping between endpoint keys and client method names, since there seem to be some naming differences. Let me check a few client files to understand the mapping.",
+      "source_message_uuid": "14c4a993-d725-466e-b0b9-5701693d1846",
+      "source_lines": [
+        16
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3319,
+          "repetition_score": 0.2495,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3988,
+          "lexical_similarity": 0.1316,
+          "entity_similarity": 0.0938,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9062
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Now let me read all example files to find which methods they call."
+      }
+    },
+    {
+      "position": 10,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4706195592880249,
+      "tokens": 36,
+      "text": "Grep {\"pattern\":\"getCategories|getCategoryById|getItemCategories|getItemCategoryById\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "14c4a993-d725-466e-b0b9-5701693d1846",
+      "source_lines": [
+        17
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4706,
+          "repetition_score": 0.0521,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6039,
+          "lexical_similarity": 0.3125,
+          "entity_similarity": 0.2857,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Glob {\"pattern\":\"examples/*.ts\",\"path\":\"D:\\\\code\\\\ESI.ts\"}"
+      }
+    },
+    {
+      "position": 11,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4864795506000519,
+      "tokens": 29,
+      "text": "Grep {\"pattern\":\"getPortrait|getCharacterPortrait\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "14c4a993-d725-466e-b0b9-5701693d1846",
+      "source_lines": [
+        19
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4865,
+          "repetition_score": 0.6368,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8033,
+          "lexical_similarity": 0.6,
+          "entity_similarity": 0.5714,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 10,
+        "matched_prior_text": "Grep {\"pattern\":\"getCategories|getCategoryById|getItemCategories|getItemCategoryById\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 12,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4641820788383484,
+      "tokens": 25,
+      "text": "Grep {\"pattern\":\"getDynamicItemInfo\",\"path\":\"D:\\\\code\\\\ESI.ts\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "14c4a993-d725-466e-b0b9-5701693d1846",
+      "source_lines": [
+        21
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4642,
+          "repetition_score": 0.4861,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8485,
+          "lexical_similarity": 0.6667,
+          "entity_similarity": 0.6364,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.5
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 11,
+        "matched_prior_text": "Grep {\"pattern\":\"getPortrait|getCharacterPortrait\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 13,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.39418870210647583,
+      "tokens": 235,
+      "text": "OK so I see the pattern now. The client methods sometimes have different names from the endpoint keys, but the endpoint keys are the underlying method names. The example files call the CLIENT methods. So I need to map client method names to endpoint keys.\n\nLet me check all the client files to see where client methods differ from endpoint keys. Actually, I notice that in some cases the client method names ARE the same as the endpoint keys (like `getDynamicItemInfo`), and in others they differ (like `getPortrait` -> `getCharacterPortrait`, `getCategories` -> `getItemCategories`).\n\nSince the user said \"The client method names map directly to endpoint definition keys\", maybe they meant most of them do, and I should check for the ones that don't.\nI think the user's statement about direct mapping might not account for all the renaming that happens. The real goal here is to find which ESI endpoints aren't being tested by any example, so I need to build out the full mapping between client methods and endpoint keys, then see which endpoints never get called.\n\nLet me search the example files for specific methods I suspect might not be covered.",
+      "source_message_uuid": "cb6e11ff-f4b7-41b3-8a77-ed30c37011cf",
+      "source_lines": [
+        23
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3942,
+          "repetition_score": 0.4075,
+          "confidence": 0.5,
+          "semantic_similarity": 0.6202,
+          "lexical_similarity": 0.1899,
+          "entity_similarity": 0.1775,
+          "action_similarity": 0.1667,
+          "parameter_novelty": 0.8225
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Now I need to cross-reference the endpoint definition method names with the example method calls. The example calls use slightly different names in some cases (e.g., the client wraps the endpoint methods). Let me map them carefully.\n\nLet me"
+      }
+    },
+    {
+      "position": 14,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.3218373656272888,
+      "tokens": 21,
+      "text": "The client wraps some endpoint keys with different names. Let me check the specific endpoints I suspect are uncovered.",
+      "source_message_uuid": "cb6e11ff-f4b7-41b3-8a77-ed30c37011cf",
+      "source_lines": [
+        24
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3218,
+          "repetition_score": 0.4584,
+          "confidence": 0.5,
+          "semantic_similarity": 0.6546,
+          "lexical_similarity": 0.2308,
+          "entity_similarity": 0.25,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.75
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 9,
+        "matched_prior_text": "Now I need to verify the exact mapping between endpoint keys and client method names, since there seem to be some naming differences. Let me check a few client files to understand the mapping."
+      }
+    },
+    {
+      "position": 15,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.5270328521728516,
+      "tokens": 29,
+      "text": "Grep {\"pattern\":\"calculateCspa|cspa\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "cb6e11ff-f4b7-41b3-8a77-ed30c37011cf",
+      "source_lines": [
+        25
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.527,
+          "repetition_score": 0.4857,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8468,
+          "lexical_similarity": 0.6667,
+          "entity_similarity": 0.6364,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.5
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 12,
+        "matched_prior_text": "Grep {\"pattern\":\"getDynamicItemInfo\",\"path\":\"D:\\\\code\\\\ESI.ts\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 16,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4929064214229584,
+      "tokens": 47,
+      "text": "Grep {\"pattern\":\"postCharacterAssetLocations|postCorporationAssetLocations|postCorporationAssetNames|AssetLocations|AssetNames\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "cb6e11ff-f4b7-41b3-8a77-ed30c37011cf",
+      "source_lines": [
+        27
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4929,
+          "repetition_score": 0.6268,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7962,
+          "lexical_similarity": 0.5625,
+          "entity_similarity": 0.5333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 15,
+        "matched_prior_text": "Grep {\"pattern\":\"calculateCspa|cspa\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 17,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.43663540482521057,
+      "tokens": 32,
+      "text": "Grep {\"pattern\":\"respondToCalendar|calendarRespond|respondEvent\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "cb6e11ff-f4b7-41b3-8a77-ed30c37011cf",
+      "source_lines": [
+        29
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4366,
+          "repetition_score": 0.6214,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7357,
+          "lexical_similarity": 0.6429,
+          "entity_similarity": 0.6154,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 15,
+        "matched_prior_text": "Grep {\"pattern\":\"calculateCspa|cspa\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 18,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4861259460449219,
+      "tokens": 29,
+      "text": "Grep {\"pattern\":\"getDynamicItem|dynamicItem\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "cb6e11ff-f4b7-41b3-8a77-ed30c37011cf",
+      "source_lines": [
+        30
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4861,
+          "repetition_score": 0.6641,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8285,
+          "lexical_similarity": 0.6923,
+          "entity_similarity": 0.6667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 15,
+        "matched_prior_text": "Grep {\"pattern\":\"calculateCspa|cspa\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 19,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.38928094506263733,
+      "tokens": 78,
+      "text": "Grep {\"pattern\":\"updateFleet|createFleetInvitation|kickFleetMember|moveFleetMember|deleteFleetSquad|renameFleetSquad|createFleetWing|deleteFleetWing|renameFleetWing|createFleetSquad\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "cb6e11ff-f4b7-41b3-8a77-ed30c37011cf",
+      "source_lines": [
+        33
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3893,
+          "repetition_score": 0.5666,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7004,
+          "lexical_similarity": 0.4286,
+          "entity_similarity": 0.4,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 15,
+        "matched_prior_text": "Grep {\"pattern\":\"calculateCspa|cspa\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 20,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4467286467552185,
+      "tokens": 34,
+      "text": "Grep {\"pattern\":\"getMarketOrders\\\\b|getMarketTypes\\\\b\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "cb6e11ff-f4b7-41b3-8a77-ed30c37011cf",
+      "source_lines": [
+        35
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4467,
+          "repetition_score": 0.6326,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7559,
+          "lexical_similarity": 0.6429,
+          "entity_similarity": 0.6667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 15,
+        "matched_prior_text": "Grep {\"pattern\":\"calculateCspa|cspa\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 21,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.14690595865249634,
+      "tokens": 75,
+      "text": "Now I have a clearer picture. The fleet operations file mentions some fleet methods in comments only (they're commented out), not actually called. Let me also check for getMarketOrders and getMarketTypes more broadly, and the remaining uncovered ones.\n\nLet me also check for the streaming methods - are streamMarketOrders/streamMarketTypes actually covering getMarketOrders/getMarketTypes internally?",
+      "source_message_uuid": "08507ed2-7377-418b-89a5-861575e0230b",
+      "source_lines": [
+        37
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1469,
+          "repetition_score": 0.1876,
+          "confidence": 0.5,
+          "semantic_similarity": 0.2713,
+          "lexical_similarity": 0.1298,
+          "entity_similarity": 0.1468,
+          "action_similarity": 0.25,
+          "parameter_novelty": 0.8532
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 13,
+        "matched_prior_text": "OK so I see the pattern now. The client methods sometimes have different names from the endpoint keys, but the endpoint keys are the underlying method names. The example files call the CLIENT methods. So I need to map client method names to"
+      }
+    },
+    {
+      "position": 22,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.3636201024055481,
+      "tokens": 19,
+      "text": "Let me check if the streaming market methods count as covering those endpoints and verify a few more.",
+      "source_message_uuid": "08507ed2-7377-418b-89a5-861575e0230b",
+      "source_lines": [
+        38
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3636,
+          "repetition_score": 0.3524,
+          "confidence": 0.5,
+          "semantic_similarity": 0.5225,
+          "lexical_similarity": 0.1613,
+          "entity_similarity": 0.1538,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.8462
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 14,
+        "matched_prior_text": "The client wraps some endpoint keys with different names. Let me check the specific endpoints I suspect are uncovered."
+      }
+    },
+    {
+      "position": 23,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.473366379737854,
+      "tokens": 35,
+      "text": "Grep {\"pattern\":\"streamMarketOrders|streamMarketTypes\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\",\"output_mode\":\"content\",\"-A\":5}",
+      "source_message_uuid": "08507ed2-7377-418b-89a5-861575e0230b",
+      "source_lines": [
+        39
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4734,
+          "repetition_score": 0.6422,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7973,
+          "lexical_similarity": 0.6,
+          "entity_similarity": 0.6667,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 11,
+        "matched_prior_text": "Grep {\"pattern\":\"getPortrait|getCharacterPortrait\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\src\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 24,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4720190763473511,
+      "tokens": 41,
+      "text": "Grep {\"pattern\":\"postCorporationAssetLocations|postCorporationAssetNames|postCharacterAssetLocations\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "08507ed2-7377-418b-89a5-861575e0230b",
+      "source_lines": [
+        41
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.472,
+          "repetition_score": 0.7483,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9711,
+          "lexical_similarity": 0.8571,
+          "entity_similarity": 0.8462,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 16,
+        "matched_prior_text": "Grep {\"pattern\":\"postCharacterAssetLocations|postCorporationAssetLocations|postCorporationAssetNames|AssetLocations|AssetNames\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 25,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.39731481671333313,
+      "tokens": 62,
+      "text": "Grep {\"pattern\":\"kickFleetMember|moveFleetMember|deleteFleetSquad|renameFleetSquad|deleteFleetWing|renameFleetWing|createFleetSquad\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "08507ed2-7377-418b-89a5-861575e0230b",
+      "source_lines": [
+        43
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3973,
+          "repetition_score": 0.7509,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9865,
+          "lexical_similarity": 0.8421,
+          "entity_similarity": 0.8333,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 19,
+        "matched_prior_text": "Grep {\"pattern\":\"updateFleet|createFleetInvitation|kickFleetMember|moveFleetMember|deleteFleetSquad|renameFleetSquad|createFleetWing|deleteFleetWing|renameFleetWing|createFleetSquad\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"conten"
+      }
+    },
+    {
+      "position": 26,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.555518627166748,
+      "tokens": 27,
+      "text": "Grep {\"pattern\":\"getSchematicById\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "08507ed2-7377-418b-89a5-861575e0230b",
+      "source_lines": [
+        45
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5555,
+          "repetition_score": 0.6956,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8845,
+          "lexical_similarity": 0.75,
+          "entity_similarity": 0.7273,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 18,
+        "matched_prior_text": "Grep {\"pattern\":\"getDynamicItem|dynamicItem\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 27,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.4045354723930359,
+      "tokens": 475,
+      "text": "OK, so `streamMarketOrders` internally calls `getMarketOrders` and `streamMarketTypes` internally calls `getMarketTypes`. So those endpoints ARE effectively exercised by the examples, even though the client wrapper method has a different name. I'll count those as covered.\n\nNow let me also check if `getSchematicById` in universeEndpoints vs `getSchematicInformation` in piEndpoints are different endpoints. Looking at the data:\n\nFrom universeEndpoints.ts:\n- `getSchematicById`: `universe/schematics/{schematicId}` - GET - false\nFrom piEndpoints.ts:\n- `getSchematicInformation`: `universe/schematics/{schematicId}` - GET - false\n\nThese are pointing to the same endpoint, so they're duplicates. Both are covered in the examples anyway. Now I'm compiling the final list of uncovered endpoints, starting with the asset endpoints that require POST requests to handle character and corporation asset locations.\n\nContinuing through the remaining endpoints: calendar events need responses, characters have CSPA charge calculations, dogma has dynamic item info lookups, and fleet operations include updates and member invitations. `createFleetSquad` - POST `fleets/{fleetId}/wings/{wingId}/squads/` - auth: true\n\nI'm noticing that the fleet-operations example has some commented-out endpoints like `updateFleet`, `createFleetWing`, and `createFleetInvitation` that aren't actually being called, so those remain uncovered. That brings me to 15 uncovered endpoints total. I should also verify whether `getMarketOrders` and `getMarketTypes` are directly invoked in the examples or only called internally by the streaming methods.\n\nLooking through the examples, the streaming-pagination file uses `streamMarketOrders` and `streamMarketTypes`, which internally invoke `getMarketOrders` and `getMarketTypes` through the endpoint resolution system, so those count as exercised. The market-orders example doesn't call them directly. I'll count the streaming calls as coverage since the endpoints are being hit. Now I need to confirm that fleet-operations only has those four methods actually called\u2014`getCharacterFleetInfo`, `getFleetInformation`, `getFleetMembers`, and `getFleetWings`\u2014with everything else commented out.",
+      "source_message_uuid": "ad941712-6401-4c4f-a7f5-c60302fc663a",
+      "source_lines": [
+        47
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4045,
+          "repetition_score": 0.3511,
+          "confidence": 0.5,
+          "semantic_similarity": 0.5084,
+          "lexical_similarity": 0.2331,
+          "entity_similarity": 0.2273,
+          "action_similarity": 0.2,
+          "parameter_novelty": 0.7727
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Now I need to cross-reference the endpoint definition method names with the example method calls. The example calls use slightly different names in some cases (e.g., the client wraps the endpoint methods). Let me map them carefully.\n\nLet me"
+      }
+    },
+    {
+      "position": 28,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.07183793187141418,
+      "tokens": 17,
+      "text": "Let me verify the fleet example more carefully to confirm which methods are only in comments.",
+      "source_message_uuid": "ad941712-6401-4c4f-a7f5-c60302fc663a",
+      "source_lines": [
+        48
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.0718,
+          "repetition_score": 0.294,
+          "confidence": 0.5,
+          "semantic_similarity": 0.4329,
+          "lexical_similarity": 0.2609,
+          "entity_similarity": 0.2,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Now let me read all example files to find which methods they call."
+      }
+    },
+    {
+      "position": 29,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.500296950340271,
+      "tokens": 20,
+      "text": "Read {\"file_path\":\"D:\\\\code\\\\ESI.ts\\\\examples\\\\fleet-operations.ts\"}",
+      "source_message_uuid": "ad941712-6401-4c4f-a7f5-c60302fc663a",
+      "source_lines": [
+        49
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5003,
+          "repetition_score": 0.0463,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5317,
+          "lexical_similarity": 0.3077,
+          "entity_similarity": 0.2308,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 26,
+        "matched_prior_text": "Grep {\"pattern\":\"getSchematicById\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 30,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.18240337073802948,
+      "tokens": 276,
+      "text": "Confirmed: fleet-operations.ts only actually CALLS 4 fleet methods (getCharacterFleetInfo, getFleetInformation, getFleetMembers, getFleetWings). The other fleet methods (updateFleet, createFleetWing, createFleetInvitation) are only mentioned in comments.\n\nAnd the other fleet methods (kickFleetMember, moveFleetMember, deleteFleetSquad, renameFleetSquad, deleteFleetWing, renameFleetWing, createFleetSquad) are not mentioned at all.\n\nNow let me compile my final list. Let me also do a last check on the universe endpoints - the `getSchematicById` in universe vs `getSchematicInformation` in PI - to make sure both endpoint definition keys are actually covered.\nBoth the universe and PI schematic endpoints are covered\u2014rate-limiting.ts calls the universe version while loyalty-pi.ts calls the PI version. Now I'm finalizing the uncovered endpoints list, starting with the assets endpoints. Continuing through the Fleet endpoints, covering member management, squad operations, and wing creation...\n\nthat brings the total to 16 uncovered endpoints. Now I'm checking whether the market endpoints like `getMarketOrders` and `getMarketTypes` are actually covered by the streaming methods or if there's a direct client method I'm missing.",
+      "source_message_uuid": "4c5ef6c9-6c97-49f1-b1f3-09c91aceef87",
+      "source_lines": [
+        51
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1824,
+          "repetition_score": 0.455,
+          "confidence": 0.5,
+          "semantic_similarity": 0.6763,
+          "lexical_similarity": 0.1774,
+          "entity_similarity": 0.1881,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.8119
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 21,
+        "matched_prior_text": "Now I have a clearer picture. The fleet operations file mentions some fleet methods in comments only (they're commented out), not actually called. Let me also check for getMarketOrders and getMarketTypes more broadly, and the remaining unco"
+      }
+    },
+    {
+      "position": 31,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.19184960424900055,
+      "tokens": 13,
+      "text": "Let me do a final check on a few more potential gaps.",
+      "source_message_uuid": "4c5ef6c9-6c97-49f1-b1f3-09c91aceef87",
+      "source_lines": [
+        52
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1918,
+          "repetition_score": 0.2444,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3233,
+          "lexical_similarity": 0.2083,
+          "entity_similarity": 0.2353,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.7647
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 22,
+        "matched_prior_text": "Let me check if the streaming market methods count as covering those endpoints and verify a few more."
+      }
+    },
+    {
+      "position": 32,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3987654447555542,
+      "tokens": 33,
+      "text": "Grep {\"pattern\":\"getMarketOrders\\\\(|\\\\.getMarketTypes\\\\(\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "4c5ef6c9-6c97-49f1-b1f3-09c91aceef87",
+      "source_lines": [
+        53
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3988,
+          "repetition_score": 0.7679,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9726,
+          "lexical_similarity": 0.9167,
+          "entity_similarity": 1.0,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 20,
+        "matched_prior_text": "Grep {\"pattern\":\"getMarketOrders\\\\b|getMarketTypes\\\\b\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 33,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4547596573829651,
+      "tokens": 27,
+      "text": "Grep {\"pattern\":\"getMarketHistory\\\\(\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "4c5ef6c9-6c97-49f1-b1f3-09c91aceef87",
+      "source_lines": [
+        54
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4548,
+          "repetition_score": 0.6982,
+          "confidence": 0.6,
+          "semantic_similarity": 0.9111,
+          "lexical_similarity": 0.6923,
+          "entity_similarity": 0.7273,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 20,
+        "matched_prior_text": "Grep {\"pattern\":\"getMarketOrders\\\\b|getMarketTypes\\\\b\",\"path\":\"D:\\\\code\\\\ESI.ts\\\\examples\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 34,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.4375998377799988,
+      "tokens": 200,
+      "text": "So `getMarketOrders` and `getMarketTypes` are NOT directly called in any example file. But the streaming methods (streamMarketOrders, streamMarketTypes) internally call them via `this.streamEndpoint('getMarketOrders', ...)` and `this.streamEndpoint('getMarketTypes', ...)`. \n\nThe streaming methods do exercise the endpoints, so in terms of whether the endpoint path is hit during example execution, yes they are covered. But as direct client method calls, no.\n\nThe user said \"The client method names map directly to endpoint definition keys.\" and asked about endpoints \"called by any example file.\" The streaming examples DO exercise these endpoints through the streaming wrappers. I think the intent is to find endpoints whose HTTP paths are never hit. Since streaming internally calls these same endpoints, I'll consider them covered.\nSince the streaming methods internally invoke these same endpoints, they're effectively exercised even if not called directly. Let me finalize the list of truly uncovered endpoints and organize them by domain.",
+      "source_message_uuid": "b926f2c5-e029-45ff-8664-848028fdcdd6",
+      "source_lines": [
+        57
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4376,
+          "repetition_score": 0.4796,
+          "confidence": 0.5,
+          "semantic_similarity": 0.7155,
+          "lexical_similarity": 0.2319,
+          "entity_similarity": 0.2114,
+          "action_similarity": 0.25,
+          "parameter_novelty": 0.7886
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 27,
+        "matched_prior_text": "OK, so `streamMarketOrders` internally calls `getMarketOrders` and `streamMarketTypes` internally calls `getMarketTypes`. So those endpoints ARE effectively exercised by the examples, even though the client wrapper method has a different na"
+      }
+    },
+    {
+      "position": 35,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6214383244514465,
+      "intent_similarity": 0.6214383244514465,
+      "tokens": 638,
+      "text": "Here is the complete list of uncovered endpoints.\n\n## Uncovered ESI Endpoints (16 total)\n\n### Assets (`assetEndpoints.ts`) -- 3 uncovered\n- `postCharacterAssetLocations` -- POST `characters/{characterId}/assets/locations/` -- auth: yes\n- `postCorporationAssetLocations` -- POST `corporations/{corporationId}/assets/locations/` -- auth: yes\n- `postCorporationAssetNames` -- POST `corporations/{corporationId}/assets/names/` -- auth: yes\n\n### Calendar (`calendarEndpoints.ts`) -- 1 uncovered\n- `respondToCalendarEvent` -- PUT `characters/{characterId}/calendar/{eventId}/` -- auth: yes\n\n### Character (`characterEndpoints.ts`) -- 1 uncovered\n- `calculateCspaChargeCost` -- POST `characters/{characterId}/cspa/` -- auth: yes\n\n### Dogma (`dogmaEndpoints.ts`) -- 1 uncovered\n- `getDynamicItemInfo` -- GET `dogma/dynamic/items/{typeId}/{itemId}` -- auth: no\n\n### Fleet (`fleetEndpoints.ts`) -- 10 uncovered\n- `updateFleet` -- PUT `fleets/{fleetId}` -- auth: yes\n- `createFleetInvitation` -- POST `fleets/{fleetId}/members/` -- auth: yes\n- `kickFleetMember` -- DELETE `fleets/{fleetId}/members/{memberId}/` -- auth: yes\n- `moveFleetMember` -- PUT `fleets/{fleetId}/members/{memberId}/` -- auth: yes\n- `deleteFleetSquad` -- DELETE `fleets/{fleetId}/squads/{squadId}/` -- auth: yes\n- `renameFleetSquad` -- PUT `fleets/{fleetId}/squads/{squadId}/` -- auth: yes\n- `createFleetWing` -- POST `fleets/{fleetId}/wings/` -- auth: yes\n- `deleteFleetWing` -- DELETE `fleets/{fleetId}/wings/{wingId}/` -- auth: yes\n- `renameFleetWing` -- PUT `fleets/{fleetId}/wings/{wingId}/` -- auth: yes\n- `createFleetSquad` -- POST `fleets/{fleetId}/wings/{wingId}/squads/` -- auth: yes\n\n**Notes:** All 16 uncovered endpoints require auth except `getDynamicItemInfo`. Fleet accounts for 10/16 (all write operations -- the read-only fleet methods are covered). The `streamMarketOrders`/`streamMarketTypes` streaming helpers internally exercise `getMarketOrders` and `getMarketTypes`, so those endpoints count as covered. Three fleet methods (`updateFleet`, `createFleetWing`, `createFleetInvitation`) are mentioned in `fleet-operations.ts` comments but never actually called.",
+      "source_message_uuid": "b926f2c5-e029-45ff-8664-848028fdcdd6",
+      "source_lines": [
+        58
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6214,
+          "repetition_score": 0.3297,
+          "confidence": 0.6214,
+          "semantic_similarity": 0.5601,
+          "lexical_similarity": 0.0252,
+          "entity_similarity": 0.0381,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9619
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 14,
+        "matched_prior_text": "The client wraps some endpoint keys with different names. Let me check the specific endpoints I suspect are uncovered."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 11,
+    "total_output_tokens": 2358,
+    "total_cache_creation_tokens": 47024,
+    "total_cache_read_tokens": 275236,
+    "input_output_ratio": 0.0,
+    "cache_hit_rate": 1.0,
+    "estimated_cost_usd": 0.2943,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 12,
+      "mid_span_count": 12,
+      "late_span_count": 12
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        19798,
+        21412,
+        28681,
+        35222,
+        40104,
+        41597,
+        42781,
+        45649
+      ],
+      "growth_rate": 2.31,
+      "is_superlinear": true,
+      "context_bloat_detected": true
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 223,
+      "user_result_tokens": 13858,
+      "model_reasoning_tokens": 2360,
+      "model_tool_tokens": 1261,
+      "model_generation_tokens": 759,
+      "total_user_tokens": 14081,
+      "total_model_tokens": 4380,
+      "user_ratio": 0.7627
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.4043,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "I need to identify which ESI endpoints in D:\\code\\ESI.ts are NOT yet covered by any of the 43 example files.\n\nRead ALL endpoint definition files in D:\\code\\ESI.ts\\src\\core\\endpoints\\ (files matching *Endpoints.ts). Each file exports an object where keys are method names and values have `path` and `method` properties.\n\nThen check which of those endpoints are called by the example files in D:\\code\\ESI.ts\\examples\\. All 43 example .ts files have been run. The client method names map directly to endpoint definition keys.\n\nList ONLY the endpoints that are NOT called by any example file. For each, include:\n- The endpoint definition file\n- The method name (key in the endpoints object)\n- The HTTP method and path\n- Whether it requires auth (has `requiresAuth: true` or security scopes)\n\nBe thorough \u2014 read every Endpoints.ts file and every example file. Give me the final list of uncovered endpoints, grouped by domain.\n\nReport in under 300 words \u2014 just the list, no analysis.",
+          "response_text": "Now let me read all example files to find which methods they call. Now I need to verify the exact mapping between endpoint keys and client method names, since there seem to be some naming differences. Let me check a few client files to understand the mapping. The client wraps some endpoint keys with different names. Let me check the specific endpoints I suspect are uncovered. Let me check if the streaming market methods count as covering those endpoints and verify a few more. Let me verify the fleet example more carefully to confirm which methods are only in comments. Let me do a final check on a few more potential gaps. Here is the complete list of uncovered endpoints.\n\n## Uncovered ESI Endpoints (16 total)\n\n### Assets (`assetEndpoints.ts`) -- 3 uncovered\n- `postCharacterAssetLocations` -- POST `characters/{characterId}/assets/locations/` -- auth: yes\n- `postCorporationAssetLocations` -- POST `corporations/{corporationId}/assets/locations/` -- auth: yes\n- `postCorporationAssetNames` -- POST `corporations/{corporationId}/assets/names/` -- auth: yes\n\n### Calendar (`calendarEndpoints.ts`) -- 1 uncovered\n- `respondToCalendarEvent` -- PUT `characters/{characterId}/calendar/{eventId}/` -- auth: yes\n\n### Character (`characterEndpoints.ts`) -- 1 uncovered\n- `calculateCspaChargeCost` -- POST `characters/{characterId}/cspa/` -- auth: yes\n\n### Dogma (`dogmaEndpoints.ts`) -- 1 uncovered\n- `getDynamicItemInfo` -- GET `dogma/dynamic/items/{typeId}/{itemId}` -- auth: no\n\n### Fleet (`fleetEndpoints.ts`) -- 10 uncovered\n- `updateFleet` -- PUT `fleets/{fleetId}` -- auth: yes\n- `createFleetInvitation` -- POST `fleets/{fleetId}/members/` -- auth: yes\n- `kickFleetMember` -- DELETE `fleets/{fleetId}/members/{memberId}/` -- auth: yes\n- `moveFleetMember` -- PUT `fleets/{fleetId}/members/{memberId}/` -- auth: yes\n- `deleteFleetSquad` -- DELETE `fleets/{fleetId}/squads/{squadId}/` -- auth: yes\n- `renameFleetSquad` -- PUT `fleets/{fleetId}/squads/{squadId}/` -- auth: yes\n- `createFleetWing` -- POST `fleets/{fleetId}/wings/` -- auth: yes\n- `deleteFleetWing` -- DELETE `fleets/{fleetId}/wings/{wingId}/` -- auth: yes\n- `renameFleetWing` -- PUT `fleets/{fleetId}/wings/{wingId}/` -- auth: yes\n- `createFleetSquad` -- POST `fleets/{fleetId}/wings/{wingId}/squads/` -- auth: yes\n\n**Notes:** All 16 uncovered endpoints require auth except `getDynamicItemInfo`. Fleet accounts for 10/16 (all write operations -- the read-only fleet methods are covered). The `streamMarketOrders`/`streamMarketTypes` streaming helpers internally exercise `getMarketOrders` and `getMarketTypes`, so those endpoints count as covered. Three fleet methods (`updateFleet`, `createFleetWing`, `createFleetInvitation`) are mentioned in `fleet-operations.ts` comments but never actually called.",
+          "alignment": 0.4043
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "a4e701aa-0dce-4f48-867d-8ac45b40f603",
+    "source_file": "data/D--code-ESI-ts__agent-a4c1fd8d764c0a348.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

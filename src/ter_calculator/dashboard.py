@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
     from ter_calculator.real_time import TERSignal
@@ -29,7 +29,9 @@ def format_tokens_per_minute(total_tokens: int, duration_seconds: float) -> str:
     return f"{rate:,.0f} tok/min"
 
 
-def create_dashboard_renderable(signal: TERSignal, recent_ter_values: list[float] | None = None):
+def create_dashboard_renderable(
+    signal: TERSignal, recent_ter_values: list[float] | None = None
+):
     """Create a Rich renderable object for live dashboard display."""
     from rich.console import Group
     from rich.panel import Panel
@@ -37,17 +39,39 @@ def create_dashboard_renderable(signal: TERSignal, recent_ter_values: list[float
     from datetime import datetime, timezone
 
     # Extract data from signal
-    waste_pct = (signal.waste_tokens / signal.total_tokens * 100) if signal.total_tokens > 0 else 0
-    session_short = signal.session_id[:8] if len(signal.session_id) > 8 else signal.session_id
+    waste_pct = (
+        (signal.waste_tokens / signal.total_tokens * 100)
+        if signal.total_tokens > 0
+        else 0
+    )
+    session_short = (
+        signal.session_id[:8] if len(signal.session_id) > 8 else signal.session_id
+    )
     live_indicator = "🟢 LIVE" if signal.is_live else "🔵 HISTORY"
 
     # Build subtitle line: Drift | Messages | Duration | Rate
-    drift_value = signal.drift.value if hasattr(signal.drift, 'value') else str(signal.drift)
-    drift_arrow = "↑" if drift_value == "improving" else "↓" if drift_value == "degrading" else "→"
-    drift_color = "green" if drift_value == "improving" else "red" if drift_value == "degrading" else "yellow"
+    drift_value = (
+        signal.drift.value if hasattr(signal.drift, "value") else str(signal.drift)
+    )
+    drift_arrow = (
+        "↑"
+        if drift_value == "improving"
+        else "↓"
+        if drift_value == "degrading"
+        else "→"
+    )
+    drift_color = (
+        "green"
+        if drift_value == "improving"
+        else "red"
+        if drift_value == "degrading"
+        else "yellow"
+    )
 
     duration_str = format_duration(signal.session_duration_seconds)
-    rate_str = format_tokens_per_minute(signal.total_tokens, signal.session_duration_seconds)
+    rate_str = format_tokens_per_minute(
+        signal.total_tokens, signal.session_duration_seconds
+    )
 
     subtitle_parts = [
         ("Drift: ", "bold"),
@@ -71,7 +95,9 @@ def create_dashboard_renderable(signal: TERSignal, recent_ter_values: list[float
         waste_pct=waste_pct,
         session_id="",  # Don't use session_id as title, we have custom title
         cost_usd=signal.estimated_cost_usd if signal.estimated_cost_usd > 0 else None,
-        waste_cost_usd=signal.estimated_waste_cost_usd if signal.estimated_waste_cost_usd > 0 else None,
+        waste_cost_usd=signal.estimated_waste_cost_usd
+        if signal.estimated_waste_cost_usd > 0
+        else None,
         subtitle_text=str(subtitle_text),  # Pass assembled subtitle
     )
     # Override title
@@ -88,8 +114,12 @@ def create_dashboard_renderable(signal: TERSignal, recent_ter_values: list[float
         total_tokens=signal.total_tokens,
         aligned_tokens=signal.aligned_tokens,
         waste_tokens=signal.waste_tokens,
-        input_tokens=signal.total_input_tokens if signal.total_input_tokens > 0 else None,
-        cache_read_tokens=signal.cache_read_tokens if signal.cache_read_tokens > 0 else None,
+        input_tokens=signal.total_input_tokens
+        if signal.total_input_tokens > 0
+        else None,
+        cache_read_tokens=signal.cache_read_tokens
+        if signal.cache_read_tokens > 0
+        else None,
         cache_hit_rate=signal.cache_hit_rate if signal.cache_hit_rate > 0 else None,
     )
 
@@ -142,18 +172,24 @@ def create_dashboard_renderable(signal: TERSignal, recent_ter_values: list[float
         elements.append(trend_text)
 
         if signal.has_thinking_blocks:
-            elements.append(Text(
-                "Output tokens excludes extended thinking",
-                style="dim italic",
-            ))
+            elements.append(
+                Text(
+                    "Output tokens excludes extended thinking",
+                    style="dim italic",
+                )
+            )
 
     # Add footer with timestamp
-    update_time = datetime.fromtimestamp(signal.timestamp, tz=timezone.utc).astimezone().strftime("%H:%M:%S")
+    update_time = (
+        datetime.fromtimestamp(signal.timestamp, tz=timezone.utc)
+        .astimezone()
+        .strftime("%H:%M:%S")
+    )
     footer_text = Text(f"Last update: {update_time}", style="dim")
     footer_panel = Panel(footer_text, border_style="dim", expand=False)
     elements.append(footer_panel)
 
-    return Group(*elements)
+    return Group(*cast(list[Any], elements))
 
 
 # Legacy string-based function for backward compatibility (if needed elsewhere)

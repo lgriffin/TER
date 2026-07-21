@@ -1,0 +1,316 @@
+{
+  "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 3248,
+  "aligned_tokens": 3248,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.588,
+    "token_weighted_confidence": 0.6259,
+    "low_confidence_tokens": 2913,
+    "low_confidence_share": 0.8969,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 6,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "waste_patterns": [
+    {
+      "type": "context_restatement",
+      "start_position": 2,
+      "end_position": 2,
+      "spans_involved": 1,
+      "tokens_wasted": 11,
+      "description": "Response restates prior content (similarity: 0.85)"
+    }
+  ],
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.2871584892272949,
+      "tokens": 16,
+      "text": "\n\nI'll create both files. Let me first verify the parent directories exist.",
+      "source_message_uuid": "c3cde67b-8783-4ea6-ab10-21eb65e28ecf",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.2872,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.4544239640235901,
+      "tokens": 93,
+      "text": "Bash {\"command\":\"ls \\\"D:/code/ESI.ts/tests/bdd/features/core/\\\" 2>/dev/null && echo \\\"features/core exists\\\" || echo \\\"features/core missing\\\"; ls \\\"D:/code/ESI.ts/tests/bdd/step-definitions/core/\\\" 2>/dev/null && echo \\\"step-definitions/core exists\\\" || echo \\\"step-definitions/core missing\\\"\",\"description\":\"Check if BDD directories exist\"}",
+      "source_message_uuid": "c3cde67b-8783-4ea6-ab10-21eb65e28ecf",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4544,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.3102635443210602,
+      "tokens": 11,
+      "text": "Both directories exist. Now I'll write both files.",
+      "source_message_uuid": "6fc88df1-aef0-4e49-a561-a2da89ec3e3c",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3103,
+          "repetition_score": 0.6004,
+          "confidence": 0.5,
+          "semantic_similarity": 0.8537,
+          "lexical_similarity": 0.4,
+          "entity_similarity": 0.3333,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.6667
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "\n\nI'll create both files. Let me first verify the parent directories exist."
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.70404452085495,
+      "intent_similarity": 0.70404452085495,
+      "tokens": 335,
+      "text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/features/core/fittings.feature\",\"content\":\"Feature: Fittings Management\\n\\n  Scenario: List all saved fittings for a character\\n    Given a character with saved fittings\\n    When I request their fittings\\n    Then I should receive an array of fitting details\\n\\n  Scenario: Character has no saved fittings\\n    Given a character with no saved fittings\\n    When I request their fittings list\\n    Then I should receive an empty array\\n\\n  Scenario: Successfully create a new fitting\\n    Given valid fitting data\\n    When I create a new fitting\\n    Then I should receive the new fitting ID\\n\\n  Scenario: Create fitting with maximum items\\n    Given a fully fitted ship\\n    When I save the fitting\\n    Then the fitting should be created with all module slots populated\\n\\n  Scenario: Successfully delete an existing fitting\\n    Given a valid fitting ID\\n    When I delete the fitting\\n    Then the operation should complete without error\\n\\n  Scenario: Unauthorized access to fittings\\n    Given an invalid or expired token for fittings\\n    When I request fittings with invalid token\\n    Then I should receive a 403 forbidden error for fittings\\n\\n  Scenario: Unauthorized access when creating a fitting\\n    Given insufficient permissions for fitting creation\\n    When I attempt to create a fitting\\n    Then I should receive a 403 forbidden error for creation\\n\\n  Scenario: Full fitting lifecycle - create, list, and delete\\n    Given a character for fitting lifecycle\\n    When I create a fitting then list fittings then delete it\\n    Then each operation should succeed in sequence\\n\"}",
+      "source_message_uuid": "6fc88df1-aef0-4e49-a561-a2da89ec3e3c",
+      "source_lines": [
+        7
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.704,
+          "repetition_score": 0.0319,
+          "confidence": 0.704,
+          "semantic_similarity": 0.4723,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.0,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"ls \\\"D:/code/ESI.ts/tests/bdd/features/core/\\\" 2>/dev/null && echo \\\"features/core exists\\\" || echo \\\"features/core missing\\\"; ls \\\"D:/code/ESI.ts/tests/bdd/step-definitions/core/\\\" 2>/dev/null && echo \\\"step-definitions/co"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6192517280578613,
+      "intent_similarity": 0.6192517280578613,
+      "tokens": 2681,
+      "text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/step-definitions/core/fittings.steps.ts\",\"content\":\"import { defineFeature, loadFeature } from 'jest-cucumber';\\nimport { EsiClient } from '../../../../src/EsiClient';\\nimport { EsiError } from '../../../../src/core/util/error';\\nimport { TestDataFactory } from '../../../../src/testing/TestDataFactory';\\n\\nconst feature = loadFeature('tests/bdd/features/core/fittings.feature');\\n\\ndefineFeature(feature, (test) => {\\n  let client: EsiClient;\\n\\n  beforeEach(() => {\\n    client = new EsiClient({\\n      clientId: 'test-client',\\n      baseUrl: 'https://esi.evetech.net',\\n      timeout: 5000,\\n    });\\n  });\\n\\n  test('List all saved fittings for a character', ({ given, when, then }) => {\\n    let result: any;\\n    const characterId = 1689391488;\\n\\n    given('a character with saved fittings', () => {\\n      const mockFittings = [\\n        {\\n          fitting_id: 1,\\n          name: 'PvP Hurricane',\\n          ship_type_id: 24690,\\n          description: 'Standard hurricane fleet fit',\\n          items: [\\n            { type_id: 2488, flag: 11, quantity: 1 },\\n            { type_id: 519, flag: 12, quantity: 1 },\\n          ],\\n        },\\n        {\\n          fitting_id: 2,\\n          name: 'Ratting Vexor Navy Issue',\\n          ship_type_id: 29340,\\n          description: 'AFK ratting fit',\\n          items: [\\n            { type_id: 4405, flag: 11, quantity: 1 },\\n            { type_id: 2185, flag: 27, quantity: 5 },\\n          ],\\n        },\\n      ];\\n\\n      jest\\n        .spyOn(client.fittings, 'getFittings')\\n        .mockResolvedValue(mockFittings);\\n    });\\n\\n    when('I request their fittings', async () => {\\n      result = await client.fittings.getFittings(characterId);\\n    });\\n\\n    then('I should receive an array of fitting details', () => {\\n      expect(result).toBeInstanceOf(Array);\\n      expect(result).toHaveLength(2);\\n      expect(result[0]).toHaveProperty('fitting_id', 1);\\n      expect(result[0]).toHaveProperty('name', 'PvP Hurricane');\\n      expect(result[0]).toHaveProperty('ship_type_id', 24690);\\n      expect(result[0].items).toBeInstanceOf(Array);\\n      expect(result[0].items).toHaveLength(2);\\n      expect(result[0].items[0]).toHaveProperty('type_id');\\n      expect(result[0].items[0]).toHaveProperty('flag');\\n      expect(result[0].items[0]).toHaveProperty('quantity');\\n    });\\n  });\\n\\n  test('Character has no saved fittings', ({ given, when, then }) => {\\n    let result: any;\\n    const characterId = 1689391488;\\n\\n    given('a character with no saved fittings', () => {\\n      jest.spyOn(client.fittings, 'getFittings').mockResolvedValue([]);\\n    });\\n\\n    when('I request their fittings list', async () => {\\n      result = await client.fittings.getFittings(characterId);\\n    });\\n\\n    then('I should receive an empty array', () => {\\n      expect(result).toBeInstanceOf(Array);\\n      expect(result).toHaveLength(0);\\n    });\\n  });\\n\\n  test('Successfully create a new fitting', ({ given, when, then }) => {\\n    let result: any;\\n    const characterId = 1689391488;\\n    let fittingData: any;\\n\\n    given('valid fitting data', () => {\\n      fittingData = {\\n        name: 'Fleet Ferox',\\n        ship_type_id: 24690,\\n        description: 'Standard ferox fleet doctrine',\\n        items: [\\n          { type_id: 3170, flag: 11, quantity: 1 },\\n          { type_id: 3186, flag: 12, quantity: 1 },\\n          { type_id: 2281, flag: 13, quantity: 1 },\\n        ],\\n      };\\n      const mockResponse = { fitting_id: 42 };\\n\\n      jest\\n        .spyOn(client.fittings, 'createFitting')\\n        .mockResolvedValue(mockResponse);\\n    });\\n\\n    when('I create a new fitting', async () => {\\n      result = await client.fittings.createFitting(characterId, fittingData);\\n    });\\n\\n    then('I should receive the new fitting ID', () => {\\n      expect(result).toBeDefined();\\n      expect(result.fitting_id).toBe(42);\\n    });\\n  });\\n\\n  test('Create fitting with maximum items', ({ given, when, then }) => {\\n    let result: any;\\n    const characterId = 1689391488;\\n    let fullFittingData: any;\\n\\n    given('a fully fitted ship', () => {\\n      fullFittingData = {\\n        name: 'Max Fit Raven',\\n        ship_type_id: 638,\\n        description: 'Fully fitted Raven for L4 missions',\\n        items: [\\n          { type_id: 3170, flag: 11, quantity: 1 },\\n          { type_id: 3170, flag: 12, quantity: 1 },\\n          { type_id: 3170, flag: 13, quantity: 1 },\\n          { type_id: 3170, flag: 14, quantity: 1 },\\n          { type_id: 3170, flag: 15, quantity: 1 },\\n          { type_id: 3170, flag: 16, quantity: 1 },\\n          { type_id: 519, flag: 19, quantity: 1 },\\n          { type_id: 519, flag: 20, quantity: 1 },\\n        ],\\n      };\\n      const mockResponse = { fitting_id: 100 };\\n\\n      jest\\n        .spyOn(client.fittings, 'createFitting')\\n        .mockResolvedValue(mockResponse);\\n    });\\n\\n    when('I save the fitting', async () => {\\n      result = await client.fittings.createFitting(\\n        characterId,\\n        fullFittingData,\\n      );\\n    });\\n\\n    then('the fitting should be created with all module slots populated', () => {\\n      expect(result).toBeDefined();\\n      expect(result.fitting_id).toBe(100);\\n    });\\n  });\\n\\n  test('Successfully delete an existing fitting', ({ given, when, then }) => {\\n    let result: any;\\n    const characterId = 1689391488;\\n    const fittingId = 42;\\n\\n    given('a valid fitting ID', () => {\\n      jest\\n        .spyOn(client.fittings, 'deleteFitting')\\n        .mockResolvedValue(undefined);\\n    });\\n\\n    when('I delete the fitting', async () => {\\n      result = await client.fittings.deleteFitting(characterId, fittingId);\\n    });\\n\\n    then('the operation should complete without error', () => {\\n      expect(result).toBeUndefined();\\n    });\\n  });\\n\\n  test('Unauthorized access to fittings', ({ given, when, then }) => {\\n    const characterId = 1689391488;\\n    let caughtError: any;\\n\\n    given('an invalid or expired token for fittings', () => {\\n      const forbiddenError = TestDataFactory.createError(403);\\n\\n      jest\\n        .spyOn(client.fittings, 'getFittings')\\n        .mockRejectedValue(forbiddenError);\\n    });\\n\\n    when('I request fittings with invalid token', async () => {\\n      try {\\n        await client.fittings.getFittings(characterId);\\n      } catch (error) {\\n        caughtError = error;\\n      }\\n    });\\n\\n    then('I should receive a 403 forbidden error for fittings', () => {\\n      expect(caughtError).toBeInstanceOf(EsiError);\\n    });\\n  });\\n\\n  test('Unauthorized access when creating a fitting', ({ given, when, then }) => {\\n    const characterId = 1689391488;\\n    let caughtError: any;\\n    let fittingData: any;\\n\\n    given('insufficient permissions for fitting creation', () => {\\n      fittingData = {\\n        name: 'Forbidden Fit',\\n        ship_type_id: 24690,\\n        description: 'Should fail',\\n        items: [{ type_id: 519, flag: 11, quantity: 1 }],\\n      };\\n      const forbiddenError = TestDataFactory.createError(403);\\n\\n      jest\\n        .spyOn(client.fittings, 'createFitting')\\n        .mockRejectedValue(forbiddenError);\\n    });\\n\\n    when('I attempt to create a fitting', async () => {\\n      try {\\n        await client.fittings.createFitting(characterId, fittingData);\\n      } catch (error) {\\n        caughtError = error;\\n      }\\n    });\\n\\n    then('I should receive a 403 forbidden error for creation', () => {\\n      expect(caughtError).toBeInstanceOf(EsiError);\\n    });\\n  });\\n\\n  test('Full fitting lifecycle - create, list, and delete', ({ given, when, then }) => {\\n    const characterId = 1689391488;\\n    let createSpy: any;\\n    let listSpy: any;\\n    let deleteSpy: any;\\n    let created: any;\\n    let fittings: any;\\n    const fittingData = {\\n      name: 'Lifecycle Test Fit',\\n      ship_type_id: 24690,\\n      description: 'Test fitting lifecycle',\\n      items: [{ type_id: 519, flag: 11, quantity: 1 }],\\n    };\\n\\n    given('a character for fitting lifecycle', () => {\\n      createSpy = jest\\n        .spyOn(client.fittings, 'createFitting')\\n        .mockResolvedValue({ fitting_id: 99 });\\n\\n      listSpy = jest\\n        .spyOn(client.fittings, 'getFittings')\\n        .mockResolvedValue([\\n          {\\n            fitting_id: 99,\\n            name: 'Lifecycle Test Fit',\\n            ship_type_id: 24690,\\n            description: 'Test fitting lifecycle',\\n            items: [{ type_id: 519, flag: 11, quantity: 1 }],\\n          },\\n        ]);\\n\\n      deleteSpy = jest\\n        .spyOn(client.fittings, 'deleteFitting')\\n        .mockResolvedValue(undefined);\\n    });\\n\\n    when('I create a fitting then list fittings then delete it', async () => {\\n      created = await client.fittings.createFitting(characterId, fittingData);\\n      expect(created.fitting_id).toBe(99);\\n\\n      fittings = await client.fittings.getFittings(characterId);\\n      expect(fittings).toHaveLength(1);\\n      expect(fittings[0].fitting_id).toBe(99);\\n\\n      await client.fittings.deleteFitting(characterId, created.fitting_id);\\n    });\\n\\n    then('each operation should succeed in sequence', () => {\\n      expect(createSpy).toHaveBeenCalledWith(characterId, fittingData);\\n      expect(listSpy).toHaveBeenCalledWith(characterId);\\n      expect(deleteSpy).toHaveBeenCalledWith(characterId, 99);\\n    });\\n  });\\n});\\n\"}",
+      "source_message_uuid": "6fc88df1-aef0-4e49-a561-a2da89ec3e3c",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6193,
+          "repetition_score": 0.5103,
+          "confidence": 0.6193,
+          "semantic_similarity": 0.5785,
+          "lexical_similarity": 0.3442,
+          "entity_similarity": 0.36,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Write {\"file_path\":\"D:/code/ESI.ts/tests/bdd/features/core/fittings.feature\",\"content\":\"Feature: Fittings Management\\n\\n  Scenario: List all saved fittings for a character\\n    Given a character with saved fittings\\n    When I request their"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6044729948043823,
+      "intent_similarity": 0.6044729948043823,
+      "tokens": 112,
+      "text": "Both files have been created successfully:\n\n- **Feature file**: `D:/code/ESI.ts/tests/bdd/features/core/fittings.feature` -- 8 scenarios covering list, empty list, create, create with max items, delete, two unauthorized access cases, and a full lifecycle test.\n- **Steps file**: `D:/code/ESI.ts/tests/bdd/step-definitions/core/fittings.steps.ts` -- jest-cucumber step definitions with mocked `EsiClient` fittings API calls, matching all 8 scenarios from the feature file.",
+      "source_message_uuid": "747b11f8-2db4-4952-a1ca-0105044d87f0",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6045,
+          "repetition_score": 0.2126,
+          "confidence": 0.6045,
+          "semantic_similarity": 0.3325,
+          "lexical_similarity": 0.0566,
+          "entity_similarity": 0.0851,
+          "action_similarity": 0.25,
+          "parameter_novelty": 0.9149
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "\n\nI'll create both files. Let me first verify the parent directories exist."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [
+      {
+        "type": "context_restatement",
+        "tokens_wasted": 11,
+        "description": "Response restates prior content (similarity: 0.85)"
+      }
+    ],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Context Restatement",
+        "tokens": 11,
+        "percentage": 100.0,
+        "cost_usd": 0.000165,
+        "count": 1,
+        "pricing": "output"
+      }
+    ],
+    "total_tokens": 11,
+    "total_cost_usd": 0.000165
+  },
+  "economics": {
+    "total_input_tokens": 5,
+    "total_output_tokens": 141,
+    "total_cache_creation_tokens": 9919,
+    "total_cache_read_tokens": 49814,
+    "input_output_ratio": 0.04,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.0543,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 2,
+      "mid_span_count": 2,
+      "late_span_count": 2
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        12725,
+        18055,
+        19039
+      ],
+      "growth_rate": 1.5,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 2673,
+      "user_result_tokens": 247,
+      "model_reasoning_tokens": 0,
+      "model_tool_tokens": 3109,
+      "model_generation_tokens": 139,
+      "total_user_tokens": 2920,
+      "total_model_tokens": 3248,
+      "user_ratio": 0.4734
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.7116,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "Create two files for the ESI.ts project BDD conversion. The project is at D:/code/ESI.ts.\n\nFILE 1: D:/code/ESI.ts/tests/bdd/features/core/fittings.feature\nFILE 2: D:/code/ESI.ts/tests/bdd/step-definitions/core/fittings.steps.ts\n\nFEATURE FILE content (write this exactly):\n```\nFeature: Fittings Management\n\n  Scenario: List all saved fittings for a character\n    Given a character with saved fittings\n    When I request their fittings\n    Then I should receive an array of fitting details\n\n  Scenario: Character has no saved fittings\n    Given a character with no saved fittings\n    When I request their fittings list\n    Then I should receive an empty array\n\n  Scenario: Successfully create a new fitting\n    Given valid fitting data\n    When I create a new fitting\n    Then I should receive the new fitting ID\n\n  Scenario: Create fitting with maximum items\n    Given a fully fitted ship\n    When I save the fitting\n    Then the fitting should be created with all module slots populated\n\n  Scenario: Successfully delete an existing fitting\n    Given a valid fitting ID\n    When I delete the fitting\n    Then the operation should complete without error\n\n  Scenario: Unauthorized access to fittings\n    Given an invalid or expired token for fittings\n    When I request fittings with invalid token\n    Then I should receive a 403 forbidden error for fittings\n\n  Scenario: Unauthorized access when creating a fitting\n    Given insufficient permissions for fitting creation\n    When I attempt to create a fitting\n    Then I should receive a 403 forbidden error for creation\n\n  Scenario: Full fitting lifecycle - create, list, and delete\n    Given a character for fitting lifecycle\n    When I create a fitting then list fittings then delete it\n    Then each operation should succeed in sequence\n```\n\nSTEPS FILE content (write this exactly):\n```typescript\nimport { defineFeature, loadFeature } from 'jest-cucumber';\nimport { EsiClient } from '../../../../src/EsiClient';\nimport { EsiError } from '../../../../src/core/util/error';\nimport { TestDataFactory } from '../../../../src/testing/TestDataFactory';\n\nconst feature = loadFeature('tests/bdd/features/core/fittings.feature');\n\ndefineFeature(feature, (test) => {\n  let client: EsiClient;\n\n  beforeEach(() => {\n    client = new EsiClient({\n      clientId: 'test-client',\n      baseUrl: 'https://esi.evetech.net',\n      timeout: 5000,\n    });\n  });\n\n  test('List all saved fittings for a character', ({ given, when, then }) => {\n    let result: any;\n    const characterId = 1689391488;\n\n    given('a character with saved fittings', () => {\n      const mockFittings = [\n        {\n          fitting_id: 1,\n          name: 'PvP Hurricane',\n          ship_type_id: 24690,\n          description: 'Standard hurricane fleet fit',\n          items: [\n            { type_id: 2488, flag: 11, quantity: 1 },\n            { type_id: 519, flag: 12, quantity: 1 },\n          ],\n        },\n        {\n          fitting_id: 2,\n          name: 'Ratting Vexor Navy Issue',\n          ship_type_id: 29340,\n          description: 'AFK ratting fit',\n          items: [\n            { type_id: 4405, flag: 11, quantity: 1 },\n            { type_id: 2185, flag: 27, quantity: 5 },\n          ],\n        },\n      ];\n\n      jest\n        .spyOn(client.fittings, 'getFittings')\n        .mockResolvedValue(mockFittings);\n    });\n\n    when('I request their fittings', async () => {\n      result = await client.fittings.getFittings(characterId);\n    });\n\n    then('I should receive an array of fitting details', () => {\n      expect(result).toBeInstanceOf(Array);\n      expect(result).toHaveLength(2);\n      expect(result[0]).toHaveProperty('fitting_id', 1);\n      expect(result[0]).toHaveProperty('name', 'PvP Hurricane');\n      expect(result[0]).toHaveProperty('ship_type_id', 24690);\n      expect(result[0].items).toBeInstanceOf(Array);\n      expect(result[0].items).toHaveLength(2);\n      expect(result[0].items[0]).toHaveProperty('type_id');\n      expect(result[0].items[0]).toHaveProperty('flag');\n      expect(result[0].items[0]).toHaveProperty('quantity');\n    });\n  });\n\n  test('Character has no saved fittings', ({ given, when, then }) => {\n    let result: any;\n    const characterId = 1689391488;\n\n    given('a character with no saved fittings', () => {\n      jest.spyOn(client.fittings, 'getFittings').mockResolvedValue([]);\n    });\n\n    when('I request their fittings list', async () => {\n      result = await client.fittings.getFittings(characterId);\n    });\n\n    then('I should receive an empty array', () => {\n      expect(result).toBeInstanceOf(Array);\n      expect(result).toHaveLength(0);\n    });\n  });\n\n  test('Successfully create a new fitting', ({ given, when, then }) => {\n    let result: any;\n    const characterId = 1689391488;\n    let fittingData: any;\n\n    given('valid fitting data', () => {\n      fittingData = {\n        name: 'Fleet Ferox',\n        ship_type_id: 24690,\n        description: 'Standard ferox fleet doctrine',\n        items: [\n          { type_id: 3170, flag: 11, quantity: 1 },\n          { type_id: 3186, flag: 12, quantity: 1 },\n          { type_id: 2281, flag: 13, quantity: 1 },\n        ],\n      };\n      const mockResponse = { fitting_id: 42 };\n\n      jest\n        .spyOn(client.fittings, 'createFitting')\n        .mockResolvedValue(mockResponse);\n    });\n\n    when('I create a new fitting', async () => {\n      result = await client.fittings.createFitting(characterId, fittingData);\n    });\n\n    then('I should receive the new fitting ID', () => {\n      expect(result).toBeDefined();\n      expect(result.fitting_id).toBe(42);\n    });\n  });\n\n  test('Create fitting with maximum items', ({ given, when, then }) => {\n    let result: any;\n    const characterId = 1689391488;\n    let fullFittingData: any;\n\n    given('a fully fitted ship', () => {\n      fullFittingData = {\n        name: 'Max Fit Raven',\n        ship_type_id: 638,\n        description: 'Fully fitted Raven for L4 missions',\n        items: [\n          { type_id: 3170, flag: 11, quantity: 1 },\n          { type_id: 3170, flag: 12, quantity: 1 },\n          { type_id: 3170, flag: 13, quantity: 1 },\n          { type_id: 3170, flag: 14, quantity: 1 },\n          { type_id: 3170, flag: 15, quantity: 1 },\n          { type_id: 3170, flag: 16, quantity: 1 },\n          { type_id: 519, flag: 19, quantity: 1 },\n          { type_id: 519, flag: 20, quantity: 1 },\n        ],\n      };\n      const mockResponse = { fitting_id: 100 };\n\n      jest\n        .spyOn(client.fittings, 'createFitting')\n        .mockResolvedValue(mockResponse);\n    });\n\n    when('I save the fitting', async () => {\n      result = await client.fittings.createFitting(\n        characterId,\n        fullFittingData,\n      );\n    });\n\n    then('the fitting should be created with all module slots populated', () => {\n      expect(result).toBeDefined();\n      expect(result.fitting_id).toBe(100);\n    });\n  });\n\n  test('Successfully delete an existing fitting', ({ given, when, then }) => {\n    let result: any;\n    const characterId = 1689391488;\n    const fittingId = 42;\n\n    given('a valid fitting ID', () => {\n      jest\n        .spyOn(client.fittings, 'deleteFitting')\n        .mockResolvedValue(undefined);\n    });\n\n    when('I delete the fitting', async () => {\n      result = await client.fittings.deleteFitting(characterId, fittingId);\n    });\n\n    then('the operation should complete without error', () => {\n      expect(result).toBeUndefined();\n    });\n  });\n\n  test('Unauthorized access to fittings', ({ given, when, then }) => {\n    const characterId = 1689391488;\n    let caughtError: any;\n\n    given('an invalid or expired token for fittings', () => {\n      const forbiddenError = TestDataFactory.createError(403);\n\n      jest\n        .spyOn(client.fittings, 'getFittings')\n        .mockRejectedValue(forbiddenError);\n    });\n\n    when('I request fittings with invalid token', async () => {\n      try {\n        await client.fittings.getFittings(characterId);\n      } catch (error) {\n        caughtError = error;\n      }\n    });\n\n    then('I should receive a 403 forbidden error for fittings', () => {\n      expect(caughtError).toBeInstanceOf(EsiError);\n    });\n  });\n\n  test('Unauthorized access when creating a fitting', ({ given, when, then }) => {\n    const characterId = 1689391488;\n    let caughtError: any;\n    let fittingData: any;\n\n    given('insufficient permissions for fitting creation', () => {\n      fittingData = {\n        name: 'Forbidden Fit',\n        ship_type_id: 24690,\n        description: 'Should fail',\n        items: [{ type_id: 519, flag: 11, quantity: 1 }],\n      };\n      const forbiddenError = TestDataFactory.createError(403);\n\n      jest\n        .spyOn(client.fittings, 'createFitting')\n        .mockRejectedValue(forbiddenError);\n    });\n\n    when('I attempt to create a fitting', async () => {\n      try {\n        await client.fittings.createFitting(characterId, fittingData);\n      } catch (error) {\n        caughtError = error;\n      }\n    });\n\n    then('I should receive a 403 forbidden error for creation', () => {\n      expect(caughtError).toBeInstanceOf(EsiError);\n    });\n  });\n\n  test('Full fitting lifecycle - create, list, and delete', ({ given, when, then }) => {\n    const characterId = 1689391488;\n    let createSpy: any;\n    let listSpy: any;\n    let deleteSpy: any;\n    let created: any;\n    let fittings: any;\n    const fittingData = {\n      name: 'Lifecycle Test Fit',\n      ship_type_id: 24690,\n      description: 'Test fitting lifecycle',\n      items: [{ type_id: 519, flag: 11, quantity: 1 }],\n    };\n\n    given('a character for fitting lifecycle', () => {\n      createSpy = jest\n        .spyOn(client.fittings, 'createFitting')\n        .mockResolvedValue({ fitting_id: 99 });\n\n      listSpy = jest\n        .spyOn(client.fittings, 'getFittings')\n        .mockResolvedValue([\n          {\n            fitting_id: 99,\n            name: 'Lifecycle Test Fit',\n            ship_type_id: 24690,\n            description: 'Test fitting lifecycle',\n            items: [{ type_id: 519, flag: 11, quantity: 1 }],\n          },\n        ]);\n\n      deleteSpy = jest\n        .spyOn(client.fittings, 'deleteFitting')\n        .mockResolvedValue(undefined);\n    });\n\n    when('I create a fitting then list fittings then delete it', async () => {\n      created = await client.fittings.createFitting(characterId, fittingData);\n      expect(created.fitting_id).toBe(99);\n\n      fittings = await client.fittings.getFittings(characterId);\n      expect(fittings).toHaveLength(1);\n      expect(fittings[0].fitting_id).toBe(99);\n\n      await client.fittings.deleteFitting(characterId, created.fitting_id);\n    });\n\n    then('each operation should succeed in sequence', () => {\n      expect(createSpy).toHaveBeenCalledWith(characterId, fittingData);\n      expect(listSpy).toHaveBeenCalledWith(characterId);\n      expect(deleteSpy).toHaveBeenCalledWith(characterId, 99);\n    });\n  });\n});\n```\n\nWrite both files using the Write tool. Make sure to use the EXACT content above.",
+          "response_text": "\n\nI'll create both files. Let me first verify the parent directories exist. Both directories exist. Now I'll write both files. Both files have been created successfully:\n\n- **Feature file**: `D:/code/ESI.ts/tests/bdd/features/core/fittings.feature` -- 8 scenarios covering list, empty list, create, create with max items, delete, two unauthorized access cases, and a full lifecycle test.\n- **Steps file**: `D:/code/ESI.ts/tests/bdd/step-definitions/core/fittings.steps.ts` -- jest-cucumber step definitions with mocked `EsiClient` fittings API calls, matching all 8 scenarios from the feature file.",
+          "alignment": 0.7116
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "3f32443a-6f7c-4da3-86d2-971e41903d6d",
+    "source_file": "data/D--code-ESI-ts__agent-a0301a8fff444dd5d.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

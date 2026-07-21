@@ -1,0 +1,480 @@
+{
+  "session_id": "e0cd3457-3774-47bf-ade8-372891f95dec",
+  "aggregate_ter": 0.9978,
+  "raw_ratio": 0.9964,
+  "phase_scores": {
+    "reasoning": 0.9925,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 3611,
+  "aligned_tokens": 3598,
+  "waste_tokens": 13,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.569,
+    "token_weighted_confidence": 0.6014,
+    "low_confidence_tokens": 2156,
+    "low_confidence_share": 0.5971,
+    "ter_interval": [
+      0.7,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 12,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.42248913645744324,
+      "tokens": 21,
+      "text": "I'll fetch the PR patches and analyze the test files. Let me start by getting all the patches.",
+      "source_message_uuid": "b8c3465f-12af-4994-90de-697674760d89",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4225,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3181121349334717,
+      "tokens": 121,
+      "text": "Bash {\"command\":\"for f in tests/unit/test_evaluation.py tests/unit/test_tool_fingerprints.py tests/unit/test_intent_construction.py tests/unit/test_span_segmentation.py tests/unit/test_formatter_html.py tests/unit/test_acceleration_extended.py tests/unit/test_acceleration_tranche4.py tests/unit/test_repetition_scoring.py; do\\n  echo \\\"=== $f ===\\\"\\n  gh api repos/lgriffin/TER/pulls/27/files --paginate --jq \\\".[] | select(.filename == \\\\\\\"$f\\\\\\\") | .patch\\\"\\ndone\",\"timeout\":30000}",
+      "source_message_uuid": "b8c3465f-12af-4994-90de-697674760d89",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3181,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3237837851047516,
+      "tokens": 92,
+      "text": "Bash {\"command\":\"for f in tests/unit/test_explainability_uncertainty_v11.py tests/unit/test_jsonl_identity_v10.py tests/unit/test_release_regression_v12.py; do\\n  echo \\\"=== $f ===\\\"\\n  gh api repos/lgriffin/TER/pulls/27/files --paginate --jq \\\".[] | select(.filename == \\\\\\\"$f\\\\\\\") | .patch\\\"\\ndone\",\"timeout\":30000}",
+      "source_message_uuid": "b8c3465f-12af-4994-90de-697674760d89",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3238,
+          "repetition_score": 0.5982,
+          "confidence": 0.6,
+          "semantic_similarity": 0.69,
+          "lexical_similarity": 0.6333,
+          "entity_similarity": 0.5417,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "Bash {\"command\":\"for f in tests/unit/test_evaluation.py tests/unit/test_tool_fingerprints.py tests/unit/test_intent_construction.py tests/unit/test_span_segmentation.py tests/unit/test_formatter_html.py tests/unit/test_acceleration_extended"
+      }
+    },
+    {
+      "position": 3,
+      "phase": "reasoning",
+      "label": "redundant_reasoning",
+      "confidence": 0.6,
+      "intent_similarity": 0.20749333500862122,
+      "tokens": 13,
+      "text": "Let me read the full output of the first batch of patches.",
+      "source_message_uuid": "c44f2886-3e77-45cf-9eae-957e7776867f",
+      "source_lines": [
+        8
+      ],
+      "explanation": {
+        "reason_code": "low_information_reasoning",
+        "summary": "The reasoning span is short and weakly aligned with the active intent.",
+        "signals": {
+          "intent_similarity": 0.2075,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 4,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.10362938791513443,
+      "tokens": 11,
+      "text": "Let me read the full output from the first batch.",
+      "source_message_uuid": "c44f2886-3e77-45cf-9eae-957e7776867f",
+      "source_lines": [
+        9
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1036,
+          "repetition_score": 0.1875,
+          "confidence": 0.5,
+          "semantic_similarity": 0.2904,
+          "lexical_similarity": 0.1304,
+          "entity_similarity": 0.1176,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8824
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll fetch the PR patches and analyze the test files. Let me start by getting all the patches."
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.1290966421365738,
+      "tokens": 55,
+      "text": "Read {\"file_path\":\"C:\\\\Users\\\\leigh\\\\.claude\\\\projects\\\\D--code-TER\\\\e0cd3457-3774-47bf-ade8-372891f95dec\\\\tool-results\\\\b5wfup9a1.txt\"}",
+      "source_message_uuid": "c44f2886-3e77-45cf-9eae-957e7776867f",
+      "source_lines": [
+        10
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.1291,
+          "repetition_score": 0.0263,
+          "confidence": 0.6,
+          "semantic_similarity": 0.3895,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.0,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Bash {\"command\":\"for f in tests/unit/test_explainability_uncertainty_v11.py tests/unit/test_jsonl_identity_v10.py tests/unit/test_release_regression_v12.py; do\\n  echo \\\"=== $f ===\\\"\\n  gh api repos/lgriffin/TER/pulls/27/files --paginate --"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5437064170837402,
+      "intent_similarity": 0.5437064170837402,
+      "tokens": 1395,
+      "text": "Now I have all the patches. Let me analyze each test file systematically against the six criteria.\n\nLet me go through each file:\n\n### 1. test_evaluation.py (153 lines)\n\n**Tests meaningful functionality?** Yes - tests load_benchmark with file I/O, validation of malformed inputs (parametrized), duplicate/empty rejection, evaluate_benchmark with binary/multiclass/token/bootstrap metrics, threshold override and calibration, missing predictions handling, text report format, and CLI command integration (text and JSON output).\n\n**Testing mocks not code?** No - the tests use real implementations. No monkeypatching at all in this file. The CLI test uses a real benchmark file (`benchmarks/example_annotations.jsonl`).\n**Edge cases covered?** Yes - invalid JSON, missing fields, unknown labels, out-of-range scores, zero tokens, duplicate IDs, empty files (only comments), missing predictions.\n\n**Hardcoded values that should be constants?** The magic numbers like `0.5` for precision, the record counts, etc. are specific to the test data, so they're reasonable as test-specific values. The `bootstrap_samples=50` and `seed=4` are test parameters.\n\n**Test isolation?** Yes - `records()` returns a fresh list each time. `tmp_path` provides isolated filesystem. No shared mutable state.\n\n**Meaningful assertions?** Yes - specific assertions on metrics, error messages, and output formats rather than just checking that functions don't crash.\n\nNow looking at the tool fingerprints test file - it validates that fingerprints remain stable when key ordering changes or paths get normalized, detects parameter novelty, distinguishes between queries and commands, handles nested arguments correctly, and integrates properly with the classifier to catch exact duplicates while preserving changes to parameters. The embedding mock is justified since it isolates the fingerprint logic itself from the embedding model, letting me verify the classifier actually uses fingerprints to flag duplicates while protecting modified parameters. Edge cases include path normalization like `./src/../src/app.py` matching `src/app.py`, case-insensitive command matching, and key ordering variations.\n\nMoving to the intent construction test - it checks prompt weight computation where operational prompts get downweighted, detects corrections, normalizes weighted centroids, validates shapes, identifies topic shifts, and handles corrections as refinements while integrating with the intent extraction functions. The controlled embedding model is justified for deterministic testing. The span segmentation tests cover disabled/enabled modes, segment merging for short spans, config validation, tool call atomicity, and mixed-purpose paragraph handling\u2014all without mocks, using real implementations. The `repetitions=18` parameter for generating long sentences feels somewhat arbitrary, and the token limits (20, 35, 100) could use clarification on their purpose. Each test is self-contained, and assertions verify segment counts, text preservation through offset checks, and phase assignments. The correct Python exception is `AssertionError`, not `AssertionError` \u2014 I keep second-guessing myself on the spelling, but that's definitely the right built-in exception name to use in the test code. Looking at the actual code, I'm raising `AssertionError` with a message about invalid segmentation bounds. The exception name is definitely correct\u2014I was second-guessing myself on the spelling, but it's the standard Python built-in. They're identical, so that's not the issue. I notice the test uses a try/except/else pattern instead of pytest.raises, which is more of a style choice. Moving on to the HTML formatter tests, which verify that the output is self-contained without external URLs, includes the expected interactive components, and properly prevents XSS attacks through script escaping.\n\nThe test doesn't use mocks\u2014it constructs a real TERResult and calls format_html directly. It covers the important edge case of XSS prevention by injecting script tags and checking that both the escaped version appears and the unescaped version doesn't. The test is well-isolated and makes meaningful assertions about the HTML structure.\n\nNow looking at the acceleration extended tests, which cover hash file operations, cache behavior including hits, misses, stats, expiry, corruption detection, clearing, and invalidation by hash or metadata, plus QuickAnalyser functionality with various session states.\n\nThe tests use real file I/O and cache operations without mocks. Edge cases include missing files, expired cache entries (tested via timestamp manipulation), corrupted pickle and JSON files, empty sessions, and malformed JSON lines. The hardcoded values like `ttl_hours=1` and the expiry timestamp are necessary, though the expiry calculation could be more maintainable. Test isolation is solid with temporary paths, and assertions are meaningful. However, there's a concern that one test combining cache hit/miss/stats/expiry/corruption/clear is quite long and tests too many things at once.\n\nThe tests also access private methods like `_key_paths()`, `_read()`, and `_write()`, which couples the tests tightly to implementation details. For the SessionWatcher and acceleration tests, the fake Pool classes and sentence_transformers module are intentional isolations from multiprocessing and heavy ML dependencies, allowing verification of orchestration logic without those external systems. The watcher event handler tests verify that exceptions don't propagate, which is a valid approach to error handling validation. The generator expression for throwing exceptions is clever but a bit cryptic. Moving to the repetition scoring tests, they cover meaningful functionality like lexical and entity similarity, text repetition with novelty scoring, exact tool duplicates, and range change penalties, with the embed_texts mock appropriately isolating the scoring logic from embeddings. Edge cases include exact duplicates versus parameter changes and identical semantics with different entities.\n\nThe threshold value `0.93` and cosine similarity values like `0.95` and `0.8` are magic numbers used as test parameters. The assertions meaningfully verify relative score ordering and parameter novelty detection. For the explainability and uncertainty tests, they validate that repetition explanations correctly identify matched prior positions, parameter novelty is exposed for aligned tool calls, uncertainty estimation is deterministic, and formatters properly surface uncertainty and explanations. The embed_texts mock is justified here too, and the tests do verify real classifier behavior, though they lean toward happy path scenarios rather than exploring edge cases.\n\nMoving to the identity tests, they cover fingerprint normalization including volatile metadata and whitespace handling, exact duplicate merging with source line tracking, distinct sibling block retention, and missing request ID handling. The tests include edge cases like whitespace normalization, volatile metadata like timestamps, and content ordering, with no mocks needed since they're testing the actual pipeline.\n\nFor the regression tests, they validate precision improvement scenarios, gate failures on precision and false-positive thresholds, dataset shape validation, and CLI command exit codes with JSON output. The test data is well-designed with precision and false-positive deltas derived from actual test values rather than arbitrary constants, and they check both pass and fail cases across text and JSON output formats.\n\nNow I'm organizing these findings into a comprehensive report.",
+      "source_message_uuid": "9500bb1b-c3f0-4c7a-b80d-a5278b048923",
+      "source_lines": [
+        12
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5437,
+          "repetition_score": 0.3125,
+          "confidence": 0.5437,
+          "semantic_similarity": 0.5409,
+          "lexical_similarity": 0.0114,
+          "entity_similarity": 0.0083,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9917
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 3,
+        "matched_prior_text": "Let me read the full output of the first batch of patches."
+      }
+    },
+    {
+      "position": 7,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.28218474984169006,
+      "tokens": 32,
+      "text": "Now I have all the patches. Let me also check a couple of implementation details more closely -- the private method usage and the assertion pattern in span_segmentation.",
+      "source_message_uuid": "9500bb1b-c3f0-4c7a-b80d-a5278b048923",
+      "source_lines": [
+        13
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2822,
+          "repetition_score": 0.239,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3523,
+          "lexical_similarity": 0.2,
+          "entity_similarity": 0.1923,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.8077
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll fetch the PR patches and analyze the test files. Let me start by getting all the patches."
+      }
+    },
+    {
+      "position": 8,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.31584540009498596,
+      "tokens": 24,
+      "text": "Grep {\"pattern\":\"AssertionError|AssertionError\",\"path\":\"D:\\\\code\\\\TER\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "9500bb1b-c3f0-4c7a-b80d-a5278b048923",
+      "source_lines": [
+        14
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3158,
+          "repetition_score": 0.0283,
+          "confidence": 0.6,
+          "semantic_similarity": 0.4188,
+          "lexical_similarity": 0.0,
+          "entity_similarity": 0.0,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "Bash {\"command\":\"for f in tests/unit/test_explainability_uncertainty_v11.py tests/unit/test_jsonl_identity_v10.py tests/unit/test_release_regression_v12.py; do\\n  echo \\\"=== $f ===\\\"\\n  gh api repos/lgriffin/TER/pulls/27/files --paginate --"
+      }
+    },
+    {
+      "position": 9,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.22214728593826294,
+      "tokens": 68,
+      "text": "Grep {\"pattern\":\"_key_paths|_read\\\\(|_write\\\\(|_extract_keywords|_keyword_overlap|_compute_result|_parse_session|_poll\\\\(|_handle_event|_snapshot\\\\(|_known_files|_analyser_fn\",\"path\":\"D:\\\\code\\\\TER/src\",\"output_mode\":\"content\"}",
+      "source_message_uuid": "9500bb1b-c3f0-4c7a-b80d-a5278b048923",
+      "source_lines": [
+        16
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2221,
+          "repetition_score": 0.401,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7134,
+          "lexical_similarity": 0.3182,
+          "entity_similarity": 0.2857,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.5
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Grep {\"pattern\":\"AssertionError|AssertionError\",\"path\":\"D:\\\\code\\\\TER\",\"output_mode\":\"content\"}"
+      }
+    },
+    {
+      "position": 10,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.44786950945854187,
+      "tokens": 324,
+      "text": "Let me check if there are any `assert True` or trivially passing assertions in the test files, and also check the `AssertionError` spelling more carefully.\n\nActually wait - I see `AssertionError` used elsewhere in the codebase too (performance_steps.py, validation_steps.py). And I looked at the test_span_segmentation.py code again:\n\n```python\n+        raise AssertionError(\"Expected invalid segmentation bounds to fail\")\n```\n\nWait, looking at the Grep results: both hits use `AssertionError` (which IS the correct Python built-in name). So there's no typo issue.\nThe `try/except/else` pattern in test_span_segmentation is unconventional but not problematic since the test works correctly. I'm also noticing that test_acceleration_tranche4.py uses a generator trick to create a lambda that throws an exception - it's a convoluted approach that works but is harder to read than necessary.\n\nLooking at the broader test suite, I see several patterns worth noting: test_analysis_cache_hit_miss_stats_expiry_corruption_and_clear is quite comprehensive but covers many scenarios in one test, and the acceleration tests directly access numerous private methods like `_key_paths`, `_read`, `_write`, `_extract_keywords`, and others, which creates tightly coupled tests that could be brittle if those internals change.\n\nI also notice the tests use a clever pattern where `list.append()` returns None, allowing the code to chain it with `or` to return the actual value\u2014it's concise but requires a moment to parse. Now I should organize all these observations by severity and file to present a clear picture.",
+      "source_message_uuid": "0618c398-8e89-4a99-95a0-aa9b58c3b344",
+      "source_lines": [
+        18
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.4479,
+          "repetition_score": 0.2456,
+          "confidence": 0.5,
+          "semantic_similarity": 0.3659,
+          "lexical_similarity": 0.1489,
+          "entity_similarity": 0.1471,
+          "action_similarity": 0.2222,
+          "parameter_novelty": 0.8529
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 6,
+        "matched_prior_text": "Now I have all the patches. Let me analyze each test file systematically against the six criteria.\n\nLet me go through each file:\n\n### 1. test_evaluation.py (153 lines)\n\n**Tests meaningful functionality?** Yes - tests load_benchmark with fil"
+      }
+    },
+    {
+      "position": 11,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.6841461062431335,
+      "intent_similarity": 0.6841461062431335,
+      "tokens": 1455,
+      "text": "Now I have all the data needed for a thorough analysis. Here is my structured report.\n\n---\n\n## Test Coverage Analysis for PR #27\n\n### Summary\n\nThe test suite is **generally strong**. All 11 test files test real module functionality with meaningful assertions, good edge-case coverage, and proper test isolation. There are no \"assert True\" trivial tests and no tests that only test mock behavior without exercising real code. Below are the specific findings.\n\n---\n\n### Findings\n\n**1. test_acceleration_extended.py -- WARNING -- Overloaded test method**\n`test_analysis_cache_hit_miss_stats_expiry_corruption_and_clear` (~25 lines) tests at least 5 distinct behaviors in a single test: cache hit, cache miss, stats, TTL expiry, corruption handling, and clear. If any assertion fails, the test name gives no indication which behavior broke. Should be split into focused test methods.\n\n**2. test_acceleration_extended.py -- WARNING -- Extensive private-method testing**\nTests directly call `c._key_paths()`, `c._read()`, `c._write()`, manipulate internal cache files, and test `q._extract_keywords()`, `q._keyword_overlap_score()`, `q._compute_result()`, `q._parse_session()`. While these methods do exist on the production classes (confirmed in `src/ter_calculator/acceleration.py`), testing them directly couples tests to implementation details and makes refactoring harder. Consider promoting key methods to public API or testing through public `get_or_compute`/`analyse_quick` instead.\n\n**3. test_acceleration_tranche4.py -- WARNING -- Extensive private-method/attribute testing**\nDirectly accesses `watcher._snapshot()`, `watcher._poll()`, `watcher._handle_event()`, `watcher._known_files`, `watcher._analyser_fn`, and `watcher._running`. Same concern as above -- these are all underscore-prefixed private members.\n\n**4. test_acceleration_tranche4.py -- WARNING -- Obscure error-throwing pattern**\nLine `lambda e: (_ for _ in ()).throw(RuntimeError(\"callback\"))` is a generator-expression trick to throw from a lambda. This is hard to read and will confuse future maintainers. A named function or a class with `__call__` would be clearer.\n\n**5. test_acceleration_extended.py -- INFO -- Side-effect-in-lambda pattern**\n`lambda: calls.append(1) or {\"x\": 1}` relies on `append()` returning `None` (falsy) so `or` returns the dict. Functional but non-obvious. A named helper would improve readability.\n\n**6. test_span_segmentation.py -- INFO -- Non-idiomatic assertion pattern**\n`test_invalid_configuration_is_rejected` uses `try/except/else: raise AssertionError(...)` instead of `pytest.raises(ValueError, match=\"max_tokens\")`. This is functionally correct but inconsistent with the rest of the test suite which uses `pytest.raises` throughout.\n\n**7. test_span_segmentation.py -- INFO -- Magic repetition count**\n`_long_sentence(label, repetitions=18)` uses 18 repetitions without explanation. A comment clarifying why 18 (presumably to exceed the max_tokens thresholds used in tests) would help.\n\n**8. test_acceleration_extended.py -- INFO -- Hardcoded TTL arithmetic**\nThe expired-timestamp test uses `time.time() - 7200` to simulate expiry against `ttl_hours=1`. The `7200` (2 hours in seconds) is correct but should be expressed as `2 * 3600` or derived from the TTL parameter for clarity.\n\n**9. test_repetition_scoring.py -- INFO -- Magic threshold in assertion**\n`assert result.score < 0.93` uses a specific threshold without explanation. A comment explaining what this value represents (e.g., \"below the redundancy threshold because parameter novelty reduces the score\") would improve maintainability.\n\n**10. test_acceleration_tranche4.py -- INFO -- Overloaded test method**\n`test_session_watcher_snapshot_poll_callbacks` tests snapshot, polling, callback error handling, analyser function dispatch, and analyser error handling in one method. Less severe than the cache test but still tests multiple concerns.\n\n**11. All monkeypatched files -- INFO -- Consistent mock strategy (positive)**\nFiles that monkeypatch `embed_texts` (test_tool_fingerprints, test_repetition_scoring, test_explainability_uncertainty_v11) all do so to isolate from the embedding model while exercising real classifier/scorer logic. This is the correct pattern -- no tests are \"testing the mock.\"\n\n**12. test_formatter_html.py -- INFO -- Good security test (positive)**\n`test_format_html_escapes_script_termination` verifies XSS prevention by checking both that `<\\/script>` escaping is present AND that the unescaped payload is absent. This is a well-constructed security regression test.\n\n**13. test_evaluation.py -- INFO -- Good validation coverage (positive)**\nThe parametrized `test_load_benchmark_validation` covers 5 distinct invalid-input scenarios (bad JSON, missing fields, unknown labels, out-of-range scores, zero tokens). This is thorough input validation testing.\n\n**14. test_jsonl_identity_v10.py -- INFO -- Good end-to-end provenance test (positive)**\n`test_load_session_and_spans_preserve_block_provenance` traces data from JSONL file through `load_session` and `segment_spans`, verifying `source_line`, `source_lines`, and `content_fingerprint` survive the full pipeline. Good integration coverage.\n\n**15. test_release_regression_v12.py -- INFO -- Good gate failure coverage (positive)**\n`test_compare_reports_fails_precision_and_false_positive_gates` verifies that specific named gates fail using set intersection (`<= failed`). This confirms individual gate logic, not just the aggregate pass/fail.\n\n---\n\n### Verdict by Question\n\n| Question | Answer |\n|---|---|\n| Do tests test meaningful functionality? | **Yes** -- all 11 files exercise real module logic through realistic scenarios |\n| Any tests that just test mock behavior? | **No** -- mocks isolate embedding models while real classifier/scorer code runs |\n| Edge cases covered? | **Good** -- invalid inputs, empty data, corruption, XSS, boundary conditions, missing IDs |\n| Hardcoded values that should be constants? | **Minor** -- a few magic numbers (0.93, 7200, repetitions=18) lack explanatory comments |\n| Test isolation maintained? | **Yes** -- `tmp_path`, `monkeypatch`, fresh-data factory functions; no shared mutable state |\n| Assertions meaningful? | **Yes** -- no `assert True`; specific value checks, structural checks, label checks |\n\nThe two **warning**-level items worth addressing before merge are the overloaded test methods (items 1, 10) and the extensive private-method testing (items 2, 3), as these will make the test suite harder to maintain and debug. The remaining items are informational style/clarity improvements.",
+      "source_message_uuid": "0618c398-8e89-4a99-95a0-aa9b58c3b344",
+      "source_lines": [
+        19
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.6841,
+          "repetition_score": 0.251,
+          "confidence": 0.6841,
+          "semantic_similarity": 0.4142,
+          "lexical_similarity": 0.0159,
+          "entity_similarity": 0.0127,
+          "action_similarity": 0.3333,
+          "parameter_novelty": 0.9873
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "I'll fetch the PR patches and analyze the test files. Let me start by getting all the patches."
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 13,
+    "waste_by_category": {
+      "Redundant Reasoning": 13
+    },
+    "waste_by_phase": {
+      "reasoning": 13
+    },
+    "top_patterns": [],
+    "explanation": "13 of 3,611 tokens (0.4%) were identified as waste. The largest waste category is Redundant Reasoning (13 tokens)."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Redundant Reasoning",
+        "tokens": 13,
+        "percentage": 100.0,
+        "cost_usd": 0.000195,
+        "count": 1,
+        "pricing": "output"
+      }
+    ],
+    "total_tokens": 13,
+    "total_cost_usd": 0.000195
+  },
+  "economics": {
+    "total_input_tokens": 6,
+    "total_output_tokens": 29,
+    "total_cache_creation_tokens": 27065,
+    "total_cache_read_tokens": 86009,
+    "input_output_ratio": 0.21,
+    "cache_hit_rate": 0.9999,
+    "estimated_cost_usd": 0.1277,
+    "estimated_waste_cost_usd": 0.0002,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 0.9474,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 4,
+      "mid_span_count": 4,
+      "late_span_count": 4
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        13121,
+        16068,
+        21925,
+        34901
+      ],
+      "growth_rate": 2.66,
+      "is_superlinear": true,
+      "context_bloat_detected": true
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 555,
+      "user_result_tokens": 15247,
+      "model_reasoning_tokens": 1732,
+      "model_tool_tokens": 360,
+      "model_generation_tokens": 1519,
+      "total_user_tokens": 15802,
+      "total_model_tokens": 3611,
+      "user_ratio": 0.814
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.6757,
+      "low_alignment_count": 0,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "I'm reviewing PR #27 on the lgriffin/TER repository (a Python project). I need to verify test coverage for new modules.\n\nThe PR adds these new test files for new modules:\n- tests/unit/test_evaluation.py (153 lines) - for evaluation.py\n- tests/unit/test_tool_fingerprints.py (109 lines) - for tool_fingerprints.py\n- tests/unit/test_intent_construction.py (104 lines) - for intent_construction.py\n- tests/unit/test_span_segmentation.py (116 lines) - for span_segmentation.py\n- tests/unit/test_formatter_html.py (72 lines) - for formatter_html.py\n- tests/unit/test_acceleration_extended.py (159 lines) - for acceleration/\n- tests/unit/test_acceleration_tranche4.py (96 lines) - for acceleration/\n- tests/unit/test_repetition_scoring.py (91 lines) - for repetition scoring\n- tests/unit/test_explainability_uncertainty_v11.py (106 lines) - for explainability\n- tests/unit/test_jsonl_identity_v10.py (105 lines) - for JSONL identity\n- tests/unit/test_release_regression_v12.py (132 lines) - for release regression\n\nFor each of these test files, fetch the patch:\n```bash\nfor f in tests/unit/test_evaluation.py tests/unit/test_tool_fingerprints.py tests/unit/test_intent_construction.py tests/unit/test_span_segmentation.py tests/unit/test_formatter_html.py tests/unit/test_acceleration_extended.py tests/unit/test_acceleration_tranche4.py tests/unit/test_repetition_scoring.py; do\n  echo \"=== $f ===\"\n  gh api repos/lgriffin/TER/pulls/27/files --paginate --jq \".[] | select(.filename == \\\"$f\\\") | .patch\"\ndone\n```\n\nThen also fetch:\n```bash\nfor f in tests/unit/test_explainability_uncertainty_v11.py tests/unit/test_jsonl_identity_v10.py tests/unit/test_release_regression_v12.py; do\n  echo \"=== $f ===\"\n  gh api repos/lgriffin/TER/pulls/27/files --paginate --jq \".[] | select(.filename == \\\"$f\\\") | .patch\"\ndone\n```\n\nAnalyze:\n1. Do the tests actually test meaningful functionality, or are they mostly trivial/smoke tests?\n2. Are there any tests that just test mock behavior (testing the mock, not the code)?\n3. Are edge cases covered?\n4. Are there any tests with hardcoded values that should be constants?\n5. Is test isolation maintained (no shared mutable state)?\n6. Are assertions meaningful (not just \"assert True\")?\n\nReport findings as a structured list with file, severity (critical/warning/info), and description.",
+          "response_text": "I'll fetch the PR patches and analyze the test files. Let me start by getting all the patches. Let me read the full output from the first batch. Now I have all the patches. Let me also check a couple of implementation details more closely -- the private method usage and the assertion pattern in span_segmentation. Now I have all the data needed for a thorough analysis. Here is my structured report.\n\n---\n\n## Test Coverage Analysis for PR #27\n\n### Summary\n\nThe test suite is **generally strong**. All 11 test files test real module functionality with meaningful assertions, good edge-case coverage, and proper test isolation. There are no \"assert True\" trivial tests and no tests that only test mock behavior without exercising real code. Below are the specific findings.\n\n---\n\n### Findings\n\n**1. test_acceleration_extended.py -- WARNING -- Overloaded test method**\n`test_analysis_cache_hit_miss_stats_expiry_corruption_and_clear` (~25 lines) tests at least 5 distinct behaviors in a single test: cache hit, cache miss, stats, TTL expiry, corruption handling, and clear. If any assertion fails, the test name gives no indication which behavior broke. Should be split into focused test methods.\n\n**2. test_acceleration_extended.py -- WARNING -- Extensive private-method testing**\nTests directly call `c._key_paths()`, `c._read()`, `c._write()`, manipulate internal cache files, and test `q._extract_keywords()`, `q._keyword_overlap_score()`, `q._compute_result()`, `q._parse_session()`. While these methods do exist on the production classes (confirmed in `src/ter_calculator/acceleration.py`), testing them directly couples tests to implementation details and makes refactoring harder. Consider promoting key methods to public API or testing through public `get_or_compute`/`analyse_quick` instead.\n\n**3. test_acceleration_tranche4.py -- WARNING -- Extensive private-method/attribute testing**\nDirectly accesses `watcher._snapshot()`, `watcher._poll()`, `watcher._handle_event()`, `watcher._known_files`, `watcher._analyser_fn`, and `watcher._running`. Same concern as above -- these are all underscore-prefixed private members.\n\n**4. test_acceleration_tranche4.py -- WARNING -- Obscure error-throwing pattern**\nLine `lambda e: (_ for _ in ()).throw(RuntimeError(\"callback\"))` is a generator-expression trick to throw from a lambda. This is hard to read and will confuse future maintainers. A named function or a class with `__call__` would be clearer.\n\n**5. test_acceleration_extended.py -- INFO -- Side-effect-in-lambda pattern**\n`lambda: calls.append(1) or {\"x\": 1}` relies on `append()` returning `None` (falsy) so `or` returns the dict. Functional but non-obvious. A named helper would improve readability.\n\n**6. test_span_segmentation.py -- INFO -- Non-idiomatic assertion pattern**\n`test_invalid_configuration_is_rejected` uses `try/except/else: raise AssertionError(...)` instead of `pytest.raises(ValueError, match=\"max_tokens\")`. This is functionally correct but inconsistent with the rest of the test suite which uses `pytest.raises` throughout.\n\n**7. test_span_segmentation.py -- INFO -- Magic repetition count**\n`_long_sentence(label, repetitions=18)` uses 18 repetitions without explanation. A comment clarifying why 18 (presumably to exceed the max_tokens thresholds used in tests) would help.\n\n**8. test_acceleration_extended.py -- INFO -- Hardcoded TTL arithmetic**\nThe expired-timestamp test uses `time.time() - 7200` to simulate expiry against `ttl_hours=1`. The `7200` (2 hours in seconds) is correct but should be expressed as `2 * 3600` or derived from the TTL parameter for clarity.\n\n**9. test_repetition_scoring.py -- INFO -- Magic threshold in assertion**\n`assert result.score < 0.93` uses a specific threshold without explanation. A comment explaining what this value represents (e.g., \"below the redundancy threshold because parameter novelty reduces the score\") would improve maintainability.\n\n**10. test_acceleration_tranche4.py -- INFO -- Overloaded test method**\n`test_session_watcher_snapshot_poll_callbacks` tests snapshot, polling, callback error handling, analyser function dispatch, and analyser error handling in one method. Less severe than the cache test but still tests multiple concerns.\n\n**11. All monkeypatched files -- INFO -- Consistent mock strategy (positive)**\nFiles that monkeypatch `embed_texts` (test_tool_fingerprints, test_repetition_scoring, test_explainability_uncertainty_v11) all do so to isolate from the embedding model while exercising real classifier/scorer logic. This is the correct pattern -- no tests are \"testing the mock.\"\n\n**12. test_formatter_html.py -- INFO -- Good security test (positive)**\n`test_format_html_escapes_script_termination` verifies XSS prevention by checking both that `<\\/script>` escaping is present AND that the unescaped payload is absent. This is a well-constructed security regression test.\n\n**13. test_evaluation.py -- INFO -- Good validation coverage (positive)**\nThe parametrized `test_load_benchmark_validation` covers 5 distinct invalid-input scenarios (bad JSON, missing fields, unknown labels, out-of-range scores, zero tokens). This is thorough input validation testing.\n\n**14. test_jsonl_identity_v10.py -- INFO -- Good end-to-end provenance test (positive)**\n`test_load_session_and_spans_preserve_block_provenance` traces data from JSONL file through `load_session` and `segment_spans`, verifying `source_line`, `source_lines`, and `content_fingerprint` survive the full pipeline. Good integration coverage.\n\n**15. test_release_regression_v12.py -- INFO -- Good gate failure coverage (positive)**\n`test_compare_reports_fails_precision_and_false_positive_gates` verifies that specific named gates fail using set intersection (`<= failed`). This confirms individual gate logic, not just the aggregate pass/fail.\n\n---\n\n### Verdict by Question\n\n| Question | Answer |\n|---|---|\n| Do tests test meaningful functionality? | **Yes** -- all 11 files exercise real module logic through realistic scenarios |\n| Any tests that just test mock behavior? | **No** -- mocks isolate embedding models while real classifier/scorer code runs |\n| Edge cases covered? | **Good** -- invalid inputs, empty data, corruption, XSS, boundary conditions, missing IDs |\n| Hardcoded values that should be constants? | **Minor** -- a few magic numbers (0.93, 7200, repetitions=18) lack explanatory comments |\n| Test isolation maintained? | **Yes** -- `tmp_path`, `monkeypatch`, fresh-data factory functions; no shared mutable state |\n| Assertions meaningful? | **Yes** -- no `assert True`; specific value checks, structural checks, label checks |\n\nThe two **warning**-level items worth addressing before merge are the overloaded test methods (items 1, 10) and the extensive private-method testing (items 2, 3), as these will make the test suite harder to maintain and debug. The remaining items are informational style/clarity improvements.",
+          "alignment": 0.6757
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "e0cd3457-3774-47bf-ade8-372891f95dec",
+    "source_file": "data/D--code-TER__agent-a9112fe69e18ccc11.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

@@ -1,0 +1,205 @@
+{
+  "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+  "aggregate_ter": 0.7,
+  "raw_ratio": 0.9737,
+  "phase_scores": {
+    "reasoning": 0.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 533,
+  "aligned_tokens": 519,
+  "waste_tokens": 14,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6,
+    "token_weighted_confidence": 0.6,
+    "low_confidence_tokens": 533,
+    "low_confidence_share": 1.0,
+    "ter_interval": [
+      0.7,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 3,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "redundant_reasoning",
+      "confidence": 0.6,
+      "intent_similarity": 0.25754648447036743,
+      "tokens": 14,
+      "text": "Let me fetch the content from the provided URL to extract relevant claims.",
+      "source_message_uuid": "247c5182-deb2-4f94-84ea-07c5780a5fba",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "low_information_reasoning",
+        "summary": "The reasoning span is short and weakly aligned with the active intent.",
+        "signals": {
+          "intent_similarity": 0.2575,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.540149986743927,
+      "tokens": 138,
+      "text": "WebFetch {\"url\":\"https://dev.to/young_gao/request-validation-at-the-edge-zod-schemas-openapi-and-type-safe-apis-1kib\",\"prompt\":\"Extract the full article content, focusing on: 1) How Zod schemas are used with OpenAPI for type-safe APIs, 2) Runtime validation patterns, 3) Any specific tools or libraries mentioned (openapi-typescript, zodios, ts-rest, etc.), 4) Type inference from Zod schemas, 5) Contract testing or schema-type alignment approaches, 6) Any concrete technical claims about compile-time safety or static analysis. Also note the publish date and author.\"}",
+      "source_message_uuid": "247c5182-deb2-4f94-84ea-07c5780a5fba",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.5401,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.35968029499053955,
+      "tokens": 381,
+      "text": "StructuredOutput {\"claims\":[{\"claim\":\"Using Zod schemas as a single source of truth with @asteasolutions/zod-to-openapi allows generating OpenAPI 3.0.3 specs directly from validation schemas, so that docs, validation, and types all derive from one definition and stay in sync automatically.\",\"quote\":\"your docs, your validation, and your types all come from the same source. Change the schema, everything updates.\",\"importance\":\"central\"},{\"claim\":\"TypeScript types are erased at runtime, making every req.body effectively 'any' unless runtime validation is applied, which means static types alone are insufficient for API safety and must be paired with runtime schema validation.\",\"quote\":\"Your TypeScript types vanish at runtime. Every req.body is any wearing a costume.\",\"importance\":\"central\"},{\"claim\":\"Validation middleware must replace raw request properties (req.body, req.query) with Zod-parsed output, not just validate them, because reading raw input after validation causes missed defaults and coercions.\",\"quote\":\"If you validate but still read the raw input, you miss defaults and coercions.\",\"importance\":\"supporting\"},{\"claim\":\"A dev-only middleware that validates outgoing responses against Zod schemas can catch drift between actual return values and the documented API contract, serving as a lightweight form of contract testing without a separate framework.\",\"quote\":\"validates outgoing responses against schemas, describing it as catching drift between your actual return values and your documented contract.\",\"importance\":\"supporting\"},{\"claim\":\"Sharing Zod schemas via a monorepo shared package (packages/shared/) between frontend and backend ensures both sides consume identical schemas, but version pinning is essential to prevent silent breakage from schema changes.\",\"quote\":\"pin versions. A broken schema change in shared shouldn't silently break both your frontend and backend.\",\"importance\":\"tangential\"}],\"sourceQuality\":\"blog\",\"publishDate\":\"2026-03-21\"}",
+      "source_message_uuid": "74c276d0-e328-4579-b139-3b7f9ea654ff",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3597,
+          "repetition_score": 0.0385,
+          "confidence": 0.6,
+          "semantic_similarity": 0.5191,
+          "lexical_similarity": 0.0861,
+          "entity_similarity": 0.1027,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "WebFetch {\"url\":\"https://dev.to/young_gao/request-validation-at-the-edge-zod-schemas-openapi-and-type-safe-apis-1kib\",\"prompt\":\"Extract the full article content, focusing on: 1) How Zod schemas are used with OpenAPI for type-safe APIs, 2) R"
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 14,
+    "waste_by_category": {
+      "Redundant Reasoning": 14
+    },
+    "waste_by_phase": {
+      "reasoning": 14
+    },
+    "top_patterns": [],
+    "explanation": "14 of 533 tokens (2.6%) were identified as waste. The largest waste category is Redundant Reasoning (14 tokens)."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Redundant Reasoning",
+        "tokens": 14,
+        "percentage": 100.0,
+        "cost_usd": 0.00021,
+        "count": 1,
+        "pricing": "output"
+      }
+    ],
+    "total_tokens": 14,
+    "total_cost_usd": 0.00021
+  },
+  "economics": {
+    "total_input_tokens": 4,
+    "total_output_tokens": 497,
+    "total_cache_creation_tokens": 20674,
+    "total_cache_read_tokens": 19486,
+    "input_output_ratio": 0.01,
+    "cache_hit_rate": 0.9998,
+    "estimated_cost_usd": 0.0908,
+    "estimated_waste_cost_usd": 0.0002,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 0.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 1
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        19487
+      ],
+      "growth_rate": 1.0,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 509,
+      "user_result_tokens": 847,
+      "model_reasoning_tokens": 14,
+      "model_tool_tokens": 519,
+      "model_generation_tokens": 0,
+      "total_user_tokens": 1356,
+      "total_model_tokens": 533,
+      "user_ratio": 0.7178
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.0,
+      "low_alignment_count": 0,
+      "pairs": []
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+    "source_file": "data/D--code-ESI-ts__agent-aaa849bbbc37fe450.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

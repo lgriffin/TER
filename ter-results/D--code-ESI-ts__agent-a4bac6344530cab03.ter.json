@@ -1,0 +1,492 @@
+{
+  "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+  "aggregate_ter": 1.0,
+  "raw_ratio": 1.0,
+  "phase_scores": {
+    "reasoning": 1.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 2317,
+  "aligned_tokens": 2317,
+  "waste_tokens": 0,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.5543,
+    "token_weighted_confidence": 0.5297,
+    "low_confidence_tokens": 2317,
+    "low_confidence_share": 1.0,
+    "ter_interval": [
+      1.0,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 13,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "moderate"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.3262791633605957,
+      "tokens": 77,
+      "text": "Let me analyze this claim carefully. The claim states that \"zod-openapi uses Zod's built-in .meta() method to attach OpenAPI metadata to schemas, requiring 'no monkey patching or additional setup'\". I need to verify whether this is accurate.\n\nLet me search for information about zod-openapi and how it works, particularly regarding the .meta() method.",
+      "source_message_uuid": "a25d9fed-0e2a-4d12-95a7-ca0dad91bb29",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.3263,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.1601409912109375,
+      "tokens": 25,
+      "text": "WebSearch {\"query\":\"zod-openapi samchungy how metadata attached to schemas 2025 2026\"}",
+      "source_message_uuid": "a25d9fed-0e2a-4d12-95a7-ca0dad91bb29",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.1601,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.21695128083229065,
+      "tokens": 17,
+      "text": "WebSearch {\"query\":\"zod .meta() method openapi metadata built-in\"}",
+      "source_message_uuid": "a25d9fed-0e2a-4d12-95a7-ca0dad91bb29",
+      "source_lines": [
+        5
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.217,
+          "repetition_score": 0.5731,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8087,
+          "lexical_similarity": 0.1875,
+          "entity_similarity": 0.3571,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "WebSearch {\"query\":\"zod-openapi samchungy how metadata attached to schemas 2025 2026\"}"
+      }
+    },
+    {
+      "position": 3,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.28000152111053467,
+      "tokens": 25,
+      "text": "WebSearch {\"query\":\"zod-openapi vs @asteasolutions/zod-to-openapi extend method monkey patching\"}",
+      "source_message_uuid": "a25d9fed-0e2a-4d12-95a7-ca0dad91bb29",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.28,
+          "repetition_score": 0.5644,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7619,
+          "lexical_similarity": 0.2143,
+          "entity_similarity": 0.4167,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "WebSearch {\"query\":\"zod .meta() method openapi metadata built-in\"}"
+      }
+    },
+    {
+      "position": 4,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.2787012755870819,
+      "tokens": 754,
+      "text": "Now let me dig deeper into the specifics. The claim says zod-openapi uses Zod's \"built-in .meta() method\" requiring \"no monkey patching or additional setup.\" Let me verify the nuances:\n\n1. Is `.meta()` truly \"built-in\" to Zod? Yes, it was introduced in Zod v4.\n2. Does zod-openapi require \"no additional setup\"? Well, the search results say you need to either `import 'zod-openapi'` or add `/// <reference types=\"zod-openapi\" />` to get full TypeScript support for OpenAPI properties in `.meta()`. \n\nThat's because zod-openapi extends Zod's `.meta()` interface at compile time with OpenAPI-specific properties like `id`, `param`, `header`, and `override`. Without this import or reference directive, TypeScript won't recognize these extra properties.\n\nSo the claim about \"no additional setup\" is misleading\u2014you do need to import the library or add a type reference for TypeScript support. The \"no monkey patching\" part is accurate though, since there's no runtime modification of Zod's prototype.\n\nCompared to `@asteasolutions/zod-to-openapi`, which requires calling `extendZodWithOpenApi(z)` at runtime, zod-openapi's setup is lighter\u2014just a type import without runtime mutation. But there's another nuance: the `.meta()` method is only built-in for Zod v4+. In v3, zod-openapi used a different approach with the `.openapi()` method and actual monkey patching. The v5 version switched to using `.meta()`.\n\nLooking at the supporting quote, it's just a generic description of what the library does\u2014it doesn't specifically mention `.meta()`, no monkey patching, or no additional setup. The claim makes specific technical assertions that aren't directly backed by that quote. That said, the claim is largely accurate based on the actual zod-openapi v5 documentation: it does use `.meta()` for v5 with Zod v4+, there's no runtime modification, but the \"no additional setup\" part is misleading since you still need to import the library or add a TypeScript reference directive for full type support.\n\nActually, I found the exact quote in the README: \"This library leverages Zod's built-in metadata functionality \u2014 no monkey patching or additional setup is required.\" So the project itself makes this claim, but there's a nuance here\u2014the \"no additional setup\" refers to runtime initialization, not TypeScript type definitions. You don't need to call an initialization function, but you do need the import for proper type support.\n\nThe supporting quote provided is generic and doesn't directly back up the specific technical claims about `.meta()` and the lack of monkey patching. Those details come from the README itself. Overall, the claim is substantially accurate for zod-openapi v5 with Zod v4, though the supporting quote could be more specific. The GitHub repository is the actual source, and those specific technical details are documented in the README itself. The quote is just a summary from that same page, so the claim is well-supported by the source material. The only slight overstatement is the \"no additional setup\" part\u2014you do need to import the library or add a TypeScript reference\u2014but overall the claim is accurate and current, so it shouldn't be refuted. The TypeScript import for type definitions is more of a convenience than setup in the traditional sense\u2014the `.meta()` method itself works without it, though you'd lose OpenAPI-specific type checking. Given that the claim is substantially accurate and well-supported by the source, I'm settling on refuted=false.",
+      "source_message_uuid": "68d9d3e8-fc05-4444-a186-430793a7e140",
+      "source_lines": [
+        10
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2787,
+          "repetition_score": 0.5683,
+          "confidence": 0.5,
+          "semantic_similarity": 0.885,
+          "lexical_similarity": 0.1441,
+          "entity_similarity": 0.1359,
+          "action_similarity": 0.5,
+          "parameter_novelty": 0.8641
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 0,
+        "matched_prior_text": "Let me analyze this claim carefully. The claim states that \"zod-openapi uses Zod's built-in .meta() method to attach OpenAPI metadata to schemas, requiring 'no monkey patching or additional setup'\". I need to verify whether this is accurate"
+      }
+    },
+    {
+      "position": 5,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.3127070367336273,
+      "tokens": 85,
+      "text": "WebFetch {\"url\":\"https://github.com/samchungy/zod-openapi\",\"prompt\":\"What does the README say about .meta(), monkey patching, setup requirements, and how OpenAPI metadata is attached to Zod schemas? Look for any setup steps that ARE required (like imports or reference directives). Also look for the exact version of zod-openapi and which version of Zod it requires.\"}",
+      "source_message_uuid": "68d9d3e8-fc05-4444-a186-430793a7e140",
+      "source_lines": [
+        11
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3127,
+          "repetition_score": 0.0439,
+          "confidence": 0.6,
+          "semantic_similarity": 0.6018,
+          "lexical_similarity": 0.0833,
+          "entity_similarity": 0.093,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 2,
+        "matched_prior_text": "WebSearch {\"query\":\"zod .meta() method openapi metadata built-in\"}"
+      }
+    },
+    {
+      "position": 6,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.27772969007492065,
+      "tokens": 62,
+      "text": "WebFetch {\"url\":\"https://github.com/samchungy/zod-openapi/blob/master/docs/v5.md\",\"prompt\":\"What are the migration steps from v4 to v5? What changed regarding .openapi() vs .meta()? What setup was previously required that is no longer needed?\"}",
+      "source_message_uuid": "68d9d3e8-fc05-4444-a186-430793a7e140",
+      "source_lines": [
+        12
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2777,
+          "repetition_score": 0.5923,
+          "confidence": 0.6,
+          "semantic_similarity": 0.8628,
+          "lexical_similarity": 0.2456,
+          "entity_similarity": 0.2708,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "WebFetch {\"url\":\"https://github.com/samchungy/zod-openapi\",\"prompt\":\"What does the README say about .meta(), monkey patching, setup requirements, and how OpenAPI metadata is attached to Zod schemas? Look for any setup steps that ARE require"
+      }
+    },
+    {
+      "position": 7,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5061237812042236,
+      "intent_similarity": 0.5061237812042236,
+      "tokens": 233,
+      "text": "Now I have a clear picture. Let me assess:\n\n1. The claim says zod-openapi uses Zod's built-in `.meta()` method - TRUE, for v5+ (Zod v4+)\n2. \"no monkey patching or additional setup\" - this is quoted from the README itself, and it's mostly accurate. There IS a minor setup step (importing `zod-openapi` or adding a reference directive for TypeScript types), but this is compile-time only and doesn't involve runtime monkey-patching.\n3. \"this allows Zod schemas to serve as the source for both runtime validation types and OpenAPI documentation generation\" - TRUE, that's the fundamental purpose\n4. The supporting quote is just the project's tagline, but the GitHub README does back up the more specific claims about how it works.\n\nThe claim is substantially accurate and well-supported. The only minor quibble is that \"no additional setup\" is slightly misleading since you do need to import the library or add a TypeScript reference directive, but that's a compile-time concern, not a runtime setup step. Overall, this is current and technically sound.",
+      "source_message_uuid": "14c03f96-28b0-4dd9-a76b-5d3d88dc2e40",
+      "source_lines": [
+        15
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.5061,
+          "repetition_score": 0.6249,
+          "confidence": 0.5061,
+          "semantic_similarity": 0.8971,
+          "lexical_similarity": 0.2835,
+          "entity_similarity": 0.3035,
+          "action_similarity": 0.3333,
+          "parameter_novelty": 0.6965
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 4,
+        "matched_prior_text": "Now let me dig deeper into the specifics. The claim says zod-openapi uses Zod's \"built-in .meta() method\" requiring \"no monkey patching or additional setup.\" Let me verify the nuances:\n\n1. Is `.meta()` truly \"built-in\" to Zod? Yes, it was i"
+      }
+    },
+    {
+      "position": 8,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.25316816568374634,
+      "tokens": 28,
+      "text": "Now let me verify the Zod v4 `.meta()` method is indeed \"built-in\" and not something zod-openapi adds.",
+      "source_message_uuid": "14c03f96-28b0-4dd9-a76b-5d3d88dc2e40",
+      "source_lines": [
+        16
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.2532,
+          "repetition_score": 0.0,
+          "confidence": 0.5
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 9,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.13798320293426514,
+      "tokens": 61,
+      "text": "WebFetch {\"url\":\"https://zod.dev/metadata\",\"prompt\":\"Explain what .meta() is, when it was introduced, and whether it is a built-in Zod feature. Is it part of Zod v4? What does it do natively without any third-party libraries?\"}",
+      "source_message_uuid": "14c03f96-28b0-4dd9-a76b-5d3d88dc2e40",
+      "source_lines": [
+        17
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.138,
+          "repetition_score": 0.5518,
+          "confidence": 0.6,
+          "semantic_similarity": 0.7817,
+          "lexical_similarity": 0.2,
+          "entity_similarity": 0.1887,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.25
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "WebFetch {\"url\":\"https://github.com/samchungy/zod-openapi\",\"prompt\":\"What does the README say about .meta(), monkey patching, setup requirements, and how OpenAPI metadata is attached to Zod schemas? Look for any setup steps that ARE require"
+      }
+    },
+    {
+      "position": 10,
+      "phase": "reasoning",
+      "label": "aligned_reasoning",
+      "confidence": 0.5,
+      "intent_similarity": 0.3847014904022217,
+      "tokens": 192,
+      "text": "Key finding: `.meta()` IS a built-in Zod v4 method. And zod-openapi extends the TypeScript interface of `.meta()` at compile time to add OpenAPI-specific properties. It does NOT monkey-patch Zod's runtime.\n\nThe claim is accurate. Let me also note: Zod's `GlobalMeta` interface can be augmented via TypeScript declaration merging - this is exactly what zod-openapi does. It augments `GlobalMeta` to include OpenAPI properties like `id`, `param`, `header`, etc. This is a standard TypeScript pattern (declaration merging), not monkey patching.\nSo my final assessment is that the claim holds up\u2014`.meta()` is genuinely a built-in Zod method, zod-openapi v5+ leverages it cleanly without runtime modifications, and the GitHub documentation confirms this is current as of v6.0.0. It's not marketing language, just an accurate technical description.",
+      "source_message_uuid": "c795278e-245f-4188-883e-74de0ee76306",
+      "source_lines": [
+        19
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.3847,
+          "repetition_score": 0.6093,
+          "confidence": 0.5,
+          "semantic_similarity": 0.8853,
+          "lexical_similarity": 0.2099,
+          "entity_similarity": 0.208,
+          "action_similarity": 1.0,
+          "parameter_novelty": 0.792
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 7,
+        "matched_prior_text": "Now I have a clear picture. Let me assess:\n\n1. The claim says zod-openapi uses Zod's built-in `.meta()` method - TRUE, for v5+ (Zod v4+)\n2. \"no monkey patching or additional setup\" - this is quoted from the README itself, and it's mostly ac"
+      }
+    },
+    {
+      "position": 11,
+      "phase": "generation",
+      "label": "aligned_response",
+      "confidence": 0.5,
+      "intent_similarity": 0.2255958914756775,
+      "tokens": 359,
+      "text": "Based on my thorough investigation, I can now assess the claim.\n\n**Key findings:**\n\n1. **`.meta()` IS a built-in Zod v4 method** - confirmed at zod.dev/metadata. It is part of Zod's core API, not something added by zod-openapi.\n\n2. **zod-openapi v5+ genuinely uses `.meta()` without runtime monkey patching** - confirmed. The v4-to-v5 migration guide explicitly shows the removal of `extendZodWithOpenApi(z)` and `import zod-openapi/extend`. The library uses TypeScript declaration merging to extend `GlobalMeta` at compile time, which is a standard TypeScript pattern, not monkey patching.\n\n3. **There IS a minor setup step** - you need to `import 'zod-openapi'` or add `/// <reference types=\"zod-openapi\" />` for full TypeScript type support. But this is compile-time only (declaration merging), not runtime modification.\n\n4. **The supporting quote is weak** - \"A TypeScript library which uses Zod schemas to generate OpenAPI v3.x documentation\" is just the repo tagline. It does not directly mention `.meta()`, monkey patching, or setup requirements. The specific claims come from elsewhere in the README.\n\n5. **The claim is current** - zod-openapi is at v6.0.0 (June 2026), still using this approach.\n\nThe claim is substantially accurate. The \"no additional setup\" language comes from the project's own README and is slightly simplified (you do need a TypeScript import for type definitions), but the core assertions about using Zod's built-in `.meta()` and no monkey patching are technically correct and well-supported.",
+      "source_message_uuid": "c795278e-245f-4188-883e-74de0ee76306",
+      "source_lines": [
+        20
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2256,
+          "repetition_score": 0.5068,
+          "confidence": 0.5,
+          "semantic_similarity": 0.8364,
+          "lexical_similarity": 0.0828,
+          "entity_similarity": 0.0893,
+          "action_similarity": 0.0,
+          "parameter_novelty": 0.9107
+        },
+        "threshold": 0.88,
+        "matched_prior_position": 8,
+        "matched_prior_text": "Now let me verify the Zod v4 `.meta()` method is indeed \"built-in\" and not something zod-openapi adds."
+      }
+    },
+    {
+      "position": 12,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2774398624897003,
+      "tokens": 399,
+      "text": "StructuredOutput {\"refuted\":false,\"evidence\":\"The claim is technically accurate. (1) Zod v4 introduced `.meta()` as a built-in method (confirmed at zod.dev/metadata) that registers metadata in `z.globalRegistry`. (2) zod-openapi v5+ removed the runtime `extendZodWithOpenApi(z)` call and the `import 'zod-openapi/extend'` monkey-patching mechanism, replacing them with Zod's native `.meta()` (confirmed in v4-to-v5 migration guide at github.com/samchungy/zod-openapi/blob/master/docs/v5.md). (3) The \\\"no additional setup\\\" phrasing is from the project's own README and is slightly simplified -- you DO need to `import 'zod-openapi'` or add `/// <reference types=\\\"zod-openapi\\\" />` for TypeScript to recognize OpenAPI-specific properties in `.meta()`. However, this uses standard TypeScript declaration merging on `GlobalMeta`, not runtime monkey patching. (4) The supporting quote (\\\"A TypeScript library which uses Zod schemas to generate OpenAPI v3.x documentation\\\") is just the repo tagline and does not directly support the specific technical claims about `.meta()` or monkey patching, but the README content on the same source page does. (5) The library is actively maintained (v6.0.0 released June 2026), so the claim is current.\",\"confidence\":\"high\",\"counterSource\":\"https://zod.dev/metadata (confirms .meta() is built-in to Zod v4); https://github.com/samchungy/zod-openapi/blob/master/docs/v5.md (confirms removal of monkey patching in v5); README at https://github.com/samchungy/zod-openapi (confirms the \\\"no monkey patching or additional setup\\\" language while also noting the TypeScript import requirement)\"}",
+      "source_message_uuid": "c795278e-245f-4188-883e-74de0ee76306",
+      "source_lines": [
+        21
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2774,
+          "repetition_score": 0.037,
+          "confidence": 0.6,
+          "semantic_similarity": 0.4598,
+          "lexical_similarity": 0.1569,
+          "entity_similarity": 0.1639,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 5,
+        "matched_prior_text": "WebFetch {\"url\":\"https://github.com/samchungy/zod-openapi\",\"prompt\":\"What does the README say about .meta(), monkey patching, setup requirements, and how OpenAPI metadata is attached to Zod schemas? Look for any setup steps that ARE require"
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 0,
+    "waste_by_category": {},
+    "waste_by_phase": {},
+    "top_patterns": [],
+    "explanation": "No waste detected. All tokens contributed to the task."
+  },
+  "economics": {
+    "total_input_tokens": 1490,
+    "total_output_tokens": 38,
+    "total_cache_creation_tokens": 12731,
+    "total_cache_read_tokens": 84943,
+    "input_output_ratio": 39.21,
+    "cache_hit_rate": 0.9828,
+    "estimated_cost_usd": 0.0783,
+    "estimated_waste_cost_usd": 0.0,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 1.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 4,
+      "mid_span_count": 4,
+      "late_span_count": 5
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        15581,
+        20994,
+        22600,
+        27258
+      ],
+      "growth_rate": 1.75,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 590,
+      "user_result_tokens": 4915,
+      "model_reasoning_tokens": 1256,
+      "model_tool_tokens": 674,
+      "model_generation_tokens": 387,
+      "total_user_tokens": 5505,
+      "total_model_tokens": 2317,
+      "user_ratio": 0.7038
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.2195,
+      "low_alignment_count": 1,
+      "pairs": [
+        {
+          "prompt_index": 0,
+          "prompt_text": "## Adversarial Claim Verifier (voter 1/3)\n\nBe SKEPTICAL. Try to REFUTE this claim. \u22652/3 refutations kill it.\n\n## Research question\nWhat TypeScript static analysis, type-level safety, and compile-time protection mechanisms should an OpenAPI SDK wrapper use? Research the state of the art in 2025-2026 for: (1) Type-safe API client patterns - branded types, phantom types, tagged unions for API responses, template literal types for URL path construction, conditional types for auth-gated endpoints; (2) OpenAPI-to-TypeScript code generation best practices - openapi-typescript, openapi-fetch, zodios, fets, feTS, ts-rest, orval, hey-api; (3) Static analysis beyond ESLint - TypeScript compiler plugins, ts-morph for custom checks, API surface linting with api-extractor, knip for dead exports; (4) Zod and runtime validation integration with static types - zod inference, ensuring schema-type alignment at compile time; (5) Type-level testing approaches - tsd, expect-type, @type-challenges patterns; (6) Contract testing at the type level - ensuring SDK types match OpenAPI spec at build time; (7) Dependency injection and configuration type safety patterns; (8) Error handling type safety - discriminated unions, Result/Either patterns, typed error codes. Focus on what leading TypeScript SDK projects (Stripe SDK, Octokit, AWS SDK v3, Cloudflare Workers types) do for compile-time safety.\n\n## Claim under review\n\"zod-openapi uses Zod's built-in .meta() method to attach OpenAPI metadata to schemas, requiring 'no monkey patching or additional setup' -- this allows Zod schemas to serve as the source for both runtime validation types and OpenAPI documentation generation\"\n\n**Source:** https://github.com/samchungy/zod-openapi (primary)\n**Supporting quote:** \"A TypeScript library which uses Zod schemas to generate OpenAPI v3.x documentation\"\n\n## Checklist\n1. Is the claim actually supported by the quote, or is it an overreach/misread?\n2. WebSearch for contradicting evidence \u2014 does any credible source dispute or heavily qualify this?\n3. Is the source quality sufficient for the claim's strength? (extraordinary claims need primary sources)\n4. Is the claim outdated? (check dates \u2014 old claims about fast-moving fields are suspect)\n5. Is this a marketing claim / press release / cherry-picked benchmark / forum speculation?\n\n**refuted=true** if: unsupported by quote / contradicted / low-quality source for strong claim / outdated / marketing fluff.\n**refuted=false** ONLY if: claim is well-supported, current, and source quality matches claim strength.\nDefault to refuted=true if uncertain.\n\nStructured output only. Evidence MUST be specific.",
+          "response_text": "Now let me verify the Zod v4 `.meta()` method is indeed \"built-in\" and not something zod-openapi adds. Based on my thorough investigation, I can now assess the claim.\n\n**Key findings:**\n\n1. **`.meta()` IS a built-in Zod v4 method** - confirmed at zod.dev/metadata. It is part of Zod's core API, not something added by zod-openapi.\n\n2. **zod-openapi v5+ genuinely uses `.meta()` without runtime monkey patching** - confirmed. The v4-to-v5 migration guide explicitly shows the removal of `extendZodWithOpenApi(z)` and `import zod-openapi/extend`. The library uses TypeScript declaration merging to extend `GlobalMeta` at compile time, which is a standard TypeScript pattern, not monkey patching.\n\n3. **There IS a minor setup step** - you need to `import 'zod-openapi'` or add `/// <reference types=\"zod-openapi\" />` for full TypeScript type support. But this is compile-time only (declaration merging), not runtime modification.\n\n4. **The supporting quote is weak** - \"A TypeScript library which uses Zod schemas to generate OpenAPI v3.x documentation\" is just the repo tagline. It does not directly mention `.meta()`, monkey patching, or setup requirements. The specific claims come from elsewhere in the README.\n\n5. **The claim is current** - zod-openapi is at v6.0.0 (June 2026), still using this approach.\n\nThe claim is substantially accurate. The \"no additional setup\" language comes from the project's own README and is slightly simplified (you do need a TypeScript import for type definitions), but the core assertions about using Zod's built-in `.meta()` and no monkey patching are technically correct and well-supported.",
+          "alignment": 0.2195
+        }
+      ]
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+    "source_file": "data/D--code-ESI-ts__agent-a4bac6344530cab03.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}

@@ -1,0 +1,205 @@
+{
+  "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+  "aggregate_ter": 0.7,
+  "raw_ratio": 0.9823,
+  "phase_scores": {
+    "reasoning": 0.0,
+    "tool_use": 1.0,
+    "generation": 1.0
+  },
+  "total_tokens": 565,
+  "aligned_tokens": 555,
+  "waste_tokens": 10,
+  "classifier_version": "v11",
+  "intent_confidence": 0.85,
+  "uncertainty": {
+    "mean_confidence": 0.6,
+    "token_weighted_confidence": 0.6,
+    "low_confidence_tokens": 565,
+    "low_confidence_share": 1.0,
+    "ter_interval": [
+      0.7,
+      1.0
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_samples": 400,
+    "span_count": 3,
+    "method": "deterministic_span_bootstrap",
+    "reliability": "low"
+  },
+  "classified_spans": [
+    {
+      "position": 0,
+      "phase": "reasoning",
+      "label": "redundant_reasoning",
+      "confidence": 0.6,
+      "intent_similarity": 0.23204869031906128,
+      "tokens": 10,
+      "text": "Let me fetch the article content and analyze it.",
+      "source_message_uuid": "b0069c1c-706a-4900-af00-d7b00059c335",
+      "source_lines": [
+        3
+      ],
+      "explanation": {
+        "reason_code": "low_information_reasoning",
+        "summary": "The reasoning span is short and weakly aligned with the active intent.",
+        "signals": {
+          "intent_similarity": 0.232,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.88,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 1,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.436786413192749,
+      "tokens": 148,
+      "text": "WebFetch {\"url\":\"https://dev.to/whoffagents/advanced-typescript-patterns-branded-types-discriminated-unions-and-exhaustive-checks-3go5\",\"prompt\":\"Extract all key technical claims about branded types, discriminated unions, and exhaustive checks in TypeScript. Look for: 1) How branded types work and their use cases (preventing type confusion, API safety), 2) How discriminated unions work for type-safe handling of different response shapes, 3) How exhaustive checks (never type) ensure all cases are handled, 4) Any mentions of compile-time safety, runtime validation, API clients, SDK patterns, or OpenAPI integration. Also note the publish date and author.\"}",
+      "source_message_uuid": "b0069c1c-706a-4900-af00-d7b00059c335",
+      "source_lines": [
+        4
+      ],
+      "explanation": {
+        "reason_code": "aligned_default",
+        "summary": "No specific waste signal exceeded the applicable threshold.",
+        "signals": {
+          "intent_similarity": 0.4368,
+          "repetition_score": 0.0,
+          "confidence": 0.6
+        },
+        "threshold": 0.93,
+        "matched_prior_position": null,
+        "matched_prior_text": null
+      }
+    },
+    {
+      "position": 2,
+      "phase": "tool_use",
+      "label": "aligned_tool_call",
+      "confidence": 0.6,
+      "intent_similarity": 0.2821788787841797,
+      "tokens": 407,
+      "text": "StructuredOutput {\"claims\":[{\"claim\":\"Branded types use intersection of a primitive with a phantom readonly property (e.g., `type UserId = string & { readonly _brand: 'UserId' }`) to create nominally distinct types from structurally identical ones, preventing mixing of semantically different values like UserIds and PostIds at compile time.\",\"quote\":\"IDs, currencies, validated strings (emails, URLs)\",\"importance\":\"central\"},{\"claim\":\"Discriminated unions with a shared literal discriminant property make invalid states unrepresentable by ensuring only one state is active at a time, unlike boolean-flag objects where conflicting states like 'loading' and 'data' can both be true simultaneously.\",\"quote\":\"'loading' and 'data' can both be true\",\"importance\":\"central\"},{\"claim\":\"An exhaustive check function typed as `assertNever(x: never)` placed in the default branch of a switch statement produces a compile-time error when a new union variant is added but not handled, because the unhandled member cannot be assigned to the never type.\",\"quote\":\"TypeScript errors on the default case\",\"importance\":\"supporting\"},{\"claim\":\"Combining branded types, template literal types for URL path construction (e.g., `ApiRoute = '/api/${string}'`), and discriminated unions for API responses (`{ ok: true; data: T } | { ok: false; error: string; code: number }`) into an API client function provides compile-time enforcement of valid routes, correct ID usage, and forced error handling.\",\"quote\":\"eliminate entire categories of runtime bugs by making invalid states unrepresentable\",\"importance\":\"central\"},{\"claim\":\"The `satisfies` operator validates that a value matches a shape while preserving narrow type inference, complementing patterns like `as const` assertions which produce literal union types from arrays.\",\"quote\":\"satisfies operator (validates shape while preserving narrow inference)\",\"importance\":\"tangential\"}],\"sourceQuality\":\"blog\",\"publishDate\":\"2025-04-07\"}",
+      "source_message_uuid": "a48001f6-078c-44fb-a431-da4cbe3fbe15",
+      "source_lines": [
+        6
+      ],
+      "explanation": {
+        "reason_code": "novel_or_below_threshold",
+        "summary": "Similar prior content exists, but novelty or insufficient evidence kept the span aligned.",
+        "signals": {
+          "intent_similarity": 0.2822,
+          "repetition_score": 0.029,
+          "confidence": 0.6,
+          "semantic_similarity": 0.3682,
+          "lexical_similarity": 0.1023,
+          "entity_similarity": 0.123,
+          "action_similarity": 0.0,
+          "parameter_novelty": 1.0
+        },
+        "threshold": 0.93,
+        "matched_prior_position": 1,
+        "matched_prior_text": "WebFetch {\"url\":\"https://dev.to/whoffagents/advanced-typescript-patterns-branded-types-discriminated-unions-and-exhaustive-checks-3go5\",\"prompt\":\"Extract all key technical claims about branded types, discriminated unions, and exhaustive che"
+      }
+    }
+  ],
+  "waste_summary": {
+    "total_waste_tokens": 10,
+    "waste_by_category": {
+      "Redundant Reasoning": 10
+    },
+    "waste_by_phase": {
+      "reasoning": 10
+    },
+    "top_patterns": [],
+    "explanation": "10 of 565 tokens (1.8%) were identified as waste. The largest waste category is Redundant Reasoning (10 tokens)."
+  },
+  "waste_breakdown": {
+    "sources": [
+      {
+        "source": "Redundant Reasoning",
+        "tokens": 10,
+        "percentage": 100.0,
+        "cost_usd": 0.00015,
+        "count": 1,
+        "pricing": "output"
+      }
+    ],
+    "total_tokens": 10,
+    "total_cost_usd": 0.00015
+  },
+  "economics": {
+    "total_input_tokens": 4,
+    "total_output_tokens": 517,
+    "total_cache_creation_tokens": 20612,
+    "total_cache_read_tokens": 19472,
+    "input_output_ratio": 0.01,
+    "cache_hit_rate": 0.9998,
+    "estimated_cost_usd": 0.0909,
+    "estimated_waste_cost_usd": 0.0001,
+    "cost_model": {
+      "input_rate": 3.0,
+      "output_rate": 15.0,
+      "cache_read_rate": 0.3,
+      "cache_write_rate": 3.75
+    },
+    "positional": {
+      "early_ter": 0.0,
+      "mid_ter": 1.0,
+      "late_ter": 1.0,
+      "early_span_count": 1,
+      "mid_span_count": 1,
+      "late_span_count": 1
+    },
+    "input_growth": {
+      "turn_input_tokens": [
+        19473
+      ],
+      "growth_rate": 1.0,
+      "is_superlinear": false,
+      "context_bloat_detected": false
+    }
+  },
+  "input_analysis": {
+    "token_breakdown": {
+      "user_input_tokens": 503,
+      "user_result_tokens": 815,
+      "model_reasoning_tokens": 10,
+      "model_tool_tokens": 555,
+      "model_generation_tokens": 0,
+      "total_user_tokens": 1318,
+      "total_model_tokens": 565,
+      "user_ratio": 0.6999
+    },
+    "prompt_similarity": {
+      "prompt_count": 1,
+      "prompt_redundancy_score": 0.0,
+      "similar_pairs": []
+    },
+    "intent_drift": {
+      "overall_trajectory": "stable",
+      "average_drift": 0.0,
+      "steps": []
+    },
+    "prompt_response_alignment": {
+      "average_alignment": 0.0,
+      "low_alignment_count": 0,
+      "pairs": []
+    }
+  },
+  "phase2_analysis": {
+    "version": "2.0.2",
+    "session_id": "87117892-f0b7-4153-b4df-85025043573f",
+    "source_file": "data/D--code-ESI-ts__agent-ad20eb3084a581675.jsonl",
+    "finding_count": 0,
+    "severity_counts": {},
+    "signal_counts": {},
+    "findings": []
+  }
+}
