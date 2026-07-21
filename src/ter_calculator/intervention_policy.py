@@ -36,6 +36,7 @@ class MetricSnapshot:
     drift_score: float = 0.0
     repeated_tool_calls: int = 0
     reasoning_loop_streak: int = 0
+    cost_per_1k_tokens: float = 0.003
 
     @classmethod
     def from_mapping(cls, value: dict[str, Any]) -> "MetricSnapshot":
@@ -52,6 +53,7 @@ class MetricSnapshot:
             ),
             repeated_tool_calls=int(value.get("repeated_tool_calls", 0)),
             reasoning_loop_streak=int(value.get("reasoning_loop_streak", 0)),
+            cost_per_1k_tokens=float(value.get("cost_per_1k_tokens", 0.003)),
         )
 
 
@@ -287,6 +289,13 @@ def append_intervention_outcome(
     compliance: ComplianceResult,
 ) -> dict[str, Any]:
     effect = classify_effect(record.baseline, post, compliance)
+    before_waste_cost = (
+        record.baseline.context_tokens * record.baseline.waste_ratio / 1000.0
+    ) * record.baseline.cost_per_1k_tokens
+    after_waste_cost = (
+        post.context_tokens * post.waste_ratio / 1000.0
+    ) * post.cost_per_1k_tokens
+    estimated_cost_waste_usd = before_waste_cost - after_waste_cost
     row = {
         "intervention_id": record.intervention_id,
         "session_id": record.session_id,
@@ -303,6 +312,7 @@ def append_intervention_outcome(
         "deltas": {
             "ter": post.ter - record.baseline.ter,
             "waste_ratio": post.waste_ratio - record.baseline.waste_ratio,
+            "estimated_cost_waste_usd": estimated_cost_waste_usd,
         },
     }
     destination = Path(path)

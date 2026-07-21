@@ -31,6 +31,7 @@ def _cmd_hook_monitor(args) -> int:
     )
     from ..intervention import process_intervention_event, record_tool_result
     from ..closed_loop import append_lessons, record_outcome, resolve_project_root
+    from ..threshold_tuning import load_tuned_policy_config
 
     try:
         event_data = json_mod.loads(sys.stdin.read())
@@ -39,6 +40,17 @@ def _cmd_hook_monitor(args) -> int:
         return 1
 
     session_id = event_data.get("session_id", "unknown")
+    root = resolve_project_root(event_data)
+    tuned = load_tuned_policy_config(root)
+
+    def selected(name, default):
+        value = getattr(args, name, None)
+        if value is not None:
+            return value
+        if tuned is not None:
+            return getattr(tuned, name)
+        return default
+
     config = HookConfig(
         min_repetitive_reads=args.min_repetitive_reads,
         min_edit_fragments=args.min_edit_fragments,
@@ -55,13 +67,13 @@ def _cmd_hook_monitor(args) -> int:
         lesson_store=args.lesson_store,
         outcome_store=args.outcome_store,
         policy_mode=args.policy_mode,
-        ter_drop_warning=args.ter_drop_warning,
-        ter_drop_replan=args.ter_drop_replan,
-        waste_ratio_warning=args.waste_ratio_warning,
-        waste_ratio_replan=args.waste_ratio_replan,
-        degraded_windows_required=args.degraded_windows_required,
-        refresh_cooldown_seconds=args.refresh_cooldown_seconds,
-        replan_cooldown_seconds=args.replan_cooldown_seconds,
+        ter_drop_warning=selected("ter_drop_warning", 0.12),
+        ter_drop_replan=selected("ter_drop_replan", 0.20),
+        waste_ratio_warning=selected("waste_ratio_warning", 0.25),
+        waste_ratio_replan=selected("waste_ratio_replan", 0.40),
+        degraded_windows_required=selected("degraded_windows_required", 3),
+        refresh_cooldown_seconds=selected("refresh_cooldown_seconds", 120),
+        replan_cooldown_seconds=selected("replan_cooldown_seconds", 180),
         state_dir=args.state_dir,
     )
     state = load_state(session_id, config)
@@ -69,12 +81,16 @@ def _cmd_hook_monitor(args) -> int:
         event_data.get("hook_event_name", event_data.get("event", "PostToolUse"))
     )
 
+    for key in ("ter_metrics", "metrics", "ter_signal"):
+        if isinstance(event_data.get(key), dict):
+            event_data[key].setdefault("cost_per_1k_tokens", args.cost_per_1k_tokens)
     if not any(key in event_data for key in ("ter_metrics", "metrics", "ter_signal")):
         try:
             from ..transcript_metrics import derive_transcript_metrics
 
             derived_metrics = derive_transcript_metrics(event_data, state)
             if derived_metrics is not None:
+                derived_metrics["cost_per_1k_tokens"] = args.cost_per_1k_tokens
                 event_data["ter_metrics"] = derived_metrics
         except Exception:
             # Hook execution must never fail because transcript-derived metrics

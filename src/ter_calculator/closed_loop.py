@@ -235,6 +235,21 @@ def analyze_trends(
         waste_deltas = [
             float(row.get("deltas", {}).get("waste_ratio", 0.0)) for row in group
         ]
+        cost_deltas = [
+            float(row.get("deltas", {}).get("estimated_cost_waste_usd", 0.0))
+            for row in group
+        ]
+        saved = sum(
+            max(v, 0.0)
+            for row, v in zip(group, cost_deltas)
+            if row.get("effect") == "improved"
+        )
+        wasted = sum(
+            abs(min(v, 0.0))
+            for row, v in zip(group, cost_deltas)
+            if row.get("effect")
+            in {"regressed", "ignored", "acknowledged_not_followed"}
+        )
         effectiveness[kind] = {
             "issued": issued,
             "compliance_rate": followed / issued if issued else 0.0,
@@ -242,7 +257,12 @@ def analyze_trends(
             "override_rate": overrides / issued if issued else 0.0,
             "mean_ter_delta": sum(ter_deltas) / issued if issued else 0.0,
             "mean_waste_delta": sum(waste_deltas) / issued if issued else 0.0,
+            "mean_cost_delta_usd": sum(cost_deltas) / issued if issued else 0.0,
+            "total_cost_saved_usd": saved,
+            "total_cost_wasted_usd": wasted,
         }
+    total_saved = sum(v["total_cost_saved_usd"] for v in effectiveness.values())
+    total_wasted = sum(v["total_cost_wasted_usd"] for v in effectiveness.values())
     return {
         "lesson_count": len(rows),
         "pattern_counts": dict(pattern_counts),
@@ -250,6 +270,9 @@ def analyze_trends(
         "scenarios": scenarios,
         "outcome_count": len(outcomes),
         "intervention_effectiveness": effectiveness,
+        "total_estimated_cost_saved_usd": total_saved,
+        "total_estimated_cost_wasted_usd": total_wasted,
+        "outcome_rows": outcomes,
     }
 
 
@@ -265,3 +288,165 @@ def atomic_write_json(path: str | Path, payload: dict[str, Any]) -> None:
     finally:
         if os.path.exists(temporary):
             os.unlink(temporary)
+
+
+def _build_improvement_bar_chart(effectiveness: dict[str, dict[str, Any]]) -> str:
+    """Return an inline SVG improvement-rate chart or a friendly empty state."""
+    import html
+
+    if not effectiveness:
+        return '<p class="empty-state">No intervention data yet.</p>'
+    items = sorted(effectiveness.items())
+    row_height = 42
+    width = 760
+    label_width = 190
+    chart_width = 500
+    height = 35 + row_height * len(items)
+    parts = [
+        f'<svg class="chart" role="img" aria-label="Improvement rate by intervention type" viewBox="0 0 {width} {height}">'
+    ]
+    for index, (kind, metrics) in enumerate(items):
+        rate = max(0.0, min(1.0, float(metrics.get("improvement_rate", 0.0))))
+        y = 24 + index * row_height
+        bar_width = chart_width * rate
+        css_class = "good" if rate >= 0.7 else "warn" if rate >= 0.4 else "bad"
+        parts.append(
+            f'<text x="0" y="{y + 15}" class="chart-label">{html.escape(kind)}</text>'
+            f'<rect x="{label_width}" y="{y}" width="{chart_width}" height="20" class="track" rx="4" />'
+            f'<rect x="{label_width}" y="{y}" width="{bar_width:.1f}" height="20" class="bar {css_class}" rx="4" />'
+            f'<text x="{label_width + chart_width + 8}" y="{y + 15}" class="chart-value">{rate:.0%}</text>'
+        )
+    parts.append("</svg>")
+    return "".join(parts)
+
+
+def _weekly_cost_buckets(
+    outcome_rows: list[dict[str, Any]],
+) -> list[tuple[str, float, float]]:
+    """Bucket estimated saved and wasted cost by ISO week."""
+    buckets: dict[str, list[float]] = {}
+    for row in outcome_rows:
+        raw = row.get("evaluated_at") or row.get("issued_at") or row.get("timestamp")
+        if not isinstance(raw, str):
+            continue
+        try:
+            dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        year, week, _ = dt.isocalendar()
+        key = f"{year}-W{week:02d}"
+        delta = float(row.get("deltas", {}).get("estimated_cost_waste_usd", 0.0))
+        effect = str(row.get("effect", ""))
+        saved = max(delta, 0.0) if effect == "improved" else 0.0
+        wasted = (
+            abs(min(delta, 0.0))
+            if effect in {"regressed", "ignored", "acknowledged_not_followed"}
+            else 0.0
+        )
+        current = buckets.setdefault(key, [0.0, 0.0])
+        current[0] += saved
+        current[1] += wasted
+    return [(key, values[0], values[1]) for key, values in sorted(buckets.items())]
+
+
+def _build_cost_trend_chart(outcome_rows: list[dict[str, Any]]) -> str:
+    """Return an inline SVG weekly saved-vs-wasted cost chart."""
+    buckets = _weekly_cost_buckets(outcome_rows)
+    if not buckets:
+        return '<p class="empty-state">No dated cost outcomes yet.</p>'
+    width, height = 760, 280
+    left, top, bottom = 55, 25, 48
+    plot_h = height - top - bottom
+    max_value = max(max(saved, wasted) for _, saved, wasted in buckets) or 1.0
+    if len(buckets) == 1:
+        label, saved, wasted = buckets[0]
+        scale = plot_h / max_value
+        bar_w = 120
+        base_y = top + plot_h
+        return (
+            f'<svg class="chart" role="img" aria-label="Estimated cost saved versus wasted" viewBox="0 0 {width} {height}">'
+            f'<line x1="{left}" y1="{base_y}" x2="720" y2="{base_y}" class="axis" />'
+            f'<rect x="210" y="{base_y - saved * scale:.1f}" width="{bar_w}" height="{saved * scale:.1f}" class="bar good" />'
+            f'<rect x="410" y="{base_y - wasted * scale:.1f}" width="{bar_w}" height="{wasted * scale:.1f}" class="bar bad" />'
+            f'<text x="270" y="{base_y + 22}" text-anchor="middle" class="chart-label">saved</text>'
+            f'<text x="470" y="{base_y + 22}" text-anchor="middle" class="chart-label">wasted</text>'
+            f'<text x="370" y="{height - 8}" text-anchor="middle" class="chart-value">{label}</text>'
+            "</svg>"
+        )
+    step = (width - left - 35) / (len(buckets) - 1)
+    scale = plot_h / max_value
+    base_y = top + plot_h
+    saved_points = []
+    wasted_points = []
+    labels = []
+    for index, (label, saved, wasted) in enumerate(buckets):
+        x = left + index * step
+        saved_points.append(f"{x:.1f},{base_y - saved * scale:.1f}")
+        wasted_points.append(f"{x:.1f},{base_y - wasted * scale:.1f}")
+        labels.append(
+            f'<text x="{x:.1f}" y="{base_y + 22}" text-anchor="middle" class="chart-label">{label}</text>'
+        )
+    return (
+        f'<svg class="chart" role="img" aria-label="Estimated weekly cost saved versus wasted" viewBox="0 0 {width} {height}">'
+        f'<line x1="{left}" y1="{base_y}" x2="725" y2="{base_y}" class="axis" />'
+        f'<polyline points="{" ".join(saved_points)}" class="line good-stroke" fill="none" />'
+        f'<polyline points="{" ".join(wasted_points)}" class="line bad-stroke" fill="none" />'
+        + "".join(labels)
+        + '<text x="60" y="16" class="chart-value">saved</text><text x="140" y="16" class="chart-value">wasted</text></svg>'
+    )
+
+
+def build_effectiveness_dashboard_html(
+    trends: dict[str, Any],
+    *,
+    title: str = "TER Intervention Effectiveness",
+    tuning_preview: dict[str, Any] | None = None,
+) -> str:
+    """Build a dependency-free static effectiveness dashboard."""
+    import html
+
+    effectiveness = trends.get("intervention_effectiveness", {})
+    issued = sum(int(v.get("issued", 0)) for v in effectiveness.values())
+    improved = sum(
+        int(v.get("issued", 0)) * float(v.get("improvement_rate", 0.0))
+        for v in effectiveness.values()
+    )
+    overall = improved / issued if issued else 0.0
+    rows = []
+    for kind, m in sorted(effectiveness.items()):
+        rows.append(
+            f"<tr><td>{html.escape(kind)}</td><td>{int(m.get('issued', 0))}</td><td>{float(m.get('compliance_rate', 0)):.0%}</td><td>{float(m.get('improvement_rate', 0)):.0%}</td><td>{float(m.get('override_rate', 0)):.0%}</td><td>{float(m.get('mean_ter_delta', 0)):+.3f}</td><td>{float(m.get('mean_waste_delta', 0)):+.3f}</td><td>~${float(m.get('mean_cost_delta_usd', 0)):.4f}</td></tr>"
+        )
+    if not rows:
+        rows.append('<tr><td colspan="8">No intervention outcome data yet.</td></tr>')
+    scenarios = "".join(
+        f"<li><strong>{html.escape(str(x.get('pattern_type', '')))}</strong>: {html.escape(str(x.get('message', '')))}</li>"
+        for x in trends.get("scenarios", [])
+    )
+    tuning_html = '<p class="empty-state">No threshold changes recommended.</p>'
+    if tuning_preview:
+        applied = tuning_preview.get("applied_config")
+        changes = tuning_preview.get("changes", [])
+        blocks = []
+        if applied:
+            applied_rows = "".join(
+                f"<tr><td>{html.escape(str(k))}</td><td>{html.escape(str(v))}</td></tr>"
+                for k, v in sorted(applied.items())
+            )
+            blocks.append(
+                f'<h3>Applied <span class="badge">Applied</span></h3><table><tbody>{applied_rows}</tbody></table>'
+            )
+        if changes:
+            change_rows = "".join(
+                f"<tr><td>{html.escape(str(c['field']))}</td><td>{c['old_value']} → {c['new_value']}</td><td>{html.escape(str(c['reason']))}</td></tr>"
+                for c in changes
+            )
+            blocks.append(
+                f"<h3>Pending preview (not yet applied)</h3><table><thead><tr><th>Field</th><th>Change</th><th>Evidence</th></tr></thead><tbody>{change_rows}</tbody></table>"
+            )
+        elif not applied:
+            blocks.append('<p class="empty-state">No changes recommended.</p>')
+        tuning_html = "".join(blocks)
+    improvement_chart = _build_improvement_bar_chart(effectiveness)
+    cost_chart = _build_cost_trend_chart(list(trends.get("outcome_rows", [])))
+    return f"""<!doctype html><html><head><meta charset='utf-8'><title>{html.escape(title)}</title><style>:root{{--text:#172033;--border:#d8dee9;--muted:#f4f6f8;--good:#2e8b57;--warn:#c58a00;--bad:#c64242}}body{{font-family:system-ui;margin:2rem;color:var(--text)}}.cards{{display:flex;gap:1rem;flex-wrap:wrap}}.card{{padding:1rem;border:1px solid var(--border);border-radius:10px;min-width:180px}}.chart{{width:100%;max-width:900px;height:auto;border:1px solid var(--border);border-radius:10px;padding:.75rem;box-sizing:border-box}}.track{{fill:var(--muted)}}.good{{fill:var(--good)}}.warn{{fill:var(--warn)}}.bad{{fill:var(--bad)}}.good-stroke{{stroke:var(--good)}}.bad-stroke{{stroke:var(--bad)}}.line{{stroke-width:3}}.axis{{stroke:#8b95a5}}.chart-label,.chart-value{{font-size:12px;fill:var(--text)}}.badge{{font-size:.75rem;background:var(--good);color:white;padding:.15rem .45rem;border-radius:999px}}.empty-state{{padding:1rem;background:var(--muted);border-radius:8px}}table{{border-collapse:collapse;width:100%;margin-top:1rem}}th,td{{padding:.65rem;border-bottom:1px solid #ddd;text-align:left}}th{{background:var(--muted)}}section{{margin-top:2rem}}</style></head><body><h1>{html.escape(title)}</h1><div class='cards'><div class='card'><b>{issued}</b><br>interventions</div><div class='card'><b>{overall:.0%}</b><br>improvement rate</div><div class='card'><b>~${float(trends.get("total_estimated_cost_saved_usd", 0)):.4f}</b><br>estimated saved</div><div class='card'><b>~${float(trends.get("total_estimated_cost_wasted_usd", 0)):.4f}</b><br>estimated wasted</div></div><section><h2>Improvement rate</h2>{improvement_chart}</section><section><h2>Estimated cost over time</h2>{cost_chart}</section><section><h2>Intervention effectiveness</h2><table><thead><tr><th>Type</th><th>Issued</th><th>Compliance</th><th>Improved</th><th>Override</th><th>Mean TER Δ</th><th>Mean waste Δ</th><th>Mean cost Δ</th></tr></thead><tbody>{"".join(rows)}</tbody></table></section><section><h2>Threshold tuning</h2>{tuning_html}</section><section><h2>Recurring scenarios</h2><ul>{scenarios or "<li>No recurring scenarios yet.</li>"}</ul></section></body></html>"""
