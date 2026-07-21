@@ -52,10 +52,14 @@ def _cmd_context_store(args) -> int:
         engine = FragmentShardingEngine(store)
         fragments = engine.shard(spans, session.session_id)
 
-        new_count = len([f for f in fragments if f.origin_session == session.session_id])
+        new_count = len(
+            [f for f in fragments if f.origin_session == session.session_id]
+        )
         print(f"Session: {session.session_id}")
         print(f"Spans processed: {len(spans)}")
-        print(f"Fragments created: {new_count} new, {len(fragments) - new_count} existing")
+        print(
+            f"Fragments created: {new_count} new, {len(fragments) - new_count} existing"
+        )
         print(f"Total in store: {store.count()}")
     finally:
         store.close()

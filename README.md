@@ -345,6 +345,43 @@ The live monitor can display:
 
 ---
 
+
+## Phase 4: Cross-Session Intelligence
+
+TER v2.0.4 can build an **opt-in local history** of aggregate efficiency data.
+The default database is `~/.claude/ter/history.db`. TER does not store raw
+session content in this database; predictive matching uses a deterministic
+hashed prompt fingerprint.
+
+Record a completed session:
+
+```bash
+ter history record tests/fixtures/sample_session.jsonl --project TER
+```
+
+Review recent records and a project-level profile:
+
+```bash
+ter history list --project TER
+ter history profile --project TER
+```
+
+Estimate likely efficiency before starting similar work:
+
+```bash
+ter history predict "add JSON export with tests" --project TER
+```
+
+Predictions remain marked experimental until a project has at least 50
+recorded sessions. Use the cost dashboard for aggregate trends:
+
+```bash
+ter dashboard --project TER
+```
+
+Use `--db PATH` on any history or dashboard command to keep the database in a
+project-specific or encrypted location. Recording is never automatic.
+
 ## Budget Recommendations
 
 Estimate an appropriate token and model budget before starting a task:
@@ -985,8 +1022,6 @@ The report includes:
 - an embedded JSON download for downstream analysis.
 
 HTML reports score only assistant-origin spans. User prompts remain available for intent construction and input analysis but are excluded from TER output scoring.
-<<<<<<< HEAD
-=======
 
 ## Batch portfolio analysis (v2.0.1)
 
@@ -1079,4 +1114,3 @@ The portfolio report uses the original self-contained Plotly dashboard design. I
 
 Phase 2 is deliberately rule-based. It prioritizes precision, inspectable
 evidence, and stable behavior before semantic or LLM-based detectors are added.
->>>>>>> 41e26eb (Implement real-time TER degradation detection and intervention guardrails.)

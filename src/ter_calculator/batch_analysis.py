@@ -7,11 +7,11 @@ import html
 import json
 import math
 import os
-from collections import Counter
+from collections import Counter, defaultdict
 from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, TypeAlias
 
 from .analyze_pipeline import analyze_session, default_analyze_args
 from .formatter_json import ter_result_to_dict
@@ -60,7 +60,8 @@ def validate_result(payload: Any) -> list[str]:
     errors: list[str] = []
     if not isinstance(payload, dict):
         return ["result is not a JSON object"]
-    required = {
+    TypeSpec: TypeAlias = type[Any] | tuple[type[Any], ...]
+    required: dict[str, TypeSpec] = {
         "session_id": str,
         "aggregate_ter": (int, float),
         "phase_scores": dict,
@@ -76,7 +77,11 @@ def validate_result(payload: Any) -> list[str]:
     total = payload.get("total_tokens")
     aligned = payload.get("aligned_tokens")
     waste = payload.get("waste_tokens")
-    if all(isinstance(v, (int, float)) for v in (total, aligned, waste)):
+    if (
+        isinstance(total, (int, float))
+        and isinstance(aligned, (int, float))
+        and isinstance(waste, (int, float))
+    ):
         if total < 0 or aligned < 0 or waste < 0:
             errors.append("token counts must be non-negative")
         if aligned + waste != total:
@@ -118,10 +123,14 @@ def aggregate_results(results: list[dict[str, Any]]) -> dict[str, Any]:
     aligned_tokens = sum(float(r.get("aligned_tokens", 0)) for r in results)
     waste_tokens = sum(float(r.get("waste_tokens", 0)) for r in results)
     ters = [float(r.get("aggregate_ter", 0)) for r in results]
-    category_tokens: Counter[str] = Counter()
+    category_tokens: defaultdict[str, float] = defaultdict(float)
     category_sessions: Counter[str] = Counter()
-    phase_waste: Counter[str] = Counter()
-    phase_values: dict[str, list[float]] = {"reasoning": [], "tool_use": [], "generation": []}
+    phase_waste: defaultdict[str, float] = defaultdict(float)
+    phase_values: dict[str, list[float]] = {
+        "reasoning": [],
+        "tool_use": [],
+        "generation": [],
+    }
     for result in results:
         summary = result.get("waste_summary") or {}
         for category, value in (summary.get("waste_by_category") or {}).items():
@@ -150,6 +159,7 @@ def aggregate_results(results: list[dict[str, Any]]) -> dict[str, Any]:
         severity_counts.update(analysis.get("severity_counts") or {})
 
     sorted_ters = sorted(ters)
+
     def percentile(fraction: float) -> float:
         if not sorted_ters:
             return 0.0
@@ -158,7 +168,9 @@ def aggregate_results(results: list[dict[str, Any]]) -> dict[str, Any]:
         upper = math.ceil(position)
         if lower == upper:
             return sorted_ters[lower]
-        return sorted_ters[lower] + (sorted_ters[upper] - sorted_ters[lower]) * (position - lower)
+        return sorted_ters[lower] + (sorted_ters[upper] - sorted_ters[lower]) * (
+            position - lower
+        )
 
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -171,34 +183,59 @@ def aggregate_results(results: list[dict[str, Any]]) -> dict[str, Any]:
         "median_ter": percentile(0.5),
         "p10_ter": percentile(0.1),
         "p90_ter": percentile(0.9),
-        "sessions_with_waste": sum(float(r.get("waste_tokens", 0)) > 0 for r in results),
-        "perfect_sessions": sum(float(r.get("aggregate_ter", 0)) == 1.0 for r in results),
+        "sessions_with_waste": sum(
+            float(r.get("waste_tokens", 0)) > 0 for r in results
+        ),
+        "perfect_sessions": sum(
+            float(r.get("aggregate_ter", 0)) == 1.0 for r in results
+        ),
         "phase_averages": {
             phase: sum(values) / len(values) if values else 0.0
             for phase, values in phase_values.items()
         },
-        "waste_by_category": dict(category_tokens.most_common()),
+        "waste_by_category": dict(
+            sorted(category_tokens.items(), key=lambda item: item[1], reverse=True)
+        ),
         "affected_sessions_by_category": dict(category_sessions.most_common()),
-        "waste_by_phase": dict(phase_waste.most_common()),
-        "phase2": {"total_findings": total_findings, "sessions_with_findings": sessions_with_findings, "signal_counts": dict(signal_counts.most_common()), "severity_counts": dict(severity_counts)},
+        "waste_by_phase": dict(
+            sorted(phase_waste.items(), key=lambda item: item[1], reverse=True)
+        ),
+        "phase2": {
+            "total_findings": total_findings,
+            "sessions_with_findings": sessions_with_findings,
+            "signal_counts": dict(signal_counts.most_common()),
+            "severity_counts": dict(severity_counts),
+        },
     }
 
 
-def _bar_chart_svg(labels: list[str], values: list[float], title: str, height: int = 320) -> str:
+def _bar_chart_svg(
+    labels: list[str], values: list[float], title: str, height: int = 320
+) -> str:
     width, left, right, top, bottom = 960, 70, 20, 42, 78
     plot_w, plot_h = width - left - right, height - top - bottom
     maximum = max(values, default=1) or 1
     gap = 6
     bar_w = max(2, (plot_w - gap * max(0, len(values) - 1)) / max(1, len(values)))
-    parts = [f'<svg viewBox="0 0 {width} {height}" role="img" aria-label="{html.escape(title)}">']
-    parts.append(f'<text x="{left}" y="24" class="chart-title">{html.escape(title)}</text>')
-    parts.append(f'<line x1="{left}" y1="{top + plot_h}" x2="{left + plot_w}" y2="{top + plot_h}" class="axis"/>')
+    parts = [
+        f'<svg viewBox="0 0 {width} {height}" role="img" aria-label="{html.escape(title)}">'
+    ]
+    parts.append(
+        f'<text x="{left}" y="24" class="chart-title">{html.escape(title)}</text>'
+    )
+    parts.append(
+        f'<line x1="{left}" y1="{top + plot_h}" x2="{left + plot_w}" y2="{top + plot_h}" class="axis"/>'
+    )
     for index, (label, value) in enumerate(zip(labels, values)):
         x = left + index * (bar_w + gap)
         bar_h = (value / maximum) * plot_h
         y = top + plot_h - bar_h
-        parts.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{bar_w:.1f}" height="{bar_h:.1f}" rx="3" class="bar"><title>{html.escape(label)}: {value:,.0f}</title></rect>')
-        parts.append(f'<text x="{x + bar_w / 2:.1f}" y="{top + plot_h + 16}" transform="rotate(45 {x + bar_w / 2:.1f} {top + plot_h + 16})" class="tick">{html.escape(label)}</text>')
+        parts.append(
+            f'<rect x="{x:.1f}" y="{y:.1f}" width="{bar_w:.1f}" height="{bar_h:.1f}" rx="3" class="bar"><title>{html.escape(label)}: {value:,.0f}</title></rect>'
+        )
+        parts.append(
+            f'<text x="{x + bar_w / 2:.1f}" y="{top + plot_h + 16}" transform="rotate(45 {x + bar_w / 2:.1f} {top + plot_h + 16})" class="tick">{html.escape(label)}</text>'
+        )
     parts.append("</svg>")
     return "".join(parts)
 
@@ -218,7 +255,14 @@ def build_dashboard_html(
     return make_dashboard(results, ter_bucket_count=bucket_count)
 
 
-def run_batch(input_dir: Path, output_dir: Path, workers: int | None = None, recursive: bool = True, force: bool = False, bucket_count: int = 20) -> dict[str, Any]:
+def run_batch(
+    input_dir: Path,
+    output_dir: Path,
+    workers: int | None = None,
+    recursive: bool = True,
+    force: bool = False,
+    bucket_count: int = 20,
+) -> dict[str, Any]:
     sessions = discover_sessions(input_dir, recursive=recursive)
     if not sessions:
         raise ValueError(f"No .jsonl session files found under {input_dir}")
@@ -243,7 +287,9 @@ def run_batch(input_dir: Path, output_dir: Path, workers: int | None = None, rec
     summary["skipped"] = sum(item.status == "skipped" for item in items)
     summary["failed"] = sum(item.status == "failed" for item in items)
     summary["invalid_outputs"] = len(invalid)
-    (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (output_dir / "summary.json").write_text(
+        json.dumps(summary, indent=2), encoding="utf-8"
+    )
     manifest = {
         "generated_at": summary["generated_at"],
         "input_dir": str(input_dir.resolve()),
@@ -252,6 +298,11 @@ def run_batch(input_dir: Path, output_dir: Path, workers: int | None = None, rec
         "items": [asdict(item) for item in items],
         "invalid_outputs": invalid,
     }
-    (output_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-    (output_dir / "ter-dashboard.html").write_text(build_dashboard_html(results, summary, bucket_count=bucket_count), encoding="utf-8")
+    (output_dir / "manifest.json").write_text(
+        json.dumps(manifest, indent=2), encoding="utf-8"
+    )
+    (output_dir / "ter-dashboard.html").write_text(
+        build_dashboard_html(results, summary, bucket_count=bucket_count),
+        encoding="utf-8",
+    )
     return summary

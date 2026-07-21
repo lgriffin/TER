@@ -59,7 +59,9 @@ def test_combined_jsonl_and_dashboard(tmp_path: Path):
     write_combined_jsonl(results, output)
     assert len(output.read_text().splitlines()) == 2
     assert json.loads(output.read_text().splitlines()[0])["session_id"] == "a"
-    dashboard = build_dashboard_html(results, aggregate_results(results), bucket_count=10)
+    dashboard = build_dashboard_html(
+        results, aggregate_results(results), bucket_count=10
+    )
     assert "TER portfolio dashboard" in dashboard
     assert "0.90–1.00" in dashboard
     assert "Session results" in dashboard

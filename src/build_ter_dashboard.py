@@ -4,9 +4,9 @@ import argparse
 import html
 import json
 import statistics
-from collections import Counter
+from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import plotly.graph_objects as go
 from plotly.offline import get_plotlyjs
@@ -24,9 +24,7 @@ def load_jsonl(path: Path) -> list[dict[str, Any]]:
             try:
                 value = json.loads(line)
             except json.JSONDecodeError as exc:
-                raise ValueError(
-                    f"Invalid JSON on line {line_number}: {exc}"
-                ) from exc
+                raise ValueError(f"Invalid JSON on line {line_number}: {exc}") from exc
 
             if isinstance(value, dict):
                 results.append(value)
@@ -64,14 +62,17 @@ def build_figure_html(
     figure: go.Figure,
     div_id: str,
 ) -> str:
-    return figure.to_html(
-        full_html=False,
-        include_plotlyjs=False,
-        div_id=div_id,
-        config={
-            "displaylogo": False,
-            "responsive": True,
-        },
+    return cast(
+        str,
+        figure.to_html(
+            full_html=False,
+            include_plotlyjs=False,
+            div_id=div_id,
+            config={
+                "displaylogo": False,
+                "responsive": True,
+            },
+        ),
     )
 
 
@@ -91,16 +92,9 @@ def make_dashboard(results: list[dict[str, Any]]) -> str:
     average_ter = statistics.mean(ter_values) if ter_values else 0
     median_ter = statistics.median(ter_values) if ter_values else 0
 
-    weighted_ter = (
-        aligned_tokens / total_tokens
-        if total_tokens
-        else 0
-    )
+    weighted_ter = aligned_tokens / total_tokens if total_tokens else 0
 
-    waste_sessions = sum(
-        1 for item in results
-        if number(item.get("waste_tokens")) > 0
-    )
+    waste_sessions = sum(1 for item in results if number(item.get("waste_tokens")) > 0)
 
     # TER distribution
     ter_bins = [
@@ -111,27 +105,24 @@ def make_dashboard(results: list[dict[str, Any]]) -> str:
         ("1.00", 1.0, 1.0000001),
     ]
 
-#    ter_bins = []
-#
-#    step = 0.05
-#
-#    for index in range(20):
-#        minimum = index * step
-#        maximum = minimum + step
-#
-#        label = f"{minimum:.2f}–{maximum:.2f}"
-#
-#        ter_bins.append((label, minimum, maximum))
-#
-#    # Keep a distinct bucket for perfect scores
-#    ter_bins.append(("1.00", 1.0, 1.0000001))
+    #    ter_bins = []
+    #
+    #    step = 0.05
+    #
+    #    for index in range(20):
+    #        minimum = index * step
+    #        maximum = minimum + step
+    #
+    #        label = f"{minimum:.2f}–{maximum:.2f}"
+    #
+    #        ter_bins.append((label, minimum, maximum))
+    #
+    #    # Keep a distinct bucket for perfect scores
+    #    ter_bins.append(("1.00", 1.0, 1.0000001))
 
     ter_distribution = []
     for label, minimum, maximum in ter_bins:
-        count = sum(
-            minimum <= value < maximum
-            for value in ter_values
-        )
+        count = sum(minimum <= value < maximum for value in ter_values)
         ter_distribution.append((label, count))
 
     ter_figure = go.Figure(
@@ -152,7 +143,7 @@ def make_dashboard(results: list[dict[str, Any]]) -> str:
     )
 
     # Waste category aggregation
-    category_tokens: Counter[str] = Counter()
+    category_tokens: defaultdict[str, float] = defaultdict(float)
     category_sessions: Counter[str] = Counter()
 
     for item in results:
@@ -169,7 +160,9 @@ def make_dashboard(results: list[dict[str, Any]]) -> str:
             if numeric_value > 0:
                 category_sessions[str(category)] += 1
 
-    category_items = category_tokens.most_common(15)
+    category_items = sorted(
+        category_tokens.items(), key=lambda item: item[1], reverse=True
+    )[:15]
 
     if category_items:
         category_figure = go.Figure(
@@ -179,8 +172,7 @@ def make_dashboard(results: list[dict[str, Any]]) -> str:
                     y=[name for name, _ in reversed(category_items)],
                     orientation="h",
                     customdata=[
-                        category_sessions[name]
-                        for name, _ in reversed(category_items)
+                        category_sessions[name] for name, _ in reversed(category_items)
                     ],
                     hovertemplate=(
                         "%{y}<br>"
@@ -210,7 +202,7 @@ def make_dashboard(results: list[dict[str, Any]]) -> str:
         """
 
     # Waste by phase
-    phase_waste: Counter[str] = Counter()
+    phase_waste: defaultdict[str, float] = defaultdict(float)
 
     for item in results:
         waste_summary = item.get("waste_summary") or {}
@@ -228,9 +220,7 @@ def make_dashboard(results: list[dict[str, Any]]) -> str:
                     values=list(phase_waste.values()),
                     hole=0.45,
                     hovertemplate=(
-                        "%{label}<br>"
-                        "%{value:,.0f} tokens<br>"
-                        "%{percent}<extra></extra>"
+                        "%{label}<br>%{value:,.0f} tokens<br>%{percent}<extra></extra>"
                     ),
                 )
             ]
@@ -265,11 +255,7 @@ def make_dashboard(results: list[dict[str, Any]]) -> str:
             if isinstance(value, (int, float)):
                 values.append(float(value))
 
-        phase_averages[phase_name] = (
-            statistics.mean(values)
-            if values
-            else 0
-        )
+        phase_averages[phase_name] = statistics.mean(values) if values else 0
 
     phase_score_figure = go.Figure(
         data=[
@@ -317,9 +303,7 @@ def make_dashboard(results: list[dict[str, Any]]) -> str:
         scatter_x.append(tokens)
         scatter_y.append(waste)
         scatter_ter.append(ter)
-        scatter_text.append(
-            f"Session: {html.escape(session_id)}"
-        )
+        scatter_text.append(f"Session: {html.escape(session_id)}")
 
     scatter_figure = go.Figure(
         data=[
@@ -361,9 +345,7 @@ def make_dashboard(results: list[dict[str, Any]]) -> str:
 
     rows = []
     for item in worst_sessions:
-        session_id = html.escape(
-            str(item.get("session_id", "unknown"))
-        )
+        session_id = html.escape(str(item.get("session_id", "unknown")))
         ter = number(item.get("aggregate_ter"))
         total = int(number(item.get("total_tokens")))
         waste = int(number(item.get("waste_tokens")))
@@ -397,8 +379,7 @@ def make_dashboard(results: list[dict[str, Any]]) -> str:
     perfect_sessions = sum(value == 1.0 for value in ter_values)
 
     summary_text = (
-        f"{perfect_sessions:,} of {sessions:,} sessions "
-        f"received a perfect TER score."
+        f"{perfect_sessions:,} of {sessions:,} sessions received a perfect TER score."
     )
 
     plotly_js = get_plotlyjs()
@@ -712,7 +693,7 @@ def make_dashboard(results: list[dict[str, Any]]) -> str:
                 </thead>
 
                 <tbody>
-                    {''.join(rows)}
+                    {"".join(rows)}
                 </tbody>
             </table>
         </div>

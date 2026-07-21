@@ -44,7 +44,9 @@ def _cmd_dashboard(args) -> int:
     write_combined_jsonl(results, result_dir / "all-results.jsonl")
     summary = aggregate_results(results)
     summary["invalid_outputs"] = len(invalid)
-    (result_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (result_dir / "summary.json").write_text(
+        json.dumps(summary, indent=2), encoding="utf-8"
+    )
     (result_dir / "ter-dashboard.html").write_text(
         build_dashboard_html(results, summary, bucket_count=args.ter_buckets),
         encoding="utf-8",
