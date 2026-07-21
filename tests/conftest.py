@@ -1,13 +1,14 @@
-"""Test-suite compatibility for optional development dependencies."""
+def pytest_collection_modifyitems(config, items):
+    """Skip tests that require optional embeddings when the extra is absent."""
+    import importlib.util
+    import pytest
 
-from __future__ import annotations
-import importlib.util
-from pathlib import Path
-
-
-def pytest_ignore_collect(collection_path: Path, config) -> bool:  # noqa: ARG001
-    """Ignore BDD step modules when pytest-bdd is unavailable."""
-    return (
-        importlib.util.find_spec("pytest_bdd") is None
-        and "tests/features/steps" in collection_path.as_posix()
-    )
+    if importlib.util.find_spec("sentence_transformers") is not None:
+        return
+    skip = pytest.mark.skip(reason="requires the embeddings optional dependency")
+    for item in items:
+        nodeid = item.nodeid
+        if "test_input_analysis.py" in nodeid or (
+            "test_cli.py::TestAnalyzeCommand" in nodeid
+        ):
+            item.add_marker(skip)

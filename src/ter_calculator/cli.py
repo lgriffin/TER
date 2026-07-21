@@ -621,6 +621,23 @@ def main(argv: list[str] | None = None) -> int:
     memory_trends.add_argument(
         "--format", dest="output_format", choices=["text", "json"], default="text"
     )
+    memory_tune = memory_sub.add_parser(
+        "tune", help="Preview or apply transparent per-repository threshold tuning"
+    )
+    memory_tune.add_argument("--root", default=".")
+    memory_tune.add_argument("--minimum-samples", type=int, default=8)
+    memory_tune.add_argument("--apply", action="store_true")
+    memory_tune.add_argument(
+        "--format", dest="output_format", choices=["text", "json"], default="text"
+    )
+    memory_dashboard = memory_sub.add_parser(
+        "dashboard", help="Write a static intervention effectiveness dashboard"
+    )
+    memory_dashboard.add_argument("--root", default=".")
+    memory_dashboard.add_argument("--output", default=None)
+    memory_dashboard.add_argument(
+        "--format", dest="output_format", choices=["text", "json"], default="text"
+    )
 
     # hook subcommand — Claude Code hook utilities
     hook_parser = subparsers.add_parser(
@@ -676,6 +693,12 @@ def main(argv: list[str] | None = None) -> int:
         help="Similarity threshold for reasoning loop detection (default: 0.88)",
     )
     hook_monitor.add_argument(
+        "--cost-per-1k-tokens",
+        type=float,
+        default=0.003,
+        help="Estimated USD cost per 1,000 tokens used for effectiveness economics",
+    )
+    hook_monitor.add_argument(
         "--no-bash-antipatterns",
         action="store_true",
         help="Disable bash anti-pattern checking",
@@ -701,13 +724,13 @@ def main(argv: list[str] | None = None) -> int:
         choices=["observe", "suggest", "warn", "block"],
         default="suggest",
     )
-    hook_monitor.add_argument("--ter-drop-warning", type=float, default=0.12)
-    hook_monitor.add_argument("--ter-drop-replan", type=float, default=0.20)
-    hook_monitor.add_argument("--waste-ratio-warning", type=float, default=0.25)
-    hook_monitor.add_argument("--waste-ratio-replan", type=float, default=0.40)
-    hook_monitor.add_argument("--degraded-windows-required", type=int, default=3)
-    hook_monitor.add_argument("--refresh-cooldown-seconds", type=int, default=120)
-    hook_monitor.add_argument("--replan-cooldown-seconds", type=int, default=180)
+    hook_monitor.add_argument("--ter-drop-warning", type=float, default=None)
+    hook_monitor.add_argument("--ter-drop-replan", type=float, default=None)
+    hook_monitor.add_argument("--waste-ratio-warning", type=float, default=None)
+    hook_monitor.add_argument("--waste-ratio-replan", type=float, default=None)
+    hook_monitor.add_argument("--degraded-windows-required", type=int, default=None)
+    hook_monitor.add_argument("--refresh-cooldown-seconds", type=int, default=None)
+    hook_monitor.add_argument("--replan-cooldown-seconds", type=int, default=None)
     hook_monitor.add_argument(
         "--state-dir",
         type=str,

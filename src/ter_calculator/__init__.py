@@ -1,3 +1,3 @@
 """TER Calculator package."""
 
-__version__ = "2.0.14"
+__version__ = "2.0.16"

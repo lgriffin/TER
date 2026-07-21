@@ -1,3 +1,17 @@
+## 2.0.16
+
+- Added inline SVG improvement-rate and weekly estimated-cost charts to the effectiveness dashboard.
+- Added applied and pending threshold-tuning visibility using shared change descriptions.
+- Fixed hook threshold precedence with explicit `None` sentinels for omitted CLI flags.
+- Added full-extras and minimal-install CI coverage and updated package smoke validation.
+
+## 2.0.15
+
+- Added estimated cost deltas and cost-framed intervention trend reporting.
+- Added transparent, dry-run-by-default per-repository threshold tuning.
+- Added a static intervention effectiveness dashboard.
+- Updated closed-loop documentation and CLI guidance.
+
 # Changelog
 
 ## [2.0.14] - 2026-07-21

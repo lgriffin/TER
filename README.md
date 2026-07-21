@@ -1218,3 +1218,20 @@ thresholds can be recalibrated without losing evidence.
 See [`PHASE9_CHANGES.md`](PHASE9_CHANGES.md),
 [`PHASE10_CHANGES.md`](PHASE10_CHANGES.md), and
 [`PHASE11_CHANGES.md`](PHASE11_CHANGES.md).
+
+
+## v2.0.15 effectiveness economics and tuning
+
+TER trend reports now include clearly labeled **estimated** cost savings and continued waste based on token volume and a configurable cost-per-1,000-token assumption. Use `ter memory trends --outcomes .ter/intervention-outcomes.jsonl` to review results.
+
+Per-repository threshold tuning is transparent and opt-in. `ter memory tune` is a dry-run preview; only `ter memory tune --apply` writes `.ter/tuned-policy-config.json`. Insufficient sample sizes never change thresholds, changes are bounded and incremental, and the previous config is retained for rollback.
+
+Generate a stakeholder-friendly static dashboard with `ter memory dashboard`; the default output is `.ter/effectiveness-dashboard.html`. Dollar values are estimates, not billing records.
+
+The live hook cost assumption can be overridden with `ter hook monitor --cost-per-1k-tokens VALUE`; explicit CLI values take precedence over repository-tuned defaults.
+
+### Effectiveness dashboard charts and tuning visibility
+
+`ter memory dashboard` now renders dependency-free inline SVG charts for intervention improvement rates and estimated weekly cost saved versus wasted. The same dashboard shows currently applied repository thresholds and a live, non-applied tuning preview, including the sample size and effectiveness evidence behind every recommended change.
+
+Hook threshold flags use a `None` sentinel internally, so precedence is unambiguous: an explicitly supplied CLI value always wins, even when it equals the documented default; otherwise TER uses the repository-tuned value, then the built-in default.
