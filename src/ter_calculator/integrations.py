@@ -81,7 +81,7 @@ def build_step_summary(result: GateResult, source: str) -> str:
     violations = "\n".join(f"- {item}" for item in result.violations) or "- None"
     return f"""# TER integration report
 
-**Status:** {status}  
+**Status:** {status}
 **Source:** `{source}`
 
 | Metric | Value |
