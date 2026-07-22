@@ -84,6 +84,9 @@ class HookConfig:
     degraded_windows_required: int = 3
     refresh_cooldown_seconds: int = 120
     replan_cooldown_seconds: int = 180
+    pre_send_check_enabled: bool = False
+    pre_send_similarity_threshold: float = 0.72
+    pre_send_cooldown_seconds: int = 120
     state_dir: str | None = None
 
 
@@ -123,6 +126,8 @@ class HookSessionState:
     transcript_tool_signatures: dict[str, int] = field(default_factory=dict)
     transcript_recent_text: list[str] = field(default_factory=list)
     transcript_last_ter: float = 1.0
+    pre_send_pending: dict[str, Any] = field(default_factory=dict)
+    pre_send_last_check_at: float = 0.0
 
 
 # ---------------------------------------------------------------------------

@@ -215,7 +215,7 @@ def analyze_trends(
         for line in Path(outcome_path).read_text(encoding="utf-8").splitlines():
             try:
                 row = json.loads(line)
-                if isinstance(row, dict) and row.get("effect"):
+                if isinstance(row, dict) and (row.get("effect") or row.get("outcome")):
                     outcomes.append(row)
             except json.JSONDecodeError:
                 continue
@@ -224,31 +224,51 @@ def analyze_trends(
     for row in outcomes:
         by_type.setdefault(str(row.get("intervention_type", "unknown")), []).append(row)
     for kind, group in by_type.items():
-        issued = len(group)
-        followed = sum(bool(row.get("followed")) for row in group)
-        improved = sum(row.get("effect") == "improved" for row in group)
-        overrides = sum(
-            row.get("effect") in {"ignored", "acknowledged_not_followed"}
-            for row in group
+
+        def effect_of(row: dict[str, Any]) -> str:
+            effect = str(row.get("effect", ""))
+            if effect:
+                return effect
+            outcome = str(row.get("outcome", ""))
+            return {
+                "acknowledged": "improved",
+                "overridden": "ignored",
+                "fired": "issued",
+                "no_match": "neutral",
+            }.get(outcome, outcome)
+
+        issued_rows = [
+            row for row in group if str(row.get("outcome", "")) != "no_match"
+        ]
+        issued = len(issued_rows)
+        followed = sum(
+            bool(row.get("followed")) or str(row.get("outcome", "")) == "acknowledged"
+            for row in issued_rows
         )
-        ter_deltas = [float(row.get("deltas", {}).get("ter", 0.0)) for row in group]
+        improved = sum(effect_of(row) == "improved" for row in issued_rows)
+        overrides = sum(
+            effect_of(row) in {"ignored", "acknowledged_not_followed"}
+            for row in issued_rows
+        )
+        ter_deltas = [
+            float(row.get("deltas", {}).get("ter", 0.0)) for row in issued_rows
+        ]
         waste_deltas = [
-            float(row.get("deltas", {}).get("waste_ratio", 0.0)) for row in group
+            float(row.get("deltas", {}).get("waste_ratio", 0.0)) for row in issued_rows
         ]
         cost_deltas = [
             float(row.get("deltas", {}).get("estimated_cost_waste_usd", 0.0))
-            for row in group
+            for row in issued_rows
         ]
         saved = sum(
             max(v, 0.0)
-            for row, v in zip(group, cost_deltas)
-            if row.get("effect") == "improved"
+            for row, v in zip(issued_rows, cost_deltas)
+            if effect_of(row) == "improved"
         )
         wasted = sum(
             abs(min(v, 0.0))
-            for row, v in zip(group, cost_deltas)
-            if row.get("effect")
-            in {"regressed", "ignored", "acknowledged_not_followed"}
+            for row, v in zip(issued_rows, cost_deltas)
+            if effect_of(row) in {"regressed", "ignored", "acknowledged_not_followed"}
         )
         effectiveness[kind] = {
             "issued": issued,

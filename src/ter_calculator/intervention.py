@@ -18,11 +18,14 @@ from __future__ import annotations
 import json
 import math
 import re
+import time
+import uuid
+from pathlib import Path
 from collections import Counter
 from typing import Any
 
 from .adaptive_budget import recommend_budget
-from .closed_loop import build_memory_guidance, resolve_project_root
+from .closed_loop import build_memory_guidance, record_outcome, resolve_project_root
 from .intervention_policy import (
     ComplianceResult,
     InterventionAction,
@@ -195,6 +198,113 @@ def check_permission_loop(
     return None
 
 
+def _pre_send_acknowledgement(text: str) -> str | None:
+    lowered = text.lower()
+    if "[ter ack pre_send_check]" in lowered:
+        return "acknowledged"
+    if "[ter override pre_send_check]" in lowered:
+        return "overridden"
+    return None
+
+
+def _lesson_matches(
+    path: Path, query: str, threshold: float, limit: int = 3
+) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    matches: list[dict[str, Any]] = []
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()[-1000:]
+    except OSError:
+        return []
+    for line in lines:
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        summary = str(row.get("summary", ""))
+        score = _token_cosine(query, summary)
+        if summary and score >= threshold:
+            matches.append(
+                {
+                    "score": score,
+                    "lesson_id": str(
+                        row.get("lesson_id", row.get("timestamp", "unknown"))
+                    ),
+                    "path": "session-lesson",
+                    "excerpt": summary,
+                    "source_type": "lesson",
+                }
+            )
+    matches.sort(key=lambda item: float(item["score"]), reverse=True)
+    return matches[:limit]
+
+
+def check_pre_send_pattern(
+    event_data: dict[str, Any], state: HookSessionState, config: HookConfig
+) -> tuple[WasteAlert | None, str | None]:
+    """Check a user prompt against repository memory and durable lessons."""
+    if not config.pre_send_check_enabled:
+        return None, None
+    prompt = _extract_text(event_data)
+    if not prompt:
+        return None, None
+    acknowledgement = _pre_send_acknowledgement(prompt)
+    if acknowledgement and state.pre_send_pending:
+        return None, acknowledgement
+    now = time.time()
+    if now - state.pre_send_last_check_at < max(0, config.pre_send_cooldown_seconds):
+        return None, None
+    root = resolve_project_root(event_data)
+    guidance, matches = build_memory_guidance(
+        event_data,
+        index_path=config.memory_index,
+        limit=config.memory_limit,
+        minimum_score=config.pre_send_similarity_threshold,
+    )
+    lessons = _lesson_matches(
+        Path(config.lesson_store or root / ".ter" / "session-lessons.jsonl"),
+        prompt,
+        config.pre_send_similarity_threshold,
+    )
+    combined = [*matches, *lessons]
+    if not combined:
+        state.pre_send_last_check_at = now
+        return None, "no_match"
+    best = max(combined, key=lambda item: float(item.get("score", 0.0)))
+    reference = (
+        f"lesson {best.get('lesson_id')}"
+        if best.get("source_type") == "lesson"
+        else f"{best.get('path')}:{best.get('start_line', 0)}"
+    )
+    check_id = uuid.uuid4().hex[:12]
+    state.pre_send_pending = {
+        "check_id": check_id,
+        "reference": reference,
+        "score": float(best.get("score", 0.0)),
+        "issued_at": now,
+    }
+    state.pre_send_last_check_at = now
+    message = (
+        f"A similar prior pattern was found at {reference} "
+        f"(similarity {float(best.get('score', 0.0)):.0%}). Review it before sending. "
+        "Resubmit with [TER ACK pre_send_check] to acknowledge and proceed, or "
+        "[TER OVERRIDE pre_send_check] to proceed despite the warning."
+    )
+    if guidance:
+        message += "\n\n" + guidance
+    return WasteAlert(
+        pattern_type="pre_send_check",
+        severity="warning",
+        message=message,
+        details={
+            "check_id": check_id,
+            "reference": reference,
+            "similarity": round(float(best.get("score", 0.0)), 6),
+        },
+    ), None
+
+
 def build_budget_hint(prompt: str) -> tuple[str, dict[str, Any]]:
     """Build a session-start budget recommendation from the initial prompt."""
     recommendation = recommend_budget(prompt or "general coding task")
@@ -307,6 +417,48 @@ def process_intervention_event(
     _evaluate_active_interventions(event_data, state, config)
 
     root = resolve_project_root(event_data)
+    if event_name == "UserPromptSubmit" and config.pre_send_check_enabled:
+        alert, status = check_pre_send_pattern(event_data, state, config)
+        outcome_path = config.outcome_store or str(
+            root / ".ter" / "intervention-outcomes.jsonl"
+        )
+        if status in {"acknowledged", "overridden"}:
+            pending_check = dict(state.pre_send_pending)
+            record_outcome(
+                outcome_path,
+                session_id=state.session_id,
+                intervention_type="pre_send_check",
+                outcome=status,
+                details=pending_check,
+            )
+            state.pre_send_pending = {}
+        elif status == "no_match":
+            record_outcome(
+                outcome_path,
+                session_id=state.session_id,
+                intervention_type="pre_send_check",
+                outcome="no_match",
+            )
+        elif alert is not None:
+            record_outcome(
+                outcome_path,
+                session_id=state.session_id,
+                intervention_type="pre_send_check",
+                outcome="fired",
+                details=alert.details,
+            )
+            if config.policy_mode in {"suggest", "warn", "block"}:
+                alerts.append(alert)
+                output["additionalContext"] = alert.message
+                output["systemMessage"] = "TER: pre-send duplicate/pattern check"
+            if config.policy_mode == "block":
+                output["hookSpecificOutput"] = {
+                    "hookEventName": "UserPromptSubmit",
+                    "decision": "block",
+                    "reason": alert.message,
+                }
+                return alerts, state, output
+
     pending = consume_pending_intervention(
         pending_intervention_path(root, state.session_id)
     )
