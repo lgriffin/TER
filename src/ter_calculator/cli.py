@@ -205,26 +205,6 @@ def main(argv: list[str] | None = None) -> int:
         help="Command summary format (default: text)",
     )
 
-    dashboard_parser = subparsers.add_parser(
-        "dashboard",
-        help="Rebuild aggregate artifacts from existing *.ter.json results",
-    )
-    dashboard_parser.add_argument(
-        "result_dir", help="Directory containing *.ter.json files"
-    )
-    dashboard_parser.add_argument(
-        "--ter-buckets",
-        type=int,
-        default=20,
-        help="Number of TER distribution buckets (default: 20 = 5%% each)",
-    )
-    dashboard_parser.add_argument(
-        "--format",
-        dest="output_format",
-        choices=["text", "json"],
-        default="text",
-    )
-
     # compare subcommand
     compare_parser = subparsers.add_parser(
         "compare", help="Compare TER across multiple sessions"
