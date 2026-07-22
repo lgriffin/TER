@@ -460,7 +460,7 @@ def detect_device() -> DeviceConfig:
     CPU.  Returns a :class:`DeviceConfig` with a recommended batch size.
     """
     try:
-        import torch
+        import torch  # type: ignore[import-not-found]
 
         if torch.cuda.is_available():
             name = torch.cuda.get_device_name(0)
