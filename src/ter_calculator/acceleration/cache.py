@@ -371,9 +371,7 @@ class AnalysisCache:
         pkl_path.parent.mkdir(parents=True, exist_ok=True)
 
         pkl_bytes = pickle.dumps(value, protocol=pickle.HIGHEST_PROTOCOL)
-        digest = hmac.new(
-            self._cache_hmac_key(), pkl_bytes, hashlib.sha256
-        ).hexdigest()
+        digest = hmac.new(self._cache_hmac_key(), pkl_bytes, hashlib.sha256).hexdigest()
 
         meta = {
             "key": key,

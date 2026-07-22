@@ -1,3 +1,11 @@
+# TER 3.0.0 — Major release
+
+- Promoted the expanded TER platform to semantic version `3.0.0`.
+- Consolidated context orchestration, acceleration, adaptive budgeting, evaluation, regression, uncertainty, and real-time monitoring capabilities.
+- Expanded CLI, dashboard, reporting, benchmarking, annotation, and repository-analysis workflows.
+- Updated package, runtime, changelog, and public documentation version references.
+- Preserved Python 3.11–3.13 support and the existing optional dependency model.
+
 # TER 2.0.0 — Public release
 
 - Promoted the internally validated v16 feature set to semantic version `2.0.0`.

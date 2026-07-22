@@ -1,6 +1,6 @@
 # TER Calculator
 
-> **TER 2.0.0** is the first cleaned public release. Internal development iterations through v16 are documented in `UPDATES.md`.
+> **TER 3.0.0** is the current major release. It consolidates the expanded analysis, orchestration, acceleration, evaluation, and reporting capabilities documented in `UPDATES.md` and `CHANGELOG.md`.
 
 
 [![CI](https://github.com/lgriffin/TER/actions/workflows/ci.yml/badge.svg)](https://github.com/lgriffin/TER/actions/workflows/ci.yml)
