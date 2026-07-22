@@ -27,6 +27,15 @@ scenarios(
 )
 
 
+
+def _require_embeddings() -> None:
+    """Skip only scenarios that require the optional embeddings extra."""
+    try:
+        import sentence_transformers  # noqa: F401
+    except ImportError:
+        pytest.skip("requires the optional embeddings extra")
+
+
 def _table_to_dicts(datatable: list[list[str]]) -> list[dict[str, str]]:
     """Convert pytest-bdd raw datatable (list of lists) to list of dicts."""
     headers = datatable[0]
@@ -116,6 +125,7 @@ def cosine_above():
 
 @when("sliding intent extraction runs")
 def run_sliding(context):
+    _require_embeddings()
     context["intents"] = context["extractor"].extract(context.get("prompts", []))
 
 
@@ -163,6 +173,7 @@ def hierarchical_extractor(context, w):
 
 @given(parsers.parse('a high-level intent about "{topic}"'))
 def high_level_intent_about(context, topic):
+    _require_embeddings()
     emb = _embed(topic)
     from ter_calculator.models import IntentVector
 
@@ -173,6 +184,7 @@ def high_level_intent_about(context, topic):
 
 @given(parsers.parse('a sub-intent about "{topic}"'))
 def sub_intent_about(context, topic):
+    _require_embeddings()
     emb = _embed(topic)
     from ter_calculator.models import IntentVector
 
@@ -183,6 +195,7 @@ def sub_intent_about(context, topic):
 
 @given(parsers.parse('a span about "{text}"'))
 def span_about(context, text):
+    _require_embeddings()
     context["span_embedding"] = _embed(text)
 
 
@@ -193,6 +206,7 @@ def span_about(context, text):
 
 @when("hierarchical intent extraction runs")
 def run_hierarchical(context):
+    _require_embeddings()
     context["intents"] = context["extractor"].extract(context.get("prompts", []))
 
 
@@ -313,6 +327,7 @@ def expected_outputs(context, eo):
 
 @when("LLM intent extraction runs")
 def run_llm(context):
+    _require_embeddings()
     context["intents"] = context["extractor"].extract(context.get("prompts", []))
 
 

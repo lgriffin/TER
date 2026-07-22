@@ -34,6 +34,15 @@ scenarios(
 DEFAULT_WEIGHTS = {"reasoning": 0.3, "tool_use": 0.4, "generation": 0.3}
 
 
+
+def _require_embeddings() -> None:
+    """Skip only scenarios that require the optional embeddings extra."""
+    try:
+        import sentence_transformers  # noqa: F401
+    except ImportError:
+        pytest.skip("requires the optional embeddings extra")
+
+
 def _table_to_dicts(datatable: list[list[str]]) -> list[dict[str, str]]:
     """Convert pytest-bdd raw datatable (list of lists) to list of dicts."""
     headers = datatable[0]
@@ -725,6 +734,7 @@ def no_prompts(context):
 
 @when("intent is extracted")
 def extract_intent(context):
+    _require_embeddings()
     extractor = SlidingIntentExtractor()
     intents = extractor.extract(context["user_prompts"])
     if intents:
@@ -737,6 +747,7 @@ def extract_intent(context):
 
 @when("similarity is computed between the intent and both spans")
 def compute_similarities(context):
+    _require_embeddings()
     from ter_calculator.intent_extraction import _embed
 
     intent_emb = context["intent"].embedding

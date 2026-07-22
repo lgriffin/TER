@@ -13,6 +13,7 @@ dependencies = [
     "numpy>=1.24,<3",
     "rich>=13,<16",
     "tiktoken>=0.7,<1",
+    "plotly>=5,<7",
 ]
 
 [project.optional-dependencies]
@@ -42,6 +43,14 @@ testpaths = ["tests"]
 pythonpath = ["src"]
 python_files = ["test_*.py", "*_steps.py"]
 addopts = "--strict-markers"
+markers = [
+    "embeddings: requires the optional embeddings dependency",
+]
+markers = [
+    "embeddings: requires the optional embeddings dependency",
+]
+
+
 
 [tool.ruff]
 src = ["src", "tests"]
@@ -58,7 +67,14 @@ warn_return_any = true
 warn_unused_configs = true
 
 [[tool.mypy.overrides]]
-module = ["anthropic", "sentence_transformers", "tiktoken", "plotly", "plotly.*"]
+module = [
+    "anthropic",
+    "sentence_transformers",
+    "tiktoken",
+    "plotly",
+    "plotly.*",
+    "torch",
+]
 ignore_missing_imports = true
 
 [tool.coverage.run]

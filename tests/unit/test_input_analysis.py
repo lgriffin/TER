@@ -17,6 +17,13 @@ from ter_calculator.loader import load_session
 from ter_calculator.models import ContentBlock, Message, Session
 
 
+
+requires_embeddings = pytest.mark.skipif(
+    __import__("importlib").util.find_spec("sentence_transformers") is None,
+    reason="requires the optional embeddings extra",
+)
+
+
 def _make_session(messages: list[Message], prompts: list[str] | None = None) -> Session:
     """Helper to create a Session with pre-built messages."""
     if prompts is None:
@@ -144,6 +151,7 @@ class TestTokenBreakdown:
         assert bd.user_ratio == 0.0
 
 
+@requires_embeddings
 class TestPromptSimilarity:
     def test_empty_prompts(self):
         result = compute_prompt_similarity([])
@@ -222,6 +230,7 @@ class TestPromptSimilarity:
             assert result.similarity_matrix[i][i] == 1.0
 
 
+@requires_embeddings
 class TestIntentDrift:
     def test_single_prompt_stable(self):
         result = compute_intent_drift(["fix the bug"])
@@ -280,6 +289,7 @@ class TestIntentDrift:
         assert result.steps[1].to_index == 2
 
 
+@requires_embeddings
 class TestPromptResponseAlignment:
     def test_aligned_pair(self):
         session = _make_session(
@@ -485,6 +495,7 @@ class TestPromptResponseAlignment:
         assert "validation" in result.pairs[0].response_text
 
 
+@requires_embeddings
 class TestAnalyzeInput:
     def test_full_analysis(self):
         session = _make_session(
