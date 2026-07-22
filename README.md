@@ -16,7 +16,7 @@ The project also provides session economics, real-time monitoring, context optim
 
 ---
 
-## TER 3.0 release overview
+## TER 3.1 release overview
 
 TER 3.0 consolidates the Phase 2 research and implementation work into a stable product surface built around one operational loop:
 
@@ -39,6 +39,8 @@ ter memory index --root .
 See [`docs/migrating-to-v3.md`](docs/migrating-to-v3.md) for the release checklist and compatibility notes.
 
 ## Highlights
+
+- **Pre-send duplicate/pattern checks** (opt-in) query repository memory and session lessons before a `UserPromptSubmit`; users can acknowledge or override in block mode.
 
 - **TER scoring** with phase-aware analysis for reasoning, tool use, and generation
 - **Waste detection** for repeated reasoning, duplicate tools, repeated reads, retries, fragmented edits, and command repetition
@@ -1257,3 +1259,8 @@ The live hook cost assumption can be overridden with `ter hook monitor --cost-pe
 `ter memory dashboard` now renders dependency-free inline SVG charts for intervention improvement rates and estimated weekly cost saved versus wasted. The same dashboard shows currently applied repository thresholds and a live, non-applied tuning preview, including the sample size and effectiveness evidence behind every recommended change.
 
 Hook threshold flags use a `None` sentinel internally, so precedence is unambiguous: an explicitly supplied CLI value always wins, even when it equals the documented default; otherwise TER uses the repository-tuned value, then the built-in default.
+
+
+### Pre-send duplicate detection
+
+Enable the synchronous check with `ter hook monitor --pre-send-check-enabled`. Configure matching with `--pre-send-similarity-threshold` and repeated-warning suppression with `--pre-send-cooldown-seconds`. In `block` mode, resubmit with `[TER ACK pre_send_check]` after reviewing the match, or `[TER OVERRIDE pre_send_check]` to proceed explicitly. Outcomes are recorded with the other closed-loop interventions.

@@ -1,3 +1,8 @@
+## 3.1.0
+
+- Added opt-in pre-send duplicate/pattern checks for Claude Code `UserPromptSubmit` hooks.
+- Added explicit human acknowledgement and override paths, outcome tracking, CLI configuration, tests, and documentation.
+
 # Changelog
 
 All notable public changes to TER are documented in this file. The project follows Semantic Versioning.

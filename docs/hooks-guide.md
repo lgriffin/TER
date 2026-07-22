@@ -222,3 +222,29 @@ TER v2.0.3 can use one monitor command across multiple Claude Code hook events:
 `PreToolUse` blocks only exact repeated calls. `SessionStart` injects an advisory
 thinking-budget recommendation. Permission and reasoning-loop interventions
 inject course-correction guidance after their configured thresholds.
+
+
+## UserPromptSubmit pre-send check
+
+Enable the opt-in pre-send gate:
+
+```bash
+ter hook monitor \
+  --pre-send-check-enabled \
+  --pre-send-similarity-threshold 0.72 \
+  --pre-send-cooldown-seconds 120 \
+  --policy-mode block
+```
+
+Example hook payload:
+
+```json
+{
+  "hook_event_name": "UserPromptSubmit",
+  "session_id": "session-123",
+  "cwd": "/path/to/repository",
+  "prompt": "Add another retry wrapper around the API client"
+}
+```
+
+When a match is found in block mode, TER returns a `UserPromptSubmit` hook decision with `decision: block` and a reference to the matching file, prior fix, or lesson. Review the warning and resubmit with `[TER ACK pre_send_check]`; use `[TER OVERRIDE pre_send_check]` only when intentionally proceeding despite the match. The feature is off by default.

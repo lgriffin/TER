@@ -732,6 +732,23 @@ def main(argv: list[str] | None = None) -> int:
     hook_monitor.add_argument("--refresh-cooldown-seconds", type=int, default=None)
     hook_monitor.add_argument("--replan-cooldown-seconds", type=int, default=None)
     hook_monitor.add_argument(
+        "--pre-send-check-enabled",
+        action="store_true",
+        help="Opt in to synchronous duplicate/pattern checks before UserPromptSubmit",
+    )
+    hook_monitor.add_argument(
+        "--pre-send-similarity-threshold",
+        type=float,
+        default=0.72,
+        help="Minimum repository-memory similarity for a pre-send match",
+    )
+    hook_monitor.add_argument(
+        "--pre-send-cooldown-seconds",
+        type=int,
+        default=120,
+        help="Cooldown between equivalent pre-send warnings",
+    )
+    hook_monitor.add_argument(
         "--state-dir",
         type=str,
         default=None,

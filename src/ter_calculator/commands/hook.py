@@ -74,6 +74,11 @@ def _cmd_hook_monitor(args) -> int:
         degraded_windows_required=selected("degraded_windows_required", 3),
         refresh_cooldown_seconds=selected("refresh_cooldown_seconds", 120),
         replan_cooldown_seconds=selected("replan_cooldown_seconds", 180),
+        pre_send_check_enabled=getattr(args, "pre_send_check_enabled", False),
+        pre_send_similarity_threshold=getattr(
+            args, "pre_send_similarity_threshold", 0.72
+        ),
+        pre_send_cooldown_seconds=getattr(args, "pre_send_cooldown_seconds", 120),
         state_dir=args.state_dir,
     )
     state = load_state(session_id, config)
@@ -122,6 +127,8 @@ def _cmd_hook_monitor(args) -> int:
             root / ".ter" / "intervention-outcomes.jsonl"
         )
         for alert in alerts:
+            if alert.pattern_type == "pre_send_check":
+                continue
             record_outcome(
                 outcome_store,
                 session_id=session_id,
