@@ -17,7 +17,6 @@ from ter_calculator.loader import load_session
 from ter_calculator.models import ContentBlock, Message, Session
 
 
-
 requires_embeddings = pytest.mark.skipif(
     __import__("importlib").util.find_spec("sentence_transformers") is None,
     reason="requires the optional embeddings extra",

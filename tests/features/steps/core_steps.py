@@ -34,7 +34,6 @@ scenarios(
 DEFAULT_WEIGHTS = {"reasoning": 0.3, "tool_use": 0.4, "generation": 0.3}
 
 
-
 def _require_embeddings() -> None:
     """Skip only scenarios that require the optional embeddings extra."""
     try:

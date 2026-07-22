@@ -27,7 +27,6 @@ scenarios(
 )
 
 
-
 def _require_embeddings() -> None:
     """Skip only scenarios that require the optional embeddings extra."""
     try:
