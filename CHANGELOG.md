@@ -2,6 +2,27 @@
 
 All notable public changes to TER are documented in this file. The project follows Semantic Versioning.
 
+## [3.0.0] - 2026-07-22
+
+### Added
+
+- Expanded context orchestration with fragment storage, dependency graphs, adaptive budgeting, and delta composition.
+- Acceleration, evaluation, regression, uncertainty, and real-time monitoring capabilities.
+- Broader CLI, dashboard, reporting, benchmark, annotation, and project-analysis workflows.
+- Additional automated coverage across unit, integration, and feature-level behavior.
+
+### Changed
+
+- Promoted the expanded TER codebase to major release `3.0.0`.
+- Updated public documentation and package/runtime version metadata for the v3 release line.
+- Consolidated the current architecture and release guidance around the broader TER analysis platform.
+
+### Compatibility
+
+- Python support remains `>=3.11,<3.14`.
+- TER scores remain heuristic decision-support signals rather than ground-truth judgments.
+- Optional embedding and LLM functionality continues to require the corresponding extras and external model/API access.
+
 ## [2.0.0] - 2026-07-21
 
 ### Added
