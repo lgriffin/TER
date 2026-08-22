@@ -408,6 +408,42 @@ def main(argv: list[str] | None = None) -> int:
         help="Consistency mode (default: relaxed)",
     )
 
+    # visualize subcommand — SVG chart generation
+    visualize_parser = subparsers.add_parser(
+        "visualize", help="Generate SVG chart visualizations from a session analysis"
+    )
+    _add_analysis_args(visualize_parser)
+    visualize_parser.add_argument(
+        "-o",
+        "--output-dir",
+        dest="output_dir",
+        metavar="DIR",
+        default=None,
+        help="Directory to write SVG files (default: <session>_charts/)",
+    )
+    visualize_parser.add_argument(
+        "--charts",
+        type=str,
+        default=None,
+        help="Comma-separated chart names to generate (default: all). "
+        "Available: key_metrics,waste_breakdown,composition,phase_scores,"
+        "waste_patterns,positional_ter,economics",
+    )
+
+    # present subcommand — Marp slide deck
+    present_parser = subparsers.add_parser(
+        "present", help="Generate a Marp presentation summarizing session analysis"
+    )
+    _add_analysis_args(present_parser)
+    present_parser.add_argument(
+        "-o",
+        "--output",
+        dest="present_output",
+        metavar="FILE",
+        default=None,
+        help="Output Marp Markdown file (default: <session>.ter-slides.md)",
+    )
+
     # hook subcommand — Claude Code hook utilities
     hook_parser = subparsers.add_parser(
         "hook",
@@ -480,6 +516,10 @@ def main(argv: list[str] | None = None) -> int:
             return _cmd_benchmark(args)
         if args.command == "benchmark-compare":
             return _cmd_benchmark_compare(args)
+        if args.command == "visualize":
+            return _cmd_visualize(args)
+        if args.command == "present":
+            return _cmd_present(args)
         if args.command == "context":
             return _cmd_context(args)
         if args.command == "hook":
@@ -647,6 +687,18 @@ def _cmd_context_delta(args) -> int:
 
 def _cmd_context_check(args) -> int:
     from .commands.context import _cmd_context_check as implementation
+
+    return implementation(args)
+
+
+def _cmd_visualize(args) -> int:
+    from .commands.visualize import _cmd_visualize as implementation
+
+    return implementation(args)
+
+
+def _cmd_present(args) -> int:
+    from .commands.present import _cmd_present as implementation
 
     return implementation(args)
 
