@@ -32,14 +32,16 @@ def _cmd_visualize(args) -> int:
     chart_filter = getattr(args, "charts", None)
 
     if chart_filter:
-        selected = set(chart_filter.split(","))
-        charts = {k: v for k, v in charts.items() if k in selected}
-        if not charts:
+        selected = {c.strip() for c in chart_filter.split(",")}
+        available = set(charts)
+        filtered = {k: v for k, v in charts.items() if k in selected}
+        if not filtered:
             print(
-                f"No matching charts. Available: {', '.join(generate_all_charts(result))}",
+                f"No matching charts. Available: {', '.join(sorted(available))}",
                 file=sys.stderr,
             )
             return 1
+        charts = filtered
 
     if output_dir:
         out = Path(output_dir)

@@ -121,3 +121,39 @@ class TestFormatMarp:
         md = format_marp(_make_result())
         assert "Summary" in md
         assert "TER Calculator" in md
+
+    def test_speaker_notes_escape_comment_close(self):
+        from ter_calculator.formatter_marp import _speaker_notes
+
+        notes = _speaker_notes("malicious --> breakout")
+        assert "-- ›" not in notes or "-->" not in notes.replace(" -->", "")
+        assert "malicious" in notes
+        # The sanitized output should not contain a raw --> inside the comment body
+        inner = notes.replace("<!-- ", "").replace(" -->", "")
+        assert "-->" not in inner
+
+    def test_waste_description_html_escaped(self):
+        result = _make_result(
+            waste_patterns=[
+                WastePattern(
+                    pattern_type="reasoning_loop",
+                    description="<b>bold</b> & special",
+                    start_position=0,
+                    end_position=1,
+                    spans_involved=1,
+                    tokens_wasted=100,
+                ),
+            ],
+        )
+        md = format_marp(result)
+        assert "<b>" not in md
+        assert "&amp;" in md
+
+    def test_cost_on_same_line_as_ter(self):
+        md = format_marp(_make_result())
+        for line in md.split("\n"):
+            if "TER Score" in line and "Waste" in line:
+                assert "Est. Cost" in line
+                break
+        else:
+            raise AssertionError("Cost not on same line as TER Score")

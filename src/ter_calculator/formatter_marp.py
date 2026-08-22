@@ -23,9 +23,26 @@ def _slide_separator() -> str:
     return "\n---\n\n"
 
 
+def _sanitize_comment(text: str) -> str:
+    """Escape sequences that could break out of an HTML comment."""
+    return text.replace("--", "‐‐").replace(">", "›")
+
+
+def _sanitize_md(text: str) -> str:
+    """Neutralize Markdown/HTML metacharacters in session-derived strings."""
+    text = text.replace("&", "&amp;")
+    text = text.replace("<", "&lt;")
+    text = text.replace(">", "&gt;")
+    return text
+
+
 def _speaker_notes(text: str) -> str:
     lines = text.strip().split("\n")
-    return "\n".join(f"<!-- {line.strip()} -->" for line in lines if line.strip())
+    return "\n".join(
+        f"<!-- {_sanitize_comment(line.strip())} -->"
+        for line in lines
+        if line.strip()
+    )
 
 
 def _slide_title(result: TERResult) -> str:
@@ -42,11 +59,10 @@ def _slide_title(result: TERResult) -> str:
         if result.total_tokens
         else "0%"
     )
-    lines.append(f"**TER Score: {ter_score}** | Waste: {waste_pct}")
+    summary = f"**TER Score: {ter_score}** | Waste: {waste_pct}"
     if result.economics:
-        lines.append(
-            f" | Est. Cost: ${result.economics.estimated_cost_usd:.4f}"
-        )
+        summary += f" | Est. Cost: ${result.economics.estimated_cost_usd:.4f}"
+    lines.append(summary)
     lines.append("")
     lines.append(
         _speaker_notes(
@@ -175,7 +191,7 @@ def _slide_waste_patterns(result: TERResult) -> str:
     )[:5]
     for p in sorted_patterns:
         label = p.pattern_type.replace("_", " ").title()
-        desc = p.description[:100] + ("..." if len(p.description) > 100 else "")
+        desc = _sanitize_md(p.description[:100]) + ("..." if len(p.description) > 100 else "")
         lines.append(f"- **{label}** — {p.tokens_wasted:,} tokens: {desc}")
     lines.append("")
 
