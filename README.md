@@ -320,6 +320,6 @@ diffs on purpose, strict typing for `ter` code).
 
 ## Project documents
 
-[Changelog](CHANGELOG.md) · [Updates](UPDATES.md) · [Roadmap](ROADMAP.md) ·
+[Changelog](CHANGELOG.md) · [TER 3 history](docs/history/README.md) · [Roadmap](ROADMAP.md) ·
 [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) ·
 [Code of Conduct](CODE_OF_CONDUCT.md) · [License](LICENSE)

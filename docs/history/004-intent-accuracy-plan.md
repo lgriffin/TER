@@ -10,7 +10,7 @@
 
 ### 1. Exponential decay for live intent tracking
 
-**Where:** [`src/ter_calculator/real_time.py`](../src/ter_calculator/real_time.py) lines 621–627
+**Where:** [`src/ter_calculator/real_time.py`](../../src/ter_calculator/real_time.py) lines 621–627
 
 **Current behaviour:** Every user prompt is embedded and stored in `state.intent_embeddings: list[NDArray]`. Intent is `np.mean(intent_embeddings, axis=0)`. In a 50-turn session, turn 1 has the same weight as turn 49 — the signal drifts toward a diluted average of all goals.
 
@@ -40,7 +40,7 @@ Remove `state.intent_embeddings` list from `RollingTERState` entirely — it is 
 
 ### 2. Tiktoken for live span token estimation
 
-**Where:** [`src/ter_calculator/real_time.py`](../src/ter_calculator/real_time.py) `_estimate_tokens()` + [`pyproject.toml`](../pyproject.toml)
+**Where:** [`src/ter_calculator/real_time.py`](../../src/ter_calculator/real_time.py) `_estimate_tokens()` + [`pyproject.toml`](../../pyproject.toml)
 
 **Current behaviour:** `_estimate_tokens(text) = max(1, len(text) // 4)`. Char/4 assumes roughly 4 characters per token — true for average English prose, but code, reasoning traces, and technical terminology consistently produce shorter tokens than prose (e.g. `kwargs`, `isinstance`, `np.float32` each tokenise to 2–4 tokens, not one). We observed 9,413 estimated vs 31,099 actual on the 6e3423c8 session (3.3x undercount).
 
@@ -71,9 +71,9 @@ The char/4 heuristic assumes all text has the same character-to-token density. E
 ### 3. Embedding model upgrade (drop-in)
 
 **Where:** Three independent `_get_model()` functions — change the model string in each:
-- [`src/ter_calculator/intent.py`](../src/ter_calculator/intent.py) line 30
-- [`src/ter_calculator/intent_extraction.py`](../src/ter_calculator/intent_extraction.py) line 71
-- [`src/ter_calculator/real_time.py`](../src/ter_calculator/real_time.py) `load_embedding_model()` line 127
+- [`src/ter_calculator/intent.py`](../../src/ter_calculator/intent.py) line 30
+- [`src/ter_calculator/intent_extraction.py`](../../src/ter_calculator/intent_extraction.py) line 71
+- [`src/ter_calculator/real_time.py`](../../src/ter_calculator/real_time.py) `load_embedding_model()` line 127
 
 Change `"all-MiniLM-L6-v2"` → `"all-MiniLM-L12-v2"` in all three.
 
@@ -111,7 +111,7 @@ The three `_model` globals remain separate caches (a future cleanup could unify 
 
 ### 4. Wire SlidingIntentExtractor into post-hoc pipeline
 
-**Where:** [`src/ter_calculator/analyze_pipeline.py`](../src/ter_calculator/analyze_pipeline.py) line 40 and [`src/ter_calculator/classifier.py`](../src/ter_calculator/classifier.py) lines 36–67
+**Where:** [`src/ter_calculator/analyze_pipeline.py`](../../src/ter_calculator/analyze_pipeline.py) line 40 and [`src/ter_calculator/classifier.py`](../../src/ter_calculator/classifier.py) lines 36–67
 
 **Why it is in scope:** The model upgrade (change 3) touches `intent_extraction.py` where `SlidingIntentExtractor` lives. Wiring it in requires only two targeted changes — not the interface overhaul previously claimed.
 
@@ -155,13 +155,13 @@ This design is directly validated by the `CodeSearchNetRetrieval` benchmark (nDC
 
 | File | Change |
 |------|--------|
-| [`src/ter_calculator/real_time.py`](../src/ter_calculator/real_time.py) | EMA intent, tiktoken estimation, model string |
-| [`src/ter_calculator/intent.py`](../src/ter_calculator/intent.py) | Model string |
-| [`src/ter_calculator/intent_extraction.py`](../src/ter_calculator/intent_extraction.py) | Model string |
-| [`src/ter_calculator/analyze_pipeline.py`](../src/ter_calculator/analyze_pipeline.py) | SlidingIntentExtractor call |
-| [`src/ter_calculator/classifier.py`](../src/ter_calculator/classifier.py) | Accept `list[IntentVector]`, max-sim per span |
-| [`pyproject.toml`](../pyproject.toml) | Add `tiktoken>=0.7.0` |
-| [`tests/unit/test_real_time.py`](../tests/unit/test_real_time.py) | Update EMA assertions, remove intent_embeddings list assertions |
+| [`src/ter_calculator/real_time.py`](../../src/ter_calculator/real_time.py) | EMA intent, tiktoken estimation, model string |
+| [`src/ter_calculator/intent.py`](../../src/ter_calculator/intent.py) | Model string |
+| [`src/ter_calculator/intent_extraction.py`](../../src/ter_calculator/intent_extraction.py) | Model string |
+| [`src/ter_calculator/analyze_pipeline.py`](../../src/ter_calculator/analyze_pipeline.py) | SlidingIntentExtractor call |
+| [`src/ter_calculator/classifier.py`](../../src/ter_calculator/classifier.py) | Accept `list[IntentVector]`, max-sim per span |
+| [`pyproject.toml`](../../pyproject.toml) | Add `tiktoken>=0.7.0` |
+| [`tests/unit/test_real_time.py`](../../tests/unit/test_real_time.py) | Update EMA assertions, remove intent_embeddings list assertions |
 
 ## Branch and test plan
 
