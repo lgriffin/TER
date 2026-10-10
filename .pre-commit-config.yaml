@@ -1,31 +1,31 @@
-# Hooks run the tools from your active environment (`language: system`), so
-# they are the same versions CI pins in constraints/ci.txt: a commit that
-# passes here passes the CI lint job's ruff steps. Install with
-# `python dev.py setup`, or `pre-commit install --hook-type pre-commit
-# --hook-type pre-push`.
+# Ruff runs in pre-commit's own environment, installed from the same version
+# range as constraints/ci.txt (a test keeps them equal), so a commit that
+# passes here passes the CI lint job's ruff steps whatever shell, IDE or Git
+# client makes it. Install with `python dev.py setup`, or `pre-commit install`
+# (both the pre-commit and pre-push stages are installed).
 default_install_hook_types: [pre-commit, pre-push]
-
-# Byte-exact files: golden snapshots, recorded fixtures and rendered images.
-# Rewriting their whitespace breaks the golden tests, so no hook touches them.
-exclude: ^(tests/golden/snapshots/|tests/fixtures/|sample_sessions/|docs/ter4/img/)
 
 repos:
   - repo: local
     hooks:
       - id: ruff-format
         name: ruff format
-        entry: python -m ruff format
-        language: system
+        entry: ruff format
+        language: python
+        additional_dependencies: ["ruff>=0.1,<0.16"]
         types_or: [python, pyi]
         files: ^(src/|tests/|dev\.py$)  # what CI formats
       - id: ruff
         name: ruff check --fix
-        entry: python -m ruff check --fix
-        language: system
+        entry: ruff check --fix
+        language: python
+        additional_dependencies: ["ruff>=0.1,<0.16"]
         types_or: [python, pyi]
         files: ^(src/|tests/|dev\.py$)  # what CI lints
       # Before a push, the rest of the CI lint job: mypy, import contracts,
-      # EARS lint and the points index (python dev.py lint).
+      # EARS lint and the points index. It needs the dev environment, so it
+      # runs with the `python` your shell or Git client finds; push from the
+      # activated environment.
       - id: dev-lint
         name: python dev.py lint
         entry: python dev.py lint
@@ -37,8 +37,13 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
+      # Byte-exact files (golden snapshots, recorded fixtures, rendered
+      # images) must keep their bytes: rewriting whitespace breaks the golden
+      # tests, so only the two rewriting hooks skip them.
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]  # two trailing spaces are a <br>
+        exclude: &byte_exact ^(tests/golden/snapshots/|tests/fixtures/|sample_sessions/|docs/ter4/img/)
       - id: end-of-file-fixer
+        exclude: *byte_exact
       - id: check-yaml
       - id: check-added-large-files
