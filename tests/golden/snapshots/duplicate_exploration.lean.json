@@ -211,7 +211,7 @@
   "cycles": [],
   "detectors": [
     {
-      "confidence_rule": "Within one prompt's turn: 0.90 when input and output are identical and nothing was edited in between; 0.85 for a validation re-run with no edit in between; 0.75 when edits happened in between but the output is still identical. 0.50 (uncertain) when an output was not observed, or when a new prompt arrived between the two calls (the repeat may answer it). Different output: no finding. File reads and searches are left to repeated_exploration; a validation re-run after edits is left to rework_cycle.",
+      "confidence_rule": "Within one prompt's turn: 0.90 when input and output are identical and nothing was edited in between; 0.85 for a validation re-run with no edit in between; 0.75 when edits happened in between but the output is still identical. 0.50 (uncertain) when an output was not observed. No finding when a new prompt arrived between the two calls (new information: 17 of 17 such repeats judged on real sessions were not waste) or when the output differs. File reads and searches are left to repeated_exploration; a validation re-run after edits is left to rework_cycle.",
       "id": "repeated_tool_call",
       "kind": "waste",
       "waste": "over_processing"
@@ -229,7 +229,7 @@
       "waste": "rework"
     },
     {
-      "confidence_rule": "Judged per prompt, once the agent has responded after its edits. A check is a validation run or any shell line that runs a named check tool, even beside a change (sed -i … && pytest). 0.85 when no check ran in the whole session; 0.75 when checks ran earlier but not after these edits; 0.50 (uncertain) when every unvalidated edit is documentation. 0.85 when the last validation before the response failed.",
+      "confidence_rule": "Judged per prompt, once the agent has responded after its edits. A check is a validation run or any shell line that runs a named check tool, even beside a change (sed -i … && pytest). 0.85 when no check ran in the whole session; 0.75 when checks ran earlier but not after these edits; 0.50 (uncertain) when every unvalidated edit is documentation and there are at least 3 of them; fewer than 3 documentation edits: no finding. 0.85 when the last validation before the response failed.",
       "id": "unvalidated_implementation",
       "kind": "risk",
       "waste": "defects"
@@ -265,13 +265,13 @@
       "waste": "handoffs"
     },
     {
-      "confidence_rule": "Same prompt and no edit in between. The later block shares at least 3 content words with the earlier one, at most 25% of its content words are new (in neither the earlier block nor the prompt), and none of its new words comes from a tool result observed since the earlier block (that would be new evidence). Confidence 0.85 − novelty, minus 0.10 when the later block has fewer than 6 content words. The restated share (1 − novelty) of the later block is waste.",
+      "confidence_rule": "Same prompt and no edit in between. The later block shares at least 3 content words with the earlier one, at most 20% of its content words are new (in neither the earlier block nor the prompt), and none of its new words comes from a tool result observed since the earlier block (that would be new evidence). Confidence 0.85 − novelty, minus 0.10 when the later block has fewer than 6 content words. The restated share (1 − novelty) of the later block is waste.",
       "id": "repeated_reasoning",
       "kind": "waste",
       "waste": "over_processing"
     },
     {
-      "confidence_rule": "A whole-file write of a file the agent had itself written, keeping at least 80% of its lines: 0.80. A whole-file write of a file it had read (3+ lines), keeping at least 60% of them: 0.60 (uncertain; small files are often rewritten on purpose). The retained share of the write is waste.",
+      "confidence_rule": "A whole-file write of a file the agent had itself written, keeping at least 80% of its lines: 0.80. A whole-file write of a file it had read (3+ lines), keeping at least 60% of them: 0.60 (uncertain; small files are often rewritten on purpose). No finding when under 30% of the new file repeats existing content: that rewrite is mostly new work. The retained share of the write is waste.",
       "id": "regeneration",
       "kind": "waste",
       "waste": "overproduction"

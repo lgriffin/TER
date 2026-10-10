@@ -38,6 +38,9 @@ from .model import (
 
 __all__ = [
     "DECISION_NOVELTY",
+    "DOC_EDITS_WORTH_A_CHECK",
+    "REGENERATED_SHARE",
+    "RESTATED_NOVELTY",
     "DEFAULT_REGISTRY",
     "ContextBand",
     "DetectorRegistry",
@@ -73,6 +76,16 @@ _DOC_SUFFIXES = frozenset({".md", ".rst", ".txt", ".adoc"})
 #: compared with (TER-LEN-004). The same bound separates restated reasoning
 #: from reasoning that moves on.
 DECISION_NOVELTY = 0.25
+#: Repeated reasoning: at most this share of a block's key words may be new
+#: (judged on real sessions, 10 Oct 2026: blocks repeating 80% or more of
+#: earlier key words were waste, 76% to 79% were not).
+RESTATED_NOVELTY = 0.20
+#: Documentation-only edits reported without a check raise a finding only
+#: from this many edits on (fewer were never waste on real sessions).
+DOC_EDITS_WORTH_A_CHECK = 3
+#: A whole-file rewrite is regeneration only when at least this share of the
+#: new file repeats existing content (less is mostly new work).
+REGENERATED_SHARE = 0.30
 
 
 @dataclass(frozen=True)
@@ -215,8 +228,9 @@ class RepeatedToolCall:
         "and nothing was edited in between; 0.85 for a validation re-run with "
         "no edit in between; 0.75 when edits happened in between but the "
         "output is still identical. 0.50 (uncertain) when an output was not "
-        "observed, or when a new prompt arrived between the two calls (the "
-        "repeat may answer it). Different output: no finding. File reads and "
+        "observed. No finding when a new prompt arrived between the two calls "
+        "(new information: 17 of 17 such repeats judged on real sessions were "
+        "not waste) or when the output differs. File reads and "
         "searches are left to repeated_exploration; a validation re-run after "
         "edits is left to rework_cycle."
     )
@@ -247,13 +261,10 @@ class RepeatedToolCall:
             elif before.output_hash != after.output_hash:
                 continue
             elif last_prompt > earlier.index:
-                # Calibrated on this project's own transcripts: all 13
-                # confident repeats there crossed a prompt (a turn-ending
-                # no_reply_needed in each new turn, a device list re-checked
-                # when asked again, a tool schema re-loaded in a later turn),
-                # and none was waste. A new prompt is new information.
-                confidence = 0.5
-                note = "A new prompt arrived in between, so the repeat may answer it."
+                # A new prompt is new information. Calibrated on real
+                # sessions: 13 such repeats on this project's transcripts and
+                # 4 more judged on 10 Oct 2026 (judge-l2), none of them waste.
+                continue
             elif step.is_validation:
                 confidence = 0.85
                 note = "No file was edited between the two runs, so the second could not tell the agent anything new."
@@ -453,7 +464,8 @@ class UnvalidatedImplementation:
         "tool, even beside a change (sed -i … && pytest). 0.85 when no check "
         "ran in the whole session; 0.75 when checks ran earlier but not after "
         "these edits; 0.50 (uncertain) when every unvalidated edit is "
-        "documentation. 0.85 when the last validation before the response "
+        "documentation and there are at least 3 of them; fewer than 3 "
+        "documentation edits: no finding. 0.85 when the last validation before the response "
         "failed."
     )
 
@@ -489,6 +501,9 @@ class UnvalidatedImplementation:
                 for e in pending
                 for p in e.paths
             ) and any(e.paths for e in pending)
+            # Judged on real sessions (10 Oct 2026): 8 of 8 findings for one
+            # or two documentation edits were not waste, so they raise none.
+            few_docs = docs and len(pending) < DOC_EDITS_WORTH_A_CHECK
             if docs:
                 confidence, why = (
                     0.5,
@@ -501,18 +516,19 @@ class UnvalidatedImplementation:
                 )
             else:
                 confidence, why = 0.85, "No check ran anywhere in the session."
-            yield _finding(
-                self,
-                view,
-                confidence=confidence,
-                title=f"{len(pending)} edit(s) reported without validation",
-                explanation=(
-                    f"The agent edited {_files(pending)} and then responded without "
-                    f"running tests, a type check or the code. {why}"
-                ),
-                evidence=(*(s for e in pending for s in view.pair(e)), final),
-                subject=_files(pending),
-            )
+            if not few_docs:
+                yield _finding(
+                    self,
+                    view,
+                    confidence=confidence,
+                    title=f"{len(pending)} edit(s) reported without validation",
+                    explanation=(
+                        f"The agent edited {_files(pending)} and then responded "
+                        f"without running tests, a type check or the code. {why}"
+                    ),
+                    evidence=(*(s for e in pending for s in view.pair(e)), final),
+                    subject=_files(pending),
+                )
         if last_run is not None and final.index > last_run.index:
             result = view.completion_of.get(last_run.index)
             if result is not None and result.outcome is Outcome.FAILED:
@@ -926,7 +942,7 @@ class RepeatedReasoning:
     summary: str = "A reasoning block that restates an earlier one for the same prompt."
     confidence_rule: str = (
         "Same prompt and no edit in between. The later block shares at least 3 "
-        "content words with the earlier one, at most 25% of its content words "
+        "content words with the earlier one, at most 20% of its content words "
         "are new (in neither the earlier block nor the prompt), and none of its "
         "new words comes from a tool result observed since the earlier block "
         "(that would be new evidence). Confidence 0.85 − "
@@ -957,7 +973,7 @@ class RepeatedReasoning:
                     continue
                 new = step.words - earlier.words - prompt
                 novelty = len(new) / len(step.words)
-                if novelty > DECISION_NOVELTY:
+                if novelty > RESTATED_NOVELTY:
                     continue
                 if any(new & words for i, words in observed if i > earlier.index):
                     # It names something a tool showed since: new evidence.
@@ -997,7 +1013,9 @@ class Regeneration:
         "A whole-file write of a file the agent had itself written, keeping at "
         "least 80% of its lines: 0.80. A whole-file write of a file it had read "
         "(3+ lines), keeping at least 60% of them: 0.60 (uncertain; small files "
-        "are often rewritten on purpose). The retained share of the write is waste."
+        "are often rewritten on purpose). No finding when under 30% of the new "
+        "file repeats existing content: that rewrite is mostly new work. The "
+        "retained share of the write is waste."
     )
 
     def detect(self, view: SessionView) -> Iterable[Finding]:
@@ -1018,6 +1036,8 @@ class Regeneration:
             if not new:
                 continue
             if prior_write is not None and prior_write.lines:
+                if _repeated(prior_write, step) < REGENERATED_SHARE:
+                    continue
                 kept = len(prior_write.lines & new) / len(prior_write.lines)
                 if kept >= 0.8:
                     yield self._found(
@@ -1026,7 +1046,7 @@ class Regeneration:
                 continue
             if prior_read is not None and len(prior_read.lines) >= 3:
                 kept = len(prior_read.lines & new) / len(prior_read.lines)
-                if kept >= 0.6:
+                if kept >= 0.6 and _repeated(prior_read, step) >= REGENERATED_SHARE:
                     yield self._found(
                         view, step, prior_read, kept, 0.6, "it had just read"
                     )
@@ -1041,7 +1061,7 @@ class Regeneration:
         what: str,
     ) -> Finding:
         path = step.paths[0]
-        share = len(prior.lines & step.lines) / len(step.lines)
+        share = _repeated(prior, step)
         return _finding(
             self,
             view,
@@ -1057,6 +1077,11 @@ class Regeneration:
             share=share,
             subject=path,
         )
+
+
+def _repeated(prior: Step, step: Step) -> float:
+    """The share of a write's lines that were already in ``prior``."""
+    return len(prior.lines & step.lines) / len(step.lines)
 
 
 @dataclass(frozen=True)

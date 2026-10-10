@@ -140,8 +140,40 @@ either here to judge.
 On the private corpus (286 sessions, 9 Oct 2026) the round-trip rule took
 `fragmented_edits` from 72 confident findings in 49 sessions back to 17 in
 13, close to its count before the id change (16); every other detector's
-counts were unchanged. The `regeneration` (26) and `repeated_exploration`
-(10) findings there are still unjudged.
+counts were unchanged.
+
+#### First judged sample (10 Oct 2026)
+
+The owner judged 122 findings from the private corpus (one judge, at most 15
+per detector, spread across sessions): every confident finding of the three
+largest confident detectors, and up to 10 uncertain findings of each
+detector that had any. Each verdict is true waste, not waste or unsure.
+
+| Detector | Kind | True | Not waste | Unsure | Change |
+|---|---|---|---|---|---|
+| `regeneration` | confident | 14 | 1 | 0 | a rewrite under 30% of whose new file repeats old content is new work: no finding (`REGENERATED_SHARE`) |
+| `repeated_exploration` | confident | 10 | 0 | 0 | none |
+| `fragmented_edits` | confident | 15 | 0 | 0 | none |
+| `excessive_context` | uncertain | 10 | 0 | 0 | none yet (see below) |
+| `unnecessary_handoff` | uncertain | 10 | 0 | 0 | none yet |
+| `unused_context` | uncertain | 10 | 0 | 0 | none yet |
+| `unused_traversal` | uncertain | 10 | 0 | 0 | none yet |
+| `intent_drift` | uncertain | 6 | 0 | 4 | none: score 0.00 was waste, 0.12 to 0.20 unsure |
+| `insufficient_context` | uncertain | 5 | 0 | 5 | none: zero context was waste, some context below the band unsure |
+| `premature_implementation` | uncertain | 2 | 0 | 0 | none |
+| `repeated_reasoning` | uncertain | 3 | 3 | 0 | at most 20% new key words, was 25% (`RESTATED_NOVELTY`; 80% or more repeated was waste, 76% to 79% not) |
+| `repeated_tool_call` | uncertain | 0 | 4 | 0 | a repeat across a new prompt is no finding (17 of 17 judged so far were not waste) |
+| `unvalidated_implementation` | uncertain | 2 | 8 | 0 | one or two documentation edits are no finding (`DOC_EDITS_WORTH_A_CHECK`) |
+
+Confident findings held up: 39 of 40 true, and the one false is the
+rewrite that was mostly new content. Read the table with three limits in
+mind. There was one judge. The cut-offs that separated true from not waste
+for the uncertain rows (30% repeated, 80% key words, 3 documentation edits)
+were proposed while judging and accepted, not compared with alternatives.
+And ten findings per detector bound precision only loosely: 10 of 10 true
+gives a 95% lower bound near 0.72. The four uncertain detectors with 10 of
+10 true therefore stay uncertain until a second judge or a larger sample
+(issues #36, #41) confirms them.
 
 ## Exploration drivers
 
