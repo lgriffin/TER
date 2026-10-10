@@ -27,7 +27,7 @@ from ter.application import ExplainSession
 from ter.bootstrap import cli_services, make_ter_scorer
 from ter.bootstrap import main as ter4_main
 from ter.domain import SessionTrace
-from ter.domain.lean import A3Report, build_a3, explain
+from ter.domain.lean import A3Report, Countermeasure, build_a3, explain
 
 SESSIONS = Path(__file__).resolve().parents[1] / "golden" / "sessions"
 CORPUS = {p.stem: p for p in SESSIONS.glob("*.jsonl")}
@@ -282,3 +282,52 @@ def test_value_stream_total_is_real_when_nothing_was_generated() -> None:
     vsm = value_stream_map(stages)
     assert "· 0 generated tokens ·" in vsm
     assert "· 1 generated tokens" not in vsm
+
+
+@pytest.mark.req("TER-RPT-006")
+def test_the_summary_ranks_countermeasures_and_links_them_to_their_findings() -> None:
+    report = _report(_messy())
+    page = render_a3_html(report)
+    summary = page[page.index('id="summary"') : page.index('id="s-1"')]
+    assert "Do these first" in summary
+    by_id = {f.id: f for f in report.analysis.findings}
+
+    def rank(c: Countermeasure) -> tuple[bool, bool, int]:
+        found = [by_id[i] for i in c.addresses if i in by_id]
+        wastes = [f for f in found if f.kind.value != "risk"]
+        return (
+            c.uncertain,
+            not any(f.kind.value == "risk" for f in found),
+            -sum(f.tokens + f.context_tokens for f in wastes),
+        )
+
+    ordered = sorted(report.countermeasures, key=rank)
+    assert ordered, "the messy session must yield countermeasures"
+    # Summary and section 5 list them in the same priority order.
+    at = [summary.index(f">{c.title}<") for c in ordered[:3]]
+    assert at == sorted(at)
+    section = page[page.index('id="s-5"') :]
+    at = [section.index(f"{c.title}") for c in ordered]
+    assert at == sorted(at)
+    for n, c in enumerate(ordered, 1):
+        assert f'href="#cm-{n}">{c.title}<' in summary or n > 3
+        assert f'id="cm-{n}"' in page
+    # Every shown finding has an anchor and links to the action that answers it.
+    for f in report.root_causes:
+        assert f'id="f-{f.id}"' in page
+        for n, c in enumerate(ordered, 1):
+            if f.id in c.addresses:
+                assert f'<a href="#f-{f.id}">' in page
+                assert f'href="#cm-{n}">Action {n}' in page
+                break
+
+
+@pytest.mark.req("TER-RPT-006")
+def test_a_clean_session_has_nothing_to_do_first() -> None:
+    clean = Script()
+    clean.prompt("x")
+    clean.say("y")
+    page = render_a3_html(_report(clean))
+    summary = page[page.index('id="summary"') : page.index('id="s-1"')]
+    assert "Nothing to change" in summary
+    assert 'id="cm-' not in page

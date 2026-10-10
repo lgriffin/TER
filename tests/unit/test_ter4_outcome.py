@@ -452,8 +452,8 @@ def test_an_accepted_verdict_shows_its_passing_checks_and_their_sources() -> Non
     assert "  - passed: b [r.xml#2]\n" in text
     page = render_a3_html(judged.a3)
     assert (
-        "<td>passed</td><td><code>a</code></td><td><code>r.xml#testcase-1</code>"
-        in page
+        '<td><span class="tag ok">passed</span></td><td><code>a</code></td>'
+        "<td><code>r.xml#testcase-1</code>" in page
     )
 
 

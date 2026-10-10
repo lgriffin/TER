@@ -601,3 +601,51 @@ def test_explain_and_a3_json_carry_usage_value_and_graph(tmp_path: Path) -> None
     assert {"evidence_usage", "outcome_value", "evidence_graph"} <= set(a3)
     code, out, _ = run(["a3", path, "--ter", "off", "--json"])
     assert "evidence_usage" not in json.loads(out)["analysis"]
+
+
+@pytest.mark.req("TER-RPT-007")
+def test_a_grounded_a3_page_shows_reads_used_and_files_explored_against_changed(
+    shop: Path,
+) -> None:
+    from ter.adapters.driving.reports import render_a3_html
+    from ter.domain.lean import build_a3
+
+    s = Script()
+    s.prompt("Fix the rounding in pricing.py")
+    s.read(at(PRICING), SHOP[PRICING])
+    s.read(at(SEED), SHOP_WITH_SCRIPTS[SEED])
+    s.edit(at(PRICING), "* 12 / 10")
+    s.bash("pytest -q tests/test_pricing.py", PASS)
+    s.say("Fixed.")
+    analysis = analyse(s, shop)
+    assert analysis.usage is not None
+    page = render_a3_html(build_a3(analysis, ["Fix the rounding"]))
+    section = page[page.index('id="s-repository"') : page.index('id="s-5"')]
+    assert "Reads later used" in section and "50%" in section
+    assert "Explored → changed" in section and "1 / 2" in section
+    assert (
+        f'<span class="mark yes" aria-label="changed">✓</span><code>{PRICING}</code>'
+        in section
+    )
+    # The unused read is listed with its context tokens and its read event.
+    unused = read_of(analysis, SEED)
+    assert unused.status is UsageStatus.UNUSED
+    assert f"<code>{SEED}</code>" in section and unused.event_id in section
+    assert f'<td class="num">{unused.context_tokens:,}</td>' in section
+    assert "Outcome value" in section
+    assert '<li class="level">L3 Grounded</li>' in page
+    assert 'href="#s-repository"' in page
+
+
+@pytest.mark.req("TER-RPT-007")
+def test_an_ungrounded_a3_page_has_no_repository_section(shop: Path) -> None:
+    from ter.adapters.driving.reports import render_a3_html
+    from ter.domain.lean import build_a3
+
+    s = Script()
+    s.prompt("Fix the rounding in pricing.py")
+    s.read(at(PRICING), SHOP[PRICING])
+    s.say("Fixed.")
+    page = render_a3_html(build_a3(explain(s.events, RegexTokenizer()), ["x"]))
+    assert "s-repository" not in page
+    assert '<li class="level">L2 Explained</li>' in page
