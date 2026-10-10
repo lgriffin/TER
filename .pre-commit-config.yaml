@@ -1,15 +1,44 @@
+# Hooks run the tools from your active environment (`language: system`), so
+# they are the same versions CI pins in constraints/ci.txt: a commit that
+# passes here passes the CI lint job's ruff steps. Install with
+# `python dev.py setup`, or `pre-commit install --hook-type pre-commit
+# --hook-type pre-push`.
+default_install_hook_types: [pre-commit, pre-push]
+
+# Byte-exact files: golden snapshots, recorded fixtures and rendered images.
+# Rewriting their whitespace breaks the golden tests, so no hook touches them.
+exclude: ^(tests/golden/snapshots/|tests/fixtures/|sample_sessions/|docs/ter4/img/)
+
 repos:
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.6
+  - repo: local
     hooks:
-      - id: ruff
-        args: [--fix]
       - id: ruff-format
+        name: ruff format
+        entry: python -m ruff format
+        language: system
+        types_or: [python, pyi]
+        files: ^(src/|tests/|dev\.py$)  # what CI formats
+      - id: ruff
+        name: ruff check --fix
+        entry: python -m ruff check --fix
+        language: system
+        types_or: [python, pyi]
+        files: ^(src/|tests/|dev\.py$)  # what CI lints
+      # Before a push, the rest of the CI lint job: mypy, import contracts,
+      # EARS lint and the points index (python dev.py lint).
+      - id: dev-lint
+        name: python dev.py lint
+        entry: python dev.py lint
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
       - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]  # two trailing spaces are a <br>
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files

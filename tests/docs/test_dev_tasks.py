@@ -166,3 +166,36 @@ def test_tasks_test_this_checkout_first(monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setattr(dev.subprocess, "call", call)
     assert dev.main(["points"]) == 0
     assert seen["PYTHONPATH"].split(dev.os.pathsep) == [str(ROOT / "src"), "elsewhere"]
+
+
+def _precommit() -> dict[str, object]:
+    config = yaml.safe_load((ROOT / ".pre-commit-config.yaml").read_text("utf-8"))
+    assert isinstance(config, dict)
+    return config
+
+
+def test_precommit_never_rewrites_byte_exact_files() -> None:
+    exclude = re.compile(str(_precommit()["exclude"]))
+    golden = [
+        p
+        for d in ("tests/golden/snapshots", "tests/fixtures", "docs/ter4/img")
+        for p in (ROOT / d).rglob("*")
+        if p.is_file()
+    ]
+    assert golden
+    rewritable = [
+        p for p in golden if not exclude.search(p.relative_to(ROOT).as_posix())
+    ]
+    assert rewritable == []
+
+
+def test_precommit_ruff_checks_what_ci_checks() -> None:
+    hooks = {
+        hook["id"]: hook for repo in _precommit()["repos"] for hook in repo["hooks"]
+    }
+    for hook_id in ("ruff-format", "ruff"):
+        files = re.compile(hooks[hook_id]["files"])
+        samples = [p if p.endswith(".py") else f"{p}/x.py" for p in dev.PY_PATHS]
+        assert all(files.search(sample) for sample in samples)
+        assert not files.search("scripts/build_benchmark.py")
+        assert hooks[hook_id]["entry"].startswith("python -m ruff")
