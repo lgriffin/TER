@@ -60,8 +60,9 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from typing import TypeVar
 
+from ..events import EventId
 from .analysis import UNCERTAIN, LeanAnalysis
-from .model import ActivityClass, Finding, FindingKind, LeanWaste
+from .model import ActivityClass, Finding, FindingKind, LeanWaste, ShellIntent
 from .wip import WipKind
 
 __all__ = [
@@ -1240,9 +1241,30 @@ def _citing_open(kind: WipKind) -> Callable[[LeanAnalysis], Claims]:
 
     def claims(a: LeanAnalysis) -> Claims:
         still_open = frozenset(a.wip.still_open(kind))
+        if kind is WipKind.FAILURES:
+            still_open = _open_check_runs(a, still_open)
         return lambda f: not still_open.isdisjoint(f.evidence)
 
     return claims
+
+
+def _open_check_runs(a: LeanAnalysis, opened: frozenset[EventId]) -> frozenset[EventId]:
+    """Every run of a check still failing at the end, from its first failure.
+
+    WIP keeps the first failure of a check; a finding may cite a later run of
+    the same check, which failed again."""
+    first = {
+        s.command or s.subject: s.index
+        for s in a.steps
+        if s.event_id in opened and s.shell is ShellIntent.VALIDATE
+    }
+    return opened | frozenset(
+        s.event_id
+        for s in a.steps
+        if s.shell is ShellIntent.VALIDATE
+        and (s.command or s.subject) in first
+        and s.index >= first[s.command or s.subject]
+    )
 
 
 def _up_to_peak(a: LeanAnalysis) -> Claims:

@@ -951,6 +951,32 @@ class TestSessionControl:
         ]
         assert not set(linked).intersection(unrelated)
 
+    def test_a_check_that_failed_twice_links_the_finding_on_its_last_run(
+        self,
+    ) -> None:
+        s = Script()
+        s.prompt("fix the failing test")
+        s.read("src/app.py", "def f(): return 1")
+        s.edit("src/app.py", "return 1", "return 2")
+        s.bash("pytest", FAIL)
+        s.bash("pytest", FAIL)
+        s.say("I could not fix it.")
+        analysis = explain(s.events, RegexTokenizer())
+        responded = [
+            f.id
+            for f in analysis.findings
+            if f.title == "Responded after a failing check"
+        ]
+        assert responded
+        limits = _session_limits(
+            detector_fingerprint(analysis),
+            hand_limits(
+                "unresolved_failures_at_end", centre=0.0, sigma=0.1, ucl=0.3, lcl=None
+            ),
+        )
+        linked = session_control(analysis, limits).behind["unresolved_failures_at_end"]
+        assert set(responded) <= set(linked)
+
     def test_the_wip_peak_links_findings_up_to_the_peak(self) -> None:
         analysis = self._analysis()
         peak = analysis.wip.peak
