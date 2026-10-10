@@ -132,6 +132,33 @@ class TestBootstrap:
         assert "TER observe" in capsys.readouterr().out
 
 
+@pytest.mark.req("TER-REQ-013")
+def test_version_names_the_package_and_event_schema() -> None:
+    from ter import EVENT_SCHEMA_VERSION
+    from ter.adapters.driving.cli import _installed_version
+
+    out = io.StringIO()
+    with pytest.raises(SystemExit) as exit_:
+        main(["--version"], bootstrap.cli_services(), stdout=out)
+    assert exit_.value.code == 0
+    expected = f"python -m ter {_installed_version()} (events {EVENT_SCHEMA_VERSION})"
+    assert out.getvalue() == expected + "\n"
+
+
+def test_the_version_is_unknown_when_ter_is_not_installed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from importlib import metadata
+
+    from ter.adapters.driving import cli
+
+    def missing(name: str) -> str:
+        raise metadata.PackageNotFoundError(name)
+
+    monkeypatch.setattr(cli.metadata, "version", missing)
+    assert cli._installed_version() == "unknown"
+
+
 @pytest.mark.req("TER-OBS-008")
 def test_python_dash_m_ter(tmp_path: Path) -> None:
     payload = (HOOKS / "post_tool_use_bash.json").read_text(encoding="utf-8")

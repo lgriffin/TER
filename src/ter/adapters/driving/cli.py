@@ -30,6 +30,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from importlib import metadata
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -38,7 +39,7 @@ from typing import IO, TYPE_CHECKING, Protocol
 from ...application.explain import ExplainedSession
 from ...application.route import RoutedSession
 from ...domain.capabilities import Capability, CapabilityError, CapabilityProblem
-from ...domain.events import TEXT_LIMITS, describe_limit
+from ...domain.events import EVENT_SCHEMA_VERSION, TEXT_LIMITS, describe_limit
 from ...domain.lean import LeanAnalysis, SoftwareValueEfficiency
 from ...domain.lean.control import ControlLimits, ControlLimitsError, SessionControl
 from ...domain.lean.surface import EditPlacement
@@ -178,7 +179,7 @@ def main(
 ) -> int:
     out = stdout or sys.stdout
     err = stderr or sys.stderr
-    args = _parser(services.default_log_dir).parse_args(argv)
+    args = _parser(services.default_log_dir, out).parse_args(argv)
     if args.command == "hook":
         log_dir: Path = args.event_log
         result = run_hook(
@@ -550,10 +551,46 @@ def _observe(
     return 0
 
 
-def _parser(default_log_dir: Path) -> argparse.ArgumentParser:
+def _installed_version() -> str:
+    """The installed distribution's version, as ``ter --version`` shows it."""
+    try:
+        return metadata.version("ter-calculator")
+    except metadata.PackageNotFoundError:  # run from a source tree, not installed
+        return "unknown"
+
+
+class _VersionAction(argparse.Action):
+    """``--version`` written to the CLI's own stdout, not argparse's sys.stdout,
+    so an embedding caller that passes ``stdout`` gets the line."""
+
+    def __init__(self, option_strings: list[str], dest: str, out: IO[str]) -> None:
+        super().__init__(
+            option_strings,
+            dest,
+            nargs=0,
+            default=argparse.SUPPRESS,
+            help="show the installed TER version and event schema, then exit",
+        )
+        self.out = out
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: object,
+        option_string: str | None = None,
+    ) -> None:
+        self.out.write(
+            f"{parser.prog} {_installed_version()} (events {EVENT_SCHEMA_VERSION})\n"
+        )
+        parser.exit(0)
+
+
+def _parser(default_log_dir: Path, out: IO[str]) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="python -m ter", description="TER 4: Lean analysis of agent sessions."
     )
+    parser.add_argument("--version", action=_VersionAction, out=out)
     commands = parser.add_subparsers(dest="command", required=True)
 
     observe = commands.add_parser(
