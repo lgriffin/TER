@@ -30,6 +30,7 @@ from ter.domain.lean import (
 )
 from ter.domain.events import describe_limit
 from ter.domain.lean.a3 import A3_SCHEMA
+from ter.domain.lean.control import Basis, Placement, SessionControl
 from ter.domain.lean.countermeasures import Action, ActionKind
 from ter.domain.lean.model import UNCERTAIN_BELOW, Stage
 from ter.domain.lean.usage import ReadUsage, UsageStatus
@@ -471,6 +472,7 @@ padding:10px 12px;min-width:0;display:flex;flex-direction:column;gap:4px}
 .charts{display:grid;gap:12px}
 figure{margin:0}
 table{border-collapse:collapse;width:100%;font-size:13px}
+.behind{margin-top:4px;color:var(--ter-ink-2)}
 th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--ter-grid);vertical-align:top}
 th{color:var(--ter-ink-2);font-weight:600;font-size:12px}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -709,6 +711,12 @@ def _chips(report: A3Report) -> str:
         v = report.outcome.verdict.value
         tone = {"accepted": "ok", "rejected": "bad"}.get(v, "unsure")
         chips.append(f'<li class="verdict {tone}">Outcome {esc(v)}</li>')
+    control = report.process_control
+    if control is not None:
+        n = len(control.signals)
+        tone = "bad" if control.firing else ("unsure" if n else "ok")
+        text = f"{n} measure(s) outside limits" if n else "Within control limits"
+        chips.append(f'<li class="verdict {tone}">{esc(text)}</li>')
     return f'<ul class="chips" aria-label="Session facts">{"".join(chips)}</ul>'
 
 
@@ -717,6 +725,8 @@ def _nav(report: A3Report) -> str:
     items.append(("s-scorecard", "", "Scorecard"))
     if report.outcome is not None:
         items.append(("s-outcome", "", "Outcome"))
+    if report.process_control is not None:
+        items.append(("s-control", "", "Process control"))
     items += [
         ("s-2", "2", "Current state"),
         ("s-3", "3", "Analysis"),
@@ -1160,6 +1170,138 @@ def _outcome(report: A3Report) -> str:
         "reads the verdict.</p>"
         f"</div><div>{checks}</div></div>"
     )
+
+
+def _control_value(p: Placement, value: float | None) -> str:
+    if value is None:
+        return "none"
+    basis = p.limits.measure.basis
+    if basis is Basis.RATIO:
+        return fmt_pct(value, 1)
+    if basis is Basis.TOKENS:
+        return fmt_tokens(round(value))
+    if basis is Basis.SECONDS:
+        return fmt_seconds(value)
+    return f"{value:.3g}"
+
+
+#: Findings linked per measure before the rest fold.
+CONTROL_FINDINGS_SHOWN = 4
+
+
+def _control_findings(report: A3Report, ids: Sequence[str]) -> str:
+    if not ids:
+        return '<span class="fine">none recorded</span>'
+    links = [
+        f'<a href="#f-{_slug(i)}">{esc(report.analysis.finding(i).title)}</a>'
+        for i in ids
+    ]
+    shown = "<br>".join(links[:CONTROL_FINDINGS_SHOWN])
+    if len(links) <= CONTROL_FINDINGS_SHOWN:
+        return shown
+    rest = "<br>".join(links[CONTROL_FINDINGS_SHOWN:])
+    return (
+        f"{shown}<details><summary>+{len(links) - CONTROL_FINDINGS_SHOWN} more"
+        f"</summary>{rest}</details>"
+    )
+
+
+def _control_limits(p: Placement) -> str:
+    """The action limits in words: a missing side is past the boundary."""
+    lcl, ucl = p.limits.lcl, p.limits.ucl
+    if lcl is None and ucl is None:
+        text = "no limit inside the range"
+    elif lcl is None:
+        text = f"at most {_control_value(p, ucl)}"
+    elif ucl is None:
+        text = f"at least {_control_value(p, lcl)}"
+    else:
+        text = f"{_control_value(p, lcl)} to {_control_value(p, ucl)}"
+    tuned = ' <span class="tag kind">tuned</span>' if p.limits.tuning else ""
+    centre = _control_value(p, p.limits.natural.centre)
+    return f"{esc(text)}{tuned}<small>centre {esc(centre)}</small>"
+
+
+def _control_rows(
+    report: A3Report, control: SessionControl, placements: Sequence[Placement]
+) -> str:
+    rows = []
+    for p in placements:
+        m, s = p.limits.measure, p.signal
+        if s is None:
+            status = '<span class="tag ok">in limits</span>'
+        else:
+            tone = "risk" if s.fires else ("warn" if s.unfavourable else "ok")
+            word = "fires" if s.fires else ("worse" if s.unfavourable else "better")
+            status = (
+                f'<span class="tag {tone}">{esc(s.side.value)} limit, {word}</span>'
+                '<small class="behind">Findings behind it:<br>'
+                f"{_control_findings(report, control.behind.get(m.key, ()))}</small>"
+            )
+        never = "" if m.fires else "<small>charted, never fires</small>"
+        rows.append(
+            f'<tr><th scope="row">{esc(m.label)}{never}</th>'
+            f'<td class="num">{esc(_control_value(p, p.value))}</td>'
+            f"<td>{_control_limits(p)}</td><td>{status}</td></tr>"
+        )
+    return (
+        '<div class="chart"><table class="control"><thead><tr>'
+        '<th scope="col">Measure</th><th scope="col" class="num">This session</th>'
+        '<th scope="col">Limits</th><th scope="col">Status</th>'
+        f"</tr></thead><tbody>{''.join(rows)}</tbody></table></div>"
+    )
+
+
+def _process_control(report: A3Report, control: SessionControl) -> str:
+    """The session against its process's control limits (TER-SPC-011).
+
+    Measures outside a limit lead, firing ones first, each with the findings
+    that move it; the measures inside their limits fold away.
+    """
+    outside = sorted(
+        (p for p in control.placements if p.signal is not None),
+        key=lambda p: (
+            not (p.signal is not None and p.signal.fires),
+            not (p.signal is not None and p.signal.unfavourable),
+        ),
+    )
+    inside = [p for p in control.placements if p.signal is None]
+    limits = control.limits
+    parts = []
+    if control.stale:
+        parts.append(
+            '<p class="fine"><span class="tag warn">stale</span> These limits were '
+            f"computed with detector set <code>{esc(limits.detectors)}</code>; this "
+            f"session was measured with <code>{esc(control.detectors)}</code>. "
+            "Recompute the limits before acting on them.</p>"
+        )
+    if outside:
+        parts.append(
+            f"<p><b>{len(outside)}</b> of {len(control.placements)} measures are "
+            f"outside their limits; <b>{len(control.firing)}</b> would fire. Read "
+            "the findings behind them first.</p>"
+        )
+        parts.append(_control_rows(report, control, outside))
+    else:
+        parts.append(
+            f"<p>All {len(control.placements)} measures are inside their limits: "
+            "this session looks like the rest of its process.</p>"
+        )
+    if inside:
+        parts.append(
+            f"<details><summary>{len(inside)} measure(s) inside their limits"
+            f"</summary>{_control_rows(report, control, inside)}</details>"
+        )
+    when = f" on {esc(limits.computed_on)}" if limits.computed_on else ""
+    method = esc(limits.method.value.replace("_", " "))
+    parts.append(
+        f'<p class="fine">Natural process limits ({method}){when}. Only the '
+        "one-session rule, beyond limits, applies here; the zone and run rules "
+        "need the sessions around this one, so read them on the control chart "
+        "(<code>python -m ter control chart</code>). Only unfavourable signals on "
+        "ratios and counts fire.</p>"
+    )
+    return "".join(parts)
 
 
 def _current_state(report: A3Report) -> str:
@@ -1634,6 +1776,19 @@ def render_a3_html(report: A3Report) -> str:
         *(
             [_box(None, "Outcome", _outcome(report), "full", "s-outcome")]
             if report.outcome
+            else []
+        ),
+        *(
+            [
+                _box(
+                    None,
+                    "Process control",
+                    _process_control(report, report.process_control),
+                    "full",
+                    "s-control",
+                )
+            ]
+            if report.process_control is not None
             else []
         ),
         _box(2, "Current state", _current_state(report), "full"),

@@ -16,7 +16,8 @@ import pytest
 from ter4_lean_builder import FAIL, PASS, Script
 
 from ter.adapters.driven.tokenizers import RegexTokenizer
-from ter.domain.lean import explain
+from ter.domain.lean import build_a3, explain
+from ter.domain.lean import control as control_module
 from ter.domain.lean.control import (
     CONTROL_LIMITS_SCHEMA,
     CONTROL_MEASURES,
@@ -41,7 +42,9 @@ from ter.domain.lean.control import (
     order_sessions,
     place,
     pseudonymise,
+    session_control,
 )
+from ter.domain.lean.model import LeanWaste
 from ter.domain.lean.scorecard import scorecard_dimensions, software_value_efficiency
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -764,3 +767,104 @@ def test_a_point_with_several_signals_lists_every_rule_and_shows_the_worst() -> 
     }
     svg = xmr_chart(result)
     assert "Beyond limits, Two of three" in svg
+
+
+# --- the A3 places a session against its limits (TER-SPC-011) ----------------
+
+
+def _rework_session() -> Script:
+    s = Script()
+    s.prompt("fix the failing test")
+    s.read("src/app.py", "def f(): return 1")
+    s.bash("pytest", FAIL)
+    s.edit("src/app.py", "return 1", "return 2")
+    s.bash("pytest", FAIL)
+    s.edit("src/app.py", "return 2", "return 3")
+    s.bash("pytest", PASS)
+    s.say("Fixed.")
+    return s
+
+
+def _session_limits(detectors: str, *entries: MeasureLimits) -> ControlLimits:
+    return ControlLimits(entries, LimitMethod.AVERAGE_MOVING_RANGE, detectors, 30)
+
+
+@pytest.mark.req("TER-SPC-011")
+class TestSessionControl:
+    def _analysis(self) -> Any:
+        analysis = explain(_rework_session().events, RegexTokenizer())
+        assert analysis.scorecard.rework_cycles == 1
+        return analysis
+
+    def test_a_measure_beyond_its_limit_links_the_findings_behind_it(self) -> None:
+        analysis = self._analysis()
+        limits = _session_limits(
+            detector_fingerprint(analysis),
+            hand_limits("rework_cycles", centre=0.0, sigma=0.2, ucl=0.5, lcl=None),
+        )
+        control = session_control(analysis, limits)
+        (placed,) = control.placements
+        assert placed.signal is not None and placed.signal.fires
+        rework = [f.id for f in analysis.findings if f.waste is LeanWaste.REWORK]
+        assert rework and control.behind["rework_cycles"] == tuple(rework)
+        entry = control.as_dict()["measures"][0]  # type: ignore[index]
+        assert entry["findings"] == rework
+        assert entry["signal"]["id"] == "control.rework_cycles.beyond_limits"
+
+    def test_a_measure_inside_its_limits_links_nothing(self) -> None:
+        analysis = self._analysis()
+        limits = _session_limits(
+            detector_fingerprint(analysis),
+            hand_limits("rework_cycles", centre=1.0, sigma=0.5, ucl=3.0, lcl=None),
+        )
+        control = session_control(analysis, limits)
+        assert control.signals == () and control.behind == {}
+        entry = control.as_dict()["measures"][0]  # type: ignore[index]
+        assert entry["signal"] is None and "findings" not in entry
+
+    def test_measures_the_limits_leave_out_are_not_placed(self) -> None:
+        analysis = self._analysis()
+        limits = _session_limits(
+            detector_fingerprint(analysis), hand_limits("wip_peak", centre=1.0)
+        )
+        control = session_control(analysis, limits)
+        assert [p.limits.measure.key for p in control.placements] == ["wip_peak"]
+
+    def test_limits_from_another_detector_set_are_stale(self) -> None:
+        analysis = self._analysis()
+        control = session_control(analysis, _session_limits("other"))
+        assert control.stale and control.as_dict()["stale"] is True
+
+    def test_every_measure_names_the_findings_that_move_it(self) -> None:
+        assert set(control_module._BEHIND) == {m.key for m in CONTROL_MEASURES}
+
+    def test_the_a3_carries_process_control_only_with_limits(self) -> None:
+        analysis = self._analysis()
+        limits = _session_limits(
+            detector_fingerprint(analysis),
+            hand_limits("rework_cycles", centre=0.0, sigma=0.2, ucl=0.5, lcl=None),
+        )
+        plain = build_a3(analysis)
+        assert plain.process_control is None
+        assert "process_control" not in plain.as_dict()
+        placed = build_a3(analysis, control=limits)
+        assert (
+            placed.as_dict()["process_control"]
+            == plain.placed(limits).as_dict()["process_control"]
+        )
+        assert placed.as_dict()["process_control"]["firing"] == 1  # type: ignore[index]
+
+    def test_the_a3_page_links_the_signal_to_its_findings(self) -> None:
+        from ter.adapters.driving.reports.a3 import render_a3_html
+
+        analysis = self._analysis()
+        limits = _session_limits(
+            detector_fingerprint(analysis),
+            hand_limits("rework_cycles", centre=0.0, sigma=0.2, ucl=0.5, lcl=None),
+        )
+        assert 'id="s-control"' not in render_a3_html(build_a3(analysis))
+        page = render_a3_html(build_a3(analysis, control=limits))
+        assert 'id="s-control"' in page and "above limit, fires" in page
+        rework = next(f for f in analysis.findings if f.waste is LeanWaste.REWORK)
+        slug = "".join(c if c.isalnum() or c in "-_:." else "-" for c in rework.id)
+        assert f'href="#f-{slug}"' in page and f'id="f-{slug}"' in page

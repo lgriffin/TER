@@ -84,3 +84,20 @@ def test_control_page_matches_golden_snapshot() -> None:
     assert_matches_text_snapshot(
         "control/corpus.html", render_control_html(_report(), title="Golden corpus")
     )
+
+
+@pytest.mark.req("TER-SPC-011")
+def test_a3_placed_against_corpus_limits_matches_golden_snapshot() -> None:
+    from ter.adapters.driving.reports.a3 import render_a3_html
+
+    use_case = ExplainSession(
+        ClaudeCodeJsonlSource(),
+        RegexTokenizer(),
+        Ter3Scorer(RegexTokenizer(), HashingEmbedder()),
+    )
+    a3 = use_case(CORPUS["rework_loop"]).a3.placed(_limits())
+    assert a3.process_control is not None and a3.process_control.firing
+    assert_matches_text_snapshot(
+        "control/rework_loop.a3.json", _json(a3.as_dict()["process_control"])
+    )
+    assert_matches_text_snapshot("control/rework_loop.a3.html", render_a3_html(a3))

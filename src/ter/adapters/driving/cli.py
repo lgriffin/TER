@@ -40,6 +40,7 @@ from ...application.route import RoutedSession
 from ...domain.capabilities import Capability, CapabilityError, CapabilityProblem
 from ...domain.events import TEXT_LIMITS, describe_limit
 from ...domain.lean import LeanAnalysis, SoftwareValueEfficiency
+from ...domain.lean.control import ControlLimits, ControlLimitsError, SessionControl
 from ...domain.lean.surface import EditPlacement
 from ...domain.outcome import OutcomeFormatError, OutcomeVerdict
 from ...domain.repository import RepositoryEvidenceError
@@ -250,6 +251,17 @@ def _explain(
     if repo is not None and not repo.is_dir():
         err.write(f"No such repository directory: {repo}\n")
         return 2
+    limits_path: Path | None = getattr(args, "limits", None)
+    limits: ControlLimits | None = None
+    if limits_path is not None:
+        if services.control is None:
+            err.write("control charts are not available in this installation\n")
+            return 2
+        try:
+            limits = services.control.chart.limits(limits_path)
+        except ControlLimitsError as exc:
+            err.write(f"Cannot read limits: {exc}\n")
+            return 2
     try:
         if repo is None:
             explained = services.explain_transcript(
@@ -299,13 +311,21 @@ def _explain(
 
     from .reports.a3 import render_a3_html
 
+    a3 = explained.a3 if limits is None else explained.a3.placed(limits)
+    control = a3.process_control
+    if control is not None and control.stale:
+        err.write(
+            "Warning: these limits were computed with another detector set "
+            f"({control.limits.detectors}, session {control.detectors}); "
+            "recompute them\n"
+        )
     wrote = False
     if args.html is not None:
-        _write(args.html, render_a3_html(explained.a3))
+        _write(args.html, render_a3_html(a3))
         err.write(f"Wrote {args.html}\n")
         wrote = True
     if args.json is not None:
-        payload = _json(explained.a3.as_dict())
+        payload = _json(a3.as_dict())
         if args.json == "-":
             out.write(payload)
         else:
@@ -313,9 +333,11 @@ def _explain(
             err.write(f"Wrote {args.json}\n")
         wrote = True
     if not wrote:
-        out.write(format_findings(explained.analysis, explained.a3.value_efficiency))
-        out.write(format_limits(explained.a3.usage_limits))
-        out.write(format_outcome(explained.a3.outcome, outcome_path))
+        out.write(format_findings(explained.analysis, a3.value_efficiency))
+        out.write(format_limits(a3.usage_limits))
+        out.write(format_outcome(a3.outcome, outcome_path))
+        if control is not None:
+            out.write(format_process_control(control))
     return 0
 
 
@@ -595,6 +617,13 @@ def _parser(default_log_dir: Path) -> argparse.ArgumentParser:
     a3.add_argument("--outcome", type=Path, metavar="FILE", help=OUTCOME_HELP)
     a3.add_argument("--repo", type=Path, metavar="DIR", help=REPO_HELP)
     a3.add_argument("--repo-engine", default="syntax", help=REPO_ENGINE_HELP)
+    a3.add_argument(
+        "--limits",
+        type=Path,
+        metavar="FILE",
+        help="control limits (ter.control-limits/1, from `control limits`) to "
+        "place this session against",
+    )
 
     add_context_parser(commands, default_log_dir, TOKENIZER_HELP, REPO_ENGINE_HELP)
     add_control_parser(commands, TOKENIZER_HELP)
@@ -821,6 +850,27 @@ def format_outcome(verdict: OutcomeVerdict | None, path: Path | None) -> str:
     if len(ordered) > OUTCOME_ROWS:
         lines.append(
             f"  … {len(ordered) - OUTCOME_ROWS} more (--json lists every check)"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def format_process_control(control: SessionControl) -> str:
+    """The session against its control limits: every measure outside one,
+    with the findings behind it (TER-SPC-011)."""
+    lines = [
+        f"\nProcess control · {len(control.placements)} measure(s) placed · "
+        f"{len(control.signals)} outside a limit, {len(control.firing)} would fire"
+    ]
+    for p in control.placements:
+        s = p.signal
+        if s is None:
+            continue
+        mark = "FIRE" if s.fires else "worse" if s.unfavourable else "better"
+        behind = control.behind.get(p.limits.measure.key, ())
+        lines.append(
+            f"  {mark:<6} {p.limits.measure.key} {p.value:.4g} "
+            f"{s.side.value} {s.limit:.4g}"
+            + (f"  <- {', '.join(behind)}" if behind else "")
         )
     return "\n".join(lines) + "\n"
 

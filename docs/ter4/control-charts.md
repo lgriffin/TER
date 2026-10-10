@@ -144,9 +144,23 @@ warns that the limits are stale (TER-SPC-007), and TER refuses to mix
 detector sets in one chart (TER-SPC-013). Re-measure and recompute after a
 detector change.
 
+## On the A3
+
+Give `ter a3` the limits file and the A3 places that session against them
+(TER-SPC-011):
+
+```bash
+python -m ter a3 session.jsonl --limits limits.json --html a3.html
+```
+
+The **Process control** section lists the measures outside a limit first,
+each linked to the findings that move it. For example, `rework_cycles` links
+the rework findings, and `unvalidated_edits_at_end` links the
+`unvalidated_implementation` findings. Shares, flow and totals link every
+waste finding. Only `beyond_limits` applies to one session. The JSON carries
+the same placements under `process_control`.
+
 ## Next
 
-- The A3 places a session against the limits and links each beyond-limits
-  signal to the findings behind it (TER-SPC-011, planned).
 - Limits from the owner's real corpus, with the signals reviewed, before
   P201 is done.

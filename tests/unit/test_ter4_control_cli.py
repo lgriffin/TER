@@ -235,3 +235,30 @@ def test_unreadable_measures_file_exits_2(tmp_path: Path) -> None:
     bad.write_bytes(b"\xff\xfe\x00")
     code, _, err = run(["control", "limits", str(bad), "--out", "x.json"])
     assert code == 2 and "cannot read" in err
+
+
+@pytest.mark.req("TER-SPC-011")
+def test_a3_places_the_session_against_limits(limits: Path, tmp_path: Path) -> None:
+    session = str(GOLDEN / "rework_loop.jsonl")
+    code, out, err = run(["a3", session, "--ter", "off", "--limits", str(limits)])
+    assert code == 0, err
+    # TER is off, so its measure is undefined and is not placed.
+    assert "Process control · 15 measure(s) placed" in out
+    assert "FIRE   rework_cycles" in out
+    js = tmp_path / "a3.json"
+    code, _, err = run(
+        ["a3", session, "--ter", "off", "--limits", str(limits), "--json", str(js)]
+    )
+    assert code == 0, err
+    control = json.loads(js.read_text(encoding="utf-8"))["process_control"]
+    assert control["schema"] == "ter.control-report/1" and not control["stale"]
+    assert len(control["measures"]) == 15
+
+
+@pytest.mark.req("TER-SPC-011")
+def test_a3_rejects_an_unreadable_limits_file(tmp_path: Path) -> None:
+    bad = tmp_path / "limits.json"
+    bad.write_text("{}", encoding="utf-8")
+    session = str(GOLDEN / "rework_loop.jsonl")
+    code, _, err = run(["a3", session, "--limits", str(bad)])
+    assert code == 2 and err.startswith("Cannot read limits:")
