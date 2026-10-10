@@ -69,7 +69,7 @@
 - Added a pragmatic test-only Ruff policy while retaining strict source linting.
 - Restored acceleration compatibility exports used by downstream tests.
 - Added explicit typing for plugin registries, Rich renderables, optional APIs, cache values, command records, and formatter loops.
-- Added `docs/007-v041-stabilization.md`.
+- Added `docs/history/007-v041-stabilization.md`.
 
 - Made semantic embeddings an optional `embeddings` extra.
 - Added an optional `llm` extra for Anthropic-assisted intent extraction.
