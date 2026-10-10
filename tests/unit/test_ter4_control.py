@@ -45,6 +45,7 @@ from ter.domain.lean.control import (
     session_control,
 )
 from ter.domain.lean.model import LeanWaste
+from ter.domain.lean.wip import WipKind
 from ter.domain.lean.scorecard import scorecard_dimensions, software_value_efficiency
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -868,3 +869,113 @@ class TestSessionControl:
         rework = next(f for f in analysis.findings if f.waste is LeanWaste.REWORK)
         slug = "".join(c if c.isalnum() or c in "-_:." else "-" for c in rework.id)
         assert f'href="#f-{slug}"' in page and f'id="f-{slug}"' in page
+
+    def test_a_favourable_signal_links_no_findings(self) -> None:
+        analysis = self._analysis()
+        limits = _session_limits(
+            detector_fingerprint(analysis),
+            hand_limits(
+                "value_adding_share", centre=0.1, sigma=0.01, ucl=0.12, lcl=0.08
+            ),
+        )
+        control = session_control(analysis, limits)
+        (placed,) = control.placements
+        assert placed.signal is not None and not placed.signal.unfavourable
+        assert control.behind == {}
+        assert "findings" not in control.as_dict()["measures"][0]  # type: ignore[index]
+
+    def test_an_unchecked_measure_is_neither_in_nor_out(self) -> None:
+        from ter.adapters.driving.reports.a3 import render_a3_html
+
+        analysis = self._analysis()
+        off = hand_limits(
+            "rework_cycles", centre=0.0, sigma=0.2, ucl=0.5, lcl=None, enabled=False
+        )
+        control = session_control(
+            analysis, _session_limits(detector_fingerprint(analysis), off)
+        )
+        (placed,) = control.placements
+        assert not placed.checked and placed.signal is None
+        assert control.as_dict()["measures"][0]["checked"] is False  # type: ignore[index]
+        page = render_a3_html(
+            build_a3(
+                analysis, control=_session_limits(detector_fingerprint(analysis), off)
+            )
+        )
+        assert "not checked, switched off" in page
+        assert "No measure was checked against its limits." in page
+
+    def test_edits_open_at_the_end_link_the_findings_that_cite_them(self) -> None:
+        s = Script()
+        s.prompt("add a flag")
+        s.read("src/app.py", "def f(): return 1")
+        s.edit("src/app.py", "return 1", "return 2")
+        s.say("Done.")
+        analysis = explain(s.events, RegexTokenizer())
+        still_open = set(analysis.wip.still_open(WipKind.EDITS))
+        assert still_open
+        limits = _session_limits(
+            detector_fingerprint(analysis),
+            hand_limits(
+                "unvalidated_edits_at_end", centre=0.0, sigma=0.1, ucl=0.3, lcl=None
+            ),
+        )
+        control = session_control(analysis, limits)
+        linked = control.behind["unvalidated_edits_at_end"]
+        assert linked
+        for fid in linked:
+            assert still_open.intersection(analysis.finding(fid).evidence)
+
+    def test_failures_open_at_the_end_link_only_the_findings_that_cite_them(
+        self,
+    ) -> None:
+        s = Script()
+        s.prompt("fix the failing test")
+        s.read("src/app.py", "def f(): return 1")
+        s.edit("src/app.py", "return 1", "return 2")
+        s.bash("pytest", FAIL)
+        s.say("I could not fix it.")
+        analysis = explain(s.events, RegexTokenizer())
+        still_open = set(analysis.wip.still_open(WipKind.FAILURES))
+        assert still_open
+        limits = _session_limits(
+            detector_fingerprint(analysis),
+            hand_limits(
+                "unresolved_failures_at_end", centre=0.0, sigma=0.1, ucl=0.3, lcl=None
+            ),
+        )
+        linked = session_control(analysis, limits).behind["unresolved_failures_at_end"]
+        assert linked
+        unrelated = [
+            f.id for f in analysis.findings if not still_open.intersection(f.evidence)
+        ]
+        assert not set(linked).intersection(unrelated)
+
+    def test_the_wip_peak_links_findings_up_to_the_peak(self) -> None:
+        analysis = self._analysis()
+        peak = analysis.wip.peak
+        assert peak is not None
+        order = {st.event_id: st.index for st in analysis.steps}
+        limits = _session_limits(
+            detector_fingerprint(analysis),
+            hand_limits("wip_peak", centre=0.0, sigma=0.1, ucl=0.3, lcl=None),
+        )
+        linked = session_control(analysis, limits).behind["wip_peak"]
+        expected = [
+            f.id
+            for f in analysis.findings
+            if any(order[e] <= order[peak.event_id] for e in f.evidence)
+        ]
+        assert list(linked) == expected
+
+    def test_folded_rows_print(self) -> None:
+        from ter.adapters.driving.reports.a3 import render_a3_html
+
+        analysis = self._analysis()
+        limits = _session_limits(
+            detector_fingerprint(analysis),
+            hand_limits("wip_peak", centre=3.0, ucl=100.0, lcl=None),
+        )
+        page = render_a3_html(build_a3(analysis, control=limits))
+        assert '<details class="control">' in page
+        assert "details.control::details-content{content-visibility:visible" in page

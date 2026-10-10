@@ -243,7 +243,7 @@ repeated warnings are waste too.
 | Schema | Produced by | Holds |
 |---|---|---|
 | `ter.a3/0.1` | `ter a3 --json` | Background, problem, current state, analysis (scorecard, Pareto, cycles), root causes, findings, countermeasures, follow-up, detectors |
-| `process_control` in `ter.a3/0.1` | `ter a3 --limits FILE --json` | Every measure placed against its limits, signals, and the findings behind each measure outside a limit |
+| `ter.session-control/1`, under `process_control` in `ter.a3/0.1` | `ter a3 --limits FILE --json` | Every measure placed against its limits, signals, and the findings behind each measure outside a limit |
 | `ter.evidence/0.1` | `--graph FILE` | Nodes per event and typed edges (`completes`, `motivated_by`, `validates`, `corrects`, `repeats`) |
 | explain JSON | `ter explain --json` | Findings, cycles, value stream, scorecard, per-event classification with basis, detectors, evidence graph |
 
