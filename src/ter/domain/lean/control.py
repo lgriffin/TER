@@ -514,6 +514,7 @@ class NaturalLimits:
             "mr_ucl": r(self.mr_ucl),
             "sessions": self.sessions,
             "provisional": self.provisional,
+            "method": self.method.value,
         }
 
 
@@ -526,6 +527,11 @@ def natural_limits(
 ) -> NaturalLimits:
     """XmR natural process limits of ``values`` in process order.
 
+    A median moving range of 0 (most successive sessions equal, as in a
+    count that is usually 0) would collapse the limits onto the centre and
+    flag every session, so that measure falls back to the average moving
+    range and records it (TER-SPC-014).
+
     Raises:
         ControlLimitsError: With fewer than :data:`MIN_BASELINE` values.
     """
@@ -536,6 +542,8 @@ def natural_limits(
         )
     centre = statistics.fmean(values)
     ranges = [abs(b - a) for a, b in zip(values, values[1:], strict=False)]
+    if method is LimitMethod.MEDIAN_MOVING_RANGE and statistics.median(ranges) == 0:
+        method = LimitMethod.AVERAGE_MOVING_RANGE
     if method is LimitMethod.MEDIAN_MOVING_RANGE:
         mr = statistics.median(ranges)
         e2, d4, d2 = _E2_MEDIAN, _D4_MEDIAN, _D2_MEDIAN
@@ -713,7 +721,8 @@ def _measure_limits(key: str, entry: object, method: LimitMethod) -> MeasureLimi
         mr,
         mr_ucl,
         count,
-        method,
+        # Older files have no per-measure method: the file's method applies.
+        _enum(LimitMethod, nat.get("method", method.value), f"{key}.natural.method"),
     )
     _check_natural(key, natural, measure)
     tuning = _tuning(key, entry.get("tuned"), measure)

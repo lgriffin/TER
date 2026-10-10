@@ -255,6 +255,9 @@ def _chart(
         wrote = True
     if not wrote:
         out.write(format_control(report))
+    elif args.json != "-":
+        # Files only: still say what they hold.
+        err.write(format_control(report).splitlines()[0] + "\n")
     return 0
 
 
