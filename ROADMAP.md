@@ -1130,7 +1130,7 @@ This allows exact highlighting and reconstruction of each segment from its paren
 ```text
 src/ter_calculator/span_segmentation.py
 tests/unit/test_span_segmentation.py
-docs/history/011-fine-span-segmentation-v1.09.md
+docs/history/011-fine-span-segmentation-v09.md
 ```
 
 ### Acceptance criteria status
@@ -1192,7 +1192,7 @@ source block index
 ```text
 src/ter_calculator/jsonl_identity.py
 tests/unit/test_jsonl_identity_v1.10.py
-docs/history/012-jsonl-identity-provenance-v1.10.md
+docs/history/012-jsonl-identity-provenance-v10.md
 ```
 
 ### Compatibility
@@ -1405,7 +1405,7 @@ embedding-model choice.
 ```text
 src/ter_calculator/uncertainty.py
 tests/unit/test_explainability_uncertainty_v1.11.py
-docs/history/013-explainability-uncertainty-v1.11.md
+docs/history/013-explainability-uncertainty-v11.md
 ```
 
 ### Validation
