@@ -148,7 +148,8 @@ def _write(path: Path, text: str) -> None:
 
 
 def _json(value: object) -> str:
-    return json.dumps(value, indent=2, ensure_ascii=False) + "\n"
+    # allow_nan=False: a policy reads these files, so no bare Infinity or NaN.
+    return json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False) + "\n"
 
 
 def _read_measures(path: Path) -> MeasuresDocument:
@@ -156,6 +157,8 @@ def _read_measures(path: Path) -> MeasuresDocument:
         document = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
         raise ControlLimitsError(f"{path}: no such measures file") from None
+    except (OSError, UnicodeDecodeError) as exc:
+        raise ControlLimitsError(f"{path}: cannot read: {exc}") from None
     except json.JSONDecodeError as exc:
         raise ControlLimitsError(f"{path}: not JSON: {exc}") from None
     return MeasuresDocument.from_mapping(document)

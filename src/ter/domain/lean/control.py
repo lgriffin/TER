@@ -436,6 +436,8 @@ class SessionMeasures:
                 isinstance(value, bool) or not isinstance(value, int | float)
             ):
                 raise ControlLimitsError(f"{session}: {key} must be a number or null")
+            if value is not None and not math.isfinite(value):
+                raise ControlLimitsError(f"{session}: {key} must be finite")
             values[str(key)] = None if value is None else float(value)
         return cls(session, started, values, detectors)
 
@@ -712,7 +714,16 @@ def _measure_limits(key: str, entry: object, method: LimitMethod) -> MeasureLimi
         count,
         method,
     )
+    _check_natural(key, natural, measure)
     tuning = _tuning(key, entry.get("tuned"), measure)
+    if tuning is not None:
+        upper = natural.ucl if tuning.ucl is None else tuning.ucl
+        lower = natural.lcl if tuning.lcl is None else tuning.lcl
+        if upper is not None and lower is not None and lower >= upper:
+            raise ControlLimitsError(
+                f"{key}: the effective lower limit {lower} must be below the "
+                f"effective upper limit {upper} (tuned and natural combined)"
+            )
     rules_raw = entry.get("rules", [r.value for r in ControlRule])
     if not isinstance(rules_raw, list):
         raise ControlLimitsError(f"{key}.rules must be a list of rule names")
@@ -721,6 +732,28 @@ def _measure_limits(key: str, entry: object, method: LimitMethod) -> MeasureLimi
     if not isinstance(enabled, bool):
         raise ControlLimitsError(f"{key}.enabled must be true or false")
     return MeasureLimits(measure, natural, tuning, rules, enabled)
+
+
+def _check_natural(key: str, natural: NaturalLimits, measure: ControlMeasure) -> None:
+    """Natural limits read from a file must still describe a process: in
+    order, inside the measure's bounds, with a non-negative spread."""
+    upper = measure.upper_bound
+    for name, value in (
+        ("centre", natural.centre),
+        ("ucl", natural.ucl),
+        ("lcl", natural.lcl),
+    ):
+        if value is None:
+            continue
+        if value < measure.lower_bound or (upper is not None and value > upper):
+            bound = f"{measure.lower_bound} to {upper}" if upper else "0 or more"
+            raise ControlLimitsError(f"{key}.natural.{name} must be {bound}")
+    if min(natural.sigma, natural.moving_range, natural.mr_ucl) < 0:
+        raise ControlLimitsError(f"{key}.natural spread values must be 0 or more")
+    if natural.ucl is not None and natural.ucl < natural.centre:
+        raise ControlLimitsError(f"{key}.natural.ucl must not be below the centre")
+    if natural.lcl is not None and natural.lcl > natural.centre:
+        raise ControlLimitsError(f"{key}.natural.lcl must not be above the centre")
 
 
 def _tuning(key: str, raw: object, measure: ControlMeasure) -> Tuning | None:
@@ -761,8 +794,9 @@ def compute_limits(
 
     ``keep`` carries a developer's tuning, rule choices and switched-off
     measures over from an earlier limits document, so recomputing the
-    baseline never discards a decision. Measures with fewer than
-    :data:`MIN_BASELINE` known values are left out.
+    baseline never discards a decision. A measure with fewer than
+    :data:`MIN_BASELINE` known values is left out, unless ``keep`` has it:
+    then the earlier entry stands unchanged, natural limits included.
 
     Raises:
         ControlLimitsError: When the rows mix detector sets, or none are given.
@@ -779,7 +813,12 @@ def compute_limits(
     out: list[MeasureLimits] = []
     for measure in CONTROL_MEASURES:
         values = [v for r in ordered if (v := r.value(measure.key)) is not None]
+        previous = None if keep is None else keep.get(measure.key)
         if len(values) < MIN_BASELINE:
+            if previous is not None:
+                # Too few sessions to recompute: the earlier entry, with its
+                # natural limits and the developer's decisions, stands.
+                out.append(previous)
             continue
         natural = natural_limits(
             values,
@@ -788,7 +827,6 @@ def compute_limits(
             upper_bound=measure.upper_bound,
         )
         entry = MeasureLimits(measure, natural)
-        previous = None if keep is None else keep.get(measure.key)
         if previous is not None:
             entry = replace(
                 entry,
@@ -827,8 +865,14 @@ class ControlPoint:
             "moving_range": None
             if self.moving_range is None
             else round(self.moving_range, 6),
-            "sigmas": round(self.sigmas, 3),
+            "sigmas": _finite(self.sigmas),
         }
+
+
+def _finite(value: float, digits: int = 3) -> float | None:
+    """A JSON-safe number: ``None`` for the infinite sigmas of a zero-spread
+    process."""
+    return round(value, digits) if math.isfinite(value) else None
 
 
 @dataclass(frozen=True)
@@ -1048,7 +1092,13 @@ def control_chart(
 def control_charts(
     rows: Sequence[SessionMeasures], limits: ControlLimits
 ) -> tuple[ControlChart, ...]:
-    """One chart per measure in ``limits``, over ``rows`` in process order."""
+    """One chart per measure in ``limits``, over ``rows`` in process order.
+
+    A session where the measure is undefined (no edits for an edit share, no
+    generated tokens for a token share) is not part of that measure's
+    process, so the chart, its moving ranges and its rules run over the
+    sessions where it is defined, exactly as :func:`compute_limits` does.
+    """
     ordered = order_sessions(rows)
     charts: list[ControlChart] = []
     for entry in limits.measures:
@@ -1078,7 +1128,7 @@ class Placement:
             "centre": round(self.limits.natural.centre, 6),
             "ucl": None if self.limits.ucl is None else round(self.limits.ucl, 6),
             "lcl": None if self.limits.lcl is None else round(self.limits.lcl, 6),
-            "sigmas": round(self.sigmas, 3),
+            "sigmas": _finite(self.sigmas),
             "signal": None if self.signal is None else self.signal.as_dict(),
         }
 

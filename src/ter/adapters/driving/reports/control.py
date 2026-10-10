@@ -101,7 +101,14 @@ def xmr_chart(chart: ControlChart, *, width: int = 980) -> str:
         return left + (plot_w * (i + 0.5) / n)
 
     title = chart.measure.label
-    flagged = {s.session_id: s for s in chart.signals}
+    by_session: dict[str, list[ControlSignal]] = {}
+    for s in chart.signals:
+        by_session.setdefault(s.session_id, []).append(s)
+    # The unfavourable signal decides a point's colour when it has several.
+    flagged = {
+        sid: max(found, key=lambda s: s.unfavourable)
+        for sid, found in by_session.items()
+    }
     desc = (
         f"XmR chart of {title} over {len(points)} sessions. Centre "
         f"{_fmt(natural.centre, basis)}, upper limit {_fmt(limits.ucl, basis)}, "
@@ -164,7 +171,9 @@ def xmr_chart(chart: ControlChart, *, width: int = 980) -> str:
         )
         tip = f"{p.session_id}: {_fmt(p.value, basis)} ({p.sigmas:+.1f} sigma)"
         if signal is not None:
-            tip += " · " + ", ".join(humanise(s.rule.value) for s in chart.signalled(i))
+            tip += " · " + ", ".join(
+                humanise(s.rule.value) for s in by_session[p.session_id]
+            )
         parts.append(
             f'<circle cx="{x(i):.1f}" cy="{y(p.value):.1f}" r="{radius}" {_paint(role)}>'
             f"<title>{esc(tip)}</title></circle>"

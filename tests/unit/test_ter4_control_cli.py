@@ -224,3 +224,13 @@ def test_session_files_reads_a_corpus_and_skips_subagents(tmp_path: Path) -> Non
     (sessions / "abc" / "subagents" / "agent-1.jsonl").write_text("", encoding="utf-8")
     (tmp_path / "manifest.json").write_text("{}", encoding="utf-8")
     assert [p.name for p in session_files([tmp_path])] == ["abc.jsonl"]
+
+
+@pytest.mark.req("TER-SPC-005")
+def test_unreadable_measures_file_exits_2(tmp_path: Path) -> None:
+    code, _, err = run(["control", "limits", str(tmp_path), "--out", "x.json"])
+    assert code == 2 and "cannot read" in err
+    bad = tmp_path / "latin.json"
+    bad.write_bytes(b"\xff\xfe\x00")
+    code, _, err = run(["control", "limits", str(bad), "--out", "x.json"])
+    assert code == 2 and "cannot read" in err

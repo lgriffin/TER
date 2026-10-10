@@ -641,3 +641,109 @@ def test_page_shows_tuning_switches_and_stale_limits() -> None:
     assert "fires</span>" in page
     svg = xmr_chart(report.charts[0], width=600)
     assert svg.startswith("<svg") and 'role="img"' in svg
+
+
+# --- review findings (PR #71) ---------------------------------------------------
+
+
+@pytest.mark.req("TER-SPC-005")
+@pytest.mark.parametrize(
+    "tuned",
+    [{"lcl": 13.5, "reason": "x"}, {"ucl": 6.5, "reason": "x"}],
+    ids=["tuned-lcl-above-natural-ucl", "tuned-ucl-below-natural-lcl"],
+)
+def test_one_sided_tuning_cannot_cross_the_other_natural_limit(
+    tuned: dict[str, Any],
+) -> None:
+    with pytest.raises(ControlLimitsError, match="effective lower limit"):
+        ControlLimits.from_mapping(_document(tuned=tuned))
+
+
+@pytest.mark.req("TER-SPC-005")
+@pytest.mark.parametrize(
+    ("natural", "message"),
+    [
+        ({"ucl": 9.0}, "ucl must not be below the centre"),
+        ({"lcl": 11.0}, "lcl must not be above the centre"),
+        ({"centre": -1.0, "lcl": None}, "centre must be 0 or more"),
+        ({"sigma": -0.5}, "spread"),
+    ],
+)
+def test_edited_natural_limits_must_still_describe_a_process(
+    natural: dict[str, Any], message: str
+) -> None:
+    doc = _document()
+    doc["measures"]["wip_peak"]["natural"].update(natural)
+    with pytest.raises(ControlLimitsError, match=message):
+        ControlLimits.from_mapping(doc)
+
+
+@pytest.mark.req("TER-SPC-005")
+def test_natural_ratio_limits_stay_within_zero_and_one() -> None:
+    doc = _document()
+    entry = doc["measures"].pop("wip_peak")
+    entry["natural"].update({"centre": 0.5, "ucl": 1.4, "lcl": 0.1})
+    doc["measures"]["avoidable_share"] = entry
+    with pytest.raises(ControlLimitsError, match="natural.ucl must be 0.0 to 1.0"):
+        ControlLimits.from_mapping(doc)
+
+
+@pytest.mark.req("TER-SPC-009")
+def test_zero_spread_process_reports_json_safe_sigmas() -> None:
+    rows = [row(i, rework_cycles=0.0) for i in range(8)]
+    limits = compute_limits(rows)
+    report = control_report([*rows, row(9, rework_cycles=2.0)], limits)
+    text = json.dumps(report.as_dict(), allow_nan=False)
+    [chart_] = report.charts
+    assert chart_.points[-1].as_dict()["sigmas"] is None
+    assert '"sigmas": null' in text
+    rework = limits.get("rework_cycles")
+    assert rework is not None
+    assert place(rework, "x", 1.0).as_dict()["sigmas"] is None
+
+
+@pytest.mark.req("TER-SPC-008")
+def test_keep_holds_an_entry_whose_measure_lacks_sessions_now() -> None:
+    rows = [
+        row(i, wip_peak=float(i % 4), rework_cycles=float(i % 2)) for i in range(10)
+    ]
+    first = compute_limits(rows)
+    rework = first.get("rework_cycles")
+    assert rework is not None
+    kept_entry = replace_measure(rework, Tuning(0.5, None, "agreed"))
+    kept = ControlLimits((kept_entry,), first.method, first.detectors, first.sessions)
+    fewer = [row(i, wip_peak=float(i % 4)) for i in range(10)]
+    again = compute_limits(fewer, keep=kept)
+    assert again.get("rework_cycles") == kept_entry
+    assert compute_limits(fewer).get("rework_cycles") is None
+
+
+def replace_measure(entry: MeasureLimits, tuning: Tuning) -> MeasureLimits:
+    from dataclasses import replace
+
+    return replace(entry, tuning=tuning, enabled=False)
+
+
+@pytest.mark.req("TER-SPC-009")
+@pytest.mark.parametrize("bad", [float("nan"), float("inf"), float("-inf")])
+def test_non_finite_measures_are_rejected(bad: float) -> None:
+    doc = {
+        "schema": "ter.control-measures/1",
+        "detectors": "a",
+        "sessions": [{"session": "s", "values": {"wip_peak": bad}}],
+    }
+    with pytest.raises(ControlLimitsError, match="finite"):
+        MeasuresDocument.from_mapping(doc)
+
+
+@pytest.mark.req("TER-SPC-010")
+def test_a_point_with_several_signals_lists_every_rule_and_shows_the_worst() -> None:
+    from ter.adapters.driving.reports.control import xmr_chart
+
+    result = chart([12.5, 10.0, 13.5])
+    assert {s.rule for s in result.signals} == {
+        ControlRule.BEYOND_LIMITS,
+        ControlRule.TWO_OF_THREE,
+    }
+    svg = xmr_chart(result)
+    assert "Beyond limits, Two of three" in svg
