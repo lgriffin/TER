@@ -13,6 +13,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from ...domain.events import Event, SessionTrace
+from ...domain.lean.control import ControlLimits, ControlLimitsError
 from ...domain.outcome import OutcomeEvidence, OutcomeFormatError
 from ...domain.pricing import PriceEntry, PriceSchedule, Rates
 from ...domain.routing import RoutingProfile, RoutingProfileError
@@ -276,3 +277,19 @@ class InMemoryRoutingProfiles:
             return self._profiles[name]
         except KeyError:
             raise RoutingProfileError(f"Unknown routing profile {name!r}") from None
+
+
+class InMemoryControlLimits:
+    """A :class:`~ter.ports.driven.ControlLimitsSource` serving limits built in
+    code, keyed by ref, with the real adapter's semantics."""
+
+    name = "in-memory"
+
+    def __init__(self, documents: Mapping[str, ControlLimits]) -> None:
+        self._documents = dict(documents)
+
+    def limits(self, ref: str | Path) -> ControlLimits:
+        try:
+            return self._documents[str(ref)]
+        except KeyError:
+            raise ControlLimitsError(f"{ref}: no such limits document") from None

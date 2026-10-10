@@ -1,7 +1,7 @@
 """Points with a recorded origin: P001..P200 are Leigh's, past P200 contributed.
 
-Uses temporary catalogues only; the shipped catalogue holds no contributed
-points yet (ADR 0005).
+Uses temporary catalogues, whose example contributed point is P299 so it
+never collides with a shipped contributed point (ADR 0005).
 """
 
 from __future__ import annotations
@@ -25,6 +25,7 @@ from ter.domain.points import (
 from ter.domain.requirements import Requirement
 
 ROOT = Path(__file__).resolve().parents[2]
+CATALOGUE_POINTS = load_catalogue(ROOT / "requirements").points
 
 GARE = {"source": "GARE", "ref": "docs/plan.md#seam", "author": "Leigh Griffin"}
 
@@ -182,7 +183,7 @@ def _catalogue_with(tmp_path: Path, extra: str, cite: str = "") -> Path:
 
 
 POINT_201 = """
-  - id: P201
+  - id: P299
     text: Read the usage rows an external capability records, by schema name.
     level: L1
     kind: capability
@@ -200,7 +201,7 @@ RULE_201 = """requirements:
     text: >-
       The usage adapter shall read usage rows by their schema name.
     level: L1
-    source_points: [201]
+    source_points: [299]
     rationale: Example contributed rule.
     status: planned
 """
@@ -224,15 +225,16 @@ def test_cli_lint_accepts_a_contributed_point_with_origin(
         tmp_path, POINT_201.format(origin=ORIGIN_YAML), RULE_201
     )
     code, out = _lint(capsys, catalogue)
-    assert code == 0 and "201 points, 0 errors" in out
+    shipped = len(CATALOGUE_POINTS)
+    assert code == 0 and f"{shipped + 1} points, 0 errors" in out
     loaded = load_catalogue(catalogue)
     contributed = [p for p in loaded.points if p.contributed]
-    assert [(p.id, str(p.origin)) for p in contributed] == [
-        ("P201", "GARE: docs/plan.md#seam (Leigh Griffin)")
+    assert ("P299", "GARE: docs/plan.md#seam (Leigh Griffin)") in [
+        (p.id, str(p.origin)) for p in contributed
     ]
     index = render_points_index(loaded.points, loaded.requirements)
-    assert "Origins: Leigh's vision 200 · GARE 1" in index
-    assert "P201 ○" in index
+    assert "Origins: Leigh's vision 200 · " in index and "GARE 1" in index
+    assert "| P299 |" in index
 
 
 @pytest.mark.req("TER-REQ-009")
@@ -241,7 +243,7 @@ def test_cli_lint_rejects_a_contributed_point_without_origin(
 ) -> None:
     catalogue = _catalogue_with(tmp_path, POINT_201.format(origin=""), RULE_201)
     code, out = _lint(capsys, catalogue)
-    assert code == 1 and "P201: [POINT-ORIGIN]" in out
+    assert code == 1 and "P299: [POINT-ORIGIN]" in out
 
 
 @pytest.mark.req("TER-REQ-012")
@@ -255,5 +257,5 @@ def test_cli_lint_rejects_a_rule_citing_a_missing_point(
 
 def test_yaml_loader_reports_a_malformed_origin(tmp_path: Path) -> None:
     bad = POINT_201.format(origin="    origin: GARE\n")
-    with pytest.raises(CatalogueError, match="P201: origin must be a mapping"):
+    with pytest.raises(CatalogueError, match="P299: origin must be a mapping"):
         load_catalogue(_catalogue_with(tmp_path, bad))

@@ -44,6 +44,9 @@ pytest tests/unit/test_ter4_lean_* tests/unit/test_ter4_a3.py tests/golden/test_
 python -m ter observe <session.jsonl> --timeline      # TER 4 L1 report
 ter a3 <session.jsonl> --html a3.html --json a3.json   # TER 4 L2 Lean A3 (also python -m ter a3)
 python -m ter explain <session.jsonl>                 # L2 findings as text
+python -m ter control measure <corpus> --out m.json   # control charts: measure, then
+python -m ter control limits m.json --out limits.json  #   natural limits (tunable, --keep)
+python -m ter control chart m.json --limits limits.json --html control.html
 ```
 
 ## Code Style
@@ -63,6 +66,7 @@ Python 3.11+: Follow standard conventions. Dataclasses for models, enums for dom
 - Hook entry points fail open: never raise out of `ter.adapters.driving.claude_hooks`.
 - Run TER 4 tools with `PYTHONPATH=src` when the venv's editable install may point at another checkout.
 - Lean model (L2): detectors are plugins in `ter.domain.lean.detectors` (register in `DEFAULT_REGISTRY`, add a countermeasure and a follow-up measure, add unit tests with positive, negative and boundary cases). Every finding cites evidence event ids and a published `confidence_rule`; below 0.70 it is uncertain and never counted as avoidable. Thresholds are structural, never token counts; iteration that converges is never rework. See `docs/ter4/l2-explained.md` and ADR 0004.
+- Control charts (P201): XmR limits and rules in `ter.domain.lean.control`, limits files through the `ControlLimitsSource` port, page in `reports/control.py`. Only unfavourable signals on ratio or count measures fire; token totals never do. See `docs/ter4/control-charts.md`.
 - See `docs/ter4/architecture.md` and `docs/decisions/`.
 - Visual reports: renderers in `ter.adapters.driving.reports` (`svg.py`, `html.py`, colours only in `palette.py`) read the `ter.domain.report.SessionReport` view-model; `reports/ter3.py` (`from_ter_result`) is the only piece that reads `TERResult`. `ter_calculator.charts` delegates to these primitives. Rendered output is frozen in `tests/golden/snapshots/report/`. See `docs/ter4/reports.md`.
 
@@ -84,4 +88,4 @@ Python 3.11+: Follow standard conventions. Dataclasses for models, enums for dom
 
 `ter analyze` `ter report [--html FILE]` `ter a3` `ter explain` `ter visualize` `ter present` `ter compare` `ter list` `ter watch` `ter budget` `ter context {store|graph|optimize|delta|check}`
 
-TER 4 (`python -m ter`): `observe` `hook` `explain` `a3` `route` `context {bundle|report}` `corpus`
+TER 4 (`python -m ter`): `observe` `hook` `explain` `a3` `route` `context {bundle|report}` `control {measure|limits|chart}` `corpus`

@@ -10,7 +10,7 @@ rules that enforce it and how it is verified. Rules live in
 contributed from another source (an external capability, ADR 0005) and the
 Origin column names that source, its reference and author.
 
-**200 points** · ● done **101** · ◐ partial **43** · ○ not started **56**
+**201 points** · ● done **101** · ◐ partial **45** · ○ not started **55**
 
 `████████████████████▓▓▓▓▓▓▓▓▓░░░░░░░░░░░`
 
@@ -22,15 +22,15 @@ Legend: `█` done · `▓` partial · `░` not started
 |---|---|---:|---:|---:|---:|
 | L0 Measured | `██████████████████▓▓` | 10 | 1 | 0 | 11 |
 | L1 Observed | `███████████████████▓` | 15 | 1 | 0 | 16 |
-| L2 Explained | `██████████████████▓▓` | 49 | 5 | 0 | 54 |
+| L2 Explained | `██████████████████▓▓` | 49 | 6 | 0 | 55 |
 | L3 Grounded | `██████████▓▓▓▓▓▓▓▓▓▓` | 25 | 23 | 0 | 48 |
-| L4 Advisory | `▓▓▓░░░░░░░░░░░░░░░░░` | 0 | 5 | 34 | 39 |
+| L4 Advisory | `▓▓▓░░░░░░░░░░░░░░░░░` | 0 | 6 | 33 | 39 |
 | L5 Corrective | `██▓▓▓▓▓▓░░░░░░░░░░░░` | 1 | 4 | 8 | 13 |
 | L6 Learning | `█▓▓▓▓░░░░░░░░░░░░░░░` | 1 | 4 | 14 | 19 |
 
-Kinds: capability 136 · principle 37 · research 27
+Kinds: capability 137 · principle 37 · research 27
 
-Origins: Leigh's vision 200
+Origins: Leigh's vision 200 · TER project 1
 
 Real session data: **47 points** need it (3 verified) and cannot be done on synthetic tests alone. Tracked in [#34](https://github.com/lgriffin/TER/issues/34), [#35](https://github.com/lgriffin/TER/issues/35), [#36](https://github.com/lgriffin/TER/issues/36), [#37](https://github.com/lgriffin/TER/issues/37), [#38](https://github.com/lgriffin/TER/issues/38), [#39](https://github.com/lgriffin/TER/issues/39), [#40](https://github.com/lgriffin/TER/issues/40), [#41](https://github.com/lgriffin/TER/issues/41), [#42](https://github.com/lgriffin/TER/issues/42), [#43](https://github.com/lgriffin/TER/issues/43), [#44](https://github.com/lgriffin/TER/issues/44), [#45](https://github.com/lgriffin/TER/issues/45), [#46](https://github.com/lgriffin/TER/issues/46), [#55](https://github.com/lgriffin/TER/issues/55).
 
@@ -47,8 +47,9 @@ P081 ● ● ● ● ● ● ◐ ○ ○ ○ ◐ ◐ ● ○ ◐ ○ ○ ○ ○
 P101 ● ● ● ● ● ● ● ● ● ● ● ● ● ● ● ◐ ● ● ● ●
 P121 ◐ ● ○ ○ ◐ ○ ○ ○ ○ ◐ ○ ○ ○ ○ ○ ○ ○ ◐ ◐ ○
 P141 ● ● ● ● ● ◐ ◐ ● ◐ ◐ ● ● ◐ ● ◐ ◐ ● ● ● ●
-P161 ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○
+P161 ○ ◐ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○
 P181 ◐ ◐ ○ ○ ◐ ○ ○ ○ ○ ○ ○ ○ ○ ○ ● ● ◐ ◐ ○ ○
+P201 ◐
 ```
 
 ## Points
@@ -216,7 +217,7 @@ P181 ◐ ◐ ○ ○ ◐ ○ ○ ○ ○ ○ ○ ○ ○ ○ ● ● ◐ ◐ ○
 | P159 | Optimise context for sufficient evidence rather than minimum size. | vision | L3 | ● done |  | • Context selection targets sufficient evidence, and tests show a bundle is not shrunk below the evidence needed. | `TER-CTX-001` ✓ | test: tests/unit/test_ter4_context_bundle.py::TestBudget::test_a_seed_is_never_dropped_for_lower_ranked_evidence<br>test: tests/unit/test_ter4_context_bundle.py::TestSelection::test_a_prompt_naming_nothing_selects_nothing_and_says_so |
 | P160 | Record why each context fragment was selected. | vision | L3 | ● done |  | • Every context fragment records why it was selected. | `TER-EVD-004` ✓ | test: tests/unit/test_ter4_context_bundle.py::TestSupplied |
 | P161 | Introduce an Intervention Engine separate from the Analysis Engine. | vision | L4 | ○ not started |  | • An Intervention Engine exists as a separate module from the Analysis Engine. | `TER-INT-006` · | planned: passing tests tagged req for TER-INT-006 |
-| P162 | Feed the Intervention Engine structured analytical signals rather than raw heuristics. | vision | L4 | ○ not started |  | • The Intervention Engine consumes typed detector signals, not raw heuristics. | `TER-INT-006` · | planned: passing tests tagged req for TER-INT-006 |
+| P162 | Feed the Intervention Engine structured analytical signals rather than raw heuristics. | vision | L4 | ◐ partial |  | • The Intervention Engine consumes typed detector signals, not raw heuristics. | `TER-INT-006` ·<br>`TER-SPC-006` ✓<br>`TER-SPC-020` · | planned: passing tests tagged req for TER-INT-006<br>test: tests/unit/test_ter4_control.py::TestFiring<br>planned: passing tests tagged req for TER-SPC-020 |
 | P163 | Define intervention policies declaratively. | vision | L4 | ○ not started |  | • Intervention policies are declarative files. | `TER-INT-008` · | planned: passing tests tagged req for TER-INT-008 |
 | P164 | Allow policies to specify evidence requirements, confidence thresholds, cooldowns, and… | vision | L4 | ○ not started |  | • Policies state evidence requirements, confidence thresholds, cooldowns and permitted actions. | `TER-INT-008` · | planned: passing tests tagged req for TER-INT-008 |
 | P165 | Prevent repeated warnings from becoming their own form of waste. | vision | L4 | ○ not started |  | • Repeated warnings from one policy are suppressed during its cooldown. | `TER-INT-016` · | planned: passing tests tagged req for TER-INT-016 |
@@ -255,3 +256,4 @@ P181 ◐ ◐ ○ ○ ◐ ○ ○ ○ ○ ○ ○ ○ ○ ○ ● ● ◐ ◐ ○
 | P198 | Establish TER as an observability and control layer between developer intent, coding… | vision | L6 | ◐ partial |  | • TER observes and controls between intent, agents, repositories, tools and validation through ports. | `TER-INT-013` ·<br>`TER-OBS-001` ✓ | test: tests/contract/test_ingest_wiring.py<br>planned: passing tests tagged req for TER-INT-013 |
 | P199 | Demonstrate that Lean principles can be operationalised as measurable feedback… | vision | L6 | ○ not started | [#46](https://github.com/lgriffin/TER/issues/46) | • The experiments show Lean feedback mechanisms that measurably change outcomes. | `TER-RSH-003` ·<br>`TER-EXP-010` · | planned: passing tests tagged req for TER-RSH-003, TER-EXP-010<br>planned: real-data verification in issue #46 |
 | P200 | Ultimately answer one question: can we make agentic software development measurably… | vision | L6 | ○ not started | [#45](https://github.com/lgriffin/TER/issues/45) | • The experiments answer, with effect sizes, whether waste detection with real-time intervention improves delivery without harming useful reasoning. | `TER-RSH-003` ·<br>`TER-ANL-032` · | planned: passing tests tagged req for TER-RSH-003, TER-ANL-032<br>planned: real-data verification in issue #45 |
+| P201 | Chart each session measure on a Lean control chart with natural process limits a… | **TER project** Control charts thread, 10 Oct 2026, after the PC corpus run (Leigh Griffin) | L2 | ◐ partial |  | • XmR natural limits, the four detection rules and tunable action limits are computed and checked by tests, and every signal cites its sessions.<br>• Limits are computed from the owner's real corpus and the signals on it are reviewed.<br>• The A3 places a session against the limits (TER-SPC-011). | `TER-SPC-001` ✓<br>`TER-SPC-002` ✓<br>`TER-SPC-003` ✓<br>`TER-SPC-004` ✓<br>`TER-SPC-005` ✓<br>`TER-SPC-006` ✓<br>`TER-SPC-007` ✓<br>`TER-SPC-008` ✓<br>`TER-SPC-009` ✓<br>`TER-SPC-010` ✓<br>`TER-SPC-011` ·<br>`TER-SPC-012` ✓<br>`TER-SPC-013` ✓<br>`TER-SPC-020` · | test: tests/unit/test_ter4_control.py<br>test: tests/contract/test_control_limits.py<br>test: tests/golden/test_control_snapshots.py<br>planned: limits from the owner's 286-session corpus, signals reviewed<br>planned: passing tests tagged req for TER-SPC-011, TER-SPC-020 |

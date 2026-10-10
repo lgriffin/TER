@@ -2517,14 +2517,16 @@ points:
       raw heuristics.
     level: L4
     kind: capability
-    status: not-started
+    status: partial
     definition_of_done:
       - >-
         The Intervention Engine consumes typed detector signals, not raw
         heuristics.
-    rules: [TER-INT-006]
+    rules: [TER-INT-006, TER-SPC-006, TER-SPC-020]
     verification:
       - 'planned: passing tests tagged req for TER-INT-006'
+      - 'test: tests/unit/test_ter4_control.py::TestFiring'
+      - 'planned: passing tests tagged req for TER-SPC-020'
 
   - id: P163
     text: >-
@@ -3153,3 +3155,46 @@ points:
     verification:
       - 'planned: passing tests tagged req for TER-RSH-003, TER-ANL-032'
       - 'planned: real-data verification in issue #45'
+
+  - id: P201
+    text: >-
+      Chart each session measure on a Lean control chart with natural
+      process limits a developer can tune, so sessions outside the limits
+      stand out in the A3 and can later fire interventions.
+    level: L2
+    kind: capability
+    status: partial
+    origin:
+      source: TER project
+      ref: "Control charts thread, 10 Oct 2026, after the PC corpus run"
+      author: Leigh Griffin
+    definition_of_done:
+      - >-
+        XmR natural limits, the four detection rules and tunable action
+        limits are computed and checked by tests, and every signal cites its
+        sessions.
+      - >-
+        Limits are computed from the owner's real corpus and the signals on
+        it are reviewed.
+      - The A3 places a session against the limits (TER-SPC-011).
+    rules:
+      - TER-SPC-001
+      - TER-SPC-002
+      - TER-SPC-003
+      - TER-SPC-004
+      - TER-SPC-005
+      - TER-SPC-006
+      - TER-SPC-007
+      - TER-SPC-008
+      - TER-SPC-009
+      - TER-SPC-010
+      - TER-SPC-011
+      - TER-SPC-012
+      - TER-SPC-013
+      - TER-SPC-020
+    verification:
+      - 'test: tests/unit/test_ter4_control.py'
+      - 'test: tests/contract/test_control_limits.py'
+      - 'test: tests/golden/test_control_snapshots.py'
+      - "planned: limits from the owner's 286-session corpus, signals reviewed"
+      - 'planned: passing tests tagged req for TER-SPC-011, TER-SPC-020'

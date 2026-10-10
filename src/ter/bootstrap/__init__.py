@@ -43,6 +43,8 @@ from ..ports.driving import EventIngest
 if TYPE_CHECKING:
     from ..adapters.driven.claude_code.corpus import CorpusImport
     from ..adapters.driving.claude_hooks.check import HookCheck
+    from ..adapters.driving.control_cli import ControlServices
+    from ..application.control import MeasuredSessions
 
 __all__ = [
     "CapabilityRegistry",
@@ -311,9 +313,24 @@ def cli_services() -> CliServices:
 
         return check_recordings(recordings, transcripts, ClaudeCodeJsonlSource().read)
 
+    def control() -> "ControlServices":
+        from ..adapters.driven.control_limits import JsonControlLimits
+        from ..adapters.driving.control_cli import ControlServices
+        from ..application.control import ChartSessions, measure_sessions
+
+        def measure(paths: Sequence[Path], tokenizer: str) -> "MeasuredSessions":
+            # TER off: the control measures are the Lean ones, and a corpus
+            # must not download a model (as scripts/corpus_findings.py).
+            return measure_sessions(
+                paths, lambda path: explain_transcript(path, tokenizer, "off")
+            )
+
+        return ControlServices(measure, ChartSessions(JsonControlLimits()))
+
     from .context import context_services
 
     return CliServices(
+        control=control(),
         context=context_services(session_source_for, make_tokenizer),
         hooks_check=hooks_check,
         capabilities=capabilities,

@@ -682,3 +682,174 @@ requirements:
       WIP is measurable in agent sessions and is a candidate predictor of
       inefficiency.
     status: verified
+
+  # Process control (point 201): XmR control charts over sessions.
+  - id: TER-SPC-001
+    pattern: ubiquitous
+    text: >-
+      TER shall compute the natural process limits of each control measure
+      as the mean of the baseline sessions plus or minus 2.66 average moving
+      ranges, or 3.145 median moving ranges when the median method is
+      chosen, reporting no limit beyond the measure's natural boundary.
+    level: L2
+    source_points: [201]
+    rationale: >-
+      The individuals and moving range chart is the Lean chart for one value
+      per unit of work; limits come from the process, not from a target.
+    status: verified
+
+  - id: TER-SPC-002
+    pattern: unwanted
+    text: >-
+      If a control measure has fewer than 8 baseline sessions, then TER shall
+      compute no limits for that measure.
+    level: L2
+    source_points: [201]
+    rationale: >-
+      Limits from a handful of sessions describe nothing yet.
+    status: verified
+
+  - id: TER-SPC-012
+    pattern: unwanted
+    text: >-
+      If control limits come from fewer than 20 baseline sessions, then TER
+      shall mark them as provisional.
+    level: L2
+    source_points: [201]
+    rationale: >-
+      Limits from few sessions move with every new session; saying so stops
+      a developer from acting on noise.
+    status: verified
+
+  - id: TER-SPC-003
+    pattern: event-driven
+    text: >-
+      When TER charts sessions in process order, TER shall raise a control
+      signal for every enabled detection rule a session completes (one
+      session beyond a limit, two of three beyond two sigma, four of five
+      beyond one sigma, eight on one side of the centre line), citing every
+      session that forms the pattern.
+    level: L2
+    source_points: [201]
+    rationale: >-
+      Published, named rules make a special cause checkable; the cited
+      sessions are the evidence behind each signal.
+    status: verified
+
+  - id: TER-SPC-004
+    pattern: optional
+    text: >-
+      Where a developer has tuned a control limit, TER shall test the
+      beyond-limits rule against the tuned limit, test the other rules
+      against the natural centre and sigma, and keep both limits in the
+      limits document.
+    level: L2
+    port: ControlLimitsSource
+    source_points: [201]
+    rationale: >-
+      A tuned action limit is a developer's decision; the natural limits
+      still describe the process, so neither may hide the other.
+    status: verified
+
+  - id: TER-SPC-005
+    pattern: unwanted
+    text: >-
+      If a limits document has a tuned limit without a reason, a tuned lower
+      limit that is not below the tuned upper limit, or an unknown measure
+      or rule, then TER shall reject the whole document.
+    level: L2
+    port: ControlLimitsSource
+    source_points: [201]
+    rationale: >-
+      Limits will later decide when advice fires; a half-read or unexplained
+      limit must never be used.
+    status: verified
+
+  - id: TER-SPC-006
+    pattern: unwanted
+    text: >-
+      If a control signal moves the favourable way, or its measure counts
+      tokens or seconds, then TER shall mark the signal as not firing.
+    level: L2
+    source_points: [201, 162]
+    rationale: >-
+      Only an unfavourable signal on a structural measure may later drive an
+      intervention; no intervention rests on a token count alone
+      (TER-INT-007).
+    status: verified
+
+  - id: TER-SPC-007
+    pattern: unwanted
+    text: >-
+      If control limits were computed with a different detector set from
+      the sessions being charted, then TER shall report the limits as stale.
+    level: L2
+    source_points: [201]
+    rationale: >-
+      A recalibrated detector changes what a finding count means, so limits
+      from the old detector set no longer describe the process.
+    status: verified
+
+  - id: TER-SPC-013
+    pattern: unwanted
+    text: >-
+      If the sessions given for limits or a chart were measured with
+      different detector sets, then TER shall refuse them.
+    level: L2
+    source_points: [201]
+    rationale: >-
+      One chart mixing two detector sets would show a recalibration as a
+      change in the process.
+    status: verified
+
+  - id: TER-SPC-008
+    pattern: event-driven
+    text: >-
+      When TER recomputes control limits with earlier limits kept, TER shall
+      carry over every measure's tuned limits, rule selection and enabled
+      flag.
+    level: L2
+    source_points: [201]
+    rationale: >-
+      Recomputing the baseline as sessions accumulate must never discard a
+      developer's tuning.
+    status: verified
+
+  - id: TER-SPC-009
+    pattern: ubiquitous
+    text: >-
+      TER shall write session control measures with no prompt, path or code
+      content, and with every session id replaced by a hash when
+      pseudonymisation is asked for.
+    level: L2
+    source_points: [201]
+    rationale: >-
+      Baselines are computed where the private sessions are; only the
+      content-free measures need to travel.
+    status: verified
+
+  - id: TER-SPC-010
+    pattern: ubiquitous
+    text: >-
+      TER shall render each charted measure as an individuals chart above
+      its moving range chart, showing the centre line, the natural limits,
+      any tuned limit and every signal with its rule.
+    level: L2
+    source_points: [201]
+    rationale: >-
+      The chart is how a developer sees routine variation and special
+      causes at a glance.
+    status: verified
+
+  - id: TER-SPC-011
+    pattern: optional
+    text: >-
+      Where control limits are supplied to the A3, TER shall place each
+      control measure of the session against its limits and link every
+      beyond-limits signal to the findings behind that measure.
+    level: L2
+    source_points: [201]
+    rationale: >-
+      The A3 is where a developer acts; a session outside its process's
+      limits is a reason to read its root causes first.
+    status: planned

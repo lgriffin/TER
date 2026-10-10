@@ -374,6 +374,10 @@ confidence, cost and evidence event ids) · **5 Countermeasures** (per fired
 detector: CLAUDE.md lines, hook settings and scripts, settings) · **6
 Follow-up** (what to measure next run and where in the JSON).
 
+Across sessions, the scorecard measures go on XmR control charts with
+natural process limits a developer can tune
+([control-charts.md](control-charts.md), P201).
+
 ## Requirements
 
 The behaviour is specified by the EARS catalogue (`requirements/l2_explained.yaml`,
