@@ -95,6 +95,22 @@ class TestRepeatedToolCall:
             s.call("end_turn", ToolKind.OTHER, {"reason": "other"}, "ok")
         assert found(s, "repeated_tool_call") == []
 
+    def test_unobserved_repeat_across_a_prompt_is_not_a_finding(self) -> None:
+        s = Script()
+        s.prompt("first wake")
+        s.call("end_turn", ToolKind.OTHER, {"reason": "other"}, None)
+        s.prompt("second wake")
+        s.call("end_turn", ToolKind.OTHER, {"reason": "other"}, "ok")
+        assert found(s, "repeated_tool_call") == []
+
+    def test_unobserved_repeat_within_one_turn_is_uncertain(self) -> None:
+        s = Script()
+        s.prompt("check devices")
+        s.call("list_devices", ToolKind.OTHER, {}, None)
+        s.call("list_devices", ToolKind.OTHER, {}, "laptop")
+        [f] = found(s, "repeated_tool_call")
+        assert f.confidence == 0.5 and f.uncertain
+
     def test_repeat_within_one_turn_after_a_response_is_still_waste(self) -> None:
         s = Script()
         s.prompt("check devices")

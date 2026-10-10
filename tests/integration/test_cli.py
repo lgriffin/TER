@@ -12,6 +12,7 @@ FIXTURE_PATH = str(Path(__file__).parent.parent / "fixtures" / "sample_session.j
 
 
 class TestAnalyzeCommand:
+    @pytest.mark.embeddings
     def test_analyze_text_output(self, capsys):
         exit_code = main(["analyze", FIXTURE_PATH])
         assert exit_code == 0
@@ -19,6 +20,7 @@ class TestAnalyzeCommand:
         assert "TER" in output
         assert "Waste" in output
 
+    @pytest.mark.embeddings
     def test_analyze_json_output(self, capsys):
         exit_code = main(["analyze", FIXTURE_PATH, "--format", "json"])
         assert exit_code == 0
@@ -33,10 +35,12 @@ class TestAnalyzeCommand:
         exit_code = main(["analyze", "/nonexistent/file.jsonl"])
         assert exit_code == 1
 
+    @pytest.mark.embeddings
     def test_analyze_no_waste_patterns(self, capsys):
         exit_code = main(["analyze", FIXTURE_PATH, "--no-waste-patterns"])
         assert exit_code == 0
 
+    @pytest.mark.embeddings
     def test_analyze_custom_thresholds(self, capsys):
         exit_code = main(
             [
@@ -50,6 +54,7 @@ class TestAnalyzeCommand:
         )
         assert exit_code == 0
 
+    @pytest.mark.embeddings
     def test_analyze_includes_economics(self, capsys):
         exit_code = main(["analyze", FIXTURE_PATH])
         assert exit_code == 0
@@ -57,6 +62,7 @@ class TestAnalyzeCommand:
         assert "Economics" in output
         assert "Growth" in output
 
+    @pytest.mark.embeddings
     def test_analyze_json_includes_economics(self, capsys):
         exit_code = main(["analyze", FIXTURE_PATH, "--format", "json"])
         assert exit_code == 0
@@ -70,6 +76,7 @@ class TestAnalyzeCommand:
         assert "input_growth" in econ
         assert "cost_model" in econ
 
+    @pytest.mark.embeddings
     def test_analyze_custom_cost_model(self, capsys):
         exit_code = main(
             [
@@ -81,6 +88,7 @@ class TestAnalyzeCommand:
         )
         assert exit_code == 0
 
+    @pytest.mark.embeddings
     def test_analyze_cost_model_sonnet(self, capsys):
         exit_code = main(
             [
@@ -96,6 +104,7 @@ class TestAnalyzeCommand:
         exit_code = main([])
         assert exit_code == 1
 
+    @pytest.mark.embeddings
     def test_analyze_html_output(self, tmp_path, capsys):
         output = tmp_path / "report.html"
         exit_code = main(
@@ -111,6 +120,7 @@ class TestAnalyzeCommand:
         assert "Span inspector" in content
         assert capsys.readouterr().out == ""
 
+    @pytest.mark.embeddings
     def test_analyze_html_uses_default_output_path(self, tmp_path, capsys):
         source = tmp_path / "example.jsonl"
         source.write_text(

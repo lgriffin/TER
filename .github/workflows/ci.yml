@@ -38,6 +38,10 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
+    env:
+      # The embeddings extra is installed, so tests marked `embeddings` must
+      # run here, never skip (see conftest.py).
+      TER_REQUIRE_EMBEDDINGS: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

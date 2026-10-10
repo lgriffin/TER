@@ -74,8 +74,9 @@ _DOC_SUFFIXES = frozenset({".md", ".rst", ".txt", ".adoc"})
 
 #: A reasoning span adds a decision when more than this share of its content
 #: words are new: in neither the prompt nor the earlier reasoning it is
-#: compared with (TER-LEN-004). The same bound separates restated reasoning
-#: from reasoning that moves on.
+#: compared with (TER-LEN-004). Repeated reasoning uses the tighter
+#: RESTATED_NOVELTY, so a block with 20% to 25% new words neither restates
+#: nor adds a decision.
 DECISION_NOVELTY = 0.25
 #: Repeated reasoning: at most this share of a block's key words may be new
 #: (judged on real sessions, 10 Oct 2026: blocks repeating 80% or more of
@@ -257,17 +258,17 @@ class RepeatedToolCall:
             edited = bool(_edits_between(view, earlier.index, step.index))
             if step.is_validation and edited:
                 continue
+            if last_prompt > earlier.index:
+                # A new prompt is new information. Calibrated on real
+                # sessions: 13 such repeats on this project's transcripts and
+                # 4 more judged on 10 Oct 2026 (judge-l2), none of them waste.
+                continue
             before = view.completion_of.get(earlier.index)
             after = view.completion_of.get(step.index)
             if before is None or after is None:
                 confidence = 0.5
                 note = "One of the two results was not observed, so the output may have differed."
             elif before.output_hash != after.output_hash:
-                continue
-            elif last_prompt > earlier.index:
-                # A new prompt is new information. Calibrated on real
-                # sessions: 13 such repeats on this project's transcripts and
-                # 4 more judged on 10 Oct 2026 (judge-l2), none of them waste.
                 continue
             elif step.is_validation:
                 confidence = 0.85

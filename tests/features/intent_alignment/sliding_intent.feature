@@ -6,6 +6,7 @@ Feature: Sliding Window Intent Extraction
   Background:
     Given a SlidingIntentExtractor with window_size 5 and split_threshold 0.45
 
+  @embeddings
   Scenario: Single prompt produces one IntentVector
     Given user prompts:
       | prompt             |
@@ -14,18 +15,21 @@ Feature: Sliding Window Intent Extraction
     Then exactly 1 IntentVector is returned
     And the IntentVector embedding has 384 dimensions
 
+  @embeddings
   Scenario: Diverging prompts create multiple segments
     Given user prompts that shift topic from "login" to "database migration"
     And the cosine similarity between adjacent prompts drops below 0.45
     When sliding intent extraction runs
     Then 2 or more IntentVector objects are returned
 
+  @embeddings
   Scenario: Similar prompts stay in the same segment
     Given 3 user prompts all about authentication
     And their pairwise cosine similarity is above 0.45
     When sliding intent extraction runs
     Then exactly 1 IntentVector is returned
 
+  @embeddings
   Scenario: Window size enforces segment splits
     Given 7 prompts all on the same topic
     When sliding intent extraction runs

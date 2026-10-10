@@ -3,6 +3,7 @@ Feature: LLM-Assisted Intent Extraction
   I want Claude to summarise my intent as a structured goal
   So that the intent embedding is more accurate than direct embedding
 
+  @embeddings
   Scenario: LLM produces a StructuredGoal
     Given an LLM intent extractor with a valid API key
     And user prompts:
@@ -13,6 +14,7 @@ Feature: LLM-Assisted Intent Extraction
     Then a StructuredGoal is produced with primary_goal, sub_goals, constraints, and expected_outputs
     And the IntentVector confidence is 0.95
 
+  @embeddings
   Scenario: Fallback to direct embedding when no API key
     Given an LLM intent extractor with no API key
     And user prompts:
