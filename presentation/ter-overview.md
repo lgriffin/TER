@@ -184,7 +184,7 @@ Each waste also moves time and tokens into a **flow state**, which gives flow ef
 
 ---
 
-## Waste detection: eleven detectors, all with evidence
+## Waste detection: twenty detectors, all with evidence
 
 - Detectors are plugins behind the `WasteDetector` protocol, registered in `DEFAULT_REGISTRY`.
 - Each publishes its **confidence rule** in plain language.
@@ -196,9 +196,12 @@ Each waste also moves time and tokens into a **flow state**, which gives flow ef
 Fail, fix, a *different* failure, fix, pass: that is **productive iteration**, 100% flow efficiency, no findings. Only a failure that does not move after a fix is rework.
 
 <!--
-The detector catalogue: repeated_tool_call, repeated_exploration, rework_cycle,
-unvalidated_implementation, premature_implementation, excessive_planning, fragmented_edits,
-unused_context, unnecessary_handoff, repeated_reasoning, regeneration.
+The detector catalogue. Seventeen run on every session: repeated_tool_call,
+repeated_exploration, rework_cycle, unvalidated_implementation, premature_implementation,
+excessive_planning, fragmented_edits, unused_context, unnecessary_handoff, repeated_reasoning,
+regeneration, intent_drift, excessive_context, insufficient_context, unused_traversal,
+failed_route, unearned_escalation. Three more join only when the analysis has the repository
+(L3): unrelated_modification, surface_expansion, boundary_violation.
 Each has unit tests with positive, negative and boundary cases.
 -->
 
@@ -212,15 +215,14 @@ ter explain tests/golden/sessions/lean_mix.jsonl
 
 ```text
 TER explain · session golden-lean-mix
-  flow efficiency  61% of generated tokens, 61% of agent time
-  activity         value_adding 344 · necessary_non_value_adding 83 · avoidable 270 · uncertain 0
-  findings         5 confident, 0 uncertain, 1 risk(s)
-  - [0.80] overproduction: Rewrote src/retry.py in full · 138 tok · evidence 23e8557e97c5cf7b, bbef9c623af73c14
-  - [0.80] over_processing: 5 planning steps without acting · 107 tok · evidence 11dd3be920e41229, …
-  - [0.85] over_processing: Repeated validation run · 53 tok · evidence 3a6966ef0e054a01, …
-  - [0.90] over_processing: Repeated Bash call · 26 tok · evidence dc771e57dc3ec0aa, …
-  - [0.70] over_processing: 3 separate edits to src/net.py · 22 tok · evidence 201a5b895ab673e9, …
-  - [0.85] defects: Responded after a failing check · risk · evidence c546d6039402b9c4, …
+  flow efficiency  76% of generated tokens, 79% of agent time
+  activity         value_adding 344 · necessary_non_value_adding 186 · avoidable 167 · uncertain 0
+  findings         4 confident, 0 uncertain, 1 risk(s)
+  - [0.80] overproduction: Rewrote src/retry.py in full · 138 tok · evidence 525128d61f9d3cdd, b5390d420b1defb6
+  - [0.85] over_processing: Repeated validation run · 53 tok · evidence 1774d5b4e3612ff4, …
+  - [0.90] over_processing: Repeated Bash call · 26 tok · evidence a583401c59d12ccd, …
+  - [0.70] motion: 3 edits to src/net.py over 3 round trips · 22 tok · evidence e7fe263036935cb0, …
+  - [0.85] defects: Responded after a failing check · risk · evidence 41d76c37c2c2c618, …
 ```
 
 Confidence first, waste type, a plain-words title, its cost, and the event ids to check it.
@@ -340,7 +342,7 @@ SDKs, no IO. Prices are data in a dated price book (ADR 0003), never hard-coded.
 
 | Rule | Enforced by |
 |---|---|
-| Dependencies point inward; the domain is pure | Seven `import-linter` contracts, `lint-imports` and `tests/architecture` |
+| Dependencies point inward; the domain is pure | Eight `import-linter` contracts, `lint-imports` and `tests/architecture` |
 | TER 3 scores never drift by accident | Golden snapshots; a scoring change is a committed snapshot diff |
 | Every adapter honours its port | One contract suite per port, run against real adapters **and** fakes |
 | Live analysis equals batch analysis | `tests/equivalence` on the golden corpus |
@@ -375,16 +377,153 @@ redacted before sharing.
 
 ---
 
-## Maturity levels: L0 to L6
+## L3 Grounded: the repository behind the analysis
 
-![w:1080](img/maturity.svg)
+Up to L2, TER judges a session from its events alone. At L3 it also asks the **repository the agent worked in**, checked out at the session's start commit.
 
-A level is claimed only when **every** requirement at that level is verified by a passing test. CI gates L0, L1 and L2 today. The level is also a runtime ceiling (planned, TER-INT-001).
+- One provider-neutral port, **`RepositoryEvidence`**: files, search, tests that import a module, symbols, imports, call edges, diff and history.
+- Engines are interchangeable **capabilities**, each answering only what it can read and returning `None` rather than guessing:
+
+| Engine | Reads |
+|---|---|
+| `lexical` | files, text search, test links: the deterministic baseline |
+| `python-ast` | Python symbols, imports and call edges |
+| `syntax` (default) | Python, TypeScript, JavaScript, Svelte and Vue imports and calls |
+| `git` | the working-tree diff and each file's history |
+
+Without `--repo`, every L2 command and its output is unchanged.
 
 <!--
-Requirements verified, from the README: L0 23 of 24, L1 14 of 19, L2 33 of 55,
-L3 2 of 20, L4 to L6 none yet. L2 is built and gated, with more detectors and a real
-corpus to come.
+Every engine passes the same contract suite, on a Python repository and on a
+TypeScript/Svelte monorepo. Evidence reaches the domain only through the port, enforced by an
+import contract and an architecture test (TER-EVD-001).
+-->
+
+---
+
+## The expected change surface
+
+<!-- _class: small -->
+
+For each task (a prompt and the work up to the next one), built from structure, never from token counts or word scores:
+
+1. **Seeds**: the files the prompt names, by path, module or a symbol they define.
+2. **Neighbours**: files a seed imports or is imported by.
+3. **Tests**: test modules that import a seed or a neighbour.
+
+Every edit is then placed **inside**, **expansion** (one import link out) or **unrelated** (no link). Added imports are checked against the repository's own `import-linter` or `dependency-cruiser` contracts.
+
+```text
+$ python -m ter explain session.jsonl --repo ../shop-at-start
+  change surface   1 task(s); edits: 2 inside, 0 expansion, 1 unrelated, … 2 contract(s) from pyproject.toml
+  evidence usage   1 read(s): 1 used (1 by a change, command or check), 0 unused (0 tok), 0 pending
+  - [0.60 (uncertain)] overproduction: Edit outside the change surface: src/app/reports/summary.py · 56 tok
+  - [0.90] defects: Import breaks contract layers: app.domain.model -> app.service.checkout · risk
+```
+
+<!--
+The output is real, from the synthetic shop repository the L3 tests use: the prompt asked to
+fix rounding in pricing.py, the agent also edited an unrelated report module and added an
+import from the domain into the service layer. Seed choice also covers prompts that name no
+file: they inherit the last named seeds when the intent says it is a refinement.
+-->
+
+---
+
+## Grounded detectors, with honest confidence
+
+| Detector | Lean waste | Kind | Confidence |
+|---|---|---|---|
+| `unrelated_modification` | Overproduction | waste | **0.60 at most**: always uncertain, a pointer for review |
+| `surface_expansion` | Overproduction | waste | 0.60 at most: callers often must change with what they call |
+| `boundary_violation` | Defects | risk | **0.90** when the bad import survives the session's last edit |
+
+### Real data lowered the first claim
+
+On 52 of Leigh's sessions, with each repository at its start commit, **0 of 29** judged `unrelated_modification` findings were truly unrelated: they were tests, CI, docs and modules the task implied but did not name.
+
+So the confident case dropped from 0.80 to 0.60. An import graph is not the change surface; the rule earns confidence back only on a judged corpus with true positives.
+
+<!--
+This is the TER rule working as intended: a detector earns confidence on judged real
+sessions, not by construction. Countermeasures in the A3: keep each task's edits inside its
+surface, make ripple edits a stated decision, run lint-imports in a PostToolUse hook.
+-->
+
+---
+
+## Context: what the agent read, used and lacked
+
+<!-- _class: small -->
+
+### Context bundles
+
+Instead of letting the agent read its way to the evidence, TER can hand it a **bundle**: the evidence selected for the next decision, inside a token budget, each fragment with its reason.
+
+```bash
+python -m ter context bundle session.jsonl --repo ../repo-at-start --budget 4000 --out bundle.md
+python -m ter context report session.jsonl --repo ../repo-at-start --critical critical.json
+```
+
+TER then measures it: **precision**, **recall**, recall of a critical-evidence list before the first dependent edit, unused context as **inventory** cost and missing context as **defect** risk.
+
+### Evidence the session gathered
+
+- **Evidence usage**: for each read, did a later decision, edit or test use it?
+- **Outcome value**: each exploration, reasoning and validation step judged against what the intent required.
+- **Drift**: exploration that leaves the intent and touches nothing the change depends on.
+- **Evidence graph**: intent, observations, decisions, actions, changes and validation, linked.
+
+<!--
+Bundles are advisory at L3: they are built and measured, never injected into a live session.
+The TER 3 context orchestrator was the inspiration; nothing of it is imported. Context recall
+on real sessions still needs critical-evidence lists (issue #42).
+-->
+
+---
+
+## Model routing, advisory
+
+TER names which model **role** each task should have run on, and where it should have escalated.
+
+- Models are referenced only by **role** (`explore`, `implement`, `review`, `escalate`); profiles are data.
+- Each task is classed by complexity, ambiguity, risk, scope and validation needs, with evidence for each.
+- Escalation needs a detector signal with evidence; otherwise the profile is kept.
+- `unearned_escalation`: an escalation that added no new evidence is **waiting** waste.
+
+```text
+$ python -m ter route session.jsonl --repo ../shop-at-start
+  task 0  steps 0-11  change  role implement -> escalate
+    risk       high   edits outside its change surface …; breaks an architecture contract
+    decision   boundary_violation (0.90) cites 2 event(s) of the task: escalate implement -> escalate
+```
+
+**Advisory and offline:** below L4 the router never answers a hook or changes a live session.
+
+<!--
+An architecture test checks that no ter module spells a model id in a string literal
+(TER-RTE-001), and test_no_intervention checks that every hook still answers {} below L4.
+-->
+
+---
+
+## Maturity levels: L0 to L6
+
+<!-- _class: small -->
+
+![w:900](img/maturity.svg)
+
+A level is claimed only when **every** requirement at that level is verified by a passing test. **TER 4 is at L3 Grounded**: CI gates L0, L1, L2 and L3, so main cannot slip back. The level is also a runtime ceiling: below L4, TER delivers no intervention at all.
+
+| | L0 | L1 | L2 | L3 | L4 | L5 | L6 |
+|---|---|---|---|---|---|---|---|
+| Requirements verified | 25/25 | 22/22 | 54/54 | **34/34** | 0/16 | 0/10 | 11/19 |
+
+<!--
+Counts from requirements/l*.yaml on main, 146 of 180 in all. The L6 requirements already
+verified are the ones that did not have to wait: the GARE second harness and the stack
+comparison. The ceiling is ter.domain.Maturity.permits, checked by
+tests/architecture/test_no_intervention.py (TER-INT-001).
 -->
 
 ---
@@ -398,11 +537,11 @@ corpus to come.
 
 ```bash
 ter-req lint --tests tests
-ter-req trace --results req-trace.json --gate L2
+ter-req trace --results req-trace.json --gate L3
 ter-req points --check
 ```
 
-**Today:** 50 points done, 49 partial, 101 not started.
+**Today:** 146 of 180 requirements verified; 101 points done, 43 partial, 56 not started.
 
 <!--
 Requirements and points move in the same PR as the code. A point is done only when its rules
@@ -413,19 +552,46 @@ are verified by tests. docs/ter4/points.md is generated, and CI fails when it is
 
 ## Real data, redacted first
 
-Claims about real agent behaviour need real sessions. Synthetic tests are not enough.
+Claims about real agent behaviour need real sessions. Synthetic tests prove the rules; real sessions show whether they are the right rules.
 
-- **The rule:** 46 points depend on real data and can **never** be marked done from synthetic tests alone (issues #34 to #46).
-- **The corpus importer** redacts secrets, paths and file contents *before* anything is written, with a per-session redaction report and a manifest.
-- Project names become stable pseudonyms; nothing raw is ever committed.
+- **The rule:** 47 points depend on real data and can **never** be marked done from synthetic tests alone.
+- **The corpus importer** redacts secrets, paths and file contents *before* anything is written; nothing raw is ever committed.
 
 ```bash
 python -m ter corpus import ~/.claude/projects --out ~/ter-data/corpus
+python -m ter hook --record ~/ter-data/hooks < payload.json
 ```
 
 <!--
-The tools to collect real data exist: corpus import and the hook recorder. The sessions
-themselves are still to come. That is the honest state.
+The importer writes a per-session redaction report and a manifest; project names become
+stable pseudonyms. Content-free summaries reach the repository, never sessions.
+-->
+
+---
+
+## What 286 real sessions taught us
+
+<!-- _class: small -->
+
+On 9 October 2026, TER ran over Leigh's own sessions.
+
+| Check | Result |
+|---|---|
+| Record coverage, 286 sessions | **100%** of records mapped or documented, after fixes |
+| Live hooks against transcripts | Every prompt, tool call and Stop matched on three real recordings |
+| Confident L2 findings, one project | **23 claimed, 0 true**: each rule fixed structurally |
+| `unrelated_modification`, 52 sessions | **0 of 29** truly unrelated: capped at 0.60, never counted |
+| Outcomes, 61 sessions | Derived from commits and PRs: 29 merged, 4 closed, 24 no commit |
+| Second harness | A real GARE run translated with token totals equal to GARE's |
+
+> **Confident is a claim, and real data disproved most of the first claims.** A detector earns confidence on judged real sessions, not by construction.
+
+<!--
+Other lessons from strategy.md: event identity changes counts (giving parallel tool calls
+their own ids moved fragmented_edits by a factor of four, then a round-trip rule brought it
+back down); observational stack comparisons are confounded by repository; outcomes can be
+derived from PRs with known blind spots. Still unproven on real data: per-category precision
+as a number, context recall, escalation value, and GARE failover.
 -->
 
 ---
@@ -454,13 +620,35 @@ Coupling is by **file contract, not import**: adapters read another system's fil
 |---|---|
 | Outcome and acceptance verdict, `OutcomeSource` port with JUnit reference adapter | **Built** |
 | Import rule: `gare`, `pydantic`, `httpx` forbidden in the domain and core | **Built**, enforced in CI |
-| GARE outcome adapter reading GARE's recorded runs (#52) | Planned: needs GARE schema and a recorded run |
-| GARE as a second session source, proving the event contract is harness-neutral | Planned (L6) |
-| Tokens per verified outcome; repair-loop detector over GARE attempts | Planned |
+| GARE as a second session source (`gare-run`), routing lifecycle events in `ter.event` | **Built**: L6 second harness verified |
+| A real GARE run, with token totals equal to GARE's own export | **Checked** on one local-model run |
+| Real failover across routes; tokens per verified outcome | Planned (issue #55) |
 
 <!--
 GARE's concepts are re-specified as EARS requirements, not vendored. New goals GARE brings
 become points past P200 with a recorded origin; P001 to P200 stay Leigh's verbatim text.
+The real run used a local model, and GARE skipped the dead route rather than failing over,
+so failover is still unproven.
+-->
+
+---
+
+## Next: L4 Advisory
+
+TER tells the developer, **during** the session, what it sees and why, with the evidence. It changes nothing the agent reads, and records every piece of advice and what followed.
+
+- **Intervention engine** reading only structured detector signals, never raw events.
+- **Declarative policies**: evidence required, confidence threshold, cooldown, permitted action; approved by a human.
+- **Guards**: no advice on token counts alone, below 0.70, in a cooldown, or for a waste category not yet judged on real data.
+- **Ledger**: one record per intervention, then the developer's response and flow before and after.
+
+**Shadow mode first**: replay recorded sessions, write what TER *would* have advised, judge it, and only then turn advice on.
+
+<!--
+Exit gate: all 16 L4 requirements verified, --gate L4 in CI, and test_no_intervention made
+ceiling-aware: at L4 hooks may show user-facing messages, never additionalContext, a
+decision or continue. Data needed from Leigh: verdicts on open confident findings, hook
+recordings with advice on, a week or two of sessions with advice and whether it helped.
 -->
 
 ---
@@ -469,17 +657,18 @@ become points past P200 with a recorded origin; P001 to P200 stay Leigh's verbat
 
 | Level | Adds | Status |
 |---|---|---|
-| **L3 Grounded** | Repository evidence: symbols, tests, git diff, change surface | Started: evidence-graph edges |
-| **L4 Advisory** | Intervention engine, declarative policies, an intervention ledger | Planned |
-| **L5 Corrective** | Routing, opt-in corrective actions, calibration | Planned |
-| **L6 Learning** | Closed loop, a second harness, research datasets | Planned |
+| **L3 Grounded** | Repository evidence, change surface, contracts, context bundles, advisory routing | **Met**, gated in CI |
+| **L4 Advisory** | Intervention engine, declarative policies, an intervention ledger | Next |
+| **L5 Corrective** | Annotation, agreement, precision and recall with confidence intervals, benchmarks, opt-in corrections | Planned |
+| **L6 Learning** | Self-suspending policies, controlled experiments, research datasets | Second harness and stack comparison built |
 
-Near term: real sessions in the corpus, calibrating detectors and the live hook path against them, more detectors, and the GARE packs.
+Each level moves from describing waste to preventing it, and none acts on a session before the levels below it are shown right on real data.
 
 <!--
-Each later level is a step from describing waste to preventing it: explain after the fact
-(L2), ground in the repository (L3), advise during the session (L4), correct with consent
-(L5), and learn from the ledger of what worked (L6).
+Explain after the fact (L2), ground in the repository (L3), advise during the session (L4),
+correct with consent where calibration shows it is safe (L5), and learn from the ledger of
+what worked (L6). The full roadmap, entry criteria, exit gates and data needed per level are
+in docs/ter4/strategy.md.
 -->
 
 ---
