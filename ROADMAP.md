@@ -468,8 +468,8 @@ python -m pytest \
 The refactor also:
 
 - Bumped the package version to `0.3.0`
-- Added `docs/005-module-split-v03.md`
-- Added a v0.3.0 entry to `UPDATES.md`
+- Added `docs/history/005-module-split-v03.md`
+- Added a v0.3.0 entry to `UPDATES.md` (now `docs/history/UPDATES.md`)
 - Removed repository caches and Git metadata from the distributed v03 archive
 
 ### Acceptance criteria status
@@ -842,7 +842,7 @@ unless they contain new task information.
 ```text
 src/ter_calculator/intent_construction.py
 tests/unit/test_intent_construction.py
-docs/010-weighted-intent-construction-v08.md
+docs/history/010-weighted-intent-construction-v08.md
 ```
 
 ### Acceptance criteria status
@@ -900,7 +900,7 @@ Added assets include:
 src/ter_calculator/tool_fingerprints.py
 tests/unit/test_tool_fingerprints.py
 benchmarks/tool_call_adversarial.jsonl
-docs/008-structured-tool-fingerprints-v06.md
+docs/history/008-structured-tool-fingerprints-v06.md
 ```
 
 ### TER v1.07 — Blended repetition scoring
@@ -939,7 +939,7 @@ Added assets include:
 ```text
 src/ter_calculator/repetition_scoring.py
 tests/unit/test_repetition_scoring.py
-docs/009-blended-repetition-v07.md
+docs/history/009-blended-repetition-v07.md
 ```
 
 ### Compatibility and threshold policy
@@ -1130,7 +1130,7 @@ This allows exact highlighting and reconstruction of each segment from its paren
 ```text
 src/ter_calculator/span_segmentation.py
 tests/unit/test_span_segmentation.py
-docs/011-fine-span-segmentation-v1.09.md
+docs/history/011-fine-span-segmentation-v1.09.md
 ```
 
 ### Acceptance criteria status
@@ -1192,7 +1192,7 @@ source block index
 ```text
 src/ter_calculator/jsonl_identity.py
 tests/unit/test_jsonl_identity_v1.10.py
-docs/012-jsonl-identity-provenance-v1.10.md
+docs/history/012-jsonl-identity-provenance-v1.10.md
 ```
 
 ### Compatibility
@@ -1405,7 +1405,7 @@ embedding-model choice.
 ```text
 src/ter_calculator/uncertainty.py
 tests/unit/test_explainability_uncertainty_v1.11.py
-docs/013-explainability-uncertainty-v1.11.md
+docs/history/013-explainability-uncertainty-v1.11.md
 ```
 
 ### Validation
