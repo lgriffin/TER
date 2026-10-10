@@ -40,6 +40,7 @@ __all__ = [
     "DECISION_NOVELTY",
     "DOC_EDITS_WORTH_A_CHECK",
     "REGENERATED_SHARE",
+    "JUDGED_CONFIDENCE",
     "RESTATED_NOVELTY",
     "DEFAULT_REGISTRY",
     "ContextBand",
@@ -86,6 +87,9 @@ DOC_EDITS_WORTH_A_CHECK = 3
 #: A whole-file rewrite is regeneration only when at least this share of the
 #: new file repeats existing content (less is mostly new work).
 REGENERATED_SHARE = 0.30
+#: Confidence of a detector whose judged sample was 10 of 10 waste: the 95%
+#: Wilson lower bound of that sample (first judged sample, 10 Oct 2026).
+JUDGED_CONFIDENCE = 0.72
 
 
 @dataclass(frozen=True)
@@ -806,10 +810,11 @@ class UnusedContext:
     confidence_rule: str = (
         "Judged only once the agent has responded after the read. A read counts "
         "as used when a later reasoning, response or tool call names the file, "
-        "or names something the file defines, or edits it. Otherwise 0.65 when "
-        "the file defined names that were never used, 0.55 when it defined none. "
-        "Always uncertain: reading to rule something out is legitimate, and only "
-        "repository evidence (L3) can tell."
+        "or names something the file defines, or edits it. Otherwise 0.72. "
+        "Calibrated on real sessions: 10 of 10 judged findings were waste "
+        "(10 Oct 2026), so it counts at 0.72, the 95% lower bound of that "
+        "sample. Reading to rule something out is legitimate, so a larger "
+        "sample or repository evidence (L3) may lower it again."
     )
 
     def detect(self, view: SessionView) -> Iterable[Finding]:
@@ -836,7 +841,7 @@ class UnusedContext:
             yield _finding(
                 self,
                 view,
-                confidence=0.65 if step.identifiers else 0.55,
+                confidence=JUDGED_CONFIDENCE,
                 title=f"Read {_short(path)} and never used it",
                 explanation=(
                     f"Nothing the agent did after reading {path} names the file"
@@ -885,8 +890,11 @@ class UnnecessaryHandoff:
     confidence_rule: str = (
         "A later tool call by the agent itself shares at least 3 content words "
         "with the handoff's task and covers at least half of the task's words. "
-        "Confidence 0.45 + 0.40 × coverage, capped at 0.85. The handoff (and "
-        "its waiting time) is the waste; the agent's own call is kept."
+        "Confidence 0.45 + 0.40 × coverage, at least 0.72 and capped at 0.85. "
+        "Calibrated on real sessions: 10 of 10 judged findings were waste "
+        "(10 Oct 2026); 0.72 is the 95% lower bound of that sample. The "
+        "handoff (and its waiting time) is the waste; the agent's own call is "
+        "kept."
     )
 
     def detect(self, view: SessionView) -> Iterable[Finding]:
@@ -918,7 +926,7 @@ class UnnecessaryHandoff:
             yield _finding(
                 self,
                 view,
-                confidence=min(0.85, 0.45 + 0.4 * score),
+                confidence=min(0.85, max(JUDGED_CONFIDENCE, 0.45 + 0.4 * score)),
                 title=f"Delegated {_short(handoff.subject)}, then did it directly",
                 explanation=(
                     f"The agent handed '{_short(handoff.subject)}' to a subagent, then ran "
@@ -1280,9 +1288,9 @@ class ExcessiveContext:
         "searches, fetches, handoffs, exploring shell commands) before the first "
         "edit: a finding when they exceed per_file (3) × files the task changes "
         "+ slack (3). Items past the band that are not reads of a changed file "
-        "are the waste. Confidence 0.55 + 0.02 per item over the band, capped "
-        "at 0.65: always uncertain at L2, since only repository scope (L3) can "
-        "tell whether the extra context was needed."
+        "are the waste. Confidence 0.72. Calibrated on real sessions: 10 of "
+        "10 judged findings were waste (10 Oct 2026); 0.72 is the 95% lower "
+        "bound of that sample."
     )
 
     def detect(self, view: SessionView) -> Iterable[Finding]:
@@ -1303,7 +1311,7 @@ class ExcessiveContext:
             yield _finding(
                 self,
                 view,
-                confidence=min(0.65, 0.55 + 0.02 * over),
+                confidence=JUDGED_CONFIDENCE,
                 title=f"{len(before)} context items before changing {len(changed)} file(s)",
                 explanation=(
                     f"The task acquired {len(before)} distinct context items before its "
@@ -1444,8 +1452,9 @@ class UnusedTraversal:
         "Judged only once the agent has responded after it. A search (Grep, "
         "Glob) or traversing shell command (ls, find, tree, rg, grep) whose "
         "output lists file names, none of which a later event reads, edits or "
-        "names: 0.60. Always uncertain at L2: a traversal can rule a place out, "
-        "and only repository evidence (L3) can tell. Empty or unobserved output "
+        "names: 0.72. Calibrated on real sessions: 10 of 10 judged findings "
+        "were waste (10 Oct 2026); 0.72 is the 95% lower bound of that "
+        "sample. Empty or unobserved output "
         "and repeats of an earlier traversal (left to repeated_exploration) are "
         "not findings."
     )
@@ -1471,7 +1480,7 @@ class UnusedTraversal:
             yield _finding(
                 self,
                 view,
-                confidence=0.6,
+                confidence=JUDGED_CONFIDENCE,
                 title=f"Traversal {_short(step.subject)} led nowhere",
                 explanation=(
                     f"{step.native_name} listed {len(listed)} file name(s) ({shown}) "

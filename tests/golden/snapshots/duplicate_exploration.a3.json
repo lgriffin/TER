@@ -31,7 +31,7 @@
             "label": "Avoidable share of generated tokens",
             "note": "",
             "unit": "ratio",
-            "value": 0.1289
+            "value": 0.2079
           }
         ],
         "question": "How much of the resource became value?"
@@ -44,14 +44,14 @@
             "label": "Flow efficiency (tokens)",
             "note": "",
             "unit": "ratio",
-            "value": 0.8711
+            "value": 0.7921
           },
           {
             "key": "flow_efficiency_time",
             "label": "Flow efficiency (time)",
             "note": "",
             "unit": "ratio",
-            "value": 0.7895
+            "value": 0.5789
           },
           {
             "key": "wip_peak",
@@ -147,21 +147,21 @@
             "label": "Avoidable generated tokens",
             "note": "",
             "unit": "tokens",
-            "value": 49
+            "value": 79
           },
           {
             "key": "waste_context_tokens",
             "label": "Avoidable context tokens",
             "note": "",
             "unit": "tokens",
-            "value": 64
+            "value": 95
           },
           {
             "key": "waste_seconds",
             "label": "Avoidable agent time",
             "note": "",
             "unit": "seconds",
-            "value": 12.0
+            "value": 24.0
           }
         ],
         "question": "What did the session consume, and how much was waste?"
@@ -181,7 +181,7 @@
             "label": "Uncertain findings",
             "note": "",
             "unit": "count",
-            "value": 2
+            "value": 0
           },
           {
             "key": "unvalidated_edits_at_end",
@@ -228,6 +228,11 @@
         "waste": "motion"
       },
       {
+        "findings": 2,
+        "tokens": 30,
+        "waste": "inventory"
+      },
+      {
         "findings": 1,
         "tokens": 17,
         "waste": "over_processing"
@@ -235,15 +240,15 @@
     ],
     "scorecard": {
       "activity_seconds": {
-        "avoidable": 12.0,
+        "avoidable": 24.0,
         "necessary_non_value_adding": 21.0,
-        "uncertain": 12.0,
+        "uncertain": 0.0,
         "value_adding": 12.0
       },
       "activity_tokens": {
-        "avoidable": 49,
+        "avoidable": 79,
         "necessary_non_value_adding": 93,
-        "uncertain": 30,
+        "uncertain": 0,
         "value_adding": 208
       },
       "agent_seconds": 57.0,
@@ -251,12 +256,12 @@
         "components": [
           {
             "name": "Flow efficiency (tokens)",
-            "value": 0.8711,
+            "value": 0.7921,
             "weight": 0.3333
           },
           {
             "name": "Flow efficiency (time)",
-            "value": 0.7895,
+            "value": 0.5789,
             "weight": 0.3333
           },
           {
@@ -266,24 +271,24 @@
           }
         ],
         "formula": "Unweighted mean of Flow efficiency (tokens), Flow efficiency (time), TER.",
-        "value": 0.7699
+        "value": 0.6734
       },
       "context_tokens": 187,
       "developer_seconds": 0.0,
-      "findings": 3,
-      "flow_efficiency_time": 0.7895,
-      "flow_efficiency_tokens": 0.8711,
+      "findings": 5,
+      "flow_efficiency_time": 0.5789,
+      "flow_efficiency_tokens": 0.7921,
       "flow_seconds": {
-        "inventory": 0.0,
-        "progressing": 45.0,
+        "inventory": 12.0,
+        "progressing": 33.0,
         "recovering": 0.0,
         "repeating": 12.0,
         "reworking": 0.0,
         "waiting": 0.0
       },
       "flow_tokens": {
-        "inventory": 0,
-        "progressing": 331,
+        "inventory": 30,
+        "progressing": 301,
         "recovering": 0,
         "repeating": 49,
         "reworking": 0,
@@ -310,14 +315,14 @@
         "method": "TER 3, offline (regex-v1 tokens, lexical-hash-384 embeddings)",
         "value": 0.6491
       },
-      "uncertain_findings": 2,
-      "uncertain_waste_tokens": 30,
+      "uncertain_findings": 0,
+      "uncertain_waste_tokens": 0,
       "validation_runs": 1,
       "validations_failed": 0,
       "validations_passed": 0,
-      "waste_context_tokens": 64,
-      "waste_seconds": 12.0,
-      "waste_tokens": 49
+      "waste_context_tokens": 95,
+      "waste_seconds": 24.0,
+      "waste_tokens": 79
     },
     "wip": {
       "edits_opened": 2,
@@ -713,7 +718,7 @@
         "path": "src/utils.py",
         "request_id": "04f87d31174f38ff",
         "tokens": 22,
-        "uncertain": true
+        "uncertain": false
       },
       {
         "carried_turns": 6,
@@ -722,7 +727,7 @@
         "path": "src/config.py",
         "request_id": "d9eb8e056a8c4e06",
         "tokens": 9,
-        "uncertain": true
+        "uncertain": false
       }
     ],
     "unused_carried_tokens": 208,
@@ -765,24 +770,6 @@
         {
           "kind": "claude_md",
           "language": "markdown",
-          "snippet": "- When you notice you are restating an earlier plan, act on it; re-plan only when new evidence contradicts it.",
-          "text": "Discourage re-deriving the same plan."
-        }
-      ],
-      "addresses": [
-        "repeated_reasoning:546f400bea474093"
-      ],
-      "detector": "repeated_reasoning",
-      "rationale": "1 finding(s), 17 generated tokens: Reasoning restated.",
-      "title": "Act on a decision instead of restating it",
-      "uncertain": false,
-      "waste": "over_processing"
-    },
-    {
-      "actions": [
-        {
-          "kind": "claude_md",
-          "language": "markdown",
           "snippet": "- Before opening a file, name what you expect to learn from it; skip files the task and the code you have read do not point to.",
           "text": "Ask the agent to justify reads, and give it a map so it needs fewer."
         },
@@ -798,10 +785,28 @@
         "unused_context:d9eb8e056a8c4e06"
       ],
       "detector": "unused_context",
-      "rationale": "2 finding(s), 30 generated tokens: Read src/utils.py and never used it; Read src/config.py and never used it. All below the confidence threshold: verify before acting.",
+      "rationale": "2 finding(s), 30 generated tokens: Read src/utils.py and never used it; Read src/config.py and never used it.",
       "title": "Read with a purpose",
-      "uncertain": true,
+      "uncertain": false,
       "waste": "inventory"
+    },
+    {
+      "actions": [
+        {
+          "kind": "claude_md",
+          "language": "markdown",
+          "snippet": "- When you notice you are restating an earlier plan, act on it; re-plan only when new evidence contradicts it.",
+          "text": "Discourage re-deriving the same plan."
+        }
+      ],
+      "addresses": [
+        "repeated_reasoning:546f400bea474093"
+      ],
+      "detector": "repeated_reasoning",
+      "rationale": "1 finding(s), 17 generated tokens: Reasoning restated.",
+      "title": "Act on a decision instead of restating it",
+      "uncertain": false,
+      "waste": "over_processing"
     }
   ],
   "current_state": {
@@ -817,7 +822,7 @@
         "uncertain_tokens": 0
       },
       {
-        "avoidable_tokens": 32,
+        "avoidable_tokens": 62,
         "context_tokens": 159,
         "findings": [
           "repeated_exploration:db5d89ed876d571f",
@@ -829,7 +834,7 @@
         "stage": "explore",
         "steps": 6,
         "tokens": 94,
-        "uncertain_tokens": 30
+        "uncertain_tokens": 0
       },
       {
         "avoidable_tokens": 17,
@@ -919,13 +924,13 @@
       "waste": "motion"
     },
     {
-      "confidence_rule": "Judged only once the agent has responded after the read. A read counts as used when a later reasoning, response or tool call names the file, or names something the file defines, or edits it. Otherwise 0.65 when the file defined names that were never used, 0.55 when it defined none. Always uncertain: reading to rule something out is legitimate, and only repository evidence (L3) can tell.",
+      "confidence_rule": "Judged only once the agent has responded after the read. A read counts as used when a later reasoning, response or tool call names the file, or names something the file defines, or edits it. Otherwise 0.72. Calibrated on real sessions: 10 of 10 judged findings were waste (10 Oct 2026), so it counts at 0.72, the 95% lower bound of that sample. Reading to rule something out is legitimate, so a larger sample or repository evidence (L3) may lower it again.",
       "id": "unused_context",
       "kind": "waste",
       "waste": "inventory"
     },
     {
-      "confidence_rule": "A later tool call by the agent itself shares at least 3 content words with the handoff's task and covers at least half of the task's words. Confidence 0.45 + 0.40 × coverage, capped at 0.85. The handoff (and its waiting time) is the waste; the agent's own call is kept.",
+      "confidence_rule": "A later tool call by the agent itself shares at least 3 content words with the handoff's task and covers at least half of the task's words. Confidence 0.45 + 0.40 × coverage, at least 0.72 and capped at 0.85. Calibrated on real sessions: 10 of 10 judged findings were waste (10 Oct 2026); 0.72 is the 95% lower bound of that sample. The handoff (and its waiting time) is the waste; the agent's own call is kept.",
       "id": "unnecessary_handoff",
       "kind": "waste",
       "waste": "handoffs"
@@ -949,7 +954,7 @@
       "waste": "overproduction"
     },
     {
-      "confidence_rule": "Per task (prompt), counting distinct context items (file reads, searches, fetches, handoffs, exploring shell commands) before the first edit: a finding when they exceed per_file (3) × files the task changes + slack (3). Items past the band that are not reads of a changed file are the waste. Confidence 0.55 + 0.02 per item over the band, capped at 0.65: always uncertain at L2, since only repository scope (L3) can tell whether the extra context was needed.",
+      "confidence_rule": "Per task (prompt), counting distinct context items (file reads, searches, fetches, handoffs, exploring shell commands) before the first edit: a finding when they exceed per_file (3) × files the task changes + slack (3). Items past the band that are not reads of a changed file are the waste. Confidence 0.72. Calibrated on real sessions: 10 of 10 judged findings were waste (10 Oct 2026); 0.72 is the 95% lower bound of that sample.",
       "id": "excessive_context",
       "kind": "waste",
       "waste": "inventory"
@@ -961,7 +966,7 @@
       "waste": "defects"
     },
     {
-      "confidence_rule": "Judged only once the agent has responded after it. A search (Grep, Glob) or traversing shell command (ls, find, tree, rg, grep) whose output lists file names, none of which a later event reads, edits or names: 0.60. Always uncertain at L2: a traversal can rule a place out, and only repository evidence (L3) can tell. Empty or unobserved output and repeats of an earlier traversal (left to repeated_exploration) are not findings.",
+      "confidence_rule": "Judged only once the agent has responded after it. A search (Grep, Glob) or traversing shell command (ls, find, tree, rg, grep) whose output lists file names, none of which a later event reads, edits or names: 0.72. Calibrated on real sessions: 10 of 10 judged findings were waste (10 Oct 2026); 0.72 is the 95% lower bound of that sample. Empty or unobserved output and repeats of an earlier traversal (left to repeated_exploration) are not findings.",
       "id": "unused_traversal",
       "kind": "waste",
       "waste": "motion"
@@ -1008,7 +1013,7 @@
     },
     {
       "activity_class": "avoidable",
-      "confidence": 0.65,
+      "confidence": 0.72,
       "context_tokens": 22,
       "detector": "unused_context",
       "evidence": [
@@ -1023,7 +1028,7 @@
       "subject": "src/utils.py",
       "title": "Read src/utils.py and never used it",
       "tokens": 15,
-      "uncertain": true,
+      "uncertain": false,
       "waste": "inventory",
       "waste_events": [
         "04f87d31174f38ff",
@@ -1058,7 +1063,7 @@
     },
     {
       "activity_class": "avoidable",
-      "confidence": 0.65,
+      "confidence": 0.72,
       "context_tokens": 9,
       "detector": "unused_context",
       "evidence": [
@@ -1073,7 +1078,7 @@
       "subject": "src/config.py",
       "title": "Read src/config.py and never used it",
       "tokens": 15,
-      "uncertain": true,
+      "uncertain": false,
       "waste": "inventory",
       "waste_events": [
         "d9eb8e056a8c4e06",
@@ -1114,7 +1119,7 @@
     {
       "current": "2",
       "how": "findings[detector=unused_context]",
-      "metric": "Files read and never used (uncertain)",
+      "metric": "Files read and never used",
       "target": "fewer"
     },
     {
@@ -1124,13 +1129,13 @@
       "target": "fewer"
     },
     {
-      "current": "87%",
+      "current": "79%",
       "how": "scorecard.flow_efficiency_tokens",
       "metric": "Agentic flow efficiency (tokens)",
       "target": "higher"
     },
     {
-      "current": "13%",
+      "current": "21%",
       "how": "scorecard.activity_tokens.avoidable",
       "metric": "Avoidable share of generated tokens",
       "target": "lower"
@@ -1298,7 +1303,7 @@
       ]
     }
   ],
-  "problem": "13% of the 380 tokens the agent generated went to avoidable work across 3 confident finding(s); 2 further finding(s) covering 30 tokens are uncertain; flow efficiency is 87% of tokens and 79% of agent time.",
+  "problem": "21% of the 380 tokens the agent generated went to avoidable work across 5 finding(s); flow efficiency is 79% of tokens and 58% of agent time.",
   "root_causes": [
     {
       "activity_class": "avoidable",
@@ -1324,6 +1329,30 @@
       "waste_events": [
         "db5d89ed876d571f",
         "00e63e3f599e0da3"
+      ]
+    },
+    {
+      "activity_class": "avoidable",
+      "confidence": 0.72,
+      "context_tokens": 22,
+      "detector": "unused_context",
+      "evidence": [
+        "04f87d31174f38ff",
+        "a03907943c97b102"
+      ],
+      "explanation": "Nothing the agent did after reading src/utils.py names the file or any of the 1 name(s) it defines. Its 22 tokens stayed in the context as inventory.",
+      "id": "unused_context:04f87d31174f38ff",
+      "kind": "waste",
+      "seconds": 6.0,
+      "share": 1.0,
+      "subject": "src/utils.py",
+      "title": "Read src/utils.py and never used it",
+      "tokens": 15,
+      "uncertain": false,
+      "waste": "inventory",
+      "waste_events": [
+        "04f87d31174f38ff",
+        "a03907943c97b102"
       ]
     },
     {
@@ -1354,6 +1383,30 @@
     },
     {
       "activity_class": "avoidable",
+      "confidence": 0.72,
+      "context_tokens": 9,
+      "detector": "unused_context",
+      "evidence": [
+        "d9eb8e056a8c4e06",
+        "9252bf151ad82534"
+      ],
+      "explanation": "Nothing the agent did after reading src/config.py names the file or any of the 1 name(s) it defines. Its 9 tokens stayed in the context as inventory.",
+      "id": "unused_context:d9eb8e056a8c4e06",
+      "kind": "waste",
+      "seconds": 6.0,
+      "share": 1.0,
+      "subject": "src/config.py",
+      "title": "Read src/config.py and never used it",
+      "tokens": 15,
+      "uncertain": false,
+      "waste": "inventory",
+      "waste_events": [
+        "d9eb8e056a8c4e06",
+        "9252bf151ad82534"
+      ]
+    },
+    {
+      "activity_class": "avoidable",
       "confidence": 0.85,
       "context_tokens": 0,
       "detector": "repeated_reasoning",
@@ -1373,54 +1426,6 @@
       "waste": "over_processing",
       "waste_events": [
         "546f400bea474093"
-      ]
-    },
-    {
-      "activity_class": "avoidable",
-      "confidence": 0.65,
-      "context_tokens": 22,
-      "detector": "unused_context",
-      "evidence": [
-        "04f87d31174f38ff",
-        "a03907943c97b102"
-      ],
-      "explanation": "Nothing the agent did after reading src/utils.py names the file or any of the 1 name(s) it defines. Its 22 tokens stayed in the context as inventory.",
-      "id": "unused_context:04f87d31174f38ff",
-      "kind": "waste",
-      "seconds": 6.0,
-      "share": 1.0,
-      "subject": "src/utils.py",
-      "title": "Read src/utils.py and never used it",
-      "tokens": 15,
-      "uncertain": true,
-      "waste": "inventory",
-      "waste_events": [
-        "04f87d31174f38ff",
-        "a03907943c97b102"
-      ]
-    },
-    {
-      "activity_class": "avoidable",
-      "confidence": 0.65,
-      "context_tokens": 9,
-      "detector": "unused_context",
-      "evidence": [
-        "d9eb8e056a8c4e06",
-        "9252bf151ad82534"
-      ],
-      "explanation": "Nothing the agent did after reading src/config.py names the file or any of the 1 name(s) it defines. Its 9 tokens stayed in the context as inventory.",
-      "id": "unused_context:d9eb8e056a8c4e06",
-      "kind": "waste",
-      "seconds": 6.0,
-      "share": 1.0,
-      "subject": "src/config.py",
-      "title": "Read src/config.py and never used it",
-      "tokens": 15,
-      "uncertain": true,
-      "waste": "inventory",
-      "waste_events": [
-        "d9eb8e056a8c4e06",
-        "9252bf151ad82534"
       ]
     }
   ],

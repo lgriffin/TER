@@ -37,7 +37,8 @@ __all__ = [
 ]
 
 #: Findings whose confidence is below this are reported as *uncertain*: shown,
-#: never suppressed, but kept out of headline numbers (points 85, 86, 91).
+#: labelled, and counted as waste until verified (points 85, 86; ADR 0006).
+#: They never trigger an intervention such as model escalation (point 91).
 UNCERTAIN_BELOW = 0.7
 
 

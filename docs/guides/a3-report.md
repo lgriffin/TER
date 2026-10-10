@@ -136,7 +136,8 @@ actions of four kinds:
 | Practice | Something for the developer to do | "Run the failing test alone with full output before the next edit" |
 
 A countermeasure that answers only uncertain findings says so: verify the
-finding before acting on it.
+finding before acting on it. Its cost still counts, because uncertain waste
+is waste until verified (ADR 0006).
 
 **6 Follow-up.** One row per fired detector: the metric, its current value,
 the target for the next session, and where to read it in the JSON (for

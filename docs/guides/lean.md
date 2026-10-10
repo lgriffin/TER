@@ -31,7 +31,7 @@ ter explain tests/golden/sessions/lean_mix.jsonl --json
 TER explain · session golden-lean-mix
   flow efficiency  61% of generated tokens, 61% of agent time
   activity         value_adding 344 · necessary_non_value_adding 83 · avoidable 270 · uncertain 0
-  findings         5 confident, 0 uncertain, 1 risk(s)
+  findings         5 waste (0 uncertain, counted until verified), 1 risk(s)
   - [0.80] overproduction: Rewrote src/retry.py in full · 138 tok · evidence 23e8557e97c5cf7b, bbef9c623af73c14
   - [0.80] over_processing: 5 planning steps without acting · 107 tok · evidence 11dd3be920e41229, …
   - [0.85] over_processing: Repeated validation run · 53 tok · evidence 3a6966ef0e054a01, …

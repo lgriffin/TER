@@ -6,9 +6,8 @@ turn. Two kinds of that stock are measurable from the event stream alone
 (TER-DET-004, points 34 to 36):
 
 * **unused** context: a file read that no later event names or edits. These
-  are the reads the ``unused_context`` detector flags; that detector is always
-  uncertain (reading to rule something out is legitimate), so unused context
-  is reported as inventory, never counted as avoidable.
+  are the reads the ``unused_context`` detector flags (counted as waste
+  since the first judged sample found 10 of 10 waste, ADR 0006).
 * **re-read** context: every read of a path after its first read in the
   session, the tokens behind :attr:`StreamReport.repeated_read_count`. A
   re-read after an edit of that file brings in changed content and is marked

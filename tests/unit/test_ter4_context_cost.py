@@ -123,9 +123,9 @@ class TestContextInventory:
         assert item.path == "src/utils.py"
         assert item.tokens == result.context_tokens > 0
         assert inv.unused_tokens == item.tokens
-        # Cited by the uncertain unused_context finding: inventory, not avoidable.
+        # Cited by the unused_context finding, promoted by the judged sample.
         assert item.finding is not None and item.finding.startswith("unused_context:")
-        assert item.uncertain
+        assert not item.uncertain
         assert item.request_id is not None
 
     def test_reads_after_the_first_are_reread_tokens(self) -> None:

@@ -7,6 +7,7 @@ from ter4_lean_builder import FAIL, FAIL_OTHER, PASS, Script
 
 from ter.adapters.driven.tokenizers import RegexTokenizer
 from ter.domain import ToolKind
+from ter.domain.lean.detectors import JUDGED_CONFIDENCE
 from ter.domain.lean import (
     CycleVerdict,
     Finding,
@@ -606,7 +607,7 @@ class TestFragmentedEdits:
 
 
 class TestUnusedContext:
-    def test_read_never_mentioned_is_uncertain_inventory(self) -> None:
+    def test_read_never_mentioned_is_inventory(self) -> None:
         s = Script()
         s.prompt("add a flag to the cli")
         s.read("src/cli.py", "def main(): pass")
@@ -615,7 +616,8 @@ class TestUnusedContext:
         s.say("Added the flag in cli.py.")
         [f] = found(s, "unused_context")
         assert f.subject == "src/utils.py" and f.waste is LeanWaste.INVENTORY
-        assert f.uncertain and f.confidence == 0.65
+        # Promoted by the first judged sample (10 of 10 waste).
+        assert not f.uncertain and f.confidence == JUDGED_CONFIDENCE == 0.72
 
     def test_identifier_use_counts(self) -> None:
         s = Script()
@@ -624,12 +626,13 @@ class TestUnusedContext:
         s.say("done")
         assert found(s, "unused_context") == []
 
-    def test_file_without_definitions_is_less_certain(self) -> None:
+    def test_file_without_definitions_counts_the_same(self) -> None:
+        # The judged sample was reads that defined no names.
         s = Script()
         s.read("notes.txt", "just some notes")
         s.say("done")
         [f] = found(s, "unused_context")
-        assert f.confidence == 0.55
+        assert f.confidence == JUDGED_CONFIDENCE
 
     def test_not_judged_before_a_response(self) -> None:
         s = Script()
@@ -683,12 +686,15 @@ class TestUnnecessaryHandoff:
         s.bash("git merge --no-edit worker-scorecard", "Merge made")
         assert found(s, "unnecessary_handoff") == []
 
-    def test_boundary_half_of_the_task_covered_is_uncertain(self) -> None:
+    def test_boundary_half_of_the_task_covered_counts_at_the_judged_floor(
+        self,
+    ) -> None:
+        # 0.45 + 0.40 × 0.5 = 0.65, raised to the judged sample's 0.72.
         s = Script()
         s.task("Fetch release notes", "alpha beta gamma")
         s.bash("curl https://x.invalid/notes/release/fetch", "notes")
         [f] = found(s, "unnecessary_handoff")
-        assert f.uncertain and f.confidence == 0.65
+        assert not f.uncertain and f.confidence == JUDGED_CONFIDENCE
 
     def test_boundary_less_than_half_of_the_task_is_fine(self) -> None:
         s = Script()

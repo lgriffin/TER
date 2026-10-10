@@ -772,13 +772,13 @@
       "waste": "motion"
     },
     {
-      "confidence_rule": "Judged only once the agent has responded after the read. A read counts as used when a later reasoning, response or tool call names the file, or names something the file defines, or edits it. Otherwise 0.65 when the file defined names that were never used, 0.55 when it defined none. Always uncertain: reading to rule something out is legitimate, and only repository evidence (L3) can tell.",
+      "confidence_rule": "Judged only once the agent has responded after the read. A read counts as used when a later reasoning, response or tool call names the file, or names something the file defines, or edits it. Otherwise 0.72. Calibrated on real sessions: 10 of 10 judged findings were waste (10 Oct 2026), so it counts at 0.72, the 95% lower bound of that sample. Reading to rule something out is legitimate, so a larger sample or repository evidence (L3) may lower it again.",
       "id": "unused_context",
       "kind": "waste",
       "waste": "inventory"
     },
     {
-      "confidence_rule": "A later tool call by the agent itself shares at least 3 content words with the handoff's task and covers at least half of the task's words. Confidence 0.45 + 0.40 × coverage, capped at 0.85. The handoff (and its waiting time) is the waste; the agent's own call is kept.",
+      "confidence_rule": "A later tool call by the agent itself shares at least 3 content words with the handoff's task and covers at least half of the task's words. Confidence 0.45 + 0.40 × coverage, at least 0.72 and capped at 0.85. Calibrated on real sessions: 10 of 10 judged findings were waste (10 Oct 2026); 0.72 is the 95% lower bound of that sample. The handoff (and its waiting time) is the waste; the agent's own call is kept.",
       "id": "unnecessary_handoff",
       "kind": "waste",
       "waste": "handoffs"
@@ -802,7 +802,7 @@
       "waste": "overproduction"
     },
     {
-      "confidence_rule": "Per task (prompt), counting distinct context items (file reads, searches, fetches, handoffs, exploring shell commands) before the first edit: a finding when they exceed per_file (3) × files the task changes + slack (3). Items past the band that are not reads of a changed file are the waste. Confidence 0.55 + 0.02 per item over the band, capped at 0.65: always uncertain at L2, since only repository scope (L3) can tell whether the extra context was needed.",
+      "confidence_rule": "Per task (prompt), counting distinct context items (file reads, searches, fetches, handoffs, exploring shell commands) before the first edit: a finding when they exceed per_file (3) × files the task changes + slack (3). Items past the band that are not reads of a changed file are the waste. Confidence 0.72. Calibrated on real sessions: 10 of 10 judged findings were waste (10 Oct 2026); 0.72 is the 95% lower bound of that sample.",
       "id": "excessive_context",
       "kind": "waste",
       "waste": "inventory"
@@ -814,7 +814,7 @@
       "waste": "defects"
     },
     {
-      "confidence_rule": "Judged only once the agent has responded after it. A search (Grep, Glob) or traversing shell command (ls, find, tree, rg, grep) whose output lists file names, none of which a later event reads, edits or names: 0.60. Always uncertain at L2: a traversal can rule a place out, and only repository evidence (L3) can tell. Empty or unobserved output and repeats of an earlier traversal (left to repeated_exploration) are not findings.",
+      "confidence_rule": "Judged only once the agent has responded after it. A search (Grep, Glob) or traversing shell command (ls, find, tree, rg, grep) whose output lists file names, none of which a later event reads, edits or names: 0.72. Calibrated on real sessions: 10 of 10 judged findings were waste (10 Oct 2026); 0.72 is the 95% lower bound of that sample. Empty or unobserved output and repeats of an earlier traversal (left to repeated_exploration) are not findings.",
       "id": "unused_traversal",
       "kind": "waste",
       "waste": "motion"
@@ -1009,7 +1009,7 @@
       ]
     }
   ],
-  "problem": "0% of the 320 tokens the agent generated went to avoidable work across 0 confident finding(s); flow efficiency is 100% of tokens and 100% of agent time.",
+  "problem": "0% of the 320 tokens the agent generated went to avoidable work across 0 finding(s); flow efficiency is 100% of tokens and 100% of agent time.",
   "root_causes": [],
   "schema": "ter.a3/0.1",
   "session_id": "golden-iterate",

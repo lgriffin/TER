@@ -203,7 +203,8 @@ def test_explain_command(tmp_path: Path) -> None:
     assert data["schema"] == "ter.lean/0.1" and "evidence_graph" in data
     out = io.StringIO()
     cli_main(["explain", str(session)], _services(trace), stdout=out)
-    assert "Re-read src/a.py" in out.getvalue() and "(uncertain)" in out.getvalue()
+    assert "Re-read src/a.py" in out.getvalue()
+    assert "uncertain, counted until verified" in out.getvalue()
 
 
 def test_explain_errors(tmp_path: Path) -> None:

@@ -19,6 +19,7 @@ from ter.adapters.driven.ter3 import Ter3Scorer
 from ter.adapters.driven.tokenizers import RegexTokenizer
 from ter.adapters.driving.reports import render_a3_html
 from ter.application import ExplainedSession, ExplainSession
+from ter.domain.lean import FindingKind
 
 from .conftest import (
     CORPUS,
@@ -88,11 +89,13 @@ def test_a3_pareto_and_costs_reconcile_with_the_scorecard(name: str) -> None:
     assert sum(bar.tokens for bar in a3.pareto) == (sc.waste_tokens if a3.pareto else 0)
     allocated = a3.analysis.allocated_waste_tokens()
     assert sum(allocated.values()) == pytest.approx(sc.waste_tokens, abs=1)
-    confident = {f.id for f in a3.analysis.findings if not f.uncertain}
-    confident_cost = sum(
+    # Uncertain waste counts until verified (ADR 0006), so every waste
+    # finding's allocation adds up to the scorecard.
+    waste = {f.id for f in a3.analysis.findings if f.kind is FindingKind.WASTE}
+    waste_cost = sum(
         allocated.get(i, 0.0)
         for c in a3.countermeasures
         for i in c.addresses
-        if i in confident
+        if i in waste
     )
-    assert confident_cost == pytest.approx(sc.waste_tokens, abs=1)
+    assert waste_cost == pytest.approx(sc.waste_tokens, abs=1)

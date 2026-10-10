@@ -57,38 +57,38 @@
     [
       "04f87d31174f38ff",
       "explore",
-      "necessary_non_value_adding",
-      0.0,
+      "avoidable",
       1.0,
-      "progressing",
-      "stage:explore is necessary but adds no value itself; uncertain unused_context:04f87d31174f38ff"
+      0.0,
+      "inventory",
+      "unused_context:04f87d31174f38ff"
     ],
     [
       "a03907943c97b102",
       "explore",
-      "necessary_non_value_adding",
-      0.0,
+      "avoidable",
       1.0,
-      "progressing",
-      "stage:explore is necessary but adds no value itself; uncertain unused_context:04f87d31174f38ff"
+      0.0,
+      "inventory",
+      "unused_context:04f87d31174f38ff"
     ],
     [
       "d9eb8e056a8c4e06",
       "explore",
-      "necessary_non_value_adding",
-      0.0,
+      "avoidable",
       1.0,
-      "progressing",
-      "stage:explore is necessary but adds no value itself; uncertain unused_context:d9eb8e056a8c4e06"
+      0.0,
+      "inventory",
+      "unused_context:d9eb8e056a8c4e06"
     ],
     [
       "9252bf151ad82534",
       "explore",
-      "necessary_non_value_adding",
-      0.0,
+      "avoidable",
       1.0,
-      "progressing",
-      "stage:explore is necessary but adds no value itself; uncertain unused_context:d9eb8e056a8c4e06"
+      0.0,
+      "inventory",
+      "unused_context:d9eb8e056a8c4e06"
     ],
     [
       "546f400bea474093",
@@ -253,13 +253,13 @@
       "waste": "motion"
     },
     {
-      "confidence_rule": "Judged only once the agent has responded after the read. A read counts as used when a later reasoning, response or tool call names the file, or names something the file defines, or edits it. Otherwise 0.65 when the file defined names that were never used, 0.55 when it defined none. Always uncertain: reading to rule something out is legitimate, and only repository evidence (L3) can tell.",
+      "confidence_rule": "Judged only once the agent has responded after the read. A read counts as used when a later reasoning, response or tool call names the file, or names something the file defines, or edits it. Otherwise 0.72. Calibrated on real sessions: 10 of 10 judged findings were waste (10 Oct 2026), so it counts at 0.72, the 95% lower bound of that sample. Reading to rule something out is legitimate, so a larger sample or repository evidence (L3) may lower it again.",
       "id": "unused_context",
       "kind": "waste",
       "waste": "inventory"
     },
     {
-      "confidence_rule": "A later tool call by the agent itself shares at least 3 content words with the handoff's task and covers at least half of the task's words. Confidence 0.45 + 0.40 × coverage, capped at 0.85. The handoff (and its waiting time) is the waste; the agent's own call is kept.",
+      "confidence_rule": "A later tool call by the agent itself shares at least 3 content words with the handoff's task and covers at least half of the task's words. Confidence 0.45 + 0.40 × coverage, at least 0.72 and capped at 0.85. Calibrated on real sessions: 10 of 10 judged findings were waste (10 Oct 2026); 0.72 is the 95% lower bound of that sample. The handoff (and its waiting time) is the waste; the agent's own call is kept.",
       "id": "unnecessary_handoff",
       "kind": "waste",
       "waste": "handoffs"
@@ -283,7 +283,7 @@
       "waste": "overproduction"
     },
     {
-      "confidence_rule": "Per task (prompt), counting distinct context items (file reads, searches, fetches, handoffs, exploring shell commands) before the first edit: a finding when they exceed per_file (3) × files the task changes + slack (3). Items past the band that are not reads of a changed file are the waste. Confidence 0.55 + 0.02 per item over the band, capped at 0.65: always uncertain at L2, since only repository scope (L3) can tell whether the extra context was needed.",
+      "confidence_rule": "Per task (prompt), counting distinct context items (file reads, searches, fetches, handoffs, exploring shell commands) before the first edit: a finding when they exceed per_file (3) × files the task changes + slack (3). Items past the band that are not reads of a changed file are the waste. Confidence 0.72. Calibrated on real sessions: 10 of 10 judged findings were waste (10 Oct 2026); 0.72 is the 95% lower bound of that sample.",
       "id": "excessive_context",
       "kind": "waste",
       "waste": "inventory"
@@ -295,7 +295,7 @@
       "waste": "defects"
     },
     {
-      "confidence_rule": "Judged only once the agent has responded after it. A search (Grep, Glob) or traversing shell command (ls, find, tree, rg, grep) whose output lists file names, none of which a later event reads, edits or names: 0.60. Always uncertain at L2: a traversal can rule a place out, and only repository evidence (L3) can tell. Empty or unobserved output and repeats of an earlier traversal (left to repeated_exploration) are not findings.",
+      "confidence_rule": "Judged only once the agent has responded after it. A search (Grep, Glob) or traversing shell command (ls, find, tree, rg, grep) whose output lists file names, none of which a later event reads, edits or names: 0.72. Calibrated on real sessions: 10 of 10 judged findings were waste (10 Oct 2026); 0.72 is the 95% lower bound of that sample. Empty or unobserved output and repeats of an earlier traversal (left to repeated_exploration) are not findings.",
       "id": "unused_traversal",
       "kind": "waste",
       "waste": "motion"
@@ -523,7 +523,7 @@
         "tool": "fs.read"
       },
       {
-        "activity_class": "necessary_non_value_adding",
+        "activity_class": "avoidable",
         "id": "04f87d31174f38ff",
         "index": 6,
         "kind": "tool.requested",
@@ -532,7 +532,7 @@
         "tool": "fs.read"
       },
       {
-        "activity_class": "necessary_non_value_adding",
+        "activity_class": "avoidable",
         "id": "a03907943c97b102",
         "index": 7,
         "kind": "tool.completed",
@@ -541,7 +541,7 @@
         "tool": "fs.read"
       },
       {
-        "activity_class": "necessary_non_value_adding",
+        "activity_class": "avoidable",
         "id": "d9eb8e056a8c4e06",
         "index": 8,
         "kind": "tool.requested",
@@ -550,7 +550,7 @@
         "tool": "fs.read"
       },
       {
-        "activity_class": "necessary_non_value_adding",
+        "activity_class": "avoidable",
         "id": "9252bf151ad82534",
         "index": 9,
         "kind": "tool.completed",
@@ -762,7 +762,7 @@
     },
     {
       "activity_class": "avoidable",
-      "confidence": 0.65,
+      "confidence": 0.72,
       "context_tokens": 22,
       "detector": "unused_context",
       "evidence": [
@@ -777,7 +777,7 @@
       "subject": "src/utils.py",
       "title": "Read src/utils.py and never used it",
       "tokens": 15,
-      "uncertain": true,
+      "uncertain": false,
       "waste": "inventory",
       "waste_events": [
         "04f87d31174f38ff",
@@ -812,7 +812,7 @@
     },
     {
       "activity_class": "avoidable",
-      "confidence": 0.65,
+      "confidence": 0.72,
       "context_tokens": 9,
       "detector": "unused_context",
       "evidence": [
@@ -827,7 +827,7 @@
       "subject": "src/config.py",
       "title": "Read src/config.py and never used it",
       "tokens": 15,
-      "uncertain": true,
+      "uncertain": false,
       "waste": "inventory",
       "waste_events": [
         "d9eb8e056a8c4e06",
@@ -1019,15 +1019,15 @@
   "schema": "ter.lean/0.1",
   "scorecard": {
     "activity_seconds": {
-      "avoidable": 12.0,
+      "avoidable": 24.0,
       "necessary_non_value_adding": 21.0,
-      "uncertain": 12.0,
+      "uncertain": 0.0,
       "value_adding": 12.0
     },
     "activity_tokens": {
-      "avoidable": 49,
+      "avoidable": 79,
       "necessary_non_value_adding": 93,
-      "uncertain": 30,
+      "uncertain": 0,
       "value_adding": 208
     },
     "agent_seconds": 57.0,
@@ -1035,12 +1035,12 @@
       "components": [
         {
           "name": "Flow efficiency (tokens)",
-          "value": 0.8711,
+          "value": 0.7921,
           "weight": 0.3333
         },
         {
           "name": "Flow efficiency (time)",
-          "value": 0.7895,
+          "value": 0.5789,
           "weight": 0.3333
         },
         {
@@ -1050,24 +1050,24 @@
         }
       ],
       "formula": "Unweighted mean of Flow efficiency (tokens), Flow efficiency (time), TER.",
-      "value": 0.7699
+      "value": 0.6734
     },
     "context_tokens": 187,
     "developer_seconds": 0.0,
-    "findings": 3,
-    "flow_efficiency_time": 0.7895,
-    "flow_efficiency_tokens": 0.8711,
+    "findings": 5,
+    "flow_efficiency_time": 0.5789,
+    "flow_efficiency_tokens": 0.7921,
     "flow_seconds": {
-      "inventory": 0.0,
-      "progressing": 45.0,
+      "inventory": 12.0,
+      "progressing": 33.0,
       "recovering": 0.0,
       "repeating": 12.0,
       "reworking": 0.0,
       "waiting": 0.0
     },
     "flow_tokens": {
-      "inventory": 0,
-      "progressing": 331,
+      "inventory": 30,
+      "progressing": 301,
       "recovering": 0,
       "repeating": 49,
       "reworking": 0,
@@ -1081,14 +1081,14 @@
       "method": "TER 3, offline (regex-v1 tokens, lexical-hash-384 embeddings)",
       "value": 0.6491
     },
-    "uncertain_findings": 2,
-    "uncertain_waste_tokens": 30,
+    "uncertain_findings": 0,
+    "uncertain_waste_tokens": 0,
     "validation_runs": 1,
     "validations_failed": 0,
     "validations_passed": 0,
-    "waste_context_tokens": 64,
-    "waste_seconds": 12.0,
-    "waste_tokens": 49
+    "waste_context_tokens": 95,
+    "waste_seconds": 24.0,
+    "waste_tokens": 79
   },
   "session_id": "golden-explore",
   "value_stream": [
@@ -1103,7 +1103,7 @@
       "uncertain_tokens": 0
     },
     {
-      "avoidable_tokens": 32,
+      "avoidable_tokens": 62,
       "context_tokens": 159,
       "findings": [
         "repeated_exploration:db5d89ed876d571f",
@@ -1115,7 +1115,7 @@
       "stage": "explore",
       "steps": 6,
       "tokens": 94,
-      "uncertain_tokens": 30
+      "uncertain_tokens": 0
     },
     {
       "avoidable_tokens": 17,
