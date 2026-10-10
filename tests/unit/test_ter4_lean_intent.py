@@ -205,10 +205,16 @@ def test_golden_intent_shift_records_the_change_and_the_drift() -> None:
 # --- TER-ITN-003: drift is departure without a recorded change ----------------
 
 
-def _shift(*, redirect: str, announce: bool, edit: str = MEAN_EDIT) -> Script:
+def _shift(
+    *, redirect: str, announce: bool, edit: str = MEAN_EDIT, created: bool = True
+) -> Script:
     s = Script()
     s.prompt(MEDIAN)
-    s.write("src/stats.py", "def median(xs): ...")
+    if created:
+        s.write("src/stats.py", "def median(xs): ...")
+    else:
+        s.read("src/stats.py", "")
+        s.edit("src/stats.py", "", "def median(xs): ...")
     s.prompt(redirect)
     if announce:
         s.think("I will also add a mean and a variance function to src/stats.py.")
@@ -224,7 +230,7 @@ class TestIntentDrift:
     def test_unrequested_new_names_alone_are_uncertain_drift(self) -> None:
         # Real sessions showed new names alone are no evidence: implementing
         # anything defines them, so the finding is shown but never counted.
-        [f] = drift(_shift(redirect=MODE, announce=False))
+        [f] = drift(_shift(redirect=MODE, announce=False, created=False))
         assert f.confidence == 0.55 and f.uncertain
         assert f.kind.value == "waste" and f.activity_class is ActivityClass.AVOIDABLE
         assert len(f.waste_events) == 2  # the edit and its result
@@ -313,6 +319,50 @@ class TestIntentDrift:
         assert [f for f in a.findings if f.detector == "intent_drift"] == []
         tighter = run(s, intent_config=IntentConfig(drift_below=0.26))
         assert [f.detector for f in tighter.findings].count("intent_drift") == 1
+
+
+@pytest.mark.req("TER-ITN-007")
+class TestDriftInCreatedFiles:
+    """New names alone in a file the session created are not drift."""
+
+    def test_new_names_in_a_file_the_session_wrote_first_are_not_drift(self) -> None:
+        s = Script()
+        s.prompt(MODE)
+        s.write("src/extra.py", MEAN_EDIT)
+        s.edit("src/extra.py", "def mean(xs):", "def mean(xs, *, weights=None):")
+        s.edit(
+            "src/extra.py",
+            "def variance(xs):",
+            "def spread(xs): ...\ndef variance(xs):",
+        )
+        assert drift(s) == []
+
+    def test_new_names_in_a_file_the_session_read_first_are_still_drift(self) -> None:
+        s = Script()
+        s.prompt(MODE)
+        s.read("src/extra.py", "")
+        s.write("src/extra.py", MEAN_EDIT)
+        [f] = drift(s)
+        assert f.uncertain and f.confidence == 0.55
+
+    def test_a_created_file_still_drifts_when_the_agent_calls_it_extra(self) -> None:
+        s = Script()
+        s.prompt(MODE)
+        s.think("I will also add a mean and a variance function to src/extra.py.")
+        s.write("src/extra.py", MEAN_EDIT)
+        [f] = drift(s)
+        assert f.confidence == 0.85
+
+    def test_a_file_first_touched_by_an_edit_is_not_counted_as_created(
+        self,
+    ) -> None:
+        # Only a write marks a file as created; an edit may change a file the
+        # session never read.
+        s = Script()
+        s.prompt(MODE)
+        s.edit("src/extra.py", "", MEAN_EDIT)
+        [f] = drift(s)
+        assert f.uncertain and f.confidence == 0.55
 
 
 # --- TER-ITN-004: an alignment score for every agent event --------------------

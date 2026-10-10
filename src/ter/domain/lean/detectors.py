@@ -1118,6 +1118,8 @@ class IntentDrift:
         "additional ('also', 'while I'm at it') and names it; 0.55 (uncertain) "
         "when it only defines new names the intent does not mention, or defines "
         "no names and only its added words (at least 3) depart. "
+        "New names alone in files the session created (first touched by a "
+        "write): no finding. "
         "Before any prompt, or against a shorter intent: no finding."
     )
 
@@ -1125,6 +1127,7 @@ class IntentDrift:
         timeline = view.intent
         band = timeline.config.drift_below
         record = timeline.record
+        created = _created_files(view)
         for step in view.requests():
             if not step.is_edit:
                 continue
@@ -1160,6 +1163,11 @@ class IntentDrift:
                 elif announced:
                     confidence = 0.85
                     why = "The agent itself called it additional work."
+                elif step.paths and created.issuperset(step.paths):
+                    # Judged on a real greenfield session (10 Oct 2026): building
+                    # a file the session created defines names the intent never
+                    # mentions on nearly every edit, so they say nothing.
+                    continue
                 else:
                     # Calibrated on real sessions (9 Oct 2026): new names alone
                     # were 17 of 17 false positives (the requested new module,
@@ -1196,6 +1204,19 @@ class IntentDrift:
 
 _MIN_INTENT_TERMS = 3
 _MIN_DRIFT_WORDS = 3
+
+
+def _created_files(view: SessionView) -> frozenset[str]:
+    """Files the session created: their first touch is a write."""
+    seen: set[str] = set()
+    created: set[str] = set()
+    for step in view.requests():
+        for path in step.paths:
+            if path not in seen:
+                seen.add(path)
+                if step.tool_kind is ToolKind.FS_WRITE:
+                    created.add(path)
+    return frozenset(created)
 
 
 # ---------------------------------------------------------------------------
