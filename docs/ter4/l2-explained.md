@@ -46,14 +46,18 @@ to its request; every other gap belongs to the event it precedes.
 
 A confident waste finding reclassifies the share of each event it claims as
 **avoidable**; an uncertain one moves that share to a separate **uncertain**
-bucket; the rest keeps its stage class. `Classification.basis` names the rule
+bucket that still counts as waste until verified (ADR 0006); the rest keeps
+its stage class. `Classification.basis` names the rule
 or finding id behind every event's class.
 
 ## Detector catalogue
 
 Detectors live in `ter/domain/lean/detectors.py`, behind the `WasteDetector`
 protocol, registered in `DEFAULT_REGISTRY`. Findings below confidence 0.70
-are **uncertain**: shown, never suppressed, never counted as waste.
+are **uncertain**: shown, labelled, and counted as waste until verified
+([ADR 0006](../decisions/0006-uncertain-waste-counts-until-verified.md)).
+A detector whose judged findings were not waste becomes a risk, which
+claims no cost (`unrelated_modification`).
 
 Detectors are plugins (TER-ARC-002). Each built-in detector is also the
 capability `WasteDetector.<id>` in the registry of ADR 0005, and an installed
@@ -74,21 +78,21 @@ at L3 and L4.
 
 | Detector | Lean waste | Evidence it cites | Confidence rule | Countermeasure |
 |---|---|---|---|---|
-| `repeated_tool_call` (pts 19, 39) | over-processing | both calls and results | within one prompt's turn: 0.90 same input and output, nothing edited between; 0.85 validation re-run without edits; 0.75 edits between but identical output. 0.50 an output not observed, or a new prompt between the two calls (calibrated on real sessions: 13 of 13 confident repeats crossed a prompt, such as a turn-ending call made once per turn, and none was waste). Different output: none | CLAUDE.md "reuse results"; PreToolUse(Bash) hook blocking identical commands on an unchanged tree |
+| `repeated_tool_call` (pts 19, 39) | over-processing | both calls and results | within one prompt's turn: 0.90 same input and output, nothing edited between; 0.85 validation re-run without edits; 0.75 edits between but identical output. 0.50 an output not observed. A new prompt between the two calls, or a different output: none (calibrated on real sessions: 17 of 17 repeats across a prompt, such as a turn-ending call made once per turn, were not waste) | CLAUDE.md "reuse results"; PreToolUse(Bash) hook blocking identical commands on an unchanged tree |
 | `repeated_exploration` (18, 28, 36) | motion | both reads/searches and results | 0.85 same arguments, identical output, file not edited between; 0.55 output not observed. Re-read after an edit or of another range: none | CLAUDE.md "do not re-read"; a "Where things live" map; PreToolUse(Read) hook blocking unchanged re-reads |
 | `rework_cycle` (26, 37) | rework | failed run, failure, fix edits, next run | same command, edits between: 0.80 when the next run fails with the same failure signature, 0.90 for the second in a row. Pass or different failure: iteration, no finding | CLAUDE.md "same failure twice → stop and re-diagnose"; PostToolUse(Bash) hook flagging an identical failure |
-| `unvalidated_implementation` (25) | defects (risk) | unvalidated edits and the response | per prompt, after a response: 0.85 no check in the session; 0.75 checks only earlier; 0.50 docs only; 0.85 responded after a failing check. A check is a validation run, or any shell line that runs a named check tool beside a change (`sed -i … && pytest`, `ruff check && git commit`; real sessions chain checks this way) | CLAUDE.md "validation is part of done" with the session's own test command; PostToolUse(Edit\|Write) hook running it |
+| `unvalidated_implementation` (25) | defects (risk) | unvalidated edits and the response | per prompt, after a response: 0.85 no check in the session; 0.75 checks only earlier; 0.50 docs only, from 3 documentation edits (fewer: none); 0.85 responded after a failing check. A check is a validation run, or any shell line that runs a named check tool beside a change (`sed -i … && pytest`, `ruff check && git commit`; real sessions chain checks this way) | CLAUDE.md "validation is part of done" with the session's own test command; PostToolUse(Edit\|Write) hook running it |
 | `premature_implementation` (22, 23) | defects (risk) | the prompt and the edit | 0.75 in-place edit of a file never read, written, named in an earlier shell command (`cat f`, `sed -n 1,80p f`) or named in output; 0.45 new file before any exploration | CLAUDE.md "read before editing"; `permissions.defaultMode: plan` |
 | `excessive_planning` (8, 24) | over-processing | the planning run | ≥ 4 planning steps with no action between; 0.55 + 0.05 per step, ≤ 0.90; a step beyond the second is waste only when it adds no decision (reasoning ≤ 25% new words, or a repeated to-do update); no restating step, no finding | CLAUDE.md "act after planning"; plan-mode practice |
 | `fragmented_edits` (27, 28) | motion | the edits and results | consecutive edits to one file (only reasoning and their own results between) over ≥ 3 round trips; a round trip ends when a result arrives, so edits sent together in one turn (parallel calls) count once; 0.70 + 0.05 per extra round trip, ≤ 0.85; only the results of edits after the first round trip are waste | CLAUDE.md "plan the change to a file, then send its Edit calls together in one turn" (Claude Code has no multi-edit tool: one Edit changes one string) |
-| `unused_context` (21, 34, 35) | inventory | the read and its result | after a response, nothing later names the file or what it defines: 0.65 (defines names) or 0.55 — always uncertain at L2 | CLAUDE.md "read with a purpose"; verify first, then map or `/compact` |
-| `unnecessary_handoff` (29, 30) | handoffs | handoff, result, the agent's own call | a later own call shares ≥ 3 key words with the handoff's task and covers ≥ 50% of the task's words: 0.45 + 0.40 × coverage, ≤ 0.85. Overlap with the smaller set flagged an orchestrator's every short review or merge command against its long worker briefs | CLAUDE.md "when to delegate"; `permissions.deny: ["Task"]` for small tasks |
-| `repeated_reasoning` (8, 17) | over-processing | both reasoning blocks | same prompt, no edit between, ≥ 3 shared words, ≤ 25% new words, none of them from a tool result seen since (new evidence): 0.85 − novelty (− 0.10 under 6 words) | CLAUDE.md "act instead of restating" |
-| `regeneration` (20) | overproduction | earlier write or read, the rewrite | whole-file write keeping ≥ 80% of the agent's own earlier write: 0.80; ≥ 60% of a file just read: 0.60 | CLAUDE.md "Edit, not Write, for existing files"; PreToolUse(Write) hook |
+| `unused_context` (21, 34, 35) | inventory | the read and its result | after a response, nothing later names the file or what it defines: 0.72 (10 of 10 judged waste, 10 Oct 2026) | CLAUDE.md "read with a purpose"; verify first, then map or `/compact` |
+| `unnecessary_handoff` (29, 30) | handoffs | handoff, result, the agent's own call | a later own call shares ≥ 3 key words with the handoff's task and covers ≥ 50% of the task's words: 0.45 + 0.40 × coverage, at least 0.72 (10 of 10 judged waste, 10 Oct 2026), ≤ 0.85. Overlap with the smaller set flagged an orchestrator's every short review or merge command against its long worker briefs | CLAUDE.md "when to delegate"; `permissions.deny: ["Task"]` for small tasks |
+| `repeated_reasoning` (8, 17) | over-processing | both reasoning blocks | same prompt, no edit between, ≥ 3 shared words, ≤ 20% new words, none of them from a tool result seen since (new evidence): 0.85 − novelty (− 0.10 under 6 words) | CLAUDE.md "act instead of restating" |
+| `regeneration` (20) | overproduction | earlier write or read, the rewrite | whole-file write keeping ≥ 80% of the agent's own earlier write: 0.80; ≥ 60% of a file just read: 0.60; none when under 30% of the new file repeats old content | CLAUDE.md "Edit, not Write, for existing files"; PreToolUse(Write) hook |
 | `intent_drift` (6, 7, 48) | overproduction | the prompt in force, the agent's "also …" reasoning, the edit and result | edit or write scoring below the drift band (0.25) against an intent of ≥ 3 key terms, no intent change recorded: 0.85 continues a goal the developer dropped, or the agent called it additional; 0.55 (uncertain) only defines names the intent does not mention (calibrated on real sessions: 17 of 17 such findings were the requested change or helper scripts), or only added words (≥ 3) depart | CLAUDE.md "propose extra work, do not do it"; say wanted extras in the prompt |
-| `excessive_context` (21) | inventory | the prompt, the context items, the first edit | per task, distinct context items before the first edit > 3 × files changed + 3: 0.55 + 0.02 per item over, ≤ 0.65 — always uncertain at L2; items past the band that are not reads of a changed file are waste | CLAUDE.md "name the files first"; verify, then a "Where things live" map |
+| `excessive_context` (21) | inventory | the prompt, the context items, the first edit | per task, distinct context items before the first edit > 3 × files changed + 3: 0.72 (10 of 10 judged waste, 10 Oct 2026); items past the band that are not reads of a changed file are waste | CLAUDE.md "name the files first"; verify, then a "Where things live" map |
 | `insufficient_context` (22) | defects (risk) | the prompt, the items, the edit | per task, the n-th distinct file edited in place with fewer than 1 × n context items: 0.70; 0.55 when the file was read or written in an earlier task | CLAUDE.md "evidence for every file changed"; `permissions.defaultMode: plan` |
-| `unused_traversal` (28) | motion | the search or walk and its result | after a response, a Grep/Glob or `ls`/`find`/`tree`/`rg` whose listed file names nothing later reads, edits or names: 0.60 — always uncertain at L2; empty output and repeats are not findings | CLAUDE.md "search for a target"; layout map |
+| `unused_traversal` (28) | motion | the search or walk and its result | after a response, a Grep/Glob or `ls`/`find`/`tree`/`rg` whose listed file names nothing later reads, edits or names: 0.72 (10 of 10 judged waste, 10 Oct 2026); empty output and repeats are not findings | CLAUDE.md "search for a target"; layout map |
 | `failed_route` (29, 30) | waiting | the `route.failover` and the response that did the work | a model call that failed over: 0.80 when a later response did the work on another route, 0.55 when none did; its wall time is the waste | demote or health-check the failing route; timeout and circuit breaker |
 | `unearned_escalation` (30) | waiting | the earlier response, the escalation and the escalated response | a `route.escalated` (or a re-attempt another model served) after a completed response of the task, with no new file read, check result or tool output before the next prompt: 0.80; 0.60 for a re-attempt (uncertain); 0.50 with no escalated response (uncertain). TER-DET-011, [L3](l3-grounded.md#escalation-without-new-evidence-ter-det-011) | escalate only on evidence in the routing profile; hand the stronger model new evidence |
 
@@ -140,8 +144,42 @@ either here to judge.
 On the private corpus (286 sessions, 9 Oct 2026) the round-trip rule took
 `fragmented_edits` from 72 confident findings in 49 sessions back to 17 in
 13, close to its count before the id change (16); every other detector's
-counts were unchanged. The `regeneration` (26) and `repeated_exploration`
-(10) findings there are still unjudged.
+counts were unchanged.
+
+#### First judged sample (10 Oct 2026)
+
+The owner judged 122 findings from the private corpus (one judge, at most 15
+per detector, spread across sessions): every confident finding of the three
+largest confident detectors, and up to 10 uncertain findings of each
+detector that had any. Each verdict is true waste, not waste or unsure.
+
+| Detector | Kind | True | Not waste | Unsure | Change |
+|---|---|---|---|---|---|
+| `regeneration` | confident | 14 | 1 | 0 | a rewrite under 30% of whose new file repeats old content is new work: no finding (`REGENERATED_SHARE`) |
+| `repeated_exploration` | confident | 10 | 0 | 0 | none |
+| `fragmented_edits` | confident | 15 | 0 | 0 | none |
+| `excessive_context` | uncertain | 10 | 0 | 0 | promoted to 0.72 (`JUDGED_CONFIDENCE`) |
+| `unnecessary_handoff` | uncertain | 10 | 0 | 0 | at least 0.72 |
+| `unused_context` | uncertain | 10 | 0 | 0 | promoted to 0.72 |
+| `unused_traversal` | uncertain | 10 | 0 | 0 | promoted to 0.72 |
+| `intent_drift` | uncertain | 6 | 0 | 4 | none: score 0.00 was waste, 0.12 to 0.20 unsure |
+| `insufficient_context` | uncertain | 5 | 0 | 5 | none: zero context was waste, some context below the band unsure |
+| `premature_implementation` | uncertain | 2 | 0 | 0 | none |
+| `repeated_reasoning` | uncertain | 3 | 3 | 0 | at most 20% new key words, was 25% (`RESTATED_NOVELTY`; 80% or more repeated was waste, 76% to 79% not) |
+| `repeated_tool_call` | uncertain | 0 | 4 | 0 | a repeat across a new prompt is no finding (17 of 17 judged so far were not waste) |
+| `unvalidated_implementation` | uncertain | 2 | 8 | 0 | one or two documentation edits are no finding (`DOC_EDITS_WORTH_A_CHECK`) |
+
+Confident findings held up: 39 of 40 true, and the one false is the
+rewrite that was mostly new content. Read the table with three limits in
+mind. There was one judge. The cut-offs that separated true from not waste
+for the uncertain rows (30% repeated, 80% key words, 3 documentation edits)
+were proposed while judging and accepted, not compared with alternatives.
+And ten findings per detector bound precision only loosely: 10 of 10 true
+gives a 95% lower bound near 0.72. The owner chose to promote the four
+uncertain detectors with 10 of 10 true now, at that lower bound
+(`JUDGED_CONFIDENCE`), and set the rule that uncertain waste counts until
+verified (ADR 0006). A second judge or a larger sample (issues #36, #41)
+can still lower them.
 
 ## Exploration drivers
 
@@ -241,9 +279,9 @@ Definitions of the headline measures:
 | Waste cost | Avoidable generated tokens, context tokens re-entering the window, and seconds. |
 | TER | The TER 3 ratio with the method used (`--ter offline` pins the deterministic tokenizer and embedder; `--ter model` uses sentence-transformers). |
 | Software Value Efficiency | See below; reported next to TER in the A3 tiles, the A3 JSON (`analysis.scorecard.software_value_efficiency`, the key after `ter`), `explain --json` and the `explain` text. |
-| Findings | Confident, uncertain and risk counts; iteration and rework cycles. |
+| Findings | Waste findings (uncertain ones included, and counted separately) and risk counts; iteration and rework cycles. |
 | Composite | Only with its composition: the unweighted mean of flow efficiency (tokens), flow efficiency (time) and TER, whichever exist. |
-| Context inventory | Tokens of retrieved context no later event used (the reads `unused_context` names, always uncertain, so inventory and never avoidable) and of context read more than once (every read of a path after its first; those after an edit of the file are marked `changed`), each with the model turns that carried it (TER-DET-004). |
+| Context inventory | Tokens of retrieved context no later event used (the reads `unused_context` names) and of context read more than once (every read of a path after its first; those after an edit of the file are marked `changed`), each with the model turns that carried it (TER-DET-004). |
 | Session cost | With a price book, every model turn and the context inventory priced at the prices in force on the session date, marked estimated with reasons (TER-ANL-040, TER-ANL-041). |
 
 ### Context inventory and dated cost
@@ -390,13 +428,13 @@ existed map as follows.
 | TER-LEAN-010, 011, 019, 020 | TER-DET-002 (and TER-DET-010 for re-run validation) | verified | `tests/unit/test_ter4_lean_detectors.py` |
 | TER-LEAN-012 | TER-DET-006 | verified | same, `iteration_converges` golden session |
 | TER-LEAN-013, 014, 015 | TER-DET-005 | verified | `test_ter4_lean_detectors.py` |
-| TER-LEAN-016 | TER-DET-007 | verified: `fragmented_edits` and `unused_traversal` are motion; unused traversals stay uncertain until L3 evidence | `test_ter4_lean_detectors.py`, `test_ter4_lean_context_motion_waiting.py` |
+| TER-LEAN-016 | TER-DET-007 | verified: `fragmented_edits` and `unused_traversal` are motion; unused traversals count at 0.72 since the 10 Oct judged sample | `test_ter4_lean_detectors.py`, `test_ter4_lean_context_motion_waiting.py` |
 | TER-LEAN-017 | TER-DET-004 | verified: unused and re-read context in tokens | `test_ter4_lean_detectors.py`, `tests/unit/test_ter4_context_cost.py` |
 | (new) | TER-ANL-040, TER-ANL-041 | verified: priced at the session date's prices; no cache fields → estimated | `tests/unit/test_ter4_context_cost.py`, `tests/contract/test_price_book.py` |
 | (new) | TER-EXP-001 | verified: stream report and A3 (cost included) recomputed from a reloaded event log; the TER 3 ratio and outcome verdict are TER-EXP-002 (L3, verified) | `tests/equivalence/test_recompute_from_events.py` |
 | TER-LEAN-018 | TER-DET-008, TER-DET-011 (L3) | verified: redone handoffs, failed routes (`route.failover`) and escalations that added no evidence (`unearned_escalation`) | `test_ter4_lean_detectors.py`, `test_ter4_lean_context_motion_waiting.py`, `test_ter4_unearned_escalation.py` |
 | TER-LEAN-019 | TER-LEN-004 | verified: `excessive_planning` and `repeated_reasoning` never claim a step that adds a decision or new evidence | `test_ter4_lean_detectors.py` |
-| (new) | TER-DET-003 | verified: `excessive_context` (uncertain) and `insufficient_context` against a configurable structural band | `test_ter4_lean_context_motion_waiting.py` |
+| (new) | TER-DET-003 | verified: `excessive_context` (0.72 since the 10 Oct judged sample) and `insufficient_context` against a configurable structural band | `test_ter4_lean_context_motion_waiting.py` |
 | (new) | TER-DET-009 | verified: exploration drivers | `test_ter4_lean_context_motion_waiting.py` |
 | TER-LEAN-030 | TER-GRF-002, TER-GRF-003 (TER-GRF-001 planned: decision nodes) | verified | `test_ter4_lean_analysis.py`, properties, `test_ter4_a3.py` |
 | TER-LEAN-040 | TER-SCR-002, TER-FLW-001, TER-SCR-001 | verified | `test_ter4_lean_analysis.py`, properties, `test_ter4_wip_scorecard.py` |
@@ -442,14 +480,14 @@ catalogue review differ, the status here has been aligned with it.
 | 18 | done | `repeated_exploration` | Re-reads after an edit of that file are never waste |
 | 19 | done | `repeated_tool_call` | Output must be compared, not only input |
 | 20 | done | `regeneration` | Only whole-file writes retaining existing lines |
-| 21 | done | `excessive_context` against the structural band (uncertain), `unused_context` | Stay uncertain until repository evidence exists |
+| 21 | done | `excessive_context` against the structural band (uncertain), `unused_context` | Counted at the judged sample's lower bound; a larger sample may lower it |
 | 22 | done | `insufficient_context` (band per task), `premature_implementation` (edit of unseen file) | Bands count context items, never tokens |
 | 23 | done | `premature_implementation` | Risk findings claim no cost |
 | 24 | done | `excessive_planning` | Structural run length, never reasoning tokens |
 | 25 | done | `unvalidated_implementation` | Judged per prompt, only after a response |
 | 26 | done | `rework_cycle` | Same command, edits between, same signature |
 | 27 | done | `fragmented_edits` (motion) | Only overhead is waste, never the change |
-| 28 | done | Repeated reads (`repeated_exploration`), fragmented edits and unused traversals (`unused_traversal`, uncertain) are motion | As 18; unused traversals stay uncertain until L3 |
+| 28 | done | Repeated reads (`repeated_exploration`), fragmented edits and unused traversals (`unused_traversal`) are motion | As 18; a larger judged sample may lower unused traversals |
 | 29 | done | `unnecessary_handoff`, `failed_route` | The handoff is the waste; the agent's own call is kept |
 | 30 | done | Failed routes (`route.failover`) and escalations after a completed call that added no evidence (`unearned_escalation`, TER-DET-011, L3) are *waiting* | Waiting is attributed only through findings; "adds evidence" is structural (new file read, check result or tool output) |
 | 31, 32 | done | `WipTracker` counts unresolved hypotheses, tasks, edits and failures after every event; the A3 shows the series and its peak | WIP is a fold: O(1) amortised per event, batch equals live |
@@ -482,7 +520,7 @@ catalogue review differ, the status here has been aligned with it.
 | 84 | done | `Composite` with components, weights and formula | A composite is never shown without its parts |
 | 85 | done | Confidence on every finding with a published rule | Every detector publishes `confidence_rule` |
 | 86 | done | Uncertain findings shown and bucketed separately | Uncertain never counts as avoidable |
-| 91 | partial | Conservative structural thresholds; uncertain below 0.70; the precision floor needs real data (issue #41) | Prefer a missed finding to a false one |
+| 91 | partial | Conservative structural thresholds; uncertain below 0.70 counts as waste until verified but never triggers an intervention; the precision floor needs real data (issue #41) | Interventions prefer a missed finding to a false one |
 | 139 | partial | Countermeasures derive from findings (TER-RPT-005); intervention policies are L4 (TER-INT-007) | No recommendation from a token threshold |
 
 ## Where the code lives

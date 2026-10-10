@@ -7,6 +7,7 @@ from ter4_lean_builder import FAIL, FAIL_OTHER, PASS, Script
 
 from ter.adapters.driven.tokenizers import RegexTokenizer
 from ter.domain import ToolKind
+from ter.domain.lean.detectors import JUDGED_CONFIDENCE
 from ter.domain.lean import (
     CycleVerdict,
     Finding,
@@ -84,16 +85,31 @@ class TestRepeatedToolCall:
         assert found(s, "repeated_tool_call") == []
 
     # Calibrated on real transcripts: a turn-ending call (a "no reply needed"
-    # tool) repeated once per turn was the whole of the confident findings.
-    def test_turn_ending_call_repeated_across_prompts_is_uncertain(self) -> None:
+    # tool) repeated once per turn was the whole of the confident findings,
+    # and 17 of 17 repeats across a prompt judged on real sessions were not
+    # waste. A new prompt is new information.
+    def test_turn_ending_call_repeated_across_prompts_is_not_a_finding(self) -> None:
         s = Script()
         for message in ("first wake", "second wake", "third wake"):
             s.prompt(message)
             s.call("end_turn", ToolKind.OTHER, {"reason": "other"}, "ok")
-        findings = found(s, "repeated_tool_call")
-        assert len(findings) == 2
-        assert all(f.uncertain and f.confidence == 0.5 for f in findings)
-        assert "new prompt" in findings[0].explanation
+        assert found(s, "repeated_tool_call") == []
+
+    def test_unobserved_repeat_across_a_prompt_is_not_a_finding(self) -> None:
+        s = Script()
+        s.prompt("first wake")
+        s.call("end_turn", ToolKind.OTHER, {"reason": "other"}, None)
+        s.prompt("second wake")
+        s.call("end_turn", ToolKind.OTHER, {"reason": "other"}, "ok")
+        assert found(s, "repeated_tool_call") == []
+
+    def test_unobserved_repeat_within_one_turn_is_uncertain(self) -> None:
+        s = Script()
+        s.prompt("check devices")
+        s.call("list_devices", ToolKind.OTHER, {}, None)
+        s.call("list_devices", ToolKind.OTHER, {}, "laptop")
+        [f] = found(s, "repeated_tool_call")
+        assert f.confidence == 0.5 and f.uncertain
 
     def test_repeat_within_one_turn_after_a_response_is_still_waste(self) -> None:
         s = Script()
@@ -104,14 +120,19 @@ class TestRepeatedToolCall:
         [f] = found(s, "repeated_tool_call")
         assert f.confidence == 0.9 and not f.uncertain
 
-    def test_boundary_validation_rerun_across_a_prompt_is_uncertain(self) -> None:
+    def test_boundary_validation_rerun_across_a_prompt_is_not_a_finding(
+        self,
+    ) -> None:
         s = Script()
         s.prompt("run the tests")
         s.bash("pytest -q", PASS)
         s.prompt("run them again")
         s.bash("pytest -q", PASS)
+        assert found(s, "repeated_tool_call") == []
+        # The same re-run inside one turn is still a finding.
+        s.bash("pytest -q", PASS)
         [f] = found(s, "repeated_tool_call")
-        assert f.uncertain and f.confidence == 0.5
+        assert f.confidence == 0.85
 
 
 # --- repeated_exploration ----------------------------------------------------
@@ -282,10 +303,30 @@ class TestUnvalidatedImplementation:
 
     def test_documentation_only_is_uncertain(self) -> None:
         s = Script()
-        s.edit("README.md")
+        for _ in range(3):
+            s.edit("README.md")
         s.say("Done.")
         [f] = found(s, "unvalidated_implementation")
-        assert f.uncertain
+        assert f.uncertain and f.title.startswith("3 edit(s)")
+
+    # Judged on real sessions: one or two documentation edits reported
+    # without a check were never waste.
+    def test_boundary_fewer_than_three_documentation_edits_is_not_a_finding(
+        self,
+    ) -> None:
+        s = Script()
+        s.edit("README.md")
+        s.edit("docs/guide.md")
+        s.say("Done.")
+        assert found(s, "unvalidated_implementation") == []
+
+    def test_one_code_edit_beside_documentation_still_counts(self) -> None:
+        s = Script()
+        s.edit("README.md")
+        s.edit("src/a.py")
+        s.say("Done.")
+        [f] = found(s, "unvalidated_implementation")
+        assert f.confidence == 0.85
 
     def test_responding_after_a_failing_check(self) -> None:
         s = Script()
@@ -582,7 +623,7 @@ class TestFragmentedEdits:
 
 
 class TestUnusedContext:
-    def test_read_never_mentioned_is_uncertain_inventory(self) -> None:
+    def test_read_never_mentioned_is_inventory(self) -> None:
         s = Script()
         s.prompt("add a flag to the cli")
         s.read("src/cli.py", "def main(): pass")
@@ -591,7 +632,8 @@ class TestUnusedContext:
         s.say("Added the flag in cli.py.")
         [f] = found(s, "unused_context")
         assert f.subject == "src/utils.py" and f.waste is LeanWaste.INVENTORY
-        assert f.uncertain and f.confidence == 0.65
+        # Promoted by the first judged sample (10 of 10 waste).
+        assert not f.uncertain and f.confidence == JUDGED_CONFIDENCE == 0.72
 
     def test_identifier_use_counts(self) -> None:
         s = Script()
@@ -600,12 +642,13 @@ class TestUnusedContext:
         s.say("done")
         assert found(s, "unused_context") == []
 
-    def test_file_without_definitions_is_less_certain(self) -> None:
+    def test_file_without_definitions_counts_the_same(self) -> None:
+        # The judged sample was reads that defined no names.
         s = Script()
         s.read("notes.txt", "just some notes")
         s.say("done")
         [f] = found(s, "unused_context")
-        assert f.confidence == 0.55
+        assert f.confidence == JUDGED_CONFIDENCE
 
     def test_not_judged_before_a_response(self) -> None:
         s = Script()
@@ -659,12 +702,15 @@ class TestUnnecessaryHandoff:
         s.bash("git merge --no-edit worker-scorecard", "Merge made")
         assert found(s, "unnecessary_handoff") == []
 
-    def test_boundary_half_of_the_task_covered_is_uncertain(self) -> None:
+    def test_boundary_half_of_the_task_covered_counts_at_the_judged_floor(
+        self,
+    ) -> None:
+        # 0.45 + 0.40 × 0.5 = 0.65, raised to the judged sample's 0.72.
         s = Script()
         s.task("Fetch release notes", "alpha beta gamma")
         s.bash("curl https://x.invalid/notes/release/fetch", "notes")
         [f] = found(s, "unnecessary_handoff")
-        assert f.uncertain and f.confidence == 0.65
+        assert not f.uncertain and f.confidence == JUDGED_CONFIDENCE
 
     def test_boundary_less_than_half_of_the_task_is_fine(self) -> None:
         s = Script()
@@ -715,6 +761,16 @@ class TestRepeatedReasoning:
         s.think("I need to find where the parser handles arguments in build_parser.")
         assert found(s, "repeated_reasoning") == []
 
+    # Judged on real sessions: blocks repeating 80% or more of earlier key
+    # words were waste, 76% to 79% were not.
+    @pytest.mark.req("TER-LEN-004")
+    def test_boundary_a_quarter_new_words_is_not_a_restatement(self) -> None:
+        s = Script()
+        s.prompt("Add a verbose flag")
+        s.think("I should find where the parser handles arguments.")
+        s.think("Find parser arguments quickly.")  # 1 of 4 key words new
+        assert found(s, "repeated_reasoning") == []
+
     @pytest.mark.req("TER-LEN-004")
     def test_boundary_new_word_not_from_evidence_is_still_restated(self) -> None:
         s = Script()
@@ -751,6 +807,22 @@ class TestRegeneration:
         )
         [f] = found(s, "regeneration")
         assert f.uncertain and f.confidence == 0.6
+
+    # Judged on real sessions: a rewrite whose new file is mostly new content
+    # (14% repeated) was real change, 35% and more repeated was waste.
+    def test_boundary_rewrite_that_is_mostly_new_content_is_not_a_finding(
+        self,
+    ) -> None:
+        old = "".join(f"line {i}\n" for i in range(3))
+        s = Script()
+        s.write("src/r.py", old)
+        s.write("src/r.py", old + "".join(f"new {i}\n" for i in range(8)))
+        assert found(s, "regeneration") == []  # 3 of 11 lines: 27% repeated
+        s = Script()
+        s.write("src/r.py", old)
+        s.write("src/r.py", old + "".join(f"more {i}\n" for i in range(7)))
+        [f] = found(s, "regeneration")  # 3 of 10 lines: 30% repeated
+        assert f.share == pytest.approx(0.3) and f.confidence == 0.8
 
     def test_substantial_rewrite_is_fine(self) -> None:
         s = Script()

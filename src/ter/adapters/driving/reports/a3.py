@@ -154,9 +154,7 @@ def value_stream_map(
     parts.append(
         f'<rect x="{side}" y="{legend_y}" width="10" height="10" rx="2" {_paint("waste")}/>'
     )
-    parts.append(
-        _text(side + 14, legend_y + 9, "Avoidable (confident findings)", size=11)
-    )
+    parts.append(_text(side + 14, legend_y + 9, "Avoidable (confident)", size=11))
     ux = side + 14 + 30 * 6.2 + 16
     parts.append(
         f'<rect x="{ux:.1f}" y="{legend_y}" width="10" height="10" rx="2" {_paint("series-4")}/>'
@@ -381,7 +379,7 @@ def pareto(report: A3Report, *, width: int = 520) -> str:
     entries = [WasteByType(p.waste.value, p.tokens, p.findings) for p in report.pareto]
     return waste_pareto(
         entries,
-        title="Waste Pareto (generated tokens, confident findings)",
+        title="Waste Pareto (generated tokens, uncertain included)",
         width=width,
         chart_id="a3-pareto",
     )
@@ -630,7 +628,8 @@ class _Ranked:
     #: Generated and context tokens its findings claim (risks claim none).
     tokens: int
     seconds: float
-    #: Its share of the scorecard's confident waste, or None when uncertain.
+    #: Its share of the scorecard's waste (uncertain waste counts until
+    #: verified, ADR 0006), or None when it answers only risks.
     waste_share: float | None
 
     @property
@@ -654,7 +653,7 @@ def _ranked(report: A3Report) -> list[_Ranked]:
         tokens = sum(f.tokens + f.context_tokens for f in wastes)
         seconds = sum(f.seconds for f in wastes)
         share = None
-        if not c.uncertain and waste > 0:
+        if waste > 0:
             share = sum(allocated.get(f.id, 0.0) for f in wastes) / waste
         rows.append((c, found, tokens, seconds, share))
     rows.sort(
@@ -681,7 +680,7 @@ def _impact(r: _Ranked) -> str:
             claim + (" claimed (uncertain)" if r.measure.uncertain else " claimed")
         )
     if r.waste_share:
-        parts.append(f"{fmt_pct(r.waste_share, 0)} of confident waste")
+        parts.append(f"{fmt_pct(r.waste_share, 0)} of waste")
     if r.protects_outcome:
         parts.append("protects the outcome")
     return " · ".join(parts)
@@ -740,8 +739,9 @@ def _nav(report: A3Report) -> str:
 def _summary(report: A3Report, ranked: Sequence[_Ranked]) -> str:
     sc = report.analysis.scorecard
     va = sc.activity_share(ActivityClass.VALUE_ADDING)
-    avoid = sc.activity_share(ActivityClass.AVOIDABLE)
     unsure = sc.activity_share("uncertain")
+    # Uncertain waste counts until verified (ADR 0006).
+    avoid = sc.activity_share(ActivityClass.AVOIDABLE) + unsure
     fe = sc.flow_efficiency_tokens
     hero = [
         (
@@ -755,7 +755,11 @@ def _summary(report: A3Report, ranked: Sequence[_Ranked]) -> str:
             fmt_pct(avoid, 0),
             _meter(avoid, "waste"),
             f"{sc.waste_tokens:,} generated tokens, {fmt_seconds(sc.waste_seconds)}"
-            + (f"; {fmt_pct(unsure, 0)} more is uncertain" if unsure else ""),
+            + (
+                f"; {fmt_pct(unsure, 0)} of tokens uncertain, counted until verified"
+                if unsure
+                else ""
+            ),
         ),
         (
             "Flow efficiency",
@@ -974,7 +978,7 @@ def _scorecard(report: A3Report) -> str:
         (
             "Findings",
             str(sc.findings),
-            f"confident waste; {sc.uncertain_findings} uncertain, {sc.risks} risk(s); "
+            f"waste; {sc.uncertain_findings} of them uncertain, {sc.risks} risk(s); "
             f"{sc.iterations} iteration / {sc.rework_cycles} rework cycle(s)",
         )
     )
@@ -995,8 +999,8 @@ def _scorecard(report: A3Report) -> str:
         '<div class="split"><div>'
         f'<div class="kpis" role="list" aria-label="Scorecard">{cards}</div>'
         '<p class="fine" style="margin-top:8px">Each dimension stands alone: no single score '
-        f"hides the others. Findings below confidence {UNCERTAIN_BELOW:.2f} are counted as "
-        "uncertain, never as waste. Token minimisation is not a goal: efficiency is value "
+        f"hides the others. Findings below confidence {UNCERTAIN_BELOW:.2f} are labelled "
+        "uncertain and counted as waste until verified. Token minimisation is not a goal: efficiency is value "
         f"delivered per unit of resource. {esc(SVE_DEFINITION)}</p>"
         f"</div><div>{_dimensions(report)}</div></div>"
     )
@@ -1046,7 +1050,7 @@ def _inventory_tiles(report: A3Report) -> list[tuple[str, str, str]]:
     tiles: list[tuple[str, str, str]] = []
     if inv is not None:
         sub = (
-            f"tokens: {inv.unused_tokens:,} read and never used (uncertain), "
+            f"tokens: {inv.unused_tokens:,} read and never used, "
             f"{inv.reread_tokens:,} read again ({inv.unchanged_reread_tokens:,} unchanged)"
         )
         if cost is not None:
@@ -1175,7 +1179,7 @@ def _analysis(report: A3Report) -> str:
             pareto(report),
             "Wastes by tokens claimed (generated and context), with the running share.",
         )
-        or '<p class="empty">No confident waste was found, so there is no Pareto to draw.</p>',
+        or '<p class="empty">No waste was found, so there is no Pareto to draw.</p>',
         _figure(
             activity_bar(report),
             "Value-adding, necessary but non-value-adding, avoidable, uncertain.",

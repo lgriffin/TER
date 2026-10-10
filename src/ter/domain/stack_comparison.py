@@ -60,8 +60,9 @@ class Dimension(StrEnum):
 class SessionMeasures:
     """One session's group keys, labels and measures; content-free.
 
-    Rates are shares of the session's generated tokens that confident waste
-    findings of that detector are charged with (the scorecard allocation);
+    Rates are shares of the session's generated tokens that waste findings
+    of that detector are charged with (the scorecard allocation, uncertain
+    waste included until verified);
     ``unused_context`` is the share of retrieved context tokens no later event
     used. A measure is ``None`` when its denominator is zero.
     """

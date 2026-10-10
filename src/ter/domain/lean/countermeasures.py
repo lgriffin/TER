@@ -5,7 +5,8 @@ findings (the files, commands and subjects they cite), never from a fixed
 token threshold (point 139). Actions are concrete: lines to add to
 ``CLAUDE.md``, Claude Code hooks to install (with the settings snippet and
 script), harness settings, and working practices. A countermeasure answering
-only uncertain findings says so, and asks for verification first.
+only uncertain findings says so, and asks for verification first; their
+cost still counts, since uncertain waste is waste until verified.
 
 The hook scripts are examples to adapt: they read the hook payload with
 ``jq`` and use only documented Claude Code hook behaviour (exit code 2 blocks
@@ -806,9 +807,9 @@ def build_countermeasures(
 
     A countermeasure's cost is generated tokens. With ``allocated`` (the
     scorecard's per-finding allocation, ``LeanAnalysis.allocated_waste_tokens``)
-    a confident finding costs only the tokens charged to it, so two detectors
-    claiming one event do not both count it. Uncertain findings, and every
-    finding without an allocation, cost their own claim.
+    a finding costs only the tokens charged to it, so two detectors claiming
+    one event do not both count it. A finding without an allocation costs its
+    own claim.
     """
     by_detector: dict[str, list[Finding]] = {}
     for finding in findings:
@@ -822,9 +823,7 @@ def build_countermeasures(
         title, actions = make(ctx)
         cost = round(
             sum(
-                allocated.get(f.id, 0.0)
-                if allocated is not None and not f.uncertain
-                else float(f.tokens)
+                allocated.get(f.id, 0.0) if allocated is not None else float(f.tokens)
                 for f in group
             )
         )
@@ -837,7 +836,10 @@ def build_countermeasures(
             + "."
         )
         if uncertain:
-            rationale += " All below the confidence threshold: verify before acting."
+            rationale += (
+                " All below the confidence threshold: counted as waste until "
+                "verified; verify before acting."
+            )
         out.append(
             (
                 (int(uncertain), -cost, -confidence, detector),
@@ -866,7 +868,7 @@ _MEASURES: dict[str, tuple[str, str]] = {
     "premature_implementation": ("Edits to files not read first", "0"),
     "excessive_planning": ("Planning runs of 4+ steps without action", "0"),
     "fragmented_edits": ("Edit runs to one file over 3+ round trips", "0"),
-    "unused_context": ("Files read and never used (uncertain)", "fewer"),
+    "unused_context": ("Files read and never used", "fewer"),
     "unnecessary_handoff": ("Handoffs redone by the agent", "0"),
     "repeated_reasoning": ("Restated reasoning blocks", "fewer"),
     "regeneration": ("Whole-file rewrites of existing content", "0"),

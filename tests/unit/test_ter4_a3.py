@@ -101,7 +101,7 @@ def test_charts_and_empty_states() -> None:
     report = _report(clean, ())
     page = render_a3_html(report)
     assert "No findings" in page and "Nothing to change" in page
-    assert "No confident waste" in page
+    assert "No waste was found" in page
     assert "No prompt was recorded" in page
     assert pareto(report) == ""
     assert value_stream_map(()) == ""
@@ -212,7 +212,8 @@ def test_explain_command(tmp_path: Path) -> None:
     assert data["schema"] == "ter.lean/0.1" and "evidence_graph" in data
     out = io.StringIO()
     cli_main(["explain", str(session)], _services(trace), stdout=out)
-    assert "Re-read src/a.py" in out.getvalue() and "(uncertain)" in out.getvalue()
+    assert "Re-read src/a.py" in out.getvalue()
+    assert "uncertain, counted until verified" in out.getvalue()
 
 
 def test_explain_errors(tmp_path: Path) -> None:

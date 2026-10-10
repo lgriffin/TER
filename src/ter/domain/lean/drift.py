@@ -23,8 +23,8 @@ or a reasoning block is a **departure** when:
    cannot see those links;
 3. no response is still to come after it (a live read is not judged early).
 
-Confidence is capped below 0.70 (uncertain, never counted as avoidable)
-unless the departure is unambiguous: a read, with seeds the prompt named, of
+Confidence is capped below 0.70 (uncertain: counted as waste until
+verified, ADR 0006) unless the departure is unambiguous: a read, with seeds the prompt named, of
 a source file in a different top-level package from every seed and every
 file the task edited, that nothing later named at all.
 """

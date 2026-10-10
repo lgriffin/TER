@@ -81,7 +81,7 @@ the right ones. On 9 October the owner ran TER over his own data:
 | Record coverage (TER-SRC-005) | 286 real Claude Code sessions imported through the redacting corpus importer | Every session at 100% of records mapped or classified as documented metadata after the fixes (no session reached 99% before them) |
 | Hook ids equal transcript ids (TER-OBS-005, TER-OBS-007) | Three `hooks check` runs on real recordings (Windows) ([summary](../../tests/fixtures/hooks/real-check-2026-10-09.md)) | Every prompt, tool request, tool result and Stop matched (10 of 10, 11 of 11, 15 of 15 Stops); Claude Code's internal helper agents are counted apart |
 | Confident L2 detectors | One project's cloud transcripts | 23 confident findings across `repeated_tool_call`, `unnecessary_handoff`, `premature_implementation` and `fragmented_edits`; none true. Each rule was fixed structurally ([l2-explained.md](l2-explained.md#calibration-on-real-sessions)) |
-| `fragmented_edits` recount | 286-session private corpus | Shared event ids made parallel edits visible (16 to 72 confident); counting round trips instead of calls brought it back to 17 in 13 sessions. Still unjudged |
+| `fragmented_edits` recount | 286-session private corpus | Shared event ids made parallel edits visible (16 to 72 confident); counting round trips instead of calls brought it back to 17 in 13 sessions. Judged 10 Oct: 15 of 15 sampled were true |
 | Grounded detectors | 52 sessions with their repository at the start commit | Session-root rules for worktrees, Windows spellings and harness state (TER-EVD-017 to TER-EVD-020) |
 | `unrelated_modification` | 9 confident and 20 sampled uncertain findings | **0 of 29 truly unrelated**: tests, CI, docs and modules the prompt implied but did not name. Capped at 0.60, so every finding is now uncertain and never counted ([l3-grounded.md](l3-grounded.md#calibration-unrelated_modification-9-oct-2026)) |
 | Outcomes | 61 labelled sessions | Derived from each session's commits and pull request: 29 merged, 3 submitted, 4 closed unmerged, 1 committed, 24 with no commit (a `git commit -q` prints nothing, so a few may be wrong) |
@@ -118,8 +118,10 @@ What it has not shown on real data:
 - **Precision of any detector as a number.** Fixes so far are precision
   fixes from small samples; no per-category precision and recall exist
   (issues #36, #41; TER-ANL-025 now sits at L5).
-- The `regeneration` (26) and `repeated_exploration` (10) findings on the
-  private corpus, and the `fragmented_edits` 17, are unjudged.
+- A second judge. The first judged sample (10 Oct 2026, 122 findings,
+  [l2-explained.md](l2-explained.md#first-judged-sample-10-oct-2026)) found
+  39 of 40 confident findings true and tightened four rules, but had one
+  judge and at most 15 findings per detector.
 - **Change surface and boundary findings** (P063 to P066) and **evidence
   usage** (P067 to P070) on judged real sessions.
 - **Context recall** against critical-evidence lists, and bundles against

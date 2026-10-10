@@ -6,7 +6,9 @@
 2. Every generated step gets an activity class from its stage (the *basis*
    says which rule), and the share of it that a confident waste finding
    claims becomes avoidable; the share an uncertain finding claims is kept
-   apart as *uncertain* (points 15, 16, 40, 85, 86).
+   apart as *uncertain* (points 15, 16, 40, 85, 86). Uncertain waste is
+   still waste until verified: it counts in the waste totals and flow
+   efficiency, labelled so it is never mistaken for a confirmed finding.
 3. Tokens and time are split into flow states for Agentic Flow Efficiency
    (points 79, 80): the share progressing or recovering (productive
    iteration), against repeating, reworking, waiting and inventory. The
@@ -98,8 +100,9 @@ class Classification:
     """How one event was classified, and on what basis (point 40).
 
     ``avoidable_share`` is the share a confident waste finding claims;
-    ``uncertain_share`` the further share an uncertain one claims.
-    ``basis`` is a finding id or ``stage:<rule>``.
+    ``uncertain_share`` the further share an uncertain one claims, charged
+    to ``uncertain_basis``. ``basis`` is a finding id or ``stage:<rule>``.
+    ``flow`` is the waste's flow state when either share is non-zero.
     """
 
     event_id: EventId
@@ -109,6 +112,7 @@ class Classification:
     uncertain_share: float
     flow: FlowState
     basis: str
+    uncertain_basis: str | None = None
 
 
 @dataclass(frozen=True)
@@ -158,7 +162,12 @@ class Composite:
 
 @dataclass(frozen=True)
 class Scorecard:
-    """Every dimension on its own; no single opaque score (points 79 to 84)."""
+    """Every dimension on its own; no single opaque score (points 79 to 84).
+
+    ``waste_tokens`` and ``findings`` include uncertain waste, which counts
+    until verified (ADR 0006); ``uncertain_waste_tokens`` and
+    ``uncertain_findings`` say how much of it is still unverified.
+    """
 
     generated_tokens: int
     context_tokens: int
@@ -278,18 +287,24 @@ class LeanAnalysis:
         return next(f for f in self.findings if f.id == finding_id)
 
     def allocated_waste_tokens(self) -> dict[str, float]:
-        """Generated tokens each confident waste finding is charged with.
+        """Generated tokens each waste finding is charged with.
 
         This is the scorecard's allocation: every event's avoidable share goes
-        to the one finding that claims it (its classification basis), so the
+        to the confident finding that claims it (its classification basis) and
+        its uncertain share to the uncertain one (``uncertain_basis``), so the
         values add up to the scorecard's waste tokens, never counting an event
         twice and never counting context tokens.
         """
         out: dict[str, float] = {}
         for step, c in zip(self.steps, self.classifications, strict=True):
-            if c.activity_class is None or c.avoidable_share <= 0:
+            if c.activity_class is None:
                 continue
-            out[c.basis] = out.get(c.basis, 0.0) + step.tokens * c.avoidable_share
+            if c.avoidable_share > 0:
+                out[c.basis] = out.get(c.basis, 0.0) + step.tokens * c.avoidable_share
+            if c.uncertain_basis is not None and c.uncertain_share > 0:
+                out[c.uncertain_basis] = (
+                    out.get(c.uncertain_basis, 0.0) + step.tokens * c.uncertain_share
+                )
         return out
 
     def as_dict(self, *, graph: bool = True) -> dict[str, object]:
@@ -441,6 +456,9 @@ def _classify(
             basis = sure.id
             if avoid >= 1.0:
                 cls = ActivityClass.AVOIDABLE
+        elif maybe is not None and unsure > 0:
+            # Uncertain waste counts until verified (ADR 0006).
+            flow = maybe.waste.flow
         elif step.event_id in recovering:
             flow = FlowState.RECOVERING
             basis = f"{basis}; productive iteration"
@@ -449,7 +467,16 @@ def _classify(
         if maybe is not None and sure is None:
             basis = f"{basis}; uncertain {maybe.id}"
         out.append(
-            Classification(step.event_id, step.stage, cls, avoid, unsure, flow, basis)
+            Classification(
+                step.event_id,
+                step.stage,
+                cls,
+                avoid,
+                unsure,
+                flow,
+                basis,
+                maybe.id if maybe is not None and unsure > 0 else None,
+            )
         )
     return tuple(out)
 
@@ -488,14 +515,16 @@ def _scorecard(
             continue
         agent_seconds += step.seconds
         generated += step.tokens
+        # Uncertain waste is waste until verified (ADR 0006).
+        wasted = c.avoidable_share + c.uncertain_share
         waste_flow = c.flow.value
-        base_flow = FlowState.PROGRESSING.value if c.avoidable_share else c.flow.value
+        base_flow = FlowState.PROGRESSING.value if wasted else c.flow.value
         for amount, flow, act in (
             (step.tokens, flow_tok, act_tok),
             (step.seconds, flow_sec, act_sec),
         ):
-            flow[waste_flow] += amount * c.avoidable_share
-            flow[base_flow] += amount * (1 - c.avoidable_share)
+            flow[waste_flow] += amount * wasted
+            flow[base_flow] += amount * (1 - wasted)
             if c.activity_class is None:
                 continue
             base = (
@@ -512,7 +541,7 @@ def _scorecard(
     flow_tokens = apportion(flow_tok, generated)
     activity_tokens = apportion(act_tok, generated)
     waste = [f for f in findings if f.kind is FindingKind.WASTE]
-    sure = [f for f in waste if not f.uncertain]
+    unsure = sum(f.uncertain for f in waste)
 
     def eff(values: Mapping[str, float], total: float) -> float | None:
         # Productive iteration is work, not waste: it counts toward flow.
@@ -549,14 +578,20 @@ def _scorecard(
         flow_efficiency_time=efficiency_time,
         activity_tokens=tuple((k, activity_tokens[k]) for k in act_tok),
         activity_seconds=tuple((k, act_sec[k]) for k in act_sec),
-        waste_tokens=activity_tokens[ActivityClass.AVOIDABLE.value],
+        waste_tokens=activity_tokens[ActivityClass.AVOIDABLE.value]
+        + activity_tokens[UNCERTAIN],
         waste_context_tokens=round(
-            sum(s.context_tokens * c.avoidable_share for s, c in pairs)
+            sum(
+                s.context_tokens * (c.avoidable_share + c.uncertain_share)
+                for s, c in pairs
+            )
         ),
-        waste_seconds=sum(s.seconds * c.avoidable_share for s, c in pairs),
+        waste_seconds=sum(
+            s.seconds * (c.avoidable_share + c.uncertain_share) for s, c in pairs
+        ),
         uncertain_waste_tokens=activity_tokens[UNCERTAIN],
-        findings=len(sure),
-        uncertain_findings=len(waste) - len(sure),
+        findings=len(waste),
+        uncertain_findings=unsure,
         risks=len(findings) - len(waste),
         iterations=sum(c.verdict is CycleVerdict.ITERATION for c in cycles),
         rework_cycles=sum(c.verdict is CycleVerdict.REWORK for c in cycles),

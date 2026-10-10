@@ -197,22 +197,46 @@ def test_confident_waste_is_avoidable_and_uncertain_is_kept_apart() -> None:
     s.prompt("x")
     s.read("src/a.py", "def a(): pass")
     repeat, _ = s.read("src/a.py", "def a(): pass")
-    unused, _ = s.read("src/zzz.py", "def zzz(): pass")
-    s.say("used a.py")
+    s.read("src/b.py", None)
+    unsure, _ = s.read("src/b.py", None)
+    s.say("used a.py and b.py")
     a = analysis_of(s)
     by_id = {c.event_id: c for c in a.classifications}
     assert by_id[repeat.id].activity_class is ActivityClass.AVOIDABLE
     assert by_id[repeat.id].flow is FlowState.REPEATING
     assert by_id[repeat.id].basis.startswith("repeated_exploration:")
-    assert by_id[unused.id].activity_class is ActivityClass.NECESSARY_NON_VALUE_ADDING
-    assert by_id[unused.id].uncertain_share == 1.0
-    assert "uncertain unused_context:" in by_id[unused.id].basis
+    # An unobserved repeat is uncertain: its own bucket, never avoidable.
+    assert by_id[unsure.id].activity_class is ActivityClass.NECESSARY_NON_VALUE_ADDING
+    assert by_id[unsure.id].uncertain_share == 1.0
+    assert "uncertain repeated_exploration:" in by_id[unsure.id].basis
     sc = a.scorecard
-    assert sc.findings == 1 and sc.uncertain_findings == 1
+    assert sc.uncertain_findings == 1
     assert dict(sc.activity_tokens)["uncertain"] > 0
     assert sum(n for _, n in sc.activity_tokens) == sc.generated_tokens
     assert sum(n for _, n in sc.flow_tokens) == sc.generated_tokens
     assert UNCERTAIN_BELOW == 0.7
+
+
+@pytest.mark.req("TER-ANL-022")
+def test_uncertain_waste_counts_until_verified() -> None:
+    s = Script()
+    s.prompt("x")
+    s.read("src/b.py", None)
+    unsure, _ = s.read("src/b.py", None)
+    s.say("done")
+    a = analysis_of(s)
+    [f] = [f for f in a.findings if f.detector == "repeated_exploration"]
+    assert f.uncertain
+    c = next(c for c in a.classifications if c.event_id == unsure.id)
+    assert c.flow is FlowState.REPEATING and c.uncertain_basis == f.id
+    sc = a.scorecard
+    # Counted: in the waste totals, the finding count and flow efficiency ...
+    assert sc.findings == 1 and sc.uncertain_findings == 1
+    assert sc.waste_tokens == sc.uncertain_waste_tokens > 0
+    assert dict(sc.flow_tokens)[FlowState.REPEATING] == sc.waste_tokens
+    assert sc.flow_efficiency_tokens is not None and sc.flow_efficiency_tokens < 1.0
+    # ... and charged to the finding, so the A3 Pareto reconciles.
+    assert round(a.allocated_waste_tokens()[f.id]) == sc.waste_tokens
 
 
 @pytest.mark.req("TER-SCR-002", "TER-FLW-001")

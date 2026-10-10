@@ -186,15 +186,16 @@ def _problem(analysis: LeanAnalysis) -> str:
     sc = analysis.scorecard
     if sc.generated_tokens == 0:
         return "The session generated no agent activity to analyse."
-    avoidable = sc.activity_share(ActivityClass.AVOIDABLE)
+    avoidable = sc.waste_tokens / sc.generated_tokens
     parts = [
         f"{avoidable:.0%} of the {sc.generated_tokens:,} tokens the agent generated went to "
-        f"avoidable work across {sc.findings} confident finding(s)"
+        f"avoidable work across {sc.findings} finding(s)"
     ]
     if sc.uncertain_findings:
         parts.append(
-            f"{sc.uncertain_findings} further finding(s) covering "
-            f"{sc.uncertain_waste_tokens:,} tokens are uncertain"
+            f"{sc.uncertain_findings} of those finding(s), covering "
+            f"{sc.uncertain_waste_tokens:,} tokens, are uncertain and count as "
+            "waste until verified"
         )
     if sc.flow_efficiency_tokens is not None:
         flow = f"flow efficiency is {sc.flow_efficiency_tokens:.0%} of tokens"
@@ -216,7 +217,7 @@ def _pareto(analysis: LeanAnalysis) -> tuple[ParetoBar, ...]:
     parts: dict[str, float] = {}
     counts: dict[LeanWaste, int] = {}
     for f in analysis.findings:
-        if f.kind is not FindingKind.WASTE or f.uncertain:
+        if f.kind is not FindingKind.WASTE:
             continue
         parts[f.waste.value] = parts.get(f.waste.value, 0.0) + allocated.get(f.id, 0.0)
         counts[f.waste] = counts.get(f.waste, 0) + 1
