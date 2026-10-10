@@ -1121,8 +1121,9 @@ class IntentDrift:
         "no names and only its added words (at least 3) depart. "
         "In a file the session created (first touched by a write whose "
         "result was observed and did not report an existing file or an "
-        "error, and not a repository file at the start when grounded), only "
-        "the 0.85 cases are findings. "
+        "error, and not a repository file at the start when grounded), an "
+        "edit is a finding only when it continues a dropped goal or the agent "
+        "called it additional. "
         "Before any prompt, or against a shorter intent: no finding."
     )
 
@@ -1162,7 +1163,7 @@ class IntentDrift:
             # file the session created defines names the intent never mentions
             # (132 findings) and adds words it never uses (46 of 55 judged
             # not waste), so only a dropped goal or announced extra work
-            # counts there.
+            # raises a finding there.
             in_created = bool(step.paths) and created.issuperset(
                 _file_key(p, view.repository) for p in step.paths
             )
@@ -1187,7 +1188,9 @@ class IntentDrift:
                         "requested change."
                     )
             else:
-                if in_created or len(a.subject) < _MIN_DRIFT_WORDS:
+                if len(a.subject) < _MIN_DRIFT_WORDS:
+                    continue
+                if in_created and not announced and not a.subject & dropped:
                     continue
                 confidence = 0.55
                 why = (

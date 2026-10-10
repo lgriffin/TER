@@ -9,6 +9,7 @@ cannot be read reliably it is reported as unknown (``Outcome.UNKNOWN``,
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 import shlex
 from collections.abc import Mapping
@@ -312,13 +313,25 @@ def tool_call_failed(output: str) -> bool:
 def write_created(output: str) -> bool | None:
     """Whether a write's result says it created the file: True for a new
     file (Claude Code: ``File created successfully at: …``), False for an
-    existing one it replaced (``The file … has been updated``), None when the
-    result does not say."""
+    existing one it replaced (``The file … has been updated``, or a hook's
+    ``"type": "update"``), None when the result does not say."""
     text = output.lstrip()
     if text.startswith("File created successfully"):
         return True
     if text.startswith("The file ") and "has been updated" in text[:2000]:
         return False
+    if text.startswith("{"):
+        # A hook's structured result: Claude Code's Write reports
+        # ``"type": "create"`` or ``"type": "update"``.
+        try:
+            response = json.loads(text)
+        except ValueError:
+            return None
+        kind = response.get("type") if isinstance(response, dict) else None
+        if kind == "create":
+            return True
+        if kind == "update":
+            return False
     return None
 
 
