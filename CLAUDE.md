@@ -23,6 +23,7 @@ requirements/          # EARS requirement catalogue (YAML per maturity level) + 
 tests/equivalence/     # Live (incremental) analysis and explanation == batch on the golden corpus
 tests/fixtures/hooks/  # Example Claude Code hook payloads pinned by contract tests
 docs/                  # Architecture, user guide, context orchestrator reference
+docs/history/          # TER 3 release notes and version plans (history only)
 docs/guides/           # Practical guides: testing, lean, hooks, ears, definition of done, A3, architecture, contributing
 sample_sessions/       # Sample JSONL files for testing
 ```
