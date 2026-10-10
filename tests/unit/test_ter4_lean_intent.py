@@ -338,6 +338,60 @@ class TestDriftInCreatedFiles:
         )
         assert drift(s) == []
 
+    def test_added_words_in_a_file_the_session_created_are_not_drift(self) -> None:
+        s = Script()
+        s.prompt(MODE)
+        s.write(
+            "src/extra.py", "x = 1", output="File created successfully at: src/extra.py"
+        )
+        s.edit("src/extra.py", "x = 1", "logger.warning('deprecated path called')")
+        assert drift(s) == []
+
+    def test_added_words_the_agent_called_extra_are_drift_in_a_created_file(
+        self,
+    ) -> None:
+        s = Script()
+        s.prompt(MODE)
+        s.write(
+            "src/extra.py", "x = 1", output="File created successfully at: src/extra.py"
+        )
+        s.think("I will also log a deprecated path warning while I'm at it.")
+        s.edit("src/extra.py", "x = 1", "logger.warning('deprecated path called')")
+        [f] = drift(s)
+        assert f.uncertain and f.confidence == 0.55
+
+    def test_a_hook_result_reporting_an_update_does_not_create_the_file(
+        self,
+    ) -> None:
+        s = Script()
+        s.prompt(MODE)
+        s.write(
+            "src/extra.py",
+            MEAN_EDIT,
+            output='{"filePath": "src/extra.py", "type": "update"}',
+        )
+        [f] = drift(s)
+        assert f.uncertain and f.confidence == 0.55
+
+    def test_added_words_in_an_existing_file_are_still_drift(self) -> None:
+        s = Script()
+        s.prompt(MODE)
+        s.read("src/extra.py", "x = 1")
+        s.edit("src/extra.py", "x = 1", "logger.warning('deprecated path called')")
+        [f] = drift(s)
+        assert f.uncertain and f.confidence == 0.55
+
+    def test_a_write_that_reports_an_existing_file_does_not_create_it(
+        self,
+    ) -> None:
+        s = Script()
+        s.prompt(MODE)
+        s.write(
+            "src/extra.py", MEAN_EDIT, output="The file src/extra.py has been updated."
+        )
+        [f] = drift(s)
+        assert f.uncertain and f.confidence == 0.55
+
     def test_new_names_in_a_file_the_session_read_first_are_still_drift(self) -> None:
         s = Script()
         s.prompt(MODE)

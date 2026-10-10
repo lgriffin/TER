@@ -29,6 +29,7 @@ from .facts import (
     tool_call_failed,
     tool_paths,
     validation_outcome,
+    write_created,
 )
 from .model import Outcome, ShellIntent, Stage, Step
 
@@ -173,6 +174,7 @@ class StepLog:
         output_hash: str | None = None
         signature: str | None = None
         tool_failed = False
+        created: bool | None = None
         generated = tokens if event.kind.is_generated else 0
         context = tokens if event.kind is EventKind.TOOL_COMPLETED else 0
         words = (
@@ -224,6 +226,8 @@ class StepLog:
             output_hash = output_fingerprint(event.text)
             identifiers = defined_identifiers(event.text)
             tool_failed = tool_call_failed(event.text)
+            if tool_kind is ToolKind.FS_WRITE:
+                created = write_created(event.text)
             if opened is None:
                 stage = Stage.EXPLORE
             else:
@@ -268,6 +272,7 @@ class StepLog:
             outcome=outcome,
             output_hash=output_hash,
             tool_failed=tool_failed,
+            write_created=created,
             failure_signature=signature,
             tokens=generated,
             context_tokens=context,
