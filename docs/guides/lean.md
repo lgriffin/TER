@@ -73,7 +73,7 @@ are the intent stage and are never scored.
 | Value-adding | Directly produces the requested outcome | edits and writes; the final response to a prompt |
 | Necessary, non-value-adding | Needed to produce value safely, not value itself | exploring, planning, validating, narration |
 | Avoidable | Could have been skipped with no loss | the share of an event claimed by a confident waste finding |
-| Uncertain (bucket) | A finding claims it, but below confidence 0.70 | shown, never counted as avoidable |
+| Uncertain (bucket) | A finding claims it, but below confidence 0.70 | labelled and counted as waste until verified ([ADR 0006](../decisions/0006-uncertain-waste-counts-until-verified.md)); never triggers an intervention |
 
 Every event carries a `basis`: the stage rule or the finding id that gave it
 its class, so any number can be traced back to the events behind it.
