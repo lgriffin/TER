@@ -159,6 +159,7 @@ class TestPromptSimilarity:
         assert result.similar_pairs == []
         assert result.prompt_redundancy_score == 0.0
 
+    @pytest.mark.embeddings
     def test_identical_prompts_detected(self):
         result = compute_prompt_similarity(
             [
@@ -171,6 +172,7 @@ class TestPromptSimilarity:
         assert result.similar_pairs[0].similarity > 0.99
         assert result.prompt_redundancy_score == 1.0
 
+    @pytest.mark.embeddings
     def test_similar_prompts_detected(self):
         result = compute_prompt_similarity(
             [
@@ -188,6 +190,7 @@ class TestPromptSimilarity:
         ]
         assert len(auth_pairs) == 1
 
+    @pytest.mark.embeddings
     def test_dissimilar_prompts_no_pairs(self):
         result = compute_prompt_similarity(
             [
@@ -200,6 +203,7 @@ class TestPromptSimilarity:
         assert result.similar_pairs == []
         assert result.prompt_redundancy_score == 0.0
 
+    @pytest.mark.embeddings
     def test_redundancy_score_fraction(self):
         result = compute_prompt_similarity(
             [
@@ -212,6 +216,7 @@ class TestPromptSimilarity:
         # 3 of 4 prompts are redundant
         assert result.prompt_redundancy_score == 0.75
 
+    @pytest.mark.embeddings
     def test_matrix_shape(self):
         prompts = ["a", "b", "c"]
         result = compute_prompt_similarity(prompts)
@@ -234,6 +239,7 @@ class TestIntentDrift:
         assert result.steps == []
         assert result.overall_trajectory == "stable"
 
+    @pytest.mark.embeddings
     def test_identical_prompts_convergent(self):
         result = compute_intent_drift(
             [
@@ -246,6 +252,7 @@ class TestIntentDrift:
         assert result.steps[0].similarity > 0.99
         assert result.overall_trajectory == "convergent"
 
+    @pytest.mark.embeddings
     def test_divergent_prompts(self):
         result = compute_intent_drift(
             [
@@ -257,6 +264,7 @@ class TestIntentDrift:
         # These are semantically very different
         assert result.steps[0].similarity < 0.6
 
+    @pytest.mark.embeddings
     def test_mixed_trajectory(self):
         result = compute_intent_drift(
             [
@@ -272,6 +280,7 @@ class TestIntentDrift:
         # Last step: similar (both about visualization)
         assert result.steps[0].drift_type == "convergent"
 
+    @pytest.mark.embeddings
     def test_step_indices(self):
         result = compute_intent_drift(["a", "b", "c"])
         assert result.steps[0].from_index == 0
@@ -281,6 +290,7 @@ class TestIntentDrift:
 
 
 class TestPromptResponseAlignment:
+    @pytest.mark.embeddings
     def test_aligned_pair(self):
         session = _make_session(
             [
@@ -311,6 +321,7 @@ class TestPromptResponseAlignment:
         assert result.average_alignment > 0.5
         assert result.low_alignment_count == 0
 
+    @pytest.mark.embeddings
     def test_misaligned_pair(self):
         session = _make_session(
             [
@@ -339,6 +350,7 @@ class TestPromptResponseAlignment:
         assert len(result.pairs) == 1
         assert result.pairs[0].alignment < 0.5
 
+    @pytest.mark.embeddings
     def test_skips_tool_result_messages(self):
         session = _make_session(
             [
@@ -380,6 +392,7 @@ class TestPromptResponseAlignment:
         assert len(result.pairs) == 1
         assert result.pairs[0].prompt_text == "read the config file"
 
+    @pytest.mark.embeddings
     def test_multiple_turns(self):
         session = _make_session(
             [
@@ -447,6 +460,7 @@ class TestPromptResponseAlignment:
         result = compute_prompt_response_alignment(session)
         assert result.pairs == []
 
+    @pytest.mark.embeddings
     def test_response_from_multiple_assistant_messages(self):
         """Response text is collected across consecutive assistant messages."""
         session = _make_session(
@@ -486,6 +500,7 @@ class TestPromptResponseAlignment:
 
 
 class TestAnalyzeInput:
+    @pytest.mark.embeddings
     def test_full_analysis(self):
         session = _make_session(
             [

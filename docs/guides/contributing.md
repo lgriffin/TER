@@ -27,10 +27,10 @@ ter-req lint --tests tests
 python -m pytest tests/golden tests/contract tests/architecture -q
 ```
 
-On a machine that cannot reach the tiktoken and Hugging Face download hosts,
-about 39 TER 3 tests fail with download errors (see the
-[testing guide](testing.md#tests-that-need-the-network)). Everything else,
-including all golden tests, runs offline.
+Without the `embeddings` extra, the 39 TER 3 tests that need the
+sentence-transformers model are skipped and the rest of the suite is green
+(see the [testing guide](testing.md#tests-that-need-the-network)). Everything
+else, including all golden tests, runs offline.
 
 ## The rules the code follows
 

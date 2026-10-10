@@ -6,6 +6,7 @@ Feature: Hierarchical Intent Extraction
   Background:
     Given a HierarchicalIntentExtractor with sub_intent_weight 0.7
 
+  @embeddings
   Scenario: First prompt becomes the high-level intent
     Given user prompts:
       | prompt                          |
@@ -16,6 +17,7 @@ Feature: Hierarchical Intent Extraction
     Then the first IntentVector represents the high-level intent
     And 2 additional sub-intent IntentVectors are returned
 
+  @embeddings
   Scenario: Span scoring blends high-level and sub-intent similarity
     Given a high-level intent about "authentication"
     And a sub-intent about "JWT tokens"
@@ -23,6 +25,7 @@ Feature: Hierarchical Intent Extraction
     When the span is scored against the intents
     Then the blended score uses 70 percent sub-intent and 30 percent high-level similarity
 
+  @embeddings
   Scenario: Single prompt returns only high-level intent
     Given user prompts:
       | prompt                     |
