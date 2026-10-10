@@ -1,14 +1,16 @@
 """Developer tasks: one command for each thing CI checks.
 
-Run ``python dev.py`` to list the tasks, ``python dev.py check`` to run what
-CI runs. Works the same on Linux, macOS and Windows, needs only the standard
-library and the ``.[dev]`` install, and runs every tool from the interpreter
-that runs this file, so a tool from another environment is never picked up.
-CI calls these tasks, so a task that passes here passes there.
+Run ``python dev.py`` to list the tasks, ``python dev.py check`` to run the
+CI lint and test jobs (the package build job is CI's alone). Works the same on
+Linux, macOS and Windows, needs only the standard library and the ``.[dev]``
+install, and runs every tool from the interpreter that runs this file, so a
+tool from another environment is never picked up. tests/docs/test_dev_tasks.py
+fails if a task runs a command that no CI step runs.
 """
 
 from __future__ import annotations
 
+import importlib.util
 import os
 import subprocess
 import sys
@@ -21,6 +23,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 TRACE = "req-trace.json"
 GATES = ("L0", "L1", "L2", "L3")
+#: The coverage CI measures; pyproject.toml sets the 90% floor.
+COVERAGE = ("--cov=ter_calculator", "--cov=ter", "--cov-branch")
 PY_PATHS = ("src", "tests", "dev.py")
 
 Command = list[str]
@@ -32,10 +36,14 @@ def py(*args: str) -> Command:
 
 
 def tool(name: str, *args: str) -> Command:
-    """A console script installed beside this interpreter (``ter-req``, ...)."""
+    """A console script installed beside this interpreter (``ter-req``, ...).
+
+    Never a bare name looked up on PATH, which could be another environment's
+    copy; a missing script fails with a pointer to ``python dev.py setup``.
+    """
     suffix = ".exe" if os.name == "nt" else ""
     path = Path(sysconfig.get_path("scripts")) / f"{name}{suffix}"
-    return [str(path) if path.exists() else name, *args]
+    return [str(path), *args]
 
 
 @dataclass(frozen=True)
@@ -80,7 +88,7 @@ def _l0(_: list[str]) -> list[Command]:
 
 def _gates(extra: list[str]) -> list[Command]:
     return [
-        py("pytest", f"--req-trace={TRACE}", *extra),
+        py("pytest", *COVERAGE, f"--req-trace={TRACE}", *extra),
         *(tool("ter-req", "trace", "--results", TRACE, "--gate", g) for g in GATES),
     ]
 
@@ -109,9 +117,12 @@ TASKS: dict[str, Task] = {
     ),
     "l0": Task("the L0 gate: golden parity, port contracts, architecture", _l0),
     "gates": Task(
-        "full suite with traceability, then the L0-L3 gates (CI test job)", _gates
+        "full suite with coverage and traces, then the L0-L3 gates (CI test job)",
+        _gates,
     ),
-    "check": Task("lint, then gates: everything CI checks", _check),
+    "check": Task(
+        "lint, then gates: the CI lint and test jobs (not the package build)", _check
+    ),
     "golden": Task(
         "golden snapshots; TER_UPDATE_GOLDEN=1 rewrites them on purpose", _golden
     ),
@@ -119,6 +130,10 @@ TASKS: dict[str, Task] = {
         "regenerate docs/ter4/points.md from requirements/points.yaml", _points
     ),
 }
+
+
+def _embeddings_installed() -> bool:
+    return importlib.util.find_spec("sentence_transformers") is not None
 
 
 def run(name: str, extra: list[str]) -> int:
@@ -132,12 +147,26 @@ def run(name: str, extra: list[str]) -> int:
         )
         print(f"\n==> {shown}", flush=True)
         started = time.monotonic()
-        code = subprocess.call(command, cwd=ROOT, env=env)
+        try:
+            code = subprocess.call(command, cwd=ROOT, env=env)
+        except FileNotFoundError:
+            print(
+                f"\nFAILED {name}: `{shown}` is not installed in this environment"
+                f" ({Path(sys.executable).parent}); run `python dev.py setup`",
+                file=sys.stderr,
+            )
+            return 127
         if code != 0:
             print(f"\nFAILED {name}: `{shown}` exited {code}", file=sys.stderr)
             return code
         print(f"    ok in {time.monotonic() - started:.1f}s", flush=True)
     print(f"\nPASSED {name}")
+    if name in {"check", "gates", "test"} and not _embeddings_installed():
+        print(
+            "note: the embeddings extra is not installed, so the tests marked"
+            " `embeddings` were skipped; CI runs them. Install it with"
+            " `python -m pip install -c constraints/dev.txt -e .[dev,embeddings]`."
+        )
     return 0
 
 

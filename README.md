@@ -301,7 +301,7 @@ The TER 3 pipeline is described in [docs/architecture.md](docs/architecture.md).
 ```bash
 python dev.py setup      # install .[dev] and the pre-commit hooks
 python dev.py fast       # quick loop
-python dev.py check      # everything CI checks
+python dev.py check      # the CI lint and test jobs
 ```
 
 Branch coverage is enforced at 90%. The [testing guide](docs/guides/testing.md)

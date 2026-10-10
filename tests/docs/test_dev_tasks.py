@@ -58,12 +58,34 @@ def _as_ci_words(command: list[str]) -> list[str]:
     return [Path(command[0]).name.removesuffix(".exe"), *command[1:]]
 
 
+def _positional(words: list[str]) -> list[str]:
+    return [w for w in words if not w.startswith("-")]
+
+
+def _same_command(task: list[str], ci: list[str]) -> bool:
+    """CI runs the task's command: the same program with at least the task's
+    arguments (CI may add report options). For pytest the test selection, its
+    paths, must be the same too, so a narrower CI run never counts.
+    """
+    if task[:1] != ci[:1] or not set(task) <= set(ci):
+        return False
+    return task[0] != "pytest" or _positional(task) == _positional(ci)
+
+
+def test_a_narrower_ci_selection_is_not_the_same_command() -> None:
+    task = ["pytest", "--cov=ter", "--req-trace=req-trace.json"]
+    assert _same_command(task, [*task, "--cov-report=xml"])
+    assert not _same_command(task, [*task, "tests/unit"])
+    assert not _same_command(["ter-req", "trace", "--gate", "L3"], ["ter-req", "lint"])
+    assert _same_command(["ter-req", "trace"], ["ter-req", "trace", "--summary", "X"])
+
+
 @pytest.mark.parametrize("task", ["lint", "l0", "gates"])
 def test_every_command_a_ci_task_runs_is_a_ci_step(task: str) -> None:
     runs = _ci_runs()
     for command in dev.TASKS[task].steps([]):
         words = _as_ci_words(command)
-        assert any(run[:1] == words[:1] and set(words) <= set(run) for run in runs), (
+        assert any(_same_command(words, run) for run in runs), (
             f"`python dev.py {task}` runs `{' '.join(words)}`, which CI does not"
         )
 
@@ -109,6 +131,28 @@ def test_a_failing_step_stops_the_task(
     assert dev.main(["lint"]) == 3
     assert len(calls) == 1
     assert "FAILED lint" in capsys.readouterr().err
+
+
+def test_a_missing_tool_names_the_fix(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    def call(command: list[str], **_: object) -> int:
+        raise FileNotFoundError(command[0])
+
+    monkeypatch.setattr(dev.subprocess, "call", call)
+    assert dev.main(["points"]) == 127
+    err = capsys.readouterr().err
+    assert "not installed in this environment" in err and "dev.py setup" in err
+
+
+def test_tools_never_fall_back_to_path() -> None:
+    (command,) = dev.TASKS["points"].steps([])
+    assert Path(command[0]).is_absolute()
+
+
+def test_gates_measure_coverage_like_ci() -> None:
+    pytest_command = dev.TASKS["gates"].steps([])[0]
+    assert {"--cov=ter_calculator", "--cov=ter", "--cov-branch"} <= set(pytest_command)
 
 
 def test_tasks_test_this_checkout_first(monkeypatch: pytest.MonkeyPatch) -> None:

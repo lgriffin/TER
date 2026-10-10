@@ -30,7 +30,7 @@ sample_sessions/       # Sample JSONL files for testing
 ## Commands
 
 ```bash
-python dev.py check                       # Everything CI checks (lint + L0-L3 gates); `python dev.py` lists tasks
+python dev.py check                       # The CI lint and test jobs (lint, coverage, L0-L3 gates); `python dev.py` lists tasks
 python dev.py fast                        # Quick loop: -x, last failures first, no embedding model
 pytest                                    # Run all tests
 pytest tests/unit/test_fragment_store.py  # Run specific module tests

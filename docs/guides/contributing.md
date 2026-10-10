@@ -154,7 +154,7 @@ These are the CI jobs, run locally by `dev.py`:
 python dev.py            # list the tasks
 python dev.py fast       # quick loop: stop at first failure, no model
 python dev.py fmt        # format and auto-fix lint
-python dev.py check      # everything CI checks: lint, then the L0-L3 gates
+python dev.py check      # the CI lint and test jobs: lint, coverage, L0-L3 gates
 ```
 
 `python dev.py lint` is the CI lint job (ruff, mypy, `lint-imports`,
