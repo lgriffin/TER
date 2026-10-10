@@ -60,8 +60,9 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from typing import TypeVar
 
+from ..events import EventId
 from .analysis import UNCERTAIN, LeanAnalysis
-from .model import ActivityClass, Finding, FindingKind, LeanWaste
+from .model import ActivityClass, Finding, FindingKind, LeanWaste, ShellIntent
 from .wip import WipKind
 
 __all__ = [
@@ -70,6 +71,7 @@ __all__ = [
     "CONTROL_MEASURES_SCHEMA",
     "CONTROL_REPORT_SCHEMA",
     "MIN_BASELINE",
+    "SESSION_CONTROL_SCHEMA",
     "SETTLED_BASELINE",
     "Basis",
     "ControlChart",
@@ -107,6 +109,7 @@ __all__ = [
 CONTROL_LIMITS_SCHEMA = "ter.control-limits/1"
 CONTROL_MEASURES_SCHEMA = "ter.control-measures/1"
 CONTROL_REPORT_SCHEMA = "ter.control-report/1"
+SESSION_CONTROL_SCHEMA = "ter.session-control/1"
 
 #: Fewest baseline sessions a measure needs before TER computes its limits.
 MIN_BASELINE = 8
@@ -1130,6 +1133,13 @@ class Placement:
     signal: ControlSignal | None
 
     @property
+    def checked(self) -> bool:
+        """Whether ``beyond_limits`` was applied: the measure is switched on
+        and the rule is selected for it. An unchecked measure is neither in
+        nor out of its limits."""
+        return self.limits.enabled and ControlRule.BEYOND_LIMITS in self.limits.rules
+
+    @property
     def in_control(self) -> bool:
         return self.signal is None
 
@@ -1215,30 +1225,80 @@ def control_report(
     )
 
 
+Claims = Callable[[Finding], bool]
+
+
 def _waste(f: Finding) -> bool:
     return f.kind is FindingKind.WASTE
 
 
+def _every(claims: Claims) -> Callable[[LeanAnalysis], Claims]:
+    return lambda _a: claims
+
+
+def _citing_open(kind: WipKind) -> Callable[[LeanAnalysis], Claims]:
+    """Findings that cite an item of ``kind`` still open at the end."""
+
+    def claims(a: LeanAnalysis) -> Claims:
+        still_open = frozenset(a.wip.still_open(kind))
+        if kind is WipKind.FAILURES:
+            still_open = _open_check_runs(a, still_open)
+        return lambda f: not still_open.isdisjoint(f.evidence)
+
+    return claims
+
+
+def _open_check_runs(a: LeanAnalysis, opened: frozenset[EventId]) -> frozenset[EventId]:
+    """Every run of a check still failing at the end, from its first failure.
+
+    WIP keeps the first failure of a check; a finding may cite a later run of
+    the same check, which failed again."""
+    first = {
+        s.command or s.subject: s.index
+        for s in a.steps
+        if s.event_id in opened and s.shell is ShellIntent.VALIDATE
+    }
+    return opened | frozenset(
+        s.event_id
+        for s in a.steps
+        if s.shell is ShellIntent.VALIDATE
+        and (s.command or s.subject) in first
+        and s.index >= first[s.command or s.subject]
+    )
+
+
+def _up_to_peak(a: LeanAnalysis) -> Claims:
+    """Findings that cite work done up to the WIP peak, the work that piled up."""
+    peak = a.wip.peak
+    order = {s.event_id: s.index for s in a.steps}
+    last = None if peak is None else order.get(peak.event_id)
+    if last is None:
+        return lambda _f: False
+    return lambda f: any(order.get(e, last + 1) <= last for e in f.evidence)
+
+
 #: The findings that move each measure, so a session outside a limit points
 #: at its root causes (TER-SPC-011). Shares, flow and totals move with every
-#: waste finding; counts with the findings they count.
-_BEHIND: Mapping[str, Callable[[Finding], bool]] = {
-    "avoidable_share": lambda f: _waste(f) and not f.uncertain,
-    "unverified_waste_share": _waste,
-    "value_adding_share": _waste,
-    "flow_efficiency_tokens": _waste,
-    "flow_efficiency_time": _waste,
-    "edits_validated_share": lambda f: f.detector == "unvalidated_implementation",
-    "ter": _waste,
-    "confident_findings": lambda f: _waste(f) and not f.uncertain,
-    "uncertain_findings": lambda f: _waste(f) and f.uncertain,
-    "rework_cycles": lambda f: f.waste is LeanWaste.REWORK,
-    "risk_findings": lambda f: f.kind is FindingKind.RISK,
-    "wip_peak": lambda f: f.waste is LeanWaste.INVENTORY,
-    "unvalidated_edits_at_end": lambda f: f.detector == "unvalidated_implementation",
-    "unresolved_failures_at_end": lambda f: f.waste is LeanWaste.DEFECTS,
-    "generated_tokens": _waste,
-    "agent_seconds": _waste,
+#: waste finding; counts with the findings they count; the end-of-session WIP
+#: counts with the findings that cite the work still open; the WIP peak with
+#: the findings that cite the work done up to it.
+_BEHIND: Mapping[str, Callable[[LeanAnalysis], Claims]] = {
+    "avoidable_share": _every(lambda f: _waste(f) and not f.uncertain),
+    "unverified_waste_share": _every(_waste),
+    "value_adding_share": _every(_waste),
+    "flow_efficiency_tokens": _every(_waste),
+    "flow_efficiency_time": _every(_waste),
+    "edits_validated_share": _citing_open(WipKind.EDITS),
+    "ter": _every(_waste),
+    "confident_findings": _every(lambda f: _waste(f) and not f.uncertain),
+    "uncertain_findings": _every(lambda f: _waste(f) and f.uncertain),
+    "rework_cycles": _every(lambda f: f.waste is LeanWaste.REWORK),
+    "risk_findings": _every(lambda f: f.kind is FindingKind.RISK),
+    "wip_peak": _up_to_peak,
+    "unvalidated_edits_at_end": _citing_open(WipKind.EDITS),
+    "unresolved_failures_at_end": _citing_open(WipKind.FAILURES),
+    "generated_tokens": _every(_waste),
+    "agent_seconds": _every(_waste),
 }
 
 
@@ -1246,8 +1306,9 @@ _BEHIND: Mapping[str, Callable[[Finding], bool]] = {
 class SessionControl:
     """One session placed against a limits document, for its A3.
 
-    ``behind`` names, for each measure outside a limit, the findings that
-    move that measure: the root causes to read first.
+    ``behind`` names, for each measure outside a limit in the unfavourable
+    direction, the findings that move that measure: the root causes to read
+    first. A favourable signal has none: nothing went wrong.
     """
 
     limits: ControlLimits
@@ -1273,11 +1334,12 @@ class SessionControl:
             entry = p.as_dict()
             entry["label"] = p.limits.measure.label
             entry["fires"] = p.limits.measure.fires
-            if p.signal is not None:
+            entry["checked"] = p.checked
+            if p.signal is not None and p.signal.unfavourable:
                 entry["findings"] = list(self.behind.get(p.limits.measure.key, ()))
             measures.append(entry)
         return {
-            "schema": CONTROL_REPORT_SCHEMA,
+            "schema": SESSION_CONTROL_SCHEMA,
             "method": self.limits.method.value,
             "computed_on": self.limits.computed_on,
             "detectors": self.detectors,
@@ -1306,8 +1368,8 @@ def session_control(analysis: LeanAnalysis, limits: ControlLimits) -> SessionCon
             continue
         placed = place(entry, row.session_id, value)
         placements.append(placed)
-        if placed.signal is not None:
-            claims = _BEHIND[measure.key]
+        if placed.signal is not None and placed.signal.unfavourable:
+            claims = _BEHIND[measure.key](analysis)
             behind[measure.key] = tuple(f.id for f in analysis.findings if claims(f))
     return SessionControl(limits, row.detectors, tuple(placements), behind)
 

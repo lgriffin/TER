@@ -157,11 +157,20 @@ python -m ter a3 session.jsonl --limits limits.json --html a3.html
 ```
 
 The **Process control** section lists the measures outside a limit first,
-each linked to the findings that move it. For example, `rework_cycles` links
-the rework findings, and `unvalidated_edits_at_end` links the
-`unvalidated_implementation` findings. Shares, flow and totals link every
-waste finding. Only `beyond_limits` applies to one session. The JSON carries
-the same placements under `process_control`.
+each linked to the findings that move it:
+
+- `rework_cycles` links the rework findings, and the finding counts link the
+  findings they count.
+- `unvalidated_edits_at_end`, `edits_validated_share` and
+  `unresolved_failures_at_end` link the findings that cite the edits or
+  failed checks still open at the end.
+- `wip_peak` links the findings that cite work done up to the peak.
+- Shares, flow and totals link every waste finding.
+
+A signal in the better direction links nothing. A measure switched off, or
+without `beyond_limits`, shows as not checked. Only `beyond_limits` applies to
+one session. The JSON carries the same placements under `process_control`
+(`ter.session-control/1`).
 
 ## Next
 

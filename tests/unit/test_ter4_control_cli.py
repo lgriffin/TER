@@ -251,7 +251,7 @@ def test_a3_places_the_session_against_limits(limits: Path, tmp_path: Path) -> N
     )
     assert code == 0, err
     control = json.loads(js.read_text(encoding="utf-8"))["process_control"]
-    assert control["schema"] == "ter.control-report/1" and not control["stale"]
+    assert control["schema"] == "ter.session-control/1" and not control["stale"]
     assert len(control["measures"]) == 15
 
 

@@ -561,6 +561,7 @@ nav.toc,.skip{display:none}
 .chart.wide svg{min-width:0}
 pre,blockquote{max-height:none}
 details>summary{display:none}
+details.control::details-content{content-visibility:visible;display:block;height:auto}
 }
 """
 
@@ -1201,8 +1202,8 @@ def _control_findings(report: A3Report, ids: Sequence[str]) -> str:
         return shown
     rest = "<br>".join(links[CONTROL_FINDINGS_SHOWN:])
     return (
-        f"{shown}<details><summary>+{len(links) - CONTROL_FINDINGS_SHOWN} more"
-        f"</summary>{rest}</details>"
+        f'{shown}<details class="control"><summary>'
+        f"+{len(links) - CONTROL_FINDINGS_SHOWN} more</summary>{rest}</details>"
     )
 
 
@@ -1228,11 +1229,17 @@ def _control_rows(
     rows = []
     for p in placements:
         m, s = p.limits.measure, p.signal
-        if s is None:
+        if not p.checked:
+            why = "switched off" if not p.limits.enabled else "rule off"
+            status = f'<span class="tag kind">not checked, {why}</span>'
+        elif s is None:
             status = '<span class="tag ok">in limits</span>'
+        elif not s.unfavourable:
+            # Better than the process: nothing to trace back.
+            status = f'<span class="tag ok">{esc(s.side.value)} limit, better</span>'
         else:
-            tone = "risk" if s.fires else ("warn" if s.unfavourable else "ok")
-            word = "fires" if s.fires else ("worse" if s.unfavourable else "better")
+            tone = "risk" if s.fires else "warn"
+            word = "fires" if s.fires else "worse"
             status = (
                 f'<span class="tag {tone}">{esc(s.side.value)} limit, {word}</span>'
                 '<small class="behind">Findings behind it:<br>'
@@ -1265,7 +1272,9 @@ def _process_control(report: A3Report, control: SessionControl) -> str:
             not (p.signal is not None and p.signal.unfavourable),
         ),
     )
-    inside = [p for p in control.placements if p.signal is None]
+    inside = [p for p in control.placements if p.checked and p.signal is None]
+    unchecked = [p for p in control.placements if not p.checked]
+    worse = sum(1 for s in control.signals if s.unfavourable)
     limits = control.limits
     parts = []
     if control.stale:
@@ -1276,21 +1285,30 @@ def _process_control(report: A3Report, control: SessionControl) -> str:
             "Recompute the limits before acting on them.</p>"
         )
     if outside:
+        read = " Read the findings behind them first." if worse else ""
         parts.append(
             f"<p><b>{len(outside)}</b> of {len(control.placements)} measures are "
-            f"outside their limits; <b>{len(control.firing)}</b> would fire. Read "
-            "the findings behind them first.</p>"
+            f"outside their limits, <b>{worse}</b> in the worse direction; "
+            f"<b>{len(control.firing)}</b> would fire.{read}</p>"
         )
         parts.append(_control_rows(report, control, outside))
-    else:
+    elif inside:
         parts.append(
-            f"<p>All {len(control.placements)} measures are inside their limits: "
+            f"<p>All {len(inside)} checked measures are inside their limits: "
             "this session looks like the rest of its process.</p>"
         )
+    else:
+        parts.append("<p>No measure was checked against its limits.</p>")
     if inside:
         parts.append(
-            f"<details><summary>{len(inside)} measure(s) inside their limits"
-            f"</summary>{_control_rows(report, control, inside)}</details>"
+            f'<details class="control"><summary>{len(inside)} measure(s) inside '
+            f"their limits</summary>{_control_rows(report, control, inside)}</details>"
+        )
+    if unchecked:
+        parts.append(
+            f'<details class="control"><summary>{len(unchecked)} measure(s) not '
+            "checked: switched off or the beyond-limits rule is off in the limits "
+            f"file</summary>{_control_rows(report, control, unchecked)}</details>"
         )
     when = f" on {esc(limits.computed_on)}" if limits.computed_on else ""
     method = esc(limits.method.value.replace("_", " "))
