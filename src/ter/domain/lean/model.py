@@ -246,6 +246,9 @@ class Step:
     #: a new attempt at the task (TER-DET-011 reads a re-attempt served by
     #: another model as an escalation).
     opens_attempt: bool = False
+    #: A tool completion whose harness reported that the call itself failed
+    #: (a refused write, an edit whose text was not found): it changed nothing.
+    tool_failed: bool = False
 
     @property
     def is_generated(self) -> bool:

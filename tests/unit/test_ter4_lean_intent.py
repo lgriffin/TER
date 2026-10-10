@@ -17,7 +17,8 @@ from ter4_lean_builder import PASS, Script
 from ter.adapters.driven.claude_code import ClaudeCodeJsonlSource
 from ter.adapters.driving.reports import render_a3_html
 from ter.adapters.driven.tokenizers import RegexTokenizer
-from ter.domain import AnalysisEngine, EventKind, explain_batch
+from ter.domain import AnalysisEngine, EventKind, ToolKind, explain_batch
+from ter.domain.lean.grounding import RepositoryGrounding
 from ter.domain.lean import (
     ActivityClass,
     AlignmentBand,
@@ -352,6 +353,57 @@ class TestDriftInCreatedFiles:
         s.write("src/extra.py", MEAN_EDIT)
         [f] = drift(s)
         assert f.confidence == 0.85
+
+    def test_a_refused_first_write_does_not_create_the_file(self) -> None:
+        s = Script()
+        s.prompt(MODE)
+        s.write(
+            "src/extra.py",
+            "",
+            output="<tool_use_error>File has not been read yet.</tool_use_error>",
+        )
+        s.edit("src/extra.py", "", MEAN_EDIT)
+        [f] = drift(s)
+        assert f.uncertain and f.confidence == 0.55
+
+    def test_a_first_write_with_no_observed_result_does_not_create_the_file(
+        self,
+    ) -> None:
+        s = Script()
+        s.prompt(MODE)
+        s.call(
+            "Write",
+            ToolKind.FS_WRITE,
+            {"file_path": "src/extra.py", "content": ""},
+            output=None,
+        )
+        s.edit("src/extra.py", "", MEAN_EDIT)
+        [f] = drift(s)
+        assert f.uncertain and f.confidence == 0.55
+
+    def test_two_spellings_of_one_path_are_one_file(self) -> None:
+        s = Script()
+        s.prompt(MODE)
+        s.read("./src/extra.py", "")
+        s.write("src/extra.py", MEAN_EDIT)
+        [f] = drift(s)
+        assert f.uncertain and f.confidence == 0.55
+
+    def test_a_grounded_file_that_existed_at_the_start_is_not_created(
+        self,
+    ) -> None:
+        s = Script()
+        s.prompt(MODE)
+        s.write("src/extra.py", MEAN_EDIT)
+        g = RepositoryGrounding(
+            engine="fake",
+            syntax=False,
+            files=frozenset({"src/extra.py"}),
+            paths={"src/extra.py": "src/extra.py"},
+        )
+        a = explain(s.events, RegexTokenizer(), repository=g)
+        [f] = [f for f in a.findings if f.detector == "intent_drift"]
+        assert f.uncertain and f.confidence == 0.55
 
     def test_a_file_first_touched_by_an_edit_is_not_counted_as_created(
         self,

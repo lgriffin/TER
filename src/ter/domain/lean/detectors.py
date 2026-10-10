@@ -16,6 +16,7 @@ from __future__ import annotations
 import re
 from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import dataclass, field
+import posixpath
 from pathlib import PurePosixPath
 from typing import Protocol
 
@@ -1119,7 +1120,8 @@ class IntentDrift:
         "when it only defines new names the intent does not mention, or defines "
         "no names and only its added words (at least 3) depart. "
         "New names alone in files the session created (first touched by a "
-        "write): no finding. "
+        "write whose result was observed and succeeded, and not a repository file at the start when "
+        "grounded): no finding. "
         "Before any prompt, or against a shorter intent: no finding."
     )
 
@@ -1163,7 +1165,9 @@ class IntentDrift:
                 elif announced:
                     confidence = 0.85
                     why = "The agent itself called it additional work."
-                elif step.paths and created.issuperset(step.paths):
+                elif step.paths and created.issuperset(
+                    _file_key(p, view.repository) for p in step.paths
+                ):
                     # Judged on a real greenfield session (10 Oct 2026): building
                     # a file the session created defines names the intent never
                     # mentions on nearly every edit, so they say nothing.
@@ -1207,16 +1211,39 @@ _MIN_DRIFT_WORDS = 3
 
 
 def _created_files(view: SessionView) -> frozenset[str]:
-    """Files the session created: their first touch is a write."""
+    """Files the session created: their first touch is a write that succeeded.
+
+    A refused write changed nothing, and one with no observed result may not
+    have run, so neither is a touch. Paths are compared in
+    one spelling: the repository path when the session is grounded, else the
+    normalised path. A grounded file that existed at the start is never
+    created, whatever touched it first."""
+    g = view.repository
     seen: set[str] = set()
     created: set[str] = set()
     for step in view.requests():
+        done = view.completion_of.get(step.index)
+        if done is None or done.tool_failed:
+            continue
         for path in step.paths:
-            if path not in seen:
-                seen.add(path)
-                if step.tool_kind is ToolKind.FS_WRITE:
-                    created.add(path)
+            key = _file_key(path, g)
+            if key in seen:
+                continue
+            seen.add(key)
+            if step.tool_kind is ToolKind.FS_WRITE and (
+                g is None or key not in g.files
+            ):
+                created.add(key)
     return frozenset(created)
+
+
+def _file_key(path: str, g: RepositoryGrounding | None) -> str:
+    """One spelling of a session path: its repository path when known."""
+    if g is not None:
+        known = g.repository_path(path)
+        if known is not None:
+            return known
+    return posixpath.normpath(path.replace("\\", "/"))
 
 
 # ---------------------------------------------------------------------------
