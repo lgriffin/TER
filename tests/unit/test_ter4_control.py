@@ -120,6 +120,23 @@ class TestNaturalLimits:
         assert average.ucl is not None and median.ucl is not None
         assert median.ucl < average.ucl
 
+    @pytest.mark.req("TER-SPC-014")
+    def test_median_of_zero_falls_back_to_the_average_moving_range(self) -> None:
+        # Mostly 0, as confident findings were on the owner's corpus.
+        counts = [0.0] * 10 + [3.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+        median = natural_limits(counts, LimitMethod.MEDIAN_MOVING_RANGE)
+        average = natural_limits(counts)
+        assert median.method is LimitMethod.AVERAGE_MOVING_RANGE
+        assert median == average
+        assert median.ucl is not None and median.ucl > median.centre
+        assert median.as_dict()["method"] == "average_moving_range"
+
+    @pytest.mark.req("TER-SPC-014")
+    def test_median_with_spread_keeps_the_median_method(self) -> None:
+        values = [1.0, 2.0, 1.0, 3.0, 2.0, 1.0, 2.0, 3.0]
+        lim = natural_limits(values, LimitMethod.MEDIAN_MOVING_RANGE)
+        assert lim.method is LimitMethod.MEDIAN_MOVING_RANGE
+
     def test_limit_past_the_boundary_is_no_limit(self) -> None:
         counts = [0.0, 1.0, 0.0, 2.0, 0.0, 0.0, 1.0, 0.0]
         lim = natural_limits(counts, lower_bound=0.0)

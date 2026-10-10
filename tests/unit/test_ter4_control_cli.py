@@ -118,6 +118,7 @@ def test_chart_writes_html_and_json(
         ]
     )
     assert code == 0, err
+    assert "Control charts · 14 sessions" in err
     page = html.read_text(encoding="utf-8")
     assert page.startswith("<!doctype html>") and "<script" not in page
     assert "Individuals (X)" in page and "Moving range (mR)" in page

@@ -42,7 +42,10 @@ time):
 | Moving range upper limit (URL) | 3.268 × mR̄ | 3.865 × median mR |
 
 The median method suits skewed measures, because one wild session cannot
-inflate its limits. A limit past a measure's natural boundary is reported
+inflate its limits. When most successive sessions are equal, as with a count
+that is usually 0, the median moving range is 0 and would collapse the
+limits onto the centre. That measure then uses the average moving range,
+and its `natural.method` in the limits file says so (TER-SPC-014). A limit past a measure's natural boundary is reported
 as no limit. Examples are a lower limit below 0 for a count, or an upper
 limit above 100% for a ratio. TER computes limits only from 8 or more
 sessions with a known value (TER-SPC-002). Below 20 sessions they are
@@ -80,6 +83,10 @@ causes below its mean.
 | `unvalidated_edits_at_end`, `unresolved_failures_at_end` | count | higher |
 | `generated_tokens` | tokens | higher (never fires) |
 | `agent_seconds` | seconds | higher (never fires) |
+
+A count that is almost always 0, such as `confident_findings` on a
+healthy corpus, is a rare event. Its XmR limits are wide and a single
+session above them is the signal worth reading.
 
 Uncertain findings count as waste until they are verified, so the process is
 also charted with them (`unverified_waste_share`, `uncertain_findings`).
