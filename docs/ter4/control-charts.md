@@ -41,8 +41,11 @@ time):
 | Sigma, for the zone rules | mR̄ / 1.128 | median mR / 0.954 |
 | Moving range upper limit (URL) | 3.268 × mR̄ | 3.865 × median mR |
 
-The median method suits skewed measures, because one wild session cannot
-inflate its limits. When most successive sessions are equal, as with a count
+The median method resists one wild session, which cannot inflate its
+limits. On heavily skewed measures it does worse: on the owner's 61-session
+corpus it flagged 374 signals against 44 for the average method, most of them
+sessions below the centre of a long-tailed measure such as agent time. Keep
+the average method unless you have a reason not to. When most successive sessions are equal, as with a count
 that is usually 0, the median moving range is 0 and would collapse the
 limits onto the centre. That measure then uses the average moving range,
 and its `natural.method` in the limits file says so (TER-SPC-014). A limit past a measure's natural boundary is reported
