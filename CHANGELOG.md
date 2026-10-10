@@ -35,6 +35,7 @@ All notable public changes to TER are documented in this file. The project follo
 - The Claude Code tool map moved to `ter.adapters.claude_code_tools`, shared by the JSONL source and the hooks adapter; `ter.adapters.driven.claude_code.tool_map` re-exports it.
 - `ter.ports.driven` imports numpy for type checking only, so hook processes start faster.
 - `ter visualize` and `ter present` charts now draw through the TER 4 report primitives: each SVG gains a `<title>` and `<desc>` (via `aria-labelledby`), legends wrap, and in-bar labels use a contrast-checked text colour. Chart names and the `ter_calculator.charts` API are unchanged.
+- The A3 page leads with *At a glance*: the problem, four headline measures with bars and the three countermeasures to act on first. Countermeasures are numbered in the order to act on them; root causes are cards that link to the action answering them and back. With `--repo` a Repository evidence section shows reads later used, unused reads with their context tokens, files explored against changed and outcome value (TER-RPT-006, TER-RPT-007). A sticky section bar, header chips (maturity, cost, verdict), labelled snippet targets and a phone layout with no sideways scroll. The A3 JSON is unchanged.
 
 ## [3.0.0] - 2026-07-22
 

@@ -11,7 +11,8 @@ on one landscape A3 sheet.
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
+from dataclasses import dataclass
 
 from ter.domain.lean import (
     LEAN_MEASURES,
@@ -20,6 +21,7 @@ from ter.domain.lean import (
     ActivityClass,
     Countermeasure,
     Finding,
+    FindingKind,
     FlowState,
     Measure,
     StageSummary,
@@ -27,7 +29,11 @@ from ter.domain.lean import (
     WipKind,
 )
 from ter.domain.events import describe_limit
+from ter.domain.lean.a3 import A3_SCHEMA
+from ter.domain.lean.countermeasures import Action, ActionKind
 from ter.domain.lean.model import UNCERTAIN_BELOW, Stage
+from ter.domain.lean.usage import ReadUsage, UsageStatus
+from ter.domain.lean.value import JudgedKind, ValueClass
 from ter.domain.report import WasteByType
 from ter.domain.outcome import CheckResult
 
@@ -387,91 +393,173 @@ def pareto(report: A3Report, *, width: int = 520) -> str:
 
 _CSS = """
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:64px}
 body{margin:0;background:var(--ter-page);color:var(--ter-ink);
 font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
 main{max-width:1320px;margin:0 auto;padding:24px 24px 40px}
-header.a3{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;
-gap:8px 24px;border-bottom:3px solid var(--ter-ink);padding-bottom:10px;margin-bottom:16px}
+a{color:var(--ter-series-1);text-underline-offset:2px}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--ter-series-1);outline-offset:2px;border-radius:4px}
+.skip{position:absolute;left:-9999px;top:8px;z-index:3;background:var(--ter-surface);padding:6px 10px;
+border-radius:6px}
+.skip:focus{left:8px}
+header.a3{border-bottom:3px solid var(--ter-ink);padding-bottom:12px;margin-bottom:0}
 .eyebrow{margin:0;color:var(--ter-muted);font-size:12px;letter-spacing:.08em;
 text-transform:uppercase;font-weight:700}
-h1{margin:2px 0 0;font-size:24px;line-height:1.25;max-width:900px}
-.meta{margin:0;color:var(--ter-ink-2);font-size:13px;text-align:right}
+h1{margin:2px 0 8px;font-size:24px;line-height:1.25;max-width:1000px;overflow-wrap:anywhere}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.chips li{border:1px solid var(--ter-grid);background:var(--ter-surface);border-radius:999px;
+padding:1px 10px;font-size:12.5px;color:var(--ter-ink-2);max-width:100%;overflow-wrap:anywhere}
+.chips li b{color:var(--ter-ink)}
+.chips .level{border-color:var(--ter-ink);color:var(--ter-ink);font-weight:600}
+.verdict{font-weight:700}
+.verdict.ok{border-color:var(--ter-series-3)}
+.verdict.bad{border-color:var(--ter-waste)}
+.verdict.unsure{border-color:var(--ter-series-4)}
+nav.toc{position:sticky;top:0;z-index:2;background:var(--ter-page);margin:0 0 14px;
+padding:8px 0;border-bottom:1px solid var(--ter-grid)}
+nav.toc ol{display:flex;gap:4px 14px;flex-wrap:wrap;margin:0;padding:0;list-style:none;font-size:13px}
+nav.toc a{color:var(--ter-ink-2);text-decoration:none;white-space:nowrap}
+nav.toc a:hover{color:var(--ter-ink);text-decoration:underline}
+nav.toc b{display:inline-block;min-width:1.4em;color:var(--ter-muted)}
 code{font:12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}
-.sheet{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.sheet{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
 .box{background:var(--ter-surface);border:1px solid var(--ter-grid);border-radius:10px;
 padding:14px 16px;min-width:0}
 .full{grid-column:1/-1}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 24px;align-items:start}
+.split>*{min-width:0}
 h2{margin:0 0 10px;font-size:15px;display:flex;align-items:center;gap:10px}
 h2 .n{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;
 border-radius:50%;background:var(--ter-ink);color:var(--ter-surface);font-size:13px;flex:none}
 h3{margin:14px 0 6px;font-size:13.5px}
+.split>div>h3:first-child{margin-top:0}
 p{margin:0 0 8px}
-.problem{border-left:4px solid var(--ter-waste);padding:6px 10px;margin:8px 0 0;
+.problem{border-left:4px solid var(--ter-waste);padding:6px 10px;margin:8px 0;
 background:var(--ter-page);border-radius:0 6px 6px 0}
 blockquote{margin:0 0 8px;padding:8px 12px;border-left:3px solid var(--ter-series-1);
 background:var(--ter-page);border-radius:0 6px 6px 0;color:var(--ter-ink-2);white-space:pre-wrap;
-max-height:9.5em;overflow:auto}
-.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.kpi{border:1px solid var(--ter-grid);border-radius:8px;padding:10px 12px;min-width:0}
+max-height:9.5em;overflow:auto;overflow-wrap:anywhere}
+.summary{border:2px solid var(--ter-ink)}
+.summary .problem{font-size:15px;margin-top:0}
+.hero{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:4px 0 6px}
+.hero div{border:1px solid var(--ter-grid);border-radius:8px;padding:10px 12px;min-width:0}
+.hero span{display:block;color:var(--ter-muted);font-size:12px}
+.hero b{display:block;font-size:28px;line-height:1.15;margin:2px 0 6px;font-variant-numeric:tabular-nums}
+.hero small{display:block;color:var(--ter-ink-2);font-size:12px;line-height:1.35;margin-top:6px}
+.meter{display:block;height:8px;border-radius:4px;background:var(--ter-grid);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:4px;background:var(--ter-series-1)}
+.meter.waste i{background:var(--ter-waste)}
+.meter.flow i{background:var(--ter-series-3)}
+.meter.ter i{background:var(--ter-series-7)}
+.meter.warn i{background:var(--ter-series-4)}
+.meter.thin{height:5px;width:72px;display:inline-block;vertical-align:middle;margin-left:6px}
+.top{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
+.top li{border:1px solid var(--ter-grid);border-left:4px solid var(--ter-series-1);border-radius:8px;
+padding:10px 12px;min-width:0;display:flex;flex-direction:column;gap:4px}
+.top li.risk{border-left-color:var(--ter-series-7)}
+.top li.verify{border-left-color:var(--ter-series-4)}
+.top .rank{font-size:12px;color:var(--ter-muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.top a.t{font-weight:700;color:var(--ter-ink);text-decoration:none}
+.top a.t:hover{text-decoration:underline}
+.top .impact{font-size:12.5px;color:var(--ter-ink-2)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.kpi{border:1px solid var(--ter-grid);border-radius:8px;padding:8px 12px;min-width:0}
 .kpi span{display:block;color:var(--ter-muted);font-size:12px}
-.kpi b{display:block;font-size:24px;line-height:1.2;margin:2px 0;font-variant-numeric:tabular-nums}
+.kpi b{display:block;font-size:21px;line-height:1.2;margin:2px 0;font-variant-numeric:tabular-nums}
 .kpi small{display:block;color:var(--ter-ink-2);font-size:12px;line-height:1.35}
 .chart{overflow-x:auto}
 .chart svg{display:block;width:100%;height:auto}
-.full .chart svg{min-width:760px}
-.charts{display:grid;gap:10px}
+.chart.wide svg{min-width:760px}
+.charts{display:grid;gap:12px}
+figure{margin:0}
 table{border-collapse:collapse;width:100%;font-size:13px}
 th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--ter-grid);vertical-align:top}
 th{color:var(--ter-ink-2);font-weight:600;font-size:12px}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 td small,th small{display:block;color:var(--ter-ink-2);font-weight:400}
 .tag{display:inline-block;border-radius:999px;padding:0 8px;font-size:11.5px;font-weight:600;
-border:1px solid var(--ter-grid);white-space:nowrap}
+border:1px solid var(--ter-grid);white-space:nowrap;vertical-align:1px}
 .tag.warn{border-color:var(--ter-series-4);background:color-mix(in srgb,var(--ter-series-4) 18%,transparent)}
 .tag.risk{border-color:var(--ter-series-7)}
 .tag.waste{border-color:var(--ter-waste)}
-.ev{margin-top:4px;font-size:11.5px;color:var(--ter-muted)}
+.tag.ok{border-color:var(--ter-series-3)}
+.tag.kind{border-color:var(--ter-baseline);color:var(--ter-ink-2);font-weight:600}
+.ev{margin-top:6px;font-size:11.5px;color:var(--ter-muted)}
 .ev code{display:inline-block;margin:0 4px 2px 0;padding:0 4px;border-radius:4px;
 background:var(--ter-page);font-size:11.5px}
-.rc td.num{white-space:normal;min-width:120px}
-.rc .rank{width:28px;color:var(--ter-muted);font-variant-numeric:tabular-nums}
-.rc td.num .tag{margin-bottom:2px}
+.ev summary{display:inline;font-size:11.5px}
+.findings{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.finding{border:1px solid var(--ter-grid);border-left:4px solid var(--ter-waste);border-radius:8px;
+padding:10px 12px;min-width:0}
+.finding.risk{border-left-color:var(--ter-series-7)}
+.finding.unsure{border-left-color:var(--ter-series-4);border-left-style:dashed}
+.finding:target,.cm:target{box-shadow:0 0 0 3px color-mix(in srgb,var(--ter-series-1) 45%,transparent)}
+.fh{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.fh .rk{color:var(--ter-muted);font-variant-numeric:tabular-nums;font-weight:700}
+.fh b{flex:1 1 220px;overflow-wrap:anywhere}
+.fh .cost{font-size:12.5px;color:var(--ter-ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.finding p{margin:4px 0 0;color:var(--ter-ink-2);font-size:12.5px;overflow-wrap:anywhere}
+.fm{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;margin-top:6px;font-size:12px;color:var(--ter-ink-2)}
 .intent{margin:0 0 8px;padding-left:20px}
 .intent li{margin:0 0 6px}
 .intent small{display:block;color:var(--ter-ink-2)}
-.cms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.cm{border:1px solid var(--ter-grid);border-radius:8px;padding:10px 12px;min-width:0}
+.cms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.cm{border:1px solid var(--ter-grid);border-radius:8px;padding:12px 14px;min-width:0}
+.cm.verify{border-style:dashed;border-color:var(--ter-series-4)}
 .cm h3{margin:0 0 4px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.cm h3 .n{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;
+border-radius:6px;background:var(--ter-series-1);color:var(--ter-on-series-1);font-size:12px;flex:none}
+.cm.verify h3 .n{background:var(--ter-series-4);color:var(--ter-on-series-4)}
+.cm .impact{font-size:12.5px;color:var(--ter-ink-2);margin:0 0 6px}
 .cm .why{color:var(--ter-ink-2);font-size:12.5px}
-.cm ol{margin:6px 0 0;padding-left:20px}
-.cm li{margin:0 0 6px}
+.cm .answers{margin:0 0 6px;padding-left:18px;font-size:12.5px}
+.cm ol.acts{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:10px}
+.cm ol.acts>li{border-top:1px solid var(--ter-grid);padding-top:8px}
 .kind{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ter-muted)}
-pre{margin:4px 0 0;padding:8px 10px;background:var(--ter-page);border:1px solid var(--ter-grid);
-border-radius:6px;overflow:auto;max-height:16em;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;
+.snip{margin-top:6px;border:1px solid var(--ter-grid);border-radius:6px;overflow:hidden}
+.snip .file{display:block;padding:3px 10px;background:var(--ter-grid);color:var(--ter-ink-2);
+font:600 11.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
+pre{margin:0;padding:8px 10px;background:var(--ter-page);
+overflow:auto;max-height:16em;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;
 white-space:pre-wrap;overflow-wrap:anywhere}
 details{margin-top:4px}
 summary{cursor:pointer;color:var(--ter-ink-2);font-size:12.5px}
 .empty{color:var(--ter-muted);margin:0}
 .fine{color:var(--ter-muted);font-size:12px}
-dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:0;font-size:12.5px}
+dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 14px;margin:0;font-size:12.5px}
 dt{font-weight:600}
-dd{margin:0;color:var(--ter-ink-2)}
+dd{margin:0;color:var(--ter-ink-2);overflow-wrap:anywhere}
+.files{margin:0;padding:0;list-style:none;font-size:12.5px;display:grid;gap:2px}
+.files li{display:flex;gap:8px;align-items:baseline;min-width:0}
+.files code{overflow-wrap:anywhere}
+.mark{flex:none;width:1.1em;text-align:center;font-weight:700}
+.mark.yes{color:var(--ter-series-3)}
+.mark.no{color:var(--ter-waste)}
+.target{display:grid;grid-template-columns:auto auto auto;gap:0 6px;align-items:baseline;justify-content:end}
+@media (max-width:1000px){
+.hero{grid-template-columns:repeat(2,minmax(0,1fr))}
+.top{grid-template-columns:minmax(0,1fr)}
+}
 @media (max-width:900px){
-main{padding:16px 16px 28px}
-.sheet,.cms{grid-template-columns:minmax(0,1fr)}
-.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
-.meta{text-align:left}
+main{padding:16px 12px 28px}
+.sheet,.cms,.split{grid-template-columns:minmax(0,1fr)}
 h1{font-size:21px}
+.box{padding:12px}
+nav.toc ol{flex-wrap:nowrap;overflow-x:auto}
+}
+@media (max-width:480px){
+.hero b{font-size:23px}
+.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @page{size:A3 landscape;margin:10mm}
 @media print{
 body{background:#fff;font-size:11px}
 main{max-width:none;padding:0}
-.box,.cm{break-inside:avoid}
+nav.toc,.skip{display:none}
+.box,.cm,.finding,.top li{break-inside:avoid}
 .chart{overflow:visible}
-.full .chart svg{min-width:0}
-pre{max-height:none}
+.chart.wide svg{min-width:0}
+pre,blockquote{max-height:none}
 details>summary{display:none}
 }
 """
@@ -483,19 +571,244 @@ _PAGE_VARS = (
     ":root[data-theme=dark]{--ter-page:#0f0f0e}"
 )
 
+#: Where each kind of action lands in the developer's setup.
+ACTION_TARGETS: dict[ActionKind, str] = {
+    ActionKind.CLAUDE_MD: "CLAUDE.md",
+    ActionKind.HOOK: ".claude/settings.json",
+    ActionKind.SETTING: ".claude/settings.json",
+    ActionKind.PRACTICE: "way of working",
+}
 
-def _box(number: int | None, title: str, body: str, css: str = "") -> str:
+#: Top countermeasures shown in the summary.
+TOP_ACTIONS = 3
+
+
+def _slug(text: str) -> str:
+    return esc("".join(c if c.isalnum() or c in "-_:." else "-" for c in text))
+
+
+def _box(
+    number: int | None, title: str, body: str, css: str = "", anchor: str = ""
+) -> str:
     badge = f'<span class="n">{number}</span>' if number is not None else ""
+    sid = anchor or (
+        f"s-{number}" if number is not None else f"s-{_slug(title.lower())}"
+    )
     return (
-        f'<section class="box {css}" aria-labelledby="s-{number or esc(title.lower())}">'
-        f'<h2 id="s-{number or esc(title.lower())}">{badge}{esc(title)}</h2>{body}</section>'
+        f'<section class="box {css}" id="{sid}" aria-labelledby="{sid}-h">'
+        f'<h2 id="{sid}-h">{badge}{esc(title)}</h2>{body}</section>'
     )
 
 
 def _figure(svg: str, caption: str) -> str:
     if not svg:
         return ""
-    return f'<figure style="margin:0"><div class="chart">{svg}</div><figcaption class="fine">{esc(caption)}</figcaption></figure>'
+    return f'<figure><div class="chart">{svg}</div><figcaption class="fine">{esc(caption)}</figcaption></figure>'
+
+
+def _meter(share: float | None, css: str = "", *, thin: bool = False) -> str:
+    """A decorative bar; the number it draws is always in the text beside it."""
+    if share is None:
+        return ""
+    pct = max(0.0, min(1.0, share)) * 100
+    cls = " ".join(x for x in ("meter", css, "thin" if thin else "") if x)
+    return f'<span class="{cls}" aria-hidden="true"><i style="width:{pct:.1f}%"></i></span>'
+
+
+# ---------------------------------------------------------------------------
+# Countermeasures in priority order
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class _Ranked:
+    """A countermeasure with the findings it answers and what they claim."""
+
+    number: int
+    measure: Countermeasure
+    findings: tuple[Finding, ...]
+    #: Generated and context tokens its findings claim (risks claim none).
+    tokens: int
+    seconds: float
+    #: Its share of the scorecard's confident waste, or None when uncertain.
+    waste_share: float | None
+
+    @property
+    def protects_outcome(self) -> bool:
+        return any(f.kind is FindingKind.RISK for f in self.findings)
+
+
+def _ranked(report: A3Report) -> list[_Ranked]:
+    """Countermeasures in the order to act on them: confident before verify
+    first, outcome risks first, then by the tokens their findings claim."""
+    a = report.analysis
+    by_id = {f.id: f for f in a.findings}
+    allocated = a.allocated_waste_tokens()
+    waste = a.scorecard.waste_tokens
+    rows: list[
+        tuple[Countermeasure, tuple[Finding, ...], int, float, float | None]
+    ] = []
+    for c in report.countermeasures:
+        found = tuple(by_id[i] for i in c.addresses if i in by_id)
+        wastes = [f for f in found if f.kind is not FindingKind.RISK]
+        tokens = sum(f.tokens + f.context_tokens for f in wastes)
+        seconds = sum(f.seconds for f in wastes)
+        share = None
+        if not c.uncertain and waste > 0:
+            share = sum(allocated.get(f.id, 0.0) for f in wastes) / waste
+        rows.append((c, found, tokens, seconds, share))
+    rows.sort(
+        key=lambda r: (
+            r[0].uncertain,
+            not any(f.kind is FindingKind.RISK for f in r[1]),
+            -r[2],
+        )
+    )
+    return [
+        _Ranked(i, c, found, tokens, seconds, share)
+        for i, (c, found, tokens, seconds, share) in enumerate(rows, 1)
+    ]
+
+
+def _impact(r: _Ranked) -> str:
+    n = len(r.findings)
+    parts = [f"answers {n} finding{'s' if n != 1 else ''}"]
+    if r.tokens:
+        claim = f"{r.tokens:,} tokens"
+        if r.seconds:
+            claim += f", {fmt_seconds(r.seconds)}"
+        parts.append(
+            claim + (" claimed (uncertain)" if r.measure.uncertain else " claimed")
+        )
+    if r.waste_share:
+        parts.append(f"{fmt_pct(r.waste_share, 0)} of confident waste")
+    if r.protects_outcome:
+        parts.append("protects the outcome")
+    return " · ".join(parts)
+
+
+# ---------------------------------------------------------------------------
+# Sections
+# ---------------------------------------------------------------------------
+
+
+def _chips(report: A3Report) -> str:
+    a = report.analysis
+    sc = a.scorecard
+    chips = [
+        f'<li class="level">{"L3 Grounded" if a.repository is not None else "L2 Explained"}</li>',
+        f"<li>Session <code>{esc(report.session_id or '-')}</code></li>",
+        f"<li><b>{a.events}</b> events</li>",
+        f"<li><b>{fmt_tokens(sc.generated_tokens)}</b> generated tokens</li>",
+    ]
+    if sc.agent_seconds > 0:
+        chips.append(f"<li><b>{fmt_seconds(sc.agent_seconds)}</b> agent time</li>")
+    if report.cost is not None and report.cost.turns > report.cost.unpriced_turns:
+        est = " (est.)" if report.cost.estimated else ""
+        chips.append(f"<li><b>{esc(_usd(report.cost.usd))}</b>{est}</li>")
+    if report.outcome is not None:
+        v = report.outcome.verdict.value
+        tone = {"accepted": "ok", "rejected": "bad"}.get(v, "unsure")
+        chips.append(f'<li class="verdict {tone}">Outcome {esc(v)}</li>')
+    return f'<ul class="chips" aria-label="Session facts">{"".join(chips)}</ul>'
+
+
+def _nav(report: A3Report) -> str:
+    items = [("summary", "", "Summary"), ("s-1", "1", "Background")]
+    items.append(("s-scorecard", "", "Scorecard"))
+    if report.outcome is not None:
+        items.append(("s-outcome", "", "Outcome"))
+    items += [
+        ("s-2", "2", "Current state"),
+        ("s-3", "3", "Analysis"),
+        ("s-4", "4", "Root causes"),
+    ]
+    if report.analysis.usage is not None:
+        items.append(("s-repository", "", "Repository"))
+    items += [
+        ("s-5", "5", "Countermeasures"),
+        ("s-6", "6", "Follow-up"),
+        ("s-method", "", "Method"),
+    ]
+    links = "".join(
+        f'<li><a href="#{href}">{f"<b>{n}</b>" if n else ""}{esc(label)}</a></li>'
+        for href, n, label in items
+    )
+    return f'<nav class="toc" aria-label="A3 sections"><ol>{links}</ol></nav>'
+
+
+def _summary(report: A3Report, ranked: Sequence[_Ranked]) -> str:
+    sc = report.analysis.scorecard
+    va = sc.activity_share(ActivityClass.VALUE_ADDING)
+    avoid = sc.activity_share(ActivityClass.AVOIDABLE)
+    unsure = sc.activity_share("uncertain")
+    fe = sc.flow_efficiency_tokens
+    hero = [
+        (
+            "Value-adding work",
+            fmt_pct(va, 0),
+            _meter(va),
+            "of generated tokens classed value-adding",
+        ),
+        (
+            "Avoidable waste",
+            fmt_pct(avoid, 0),
+            _meter(avoid, "waste"),
+            f"{sc.waste_tokens:,} generated tokens, {fmt_seconds(sc.waste_seconds)}"
+            + (f"; {fmt_pct(unsure, 0)} more is uncertain" if unsure else ""),
+        ),
+        (
+            "Flow efficiency",
+            "n/a" if fe is None else fmt_pct(fe, 0),
+            _meter(fe, "flow"),
+            "of generated tokens progressing or iterating",
+        ),
+        (
+            "TER",
+            "not computed" if sc.ter is None else f"{sc.ter.value:.2f}",
+            _meter(None if sc.ter is None else sc.ter.value, "ter"),
+            "token efficiency ratio, 0 to 1",
+        ),
+    ]
+    tiles = "".join(
+        f'<div><span class="hl">{esc(label)}</span><b>{esc(value)}</b>{meter}<small>{esc(sub)}</small></div>'
+        for label, value, meter, sub in hero
+    )
+    if ranked:
+        items = "".join(_top_item(r) for r in ranked[:TOP_ACTIONS])
+        more = len(ranked) - TOP_ACTIONS
+        tail = (
+            f'<p class="fine" style="margin-top:6px">{more} more countermeasure(s) in '
+            '<a href="#s-5">section 5</a>.</p>'
+            if more > 0
+            else ""
+        )
+        actions = f'<h3>Do these first</h3><ol class="top">{items}</ol>{tail}'
+    else:
+        actions = (
+            '<h3>Do these first</h3><p class="empty">Nothing to change: no detector '
+            "fired on this session.</p>"
+        )
+    return (
+        f'<p class="problem"><b>Problem.</b> {esc(report.problem)}</p>'
+        f'<div class="hero" role="list" aria-label="Headline measures">{tiles}</div>'
+        + actions
+    )
+
+
+def _top_item(r: _Ranked) -> str:
+    c = r.measure
+    css = "verify" if c.uncertain else ("risk" if r.protects_outcome else "")
+    kinds = " ".join(
+        f'<span class="tag kind">{esc(ACTION_TARGETS[k])}</span>'
+        for k in dict.fromkeys(a.kind for a in c.actions)
+    )
+    unsure = ' <span class="tag warn">verify first</span>' if c.uncertain else ""
+    return (
+        f'<li class="{css}"><span class="rank">Action {r.number}</span>'
+        f'<a class="t" href="#cm-{r.number}">{esc(c.title)}</a>'
+        f'<span class="impact">{esc(_impact(r))}{unsure}</span><span>{kinds}</span></li>'
+    )
 
 
 def _background(report: A3Report) -> str:
@@ -515,17 +828,19 @@ def _background(report: A3Report) -> str:
         quotes = '<p class="empty">No prompt was recorded.</p>'
         lead = ""
     a = report.analysis
-    return (
+    left = (
         lead
         + quotes
-        + _intent(report)
-        + f'<p class="problem"><b>Problem.</b> {esc(report.problem)}</p>'
         + f'<p class="fine">{a.events} events analysed · session <code>{esc(report.session_id or "-")}</code></p>'
         + "".join(
             f'<p class="fine"><b>Limit.</b> {esc(describe_limit(limit))}</p>'
             for limit in report.usage_limits
         )
     )
+    timeline = _intent(report)
+    if not timeline:
+        return left
+    return f'<div class="split"><div>{left}</div><div>{timeline}</div></div>'
 
 
 def _intent(report: A3Report) -> str:
@@ -677,12 +992,13 @@ def _scorecard(report: A3Report) -> str:
         for label, value, sub in tiles
     )
     return (
+        '<div class="split"><div>'
         f'<div class="kpis" role="list" aria-label="Scorecard">{cards}</div>'
         '<p class="fine" style="margin-top:8px">Each dimension stands alone: no single score '
         f"hides the others. Findings below confidence {UNCERTAIN_BELOW:.2f} are counted as "
         "uncertain, never as waste. Token minimisation is not a goal: efficiency is value "
         f"delivered per unit of resource. {esc(SVE_DEFINITION)}</p>"
-        + _dimensions(report)
+        f"</div><div>{_dimensions(report)}</div></div>"
     )
 
 
@@ -806,11 +1122,17 @@ def _outcome(report: A3Report) -> str:
 
     def row(r: CheckResult) -> str:
         status = "no evidence" if r.status is None else r.status.value
+        tone = (
+            "ok"
+            if status == "passed"
+            else ("waste" if r.status is not None and r.status.is_failure else "warn")
+        )
         optional = "" if r.check.required else " (optional)"
         sources = ", ".join(e.source for e in r.evidence) or "-"
         detail = next((e.detail for e in r.evidence if e.detail), "")
         return (
-            f"<tr><td>{esc(status)}</td><td><code>{esc(r.check.id)}</code>{esc(optional)}"
+            f'<tr><td><span class="tag {tone}">{esc(status)}</span></td>'
+            f"<td><code>{esc(r.check.id)}</code>{esc(optional)}"
             + (f"<br><small>{esc(detail)}</small>" if detail else "")
             + f"</td><td><code>{esc(sources)}</code></td></tr>"
         )
@@ -827,18 +1149,23 @@ def _outcome(report: A3Report) -> str:
             f'<div class="chart"><table>{head}<tbody>{"".join(row(r) for r in rest)}</tbody></table></div></details>'
         )
     return (
+        '<div class="split"><div>'
         f'<div class="kpis" role="list" aria-label="Outcome">{cards}</div>'
-        + checks
-        + f'<p class="fine" style="margin-top:8px">Judged from <code>{esc(verdict.run_ref)}</code> '
+        f'<p class="fine" style="margin-top:8px">Judged from <code>{esc(verdict.run_ref)}</code> '
         f"({esc(verdict.source)}), separately from the scorecard: no measure on this page "
         "reads the verdict.</p>"
+        f"</div><div>{checks}</div></div>"
     )
 
 
 def _current_state(report: A3Report) -> str:
-    return _figure(
-        value_stream_map(report.analysis.value_stream),
-        "Each box is a stage of the agentic value stream. Hover a box for its findings.",
+    svg = value_stream_map(report.analysis.value_stream)
+    if not svg:
+        return ""
+    return (
+        f'<figure><div class="chart wide">{svg}</div><figcaption class="fine">'
+        "Each box is a stage of the agentic value stream. Hover a box for its findings."
+        "</figcaption></figure>"
     )
 
 
@@ -885,88 +1212,346 @@ def _analysis(report: A3Report) -> str:
     return f'<div class="charts">{"".join(charts)}</div>{note}'
 
 
+#: Files listed per column of the repository section before the rest fold.
+FILES_SHOWN = 10
+
+
+@dataclass(frozen=True)
+class _Changes:
+    """When each repository file was first read and successfully edited."""
+
+    #: Files with at least one edit that did not fail, in first-edit order.
+    changed: tuple[str, ...]
+    first_read: dict[str, int]
+    first_edit: dict[str, int]
+    last_edit: dict[str, int]
+    #: Changed files that were not in the repository at the start commit.
+    created: frozenset[str]
+
+    def read_before_edit(self, path: str) -> bool:
+        read = self.first_read.get(path)
+        return read is not None and read < self.first_edit[path]
+
+    def changed_after_read(self, path: str) -> bool:
+        read = self.first_read.get(path)
+        return (
+            read is not None and path in self.last_edit and read < self.last_edit[path]
+        )
+
+
+def _changes(report: A3Report) -> _Changes:
+    """Order reads against edits, leaving out edits whose tool call failed."""
+    a = report.analysis
+    usage, repo = a.usage, a.repository
+    index = {s.event_id: s.index for s in a.steps}
+    first_read: dict[str, int] = {}
+    for r in usage.reads if usage is not None else ():
+        at = index.get(r.event_id)
+        if at is not None and (r.path not in first_read or at < first_read[r.path]):
+            first_read[r.path] = at
+    first_edit: dict[str, int] = {}
+    last_edit: dict[str, int] = {}
+    if repo is not None:
+        for s in a.steps:
+            if not (s.is_edit and s.paths) or s.event_id in repo.failed_edits:
+                continue
+            path = repo.repository_path(s.paths[0])
+            if path is None:
+                continue
+            first_edit.setdefault(path, s.index)
+            last_edit[path] = s.index
+    files = repo.files if repo is not None else frozenset()
+    return _Changes(
+        changed=tuple(first_edit),
+        first_read=first_read,
+        first_edit=first_edit,
+        last_edit=last_edit,
+        created=frozenset(p for p in first_edit if p not in files),
+    )
+
+
+#: Unused reads listed before the rest fold into a disclosure.
+UNUSED_SHOWN = 8
+
+
+def _repository(report: A3Report) -> str:
+    """L3: what the session read from its repository and whether later work
+    used it (TER-EVD-008), files explored against files changed, and how the
+    outcome valued exploration, reasoning and validation (TER-LEN-009)."""
+    a = report.analysis
+    usage = a.usage
+    if usage is None:
+        return ""
+    used = usage.count(UsageStatus.USED)
+    unused = usage.count(UsageStatus.UNUSED)
+    pending = usage.count(UsageStatus.PENDING)
+    material = sum(r.material for r in usage.reads)
+    share = usage.share_used
+    ch = _changes(report)
+    both = sum(ch.changed_after_read(p) for p in usage.explored)
+    tiles = [
+        (
+            "Reads later used",
+            "n/a" if share is None else fmt_pct(share, 0),
+            _meter(share),
+            f"{used} used ({material} by a change, command or check), {unused} unused, "
+            f"{pending} not yet judged, of {len(usage.reads)} repository read(s)",
+        ),
+        (
+            "Unused context",
+            fmt_tokens(usage.unused_tokens),
+            "",
+            "tokens carried in context from reads nothing later used",
+        ),
+        (
+            "Explored → changed",
+            f"{both} / {len(usage.explored)}",
+            _meter(both / len(usage.explored) if usage.explored else None, "flow"),
+            f"files read and then edited; {len(ch.changed)} file(s) changed in all",
+        ),
+    ]
+    cards = "".join(
+        f'<div class="kpi"><span>{esc(label)}</span><b>{esc(value)}</b>{meter}<small>{esc(sub)}</small></div>'
+        for label, value, meter, sub in tiles
+    )
+
+    def explored_mark(p: str) -> str:
+        if ch.changed_after_read(p):
+            return (
+                '<span class="mark yes" aria-label="changed after it was read">✓</span>'
+            )
+        return '<span class="mark" aria-label="not changed after it was read">·</span>'
+
+    def changed_mark(p: str) -> str:
+        if p in ch.created:
+            return '<span class="mark" aria-label="created by the session">+</span>'
+        if ch.read_before_edit(p):
+            return '<span class="mark yes" aria-label="read before its first edit">✓</span>'
+        return '<span class="mark no" aria-label="edited before it was read">!</span>'
+
+    def files(paths: Sequence[str], mark: Callable[[str], str]) -> str:
+        def li(p: str) -> str:
+            return f"<li>{mark(p)}<code>{esc(p)}</code></li>"
+
+        head = "".join(li(p) for p in paths[:FILES_SHOWN])
+        body = f'<ul class="files">{head}</ul>'
+        if len(paths) > FILES_SHOWN:
+            rest = "".join(li(p) for p in paths[FILES_SHOWN:])
+            body += (
+                f"<details><summary>{len(paths) - FILES_SHOWN} more</summary>"
+                f'<ul class="files">{rest}</ul></details>'
+            )
+        return body if paths else '<p class="empty">None.</p>'
+
+    unused_reads = sorted(
+        (r for r in usage.reads if r.status is UsageStatus.UNUSED),
+        key=lambda r: -r.context_tokens,
+    )
+    head_row = (
+        '<thead><tr><th scope="col">File and read event</th>'
+        '<th scope="col" class="num">Context tokens</th></tr></thead>'
+    )
+
+    def unused_rows(reads: Sequence[ReadUsage]) -> str:
+        return "".join(
+            f"<tr><td><code>{esc(r.path)}</code>{_evidence((r.event_id,))}</td>"
+            f'<td class="num">{r.context_tokens:,}</td></tr>'
+            for r in reads
+        )
+
+    unused_table = ""
+    if unused_reads:
+        shown, rest = unused_reads[:UNUSED_SHOWN], unused_reads[UNUSED_SHOWN:]
+        unused_table = (
+            f'<h3>Reads nothing used</h3><div class="chart"><table>{head_row}'
+            f"<tbody>{unused_rows(shown)}</tbody></table></div>"
+        )
+        if rest:
+            unused_table += (
+                f"<details><summary>Show the other {len(rest)} unused read(s)</summary>"
+                f'<div class="chart"><table>{head_row}<tbody>{unused_rows(rest)}'
+                "</tbody></table></div></details>"
+            )
+    value = a.value
+    value_table = ""
+    if value is not None:
+        counts = value.counts()
+        classes = [v for v in ValueClass]
+        head = "".join(
+            f'<th scope="col" class="num">{esc(v.value.replace("_", " "))}</th>'
+            for v in classes
+        )
+        rows = "".join(
+            f'<tr><th scope="row">{esc(k.value)}</th>'
+            + "".join(
+                f'<td class="num">{counts[k.value][v.value]}</td>' for v in classes
+            )
+            + "</tr>"
+            for k in JudgedKind
+        )
+        unsure = sum(
+            j.uncertain and j.value is not ValueClass.UNJUDGED for j in value.judgements
+        )
+        value_table = (
+            "<h3>Outcome value</h3>"
+            '<div class="chart"><table><thead><tr><th scope="col">Work</th>'
+            f"{head}</tr></thead><tbody>{rows}</tbody></table></div>"
+            f'<p class="fine">Each step judged against what the outcome required; '
+            f"{unsure} judgement(s) are uncertain.</p>"
+        )
+    repo = a.repository
+    where = ""
+    if repo is not None:
+        roots = ", ".join(f"<code>{esc(r)}</code>" for r in repo.roots) or "-"
+        where = (
+            f'<p class="fine">Grounded on the repository at its start commit with the '
+            f"<code>{esc(repo.engine)}</code> engine; session roots {roots}.</p>"
+        )
+    return (
+        where
+        + '<div class="split"><div>'
+        + f'<div class="kpis" role="list" aria-label="Repository evidence">{cards}</div>'
+        + '<h3>Files explored <small class="fine">(✓ changed after it was read)</small></h3>'
+        + files(usage.explored, explored_mark)
+        + '<h3>Files changed <small class="fine">(✓ read before its first edit, '
+        "! edited before it was read, + created)</small></h3>"
+        + files(ch.changed, changed_mark)
+        + f"</div><div>{unused_table}{value_table}</div></div>"
+    )
+
+
 def _evidence(ids: Sequence[str], limit: int = 6) -> str:
     shown = "".join(f"<code>{esc(i)}</code>" for i in ids[:limit])
-    more = f" +{len(ids) - limit} more" if len(ids) > limit else ""
-    return f'<div class="ev" aria-label="Evidence event ids">{shown}{more}</div>'
+    if len(ids) <= limit:
+        return f'<div class="ev" aria-label="Evidence event ids">{shown}</div>'
+    rest = "".join(f"<code>{esc(i)}</code>" for i in ids[limit:])
+    return (
+        f'<div class="ev" aria-label="Evidence event ids">{shown}'
+        f"<details><summary>+{len(ids) - limit} more</summary>{rest}</details></div>"
+    )
 
 
-def _root_causes(report: A3Report) -> str:
+def _root_causes(report: A3Report, ranked: Sequence[_Ranked]) -> str:
     if not report.root_causes:
         return '<p class="empty">No findings: every step was classified from its stage alone.</p>'
-    rows = "".join(_finding_row(i, f) for i, f in enumerate(report.root_causes, 1))
-    hidden = len(report.analysis.findings) - len(report.root_causes)
-    tail = (
-        f'<p class="fine">{hidden} more finding(s) in the JSON output.</p>'
-        if hidden > 0
-        else ""
+    fixes: dict[str, _Ranked] = {}
+    for r in ranked:
+        for f in r.findings:
+            fixes.setdefault(f.id, r)
+    rows = "".join(
+        _finding_card(i, f, fixes.get(f.id))
+        for i, f in enumerate(report.root_causes, 1)
     )
+    shown = {f.id for f in report.root_causes}
+    hidden = [f for f in report.analysis.findings if f.id not in shown]
+    tail = ""
+    if hidden:
+        start = len(report.root_causes) + 1
+        more = "".join(
+            _finding_card(i, f, fixes.get(f.id)) for i, f in enumerate(hidden, start)
+        )
+        tail = (
+            f"<details><summary>Show {len(hidden)} more finding(s), also in the JSON "
+            f'output</summary><ol class="findings" start="{start}">{more}</ol></details>'
+        )
     return (
         '<p class="fine">Largest cost first; uncertain findings and risks after. Each cites the '
-        "events it rests on.</p>"
-        '<table class="rc"><thead><tr><th scope="col">#</th><th scope="col">Finding and evidence</th>'
-        '<th scope="col" class="num">Waste · confidence · cost</th></tr></thead>'
-        f"<tbody>{rows}</tbody></table>{tail}"
+        "events it rests on and links to the countermeasure that answers it.</p>"
+        f'<ol class="findings">{rows}</ol>{tail}'
     )
 
 
-def _finding_row(i: int, f: Finding) -> str:
-    risk = f.kind.value == "risk"
+def _finding_card(i: int, f: Finding, fix: _Ranked | None) -> str:
+    risk = f.kind is FindingKind.RISK
+    css = "risk" if risk else ("unsure" if f.uncertain else "")
     tag_cls = "risk" if risk else "waste"
     kind = "Risk" if risk else f.waste.label
     unsure = '<span class="tag warn">uncertain</span>' if f.uncertain else ""
     cost = "outcome at risk" if risk else f"{f.tokens + f.context_tokens:,} tokens"
     if not risk and f.seconds:
         cost += f", {fmt_seconds(f.seconds)}"
+    answer = (
+        f'<span>Fix: <a href="#cm-{fix.number}">Action {fix.number}, {esc(fix.measure.title)}</a></span>'
+        if fix is not None
+        else ""
+    )
     return (
-        f'<tr><td class="rank">{i}</td><td><b>{esc(f.title)}</b><small>{esc(f.explanation)}</small>'
-        f"{_evidence(f.evidence)}</td>"
-        f'<td class="num"><span class="tag {tag_cls}">{esc(kind)}</span>'
-        f"<small>confidence {f.confidence:.2f}</small>{unsure}<small>{cost}</small></td></tr>"
+        f'<li class="finding {css}" id="f-{_slug(f.id)}">'
+        f'<div class="fh"><span class="rk">{i}</span><b>{esc(f.title)}</b>'
+        f'<span class="cost">{cost}</span></div>'
+        f"<p>{esc(f.explanation)}</p>"
+        f'<div class="fm"><span class="tag {tag_cls}">{esc(kind)}</span>{unsure}'
+        f"<span>confidence {f.confidence:.2f}"
+        f"{_meter(f.confidence, 'warn' if f.uncertain else '', thin=True)}</span>{answer}</div>"
+        f"{_evidence(f.evidence)}</li>"
     )
 
 
-def _countermeasure(c: Countermeasure) -> str:
-    items = []
-    for a in c.actions:
-        snippet = ""
-        if a.snippet:
-            if a.language == "json+bash":
-                config, _, script = a.snippet.partition("\n\n")
-                snippet = (
-                    f"<pre><code>{esc(config)}</code></pre>"
-                    f"<details><summary>Hook script</summary><pre><code>{esc(script)}</code></pre></details>"
-                )
-            else:
-                snippet = f"<pre><code>{esc(a.snippet)}</code></pre>"
-        items.append(
-            f'<li><span class="kind">{esc(a.kind.label)}</span> {esc(a.text)}{snippet}</li>'
-        )
+def _snippet(file: str, body: str) -> str:
+    return (
+        f'<div class="snip"><span class="file">{esc(file)}</span>'
+        f"<pre><code>{esc(body)}</code></pre></div>"
+    )
+
+
+def _action(a: Action) -> str:
+    snippet = ""
+    if a.snippet:
+        target = ACTION_TARGETS[a.kind]
+        if a.language == "json+bash":
+            config, _, script = a.snippet.partition("\n\n")
+            snippet = _snippet(target, config) + (
+                "<details><summary>Hook script</summary>"
+                f"{_snippet('hook script', script)}</details>"
+            )
+        else:
+            snippet = _snippet(
+                target if a.kind is not ActionKind.PRACTICE else "", a.snippet
+            )
+    return (
+        f'<li><span class="kind">{esc(a.kind.label)}</span> {esc(a.text)}{snippet}</li>'
+    )
+
+
+def _countermeasure(r: _Ranked) -> str:
+    c = r.measure
     unsure = ' <span class="tag warn">verify first</span>' if c.uncertain else ""
+    # Every finding has a card (the ones past the first six in a disclosure),
+    # so every answer links.
+    answers = "".join(
+        f'<li><a href="#f-{_slug(f.id)}">{esc(f.title)}</a></li>' for f in r.findings
+    )
+    missing = [i for i in c.addresses if i not in {f.id for f in r.findings}]
+    answers += "".join(f"<li><code>{esc(i)}</code></li>" for i in missing)
     return (
-        f'<article class="cm"><h3>{esc(c.title)}{unsure}</h3>'
-        f'<p class="why">{esc(c.rationale)} Answers {", ".join(f"<code>{esc(a)}</code>" for a in c.addresses[:3])}'
-        f"{'…' if len(c.addresses) > 3 else ''}.</p><ol>{''.join(items)}</ol></article>"
+        f'<article class="cm{" verify" if c.uncertain else ""}" id="cm-{r.number}">'
+        f'<h3><span class="n">{r.number}</span>{esc(c.title)}{unsure}</h3>'
+        f'<p class="impact">{esc(_impact(r))}</p>'
+        f'<p class="why">{esc(c.rationale)}</p>'
+        f'<p class="fine" style="margin:0">Answers</p><ul class="answers">{answers}</ul>'
+        f'<ol class="acts">{"".join(_action(a) for a in c.actions)}</ol></article>'
     )
 
 
-def _countermeasures(report: A3Report) -> str:
-    if not report.countermeasures:
+def _countermeasures(report: A3Report, ranked: Sequence[_Ranked]) -> str:
+    if not ranked:
         return (
             '<p class="empty">Nothing to change: no detector fired on this session.</p>'
         )
     return (
-        '<p class="fine">Derived from the findings above, never from token thresholds. Hook '
-        "scripts use documented Claude Code behaviour (exit 2 blocks a PreToolUse call, or "
-        "returns stderr to the agent after PostToolUse); adapt paths and commands before use.</p>"
-        f'<div class="cms">{"".join(_countermeasure(c) for c in report.countermeasures)}</div>'
+        '<p class="fine">In the order to act on them: confident before verify-first, outcome '
+        "risks first, then by the tokens their findings claim. Derived from the findings, "
+        "never from token thresholds. Hook scripts use documented Claude Code behaviour (exit 2 "
+        "blocks a PreToolUse call, or returns stderr to the agent after PostToolUse); adapt "
+        "paths and commands before use.</p>"
+        f'<div class="cms">{"".join(_countermeasure(r) for r in ranked)}</div>'
     )
 
 
 def _follow_up(report: A3Report) -> str:
     rows = "".join(
         f'<tr><td>{esc(f.metric)}</td><td class="num">{esc(f.current)}</td>'
-        f'<td class="num">{esc(f.target)}</td><td><code>{esc(f.how)}</code></td></tr>'
+        f'<td class="num">→ {esc(f.target)}</td><td><code>{esc(f.how)}</code></td></tr>'
         for f in report.follow_up
     )
     return (
@@ -1011,8 +1596,16 @@ def _lean_concepts() -> str:
 
 
 def render_a3_html(report: A3Report) -> str:
-    """Render ``report`` as one self-contained HTML document."""
+    """Render ``report`` as one self-contained HTML document.
+
+    It opens with a summary (the problem, four headline measures and the
+    countermeasures to act on first), then follows Toyota A3 order. Findings
+    and countermeasures link to each other by in-page anchors, so the page
+    needs no script to navigate.
+    """
     title = esc(report.title)
+    ranked = _ranked(report)
+    repository = _repository(report)
     parts = [
         "<!doctype html>",
         '<html lang="en">',
@@ -1024,21 +1617,32 @@ def render_a3_html(report: A3Report) -> str:
         f"<title>TER A3: {title}</title>",
         f"<style>\n{stylesheet('.ter-chart')}\n{_PAGE_VARS}\n{_CSS}</style>",
         "</head>",
-        '<body><main class="ter-chart">',
-        '<header class="a3"><div><p class="eyebrow">TER A3 · Lean analysis of an agent session</p>'
-        f"<h1>{title}</h1></div>"
-        f'<p class="meta">Session <code>{esc(report.session_id or "-")}</code><br>'
-        f"{report.analysis.events} events · schema ter.a3/0.1</p></header>",
+        '<body><a class="skip" href="#summary">Skip to the summary</a>',
+        '<main class="ter-chart">',
+        '<header class="a3"><p class="eyebrow">TER A3 · Lean analysis of an agent session · '
+        f"schema {A3_SCHEMA}</p>"
+        f"<h1>{title}</h1>{_chips(report)}</header>",
+        _nav(report),
         '<div class="sheet">',
-        _box(1, "Background", _background(report)),
-        _box(None, "Scorecard", _scorecard(report)),
-        *([_box(None, "Outcome", _outcome(report))] if report.outcome else []),
+        _box(None, "At a glance", _summary(report, ranked), "full summary", "summary"),
+        _box(1, "Background", _background(report), "full"),
+        _box(None, "Scorecard", _scorecard(report), "full", "s-scorecard"),
+        *(
+            [_box(None, "Outcome", _outcome(report), "full", "s-outcome")]
+            if report.outcome
+            else []
+        ),
         _box(2, "Current state", _current_state(report), "full"),
         _box(3, "Analysis", _analysis(report)),
-        _box(4, "Root causes", _root_causes(report)),
-        _box(5, "Countermeasures", _countermeasures(report), "full"),
+        _box(4, "Root causes", _root_causes(report, ranked)),
+        *(
+            [_box(None, "Repository evidence", repository, "full", "s-repository")]
+            if repository
+            else []
+        ),
+        _box(5, "Countermeasures", _countermeasures(report, ranked), "full"),
         _box(6, "Follow-up", _follow_up(report)),
-        _box(None, "Evidence and method", _method(report)),
+        _box(None, "Evidence and method", _method(report), "", "s-method"),
         "</div>",
         "</main></body>",
         "</html>",
