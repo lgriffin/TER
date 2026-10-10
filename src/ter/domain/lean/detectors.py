@@ -1120,7 +1120,7 @@ class IntentDrift:
         "when it only defines new names the intent does not mention, or defines "
         "no names and only its added words (at least 3) depart. "
         "New names alone in files the session created (first touched by a "
-        "write that succeeded, and not a repository file at the start when "
+        "write whose result was observed and succeeded, and not a repository file at the start when "
         "grounded): no finding. "
         "Before any prompt, or against a shorter intent: no finding."
     )
@@ -1213,7 +1213,8 @@ _MIN_DRIFT_WORDS = 3
 def _created_files(view: SessionView) -> frozenset[str]:
     """Files the session created: their first touch is a write that succeeded.
 
-    A refused write changed nothing, so it is no touch. Paths are compared in
+    A refused write changed nothing, and one with no observed result may not
+    have run, so neither is a touch. Paths are compared in
     one spelling: the repository path when the session is grounded, else the
     normalised path. A grounded file that existed at the start is never
     created, whatever touched it first."""
@@ -1222,7 +1223,7 @@ def _created_files(view: SessionView) -> frozenset[str]:
     created: set[str] = set()
     for step in view.requests():
         done = view.completion_of.get(step.index)
-        if done is not None and done.tool_failed:
+        if done is None or done.tool_failed:
             continue
         for path in step.paths:
             key = _file_key(path, g)

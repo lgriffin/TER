@@ -17,7 +17,7 @@ from ter4_lean_builder import PASS, Script
 from ter.adapters.driven.claude_code import ClaudeCodeJsonlSource
 from ter.adapters.driving.reports import render_a3_html
 from ter.adapters.driven.tokenizers import RegexTokenizer
-from ter.domain import AnalysisEngine, EventKind, explain_batch
+from ter.domain import AnalysisEngine, EventKind, ToolKind, explain_batch
 from ter.domain.lean.grounding import RepositoryGrounding
 from ter.domain.lean import (
     ActivityClass,
@@ -361,6 +361,21 @@ class TestDriftInCreatedFiles:
             "src/extra.py",
             "",
             output="<tool_use_error>File has not been read yet.</tool_use_error>",
+        )
+        s.edit("src/extra.py", "", MEAN_EDIT)
+        [f] = drift(s)
+        assert f.uncertain and f.confidence == 0.55
+
+    def test_a_first_write_with_no_observed_result_does_not_create_the_file(
+        self,
+    ) -> None:
+        s = Script()
+        s.prompt(MODE)
+        s.call(
+            "Write",
+            ToolKind.FS_WRITE,
+            {"file_path": "src/extra.py", "content": ""},
+            output=None,
         )
         s.edit("src/extra.py", "", MEAN_EDIT)
         [f] = drift(s)
