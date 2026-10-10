@@ -133,7 +133,8 @@ ran. Keep one feature or fix per PR. Branch names: `feature/…`, `fix/…`,
 ## Reporting bugs and requesting features
 
 Open a [GitHub issue](https://github.com/lgriffin/TER/issues) with steps to
-reproduce, expected and actual behaviour, Python version and OS, and a
+reproduce, expected and actual behaviour, the output of
+`python -m ter --version`, Python version and OS, and a
 redacted session file if one is involved. Work that needs real session data
 belongs under the tracker issue #47.
 

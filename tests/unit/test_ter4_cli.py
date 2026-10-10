@@ -132,6 +132,21 @@ class TestBootstrap:
         assert "TER observe" in capsys.readouterr().out
 
 
+@pytest.mark.req("TER-REQ-013")
+def test_version_names_the_package_and_event_schema(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from importlib import metadata
+
+    from ter import EVENT_SCHEMA_VERSION
+
+    with pytest.raises(SystemExit) as exit_:
+        run(["--version"])
+    assert exit_.value.code == 0
+    expected = f"python -m ter {metadata.version('ter-calculator')} (events {EVENT_SCHEMA_VERSION})"
+    assert capsys.readouterr().out.strip() == expected
+
+
 @pytest.mark.req("TER-OBS-008")
 def test_python_dash_m_ter(tmp_path: Path) -> None:
     payload = (HOOKS / "post_tool_use_bash.json").read_text(encoding="utf-8")
