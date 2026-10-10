@@ -15,6 +15,14 @@ python dev.py setup      # installs .[dev] and the pre-commit hooks
 
 On Windows, activate with `.venv\Scripts\activate`.
 
+The pre-commit hooks run ruff on every commit, from CI's version range in
+pre-commit's own environment, so they work from any shell, IDE or Git client.
+Before every push they run `python dev.py lint` (mypy, import contracts, EARS
+lint, points index) with your shell's `python`, so push from the activated
+environment; a push that passes them passes the CI lint job. The whitespace
+hooks never rewrite golden snapshots, fixtures or rendered images, which must
+stay byte-exact.
+
 Add `embeddings` to the extras (`".[dev,embeddings]"`) to run TER 3's
 semantic analysis with the real sentence-transformers model; CI installs it
 for the test job. Supported Python versions are 3.11, 3.12 and 3.13.

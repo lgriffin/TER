@@ -12,6 +12,7 @@ import re
 import sys
 from pathlib import Path
 from types import ModuleType
+from typing import Any
 
 import pytest
 import yaml
@@ -166,3 +167,43 @@ def test_tasks_test_this_checkout_first(monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setattr(dev.subprocess, "call", call)
     assert dev.main(["points"]) == 0
     assert seen["PYTHONPATH"].split(dev.os.pathsep) == [str(ROOT / "src"), "elsewhere"]
+
+
+def _precommit_hooks() -> dict[str, dict[str, Any]]:
+    config = yaml.safe_load((ROOT / ".pre-commit-config.yaml").read_text("utf-8"))
+    return {hook["id"]: hook for repo in config["repos"] for hook in repo["hooks"]}
+
+
+def test_precommit_never_rewrites_byte_exact_files() -> None:
+    hooks = _precommit_hooks()
+    golden = [
+        p.relative_to(ROOT).as_posix()
+        for d in ("tests/golden/snapshots", "tests/fixtures", "docs/ter4/img")
+        for p in (ROOT / d).rglob("*")
+        if p.is_file()
+    ]
+    assert golden
+    for hook_id in ("trailing-whitespace", "end-of-file-fixer"):
+        exclude = re.compile(hooks[hook_id]["exclude"])
+        assert [p for p in golden if not exclude.search(p)] == [], hook_id
+    # Checks that only read files still see them (no global exclude).
+    assert "exclude" not in hooks["check-added-large-files"]
+    assert "exclude" not in hooks["ruff"]
+
+
+def test_precommit_ruff_checks_what_ci_checks() -> None:
+    hooks = _precommit_hooks()
+    ci_ruff = next(
+        line.split("#")[0].strip()
+        for line in (ROOT / "constraints/ci.txt").read_text("utf-8").splitlines()
+        if line.startswith("ruff")
+    )
+    for hook_id in ("ruff-format", "ruff"):
+        files = re.compile(hooks[hook_id]["files"])
+        samples = [p if p.endswith(".py") else f"{p}/x.py" for p in dev.PY_PATHS]
+        assert all(files.search(sample) for sample in samples)
+        assert files.search("tests/fixtures/x.py")  # CI lints fixtures too
+        assert not files.search("scripts/build_benchmark.py")
+        # Its own environment, from CI's version range: no PATH lookup.
+        assert hooks[hook_id]["language"] == "python"
+        assert hooks[hook_id]["additional_dependencies"] == [ci_ruff]
