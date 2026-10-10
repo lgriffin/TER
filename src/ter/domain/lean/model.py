@@ -249,6 +249,9 @@ class Step:
     #: A tool completion whose harness reported that the call itself failed
     #: (a refused write, an edit whose text was not found): it changed nothing.
     tool_failed: bool = False
+    #: For a write's result: whether it says the file was created (True) or
+    #: an existing file replaced (False); None when it does not say.
+    write_created: bool | None = None
 
     @property
     def is_generated(self) -> bool:

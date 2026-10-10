@@ -1119,9 +1119,10 @@ class IntentDrift:
         "additional ('also', 'while I'm at it') and names it; 0.55 (uncertain) "
         "when it only defines new names the intent does not mention, or defines "
         "no names and only its added words (at least 3) depart. "
-        "New names alone in files the session created (first touched by a "
-        "write whose result was observed and succeeded, and not a repository file at the start when "
-        "grounded): no finding. "
+        "In a file the session created (first touched by a write whose "
+        "result was observed and did not report an existing file or an "
+        "error, and not a repository file at the start when grounded), only "
+        "the 0.85 cases are findings. "
         "Before any prompt, or against a shorter intent: no finding."
     )
 
@@ -1157,6 +1158,14 @@ class IntentDrift:
                 and x.subject & a.subject
             ]
             evidence: list[Step] = [view.by_id[opened], *announced, *view.pair(step)]
+            # Judged on a real greenfield session (10 Oct 2026): building a
+            # file the session created defines names the intent never mentions
+            # (132 findings) and adds words it never uses (46 of 55 judged
+            # not waste), so only a dropped goal or announced extra work
+            # counts there.
+            in_created = bool(step.paths) and created.issuperset(
+                _file_key(p, view.repository) for p in step.paths
+            )
             what = ", ".join(a.names) if a.names else ", ".join(sorted(a.subject)[:5])
             if a.basis is SubjectBasis.NAMES:
                 if a.subject & dropped:
@@ -1165,12 +1174,7 @@ class IntentDrift:
                 elif announced:
                     confidence = 0.85
                     why = "The agent itself called it additional work."
-                elif step.paths and created.issuperset(
-                    _file_key(p, view.repository) for p in step.paths
-                ):
-                    # Judged on a real greenfield session (10 Oct 2026): building
-                    # a file the session created defines names the intent never
-                    # mentions on nearly every edit, so they say nothing.
+                elif in_created:
                     continue
                 else:
                     # Calibrated on real sessions (9 Oct 2026): new names alone
@@ -1183,7 +1187,7 @@ class IntentDrift:
                         "requested change."
                     )
             else:
-                if len(a.subject) < _MIN_DRIFT_WORDS:
+                if in_created or len(a.subject) < _MIN_DRIFT_WORDS:
                     continue
                 confidence = 0.55
                 why = (
@@ -1214,7 +1218,8 @@ def _created_files(view: SessionView) -> frozenset[str]:
     """Files the session created: their first touch is a write that succeeded.
 
     A refused write changed nothing, and one with no observed result may not
-    have run, so neither is a touch. Paths are compared in
+    have run, so neither is a touch. A write whose result says it replaced an
+    existing file did not create it. Paths are compared in
     one spelling: the repository path when the session is grounded, else the
     normalised path. A grounded file that existed at the start is never
     created, whatever touched it first."""
@@ -1230,8 +1235,10 @@ def _created_files(view: SessionView) -> frozenset[str]:
             if key in seen:
                 continue
             seen.add(key)
-            if step.tool_kind is ToolKind.FS_WRITE and (
-                g is None or key not in g.files
+            if (
+                step.tool_kind is ToolKind.FS_WRITE
+                and done.write_created is not False
+                and (g is None or key not in g.files)
             ):
                 created.add(key)
     return frozenset(created)

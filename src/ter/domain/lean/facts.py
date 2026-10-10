@@ -309,6 +309,19 @@ def tool_call_failed(output: str) -> bool:
     return output.lstrip().startswith("<tool_use_error>")
 
 
+def write_created(output: str) -> bool | None:
+    """Whether a write's result says it created the file: True for a new
+    file (Claude Code: ``File created successfully at: …``), False for an
+    existing one it replaced (``The file … has been updated``), None when the
+    result does not say."""
+    text = output.lstrip()
+    if text.startswith("File created successfully"):
+        return True
+    if text.startswith("The file ") and "has been updated" in text[:2000]:
+        return False
+    return None
+
+
 def tool_paths(arguments: Mapping[str, object]) -> tuple[str, ...]:
     """File paths a file tool call names (empty for searches and shell)."""
     for key in _PATH_KEYS:
