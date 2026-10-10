@@ -49,6 +49,7 @@ python -m ter explain <session.jsonl>                 # L2 findings as text
 python -m ter control measure <corpus> --out m.json   # control charts: measure, then
 python -m ter control limits m.json --out limits.json  #   natural limits (tunable, --keep)
 python -m ter control chart m.json --limits limits.json --html control.html
+ter a3 <session.jsonl> --limits limits.json --html a3.html  # A3 with the session placed against its limits
 ```
 
 ## Code Style

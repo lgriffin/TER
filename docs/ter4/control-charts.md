@@ -41,8 +41,11 @@ time):
 | Sigma, for the zone rules | mR̄ / 1.128 | median mR / 0.954 |
 | Moving range upper limit (URL) | 3.268 × mR̄ | 3.865 × median mR |
 
-The median method suits skewed measures, because one wild session cannot
-inflate its limits. When most successive sessions are equal, as with a count
+The median method resists one wild session, which cannot inflate its
+limits. On heavily skewed measures it does worse: on the owner's 61-session
+corpus it flagged 374 signals against 44 for the average method, most of them
+sessions below the centre of a long-tailed measure such as agent time. Keep
+the average method unless you have a reason not to. When most successive sessions are equal, as with a count
 that is usually 0, the median moving range is 0 and would collapse the
 limits onto the centre. That measure then uses the average moving range,
 and its `natural.method` in the limits file says so (TER-SPC-014). A limit past a measure's natural boundary is reported
@@ -144,9 +147,23 @@ warns that the limits are stale (TER-SPC-007), and TER refuses to mix
 detector sets in one chart (TER-SPC-013). Re-measure and recompute after a
 detector change.
 
+## On the A3
+
+Give `ter a3` the limits file and the A3 places that session against them
+(TER-SPC-011):
+
+```bash
+python -m ter a3 session.jsonl --limits limits.json --html a3.html
+```
+
+The **Process control** section lists the measures outside a limit first,
+each linked to the findings that move it. For example, `rework_cycles` links
+the rework findings, and `unvalidated_edits_at_end` links the
+`unvalidated_implementation` findings. Shares, flow and totals link every
+waste finding. Only `beyond_limits` applies to one session. The JSON carries
+the same placements under `process_control`.
+
 ## Next
 
-- The A3 places a session against the limits and links each beyond-limits
-  signal to the findings behind it (TER-SPC-011, planned).
 - Limits from the owner's real corpus, with the signals reviewed, before
   P201 is done.

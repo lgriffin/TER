@@ -125,6 +125,20 @@ of agent time; 1 risk(s) to the outcome were flagged."*
 | `ter` | The TER 3 ratio and the method that computed it |
 | `composite` | Only with its components, weights and formula |
 
+**Process control** (only with `--limits FILE`). The session placed
+against your process's control limits, from `python -m ter control limits`
+(see [Control charts](../ter4/control-charts.md)). Measures outside a limit
+come first, firing ones on top. Each one shows its value, its limits and
+centre, and links to the findings that move that measure. Read those findings
+first. The measures inside their limits fold away. Only the one-session rule,
+beyond limits, applies on an A3; the zone and run rules need the sessions
+around this one, so they are on the control chart. Limits from another
+detector set are marked stale.
+
+```bash
+ter a3 session.jsonl --limits limits.json --html a3.html
+```
+
 **2 Current state.** A value stream map: intent, explore, plan, implement,
 validate, respond, with steps, tokens, context tokens and time per stage.
 Stages where a confident finding landed are outlined in red with a badge, and
@@ -229,6 +243,7 @@ repeated warnings are waste too.
 | Schema | Produced by | Holds |
 |---|---|---|
 | `ter.a3/0.1` | `ter a3 --json` | Background, problem, current state, analysis (scorecard, Pareto, cycles), root causes, findings, countermeasures, follow-up, detectors |
+| `process_control` in `ter.a3/0.1` | `ter a3 --limits FILE --json` | Every measure placed against its limits, signals, and the findings behind each measure outside a limit |
 | `ter.evidence/0.1` | `--graph FILE` | Nodes per event and typed edges (`completes`, `motivated_by`, `validates`, `corrects`, `repeats`) |
 | explain JSON | `ter explain --json` | Findings, cycles, value stream, scorecard, per-event classification with basis, detectors, evidence graph |
 

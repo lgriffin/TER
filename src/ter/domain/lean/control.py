@@ -61,7 +61,7 @@ from enum import StrEnum
 from typing import TypeVar
 
 from .analysis import UNCERTAIN, LeanAnalysis
-from .model import ActivityClass
+from .model import ActivityClass, Finding, FindingKind, LeanWaste
 from .wip import WipKind
 
 __all__ = [
@@ -86,6 +86,7 @@ __all__ = [
     "MeasuresDocument",
     "NaturalLimits",
     "Placement",
+    "SessionControl",
     "SessionMeasures",
     "Side",
     "Tuning",
@@ -100,6 +101,7 @@ __all__ = [
     "order_sessions",
     "place",
     "pseudonymise",
+    "session_control",
 ]
 
 CONTROL_LIMITS_SCHEMA = "ter.control-limits/1"
@@ -1211,6 +1213,103 @@ def control_report(
     return ControlReport(
         limits, control_charts(rows, limits), len(rows), fingerprints.pop()
     )
+
+
+def _waste(f: Finding) -> bool:
+    return f.kind is FindingKind.WASTE
+
+
+#: The findings that move each measure, so a session outside a limit points
+#: at its root causes (TER-SPC-011). Shares, flow and totals move with every
+#: waste finding; counts with the findings they count.
+_BEHIND: Mapping[str, Callable[[Finding], bool]] = {
+    "avoidable_share": lambda f: _waste(f) and not f.uncertain,
+    "unverified_waste_share": _waste,
+    "value_adding_share": _waste,
+    "flow_efficiency_tokens": _waste,
+    "flow_efficiency_time": _waste,
+    "edits_validated_share": lambda f: f.detector == "unvalidated_implementation",
+    "ter": _waste,
+    "confident_findings": lambda f: _waste(f) and not f.uncertain,
+    "uncertain_findings": lambda f: _waste(f) and f.uncertain,
+    "rework_cycles": lambda f: f.waste is LeanWaste.REWORK,
+    "risk_findings": lambda f: f.kind is FindingKind.RISK,
+    "wip_peak": lambda f: f.waste is LeanWaste.INVENTORY,
+    "unvalidated_edits_at_end": lambda f: f.detector == "unvalidated_implementation",
+    "unresolved_failures_at_end": lambda f: f.waste is LeanWaste.DEFECTS,
+    "generated_tokens": _waste,
+    "agent_seconds": _waste,
+}
+
+
+@dataclass(frozen=True)
+class SessionControl:
+    """One session placed against a limits document, for its A3.
+
+    ``behind`` names, for each measure outside a limit, the findings that
+    move that measure: the root causes to read first.
+    """
+
+    limits: ControlLimits
+    detectors: str
+    placements: tuple[Placement, ...]
+    behind: Mapping[str, tuple[str, ...]]
+
+    @property
+    def stale(self) -> bool:
+        return self.limits.stale(self.detectors)
+
+    @property
+    def signals(self) -> tuple[ControlSignal, ...]:
+        return tuple(p.signal for p in self.placements if p.signal is not None)
+
+    @property
+    def firing(self) -> tuple[ControlSignal, ...]:
+        return tuple(s for s in self.signals if s.fires)
+
+    def as_dict(self) -> dict[str, object]:
+        measures = []
+        for p in self.placements:
+            entry = p.as_dict()
+            entry["label"] = p.limits.measure.label
+            entry["fires"] = p.limits.measure.fires
+            if p.signal is not None:
+                entry["findings"] = list(self.behind.get(p.limits.measure.key, ()))
+            measures.append(entry)
+        return {
+            "schema": CONTROL_REPORT_SCHEMA,
+            "method": self.limits.method.value,
+            "computed_on": self.limits.computed_on,
+            "detectors": self.detectors,
+            "limits_detectors": self.limits.detectors,
+            "stale": self.stale,
+            "signals": len(self.signals),
+            "firing": len(self.firing),
+            "measures": measures,
+        }
+
+
+def session_control(analysis: LeanAnalysis, limits: ControlLimits) -> SessionControl:
+    """Place every measure of one session against ``limits`` (TER-SPC-011).
+
+    Only ``beyond_limits`` applies to one session; the zone and run rules
+    need the sessions around it, which the control chart shows. A measure
+    the limits leave out, or that is undefined for this session, is skipped.
+    """
+    row = measure_session(analysis)
+    placements: list[Placement] = []
+    behind: dict[str, tuple[str, ...]] = {}
+    for measure in CONTROL_MEASURES:
+        entry = limits.get(measure.key)
+        value = row.value(measure.key)
+        if entry is None or value is None:
+            continue
+        placed = place(entry, row.session_id, value)
+        placements.append(placed)
+        if placed.signal is not None:
+            claims = _BEHIND[measure.key]
+            behind[measure.key] = tuple(f.id for f in analysis.findings if claims(f))
+    return SessionControl(limits, row.detectors, tuple(placements), behind)
 
 
 @dataclass(frozen=True)

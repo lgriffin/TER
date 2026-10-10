@@ -9,12 +9,16 @@ When outcome evidence was supplied, the A3 also carries the outcome verdict
 (``ter.domain.outcome``) beside the scorecard. The verdict is judged
 separately and no behaviour measure reads it (point 5); the ``outcome`` key
 appears in the JSON only when there is a verdict.
+
+When control limits were supplied, the A3 also places the session against
+them (``process_control``, TER-SPC-011): each measure's value, its limits,
+and for a measure outside a limit the findings that move it.
 """
 
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from ..costing import Prices, SessionCost, price_session
 from ..outcome import OutcomeVerdict, per_verified_outcome
@@ -22,6 +26,7 @@ from .analysis import LeanAnalysis, apportion
 from .countermeasures import Countermeasure, FollowUp, build_countermeasures, follow_ups
 from .inventory import ContextInventory, context_inventory
 from .concepts import LEAN_MEASURES
+from .control import ControlLimits, SessionControl, session_control
 from .model import ActivityClass, Finding, FindingKind, LeanWaste
 from .scorecard import (
     ScorecardDimension,
@@ -71,6 +76,8 @@ class A3Report:
     #: The session and its inventory priced from a dated price book, when one
     #: was supplied (TER-ANL-040, TER-ANL-041).
     cost: SessionCost | None = None
+    #: The session against its process's control limits, when supplied.
+    process_control: SessionControl | None = None
 
     @property
     def tokens_per_verified_outcome(self) -> float | None:
@@ -89,6 +96,10 @@ class A3Report:
     def dimensions(self) -> tuple[ScorecardDimension, ...]:
         """The six scorecard dimensions (TER-SCR-001)."""
         return scorecard_dimensions(self.analysis, self.value_efficiency, self.outcome)
+
+    def placed(self, limits: ControlLimits) -> A3Report:
+        """This A3 with the session placed against ``limits`` (TER-SPC-011)."""
+        return replace(self, process_control=session_control(self.analysis, limits))
 
     def scorecard_dict(self) -> dict[str, object]:
         """The behaviour scorecard with Software Value Efficiency right after TER."""
@@ -164,6 +175,8 @@ class A3Report:
             out["context_inventory"] = self.inventory.as_dict()
         if self.cost is not None:
             out["cost"] = self.cost.as_dict()
+        if self.process_control is not None:
+            out["process_control"] = self.process_control.as_dict()
         if self.outcome is not None:
             per = self.tokens_per_verified_outcome
             out["outcome"] = {
@@ -235,12 +248,14 @@ def build_a3(
     outcome: OutcomeVerdict | None = None,
     usage_limits: Sequence[str] = (),
     prices: Prices | None = None,
+    control: ControlLimits | None = None,
 ) -> A3Report:
     """Assemble the A3 from an analysis, the developer's prompts and, when
     known, the outcome verdict (shown beside the analysis, never read by it).
     ``usage_limits`` are the source's, stated beside the figures they qualify.
     With ``prices`` the session and its context inventory are priced at the
-    prices in force on the session date."""
+    prices in force on the session date. With ``control`` limits the
+    session is placed against its process (TER-SPC-011)."""
     findings = analysis.findings
     ranked = sorted(
         findings,
@@ -253,7 +268,7 @@ def build_a3(
     )
     sc = analysis.scorecard
     inventory = context_inventory(analysis.steps, findings)
-    return A3Report(
+    report = A3Report(
         title=_title(intents),
         session_id=analysis.session_id,
         intents=tuple(intents),
@@ -276,3 +291,4 @@ def build_a3(
         if prices is None
         else price_session(analysis.steps, inventory, prices),
     )
+    return report if control is None else report.placed(control)
