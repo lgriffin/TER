@@ -62,6 +62,7 @@ __all__ = [
 BUILTIN_CAPABILITIES: dict[str, str] = {
     "ArchitectureContracts.dependency-cruiser": "ter.adapters.driven.dependency_cruiser:DependencyCruiserContracts",
     "ArchitectureContracts.import-linter": "ter.adapters.driven.import_linter:ImportLinterContracts",
+    "ControlLimitsSource.json": "ter.adapters.driven.control_limits:JsonControlLimits",
     "Embedder.hashing": "ter.adapters.driven.embedders:HashingEmbedder",
     "EventLog.jsonl": "ter.adapters.driven.event_log:JsonlEventLog",
     "OutcomeSource.junit": "ter.adapters.driven.junit:JUnitOutcomeSource",

@@ -19,6 +19,7 @@ Commands::
     python -m ter hooks check RECORDINGS TRANSCRIPTS [--json FILE]
     python -m ter capabilities                # adapters per port, and problems
     python -m ter context bundle|report ...   # L3 context bundles (context_cli)
+    python -m ter control measure|limits|chart ...  # control charts (control_cli)
     python -m ter corpus import SRC... --out DIR [--labels CSV]
                                 [--max-tool-output N] [--keep-tool NAME]
                                 [--quote-files]
@@ -49,6 +50,7 @@ from ...ports.driven import Clock
 from ...ports.driving import EventIngest
 from .claude_hooks import HookStatus, run_hook
 from .context_cli import ContextServices, add_context_parser, run_context
+from .control_cli import ControlServices, add_control_parser, run_control
 
 if TYPE_CHECKING:
     from ..driven.claude_code.corpus import CorpusImport
@@ -161,6 +163,8 @@ class CliServices:
     context: ContextServices | None = None
     #: L3 advisory routing (``python -m ter route``).
     route_transcript: RouteTranscript | None = None
+    #: Control charts over sessions (``python -m ter control``, point 201).
+    control: ControlServices | None = None
 
 
 def main(
@@ -190,7 +194,9 @@ def main(
         if result.status is HookStatus.IGNORED and result.reason:
             err.write(f"ter hook: event not recorded: {result.reason}\n")
         return 0
-    if args.command in ("observe", "explain", "a3", "context", "route"):
+    if args.command in ("observe", "explain", "a3", "context", "route") or (
+        args.command == "control" and args.control_command == "measure"
+    ):
         known = TOKENIZERS if services.tokenizers is None else services.tokenizers()
         if args.tokenizer not in known:
             err.write(
@@ -211,6 +217,8 @@ def main(
         return _hooks_check(args, services, out, err)
     if args.command == "context":
         return run_context(args, services.context, out, err)
+    if args.command == "control":
+        return run_control(args, services.control, out, err)
     return _observe(args, services, out, err)
 
 
@@ -589,6 +597,7 @@ def _parser(default_log_dir: Path) -> argparse.ArgumentParser:
     a3.add_argument("--repo-engine", default="syntax", help=REPO_ENGINE_HELP)
 
     add_context_parser(commands, default_log_dir, TOKENIZER_HELP, REPO_ENGINE_HELP)
+    add_control_parser(commands, TOKENIZER_HELP)
     route = commands.add_parser(
         "route",
         help="L3: classify each task and choose a model role for it (advisory)",

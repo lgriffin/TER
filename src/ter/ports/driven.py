@@ -12,6 +12,7 @@ from ..domain.events import Event, SessionTrace
 # Declared beside the intent model it serves (the analysis takes it as an
 # argument); re-exported here as the driven port adapters implement.
 from ..domain.lean.intent import AlignmentScorer as AlignmentScorer
+from ..domain.lean.control import ControlLimits
 from ..domain.outcome import OutcomeEvidence
 from ..domain.pricing import Rates
 from ..domain.routing import RoutingProfile
@@ -279,3 +280,22 @@ class RoutingProfiles(Protocol):
     def default(self) -> str: ...
 
     def profile(self, name: str) -> RoutingProfile: ...
+
+
+@runtime_checkable
+class ControlLimitsSource(Protocol):
+    """Supplies a developer's control limits document (``ter.control-limits/1``):
+    natural process limits per measure, any tuned action limits with their
+    reasons, and the rules switched on (point 201).
+
+    Obligations, verified by ``tests/contract/test_control_limits.py``:
+
+    * ``limits(ref)`` returns equal limits on every call for the same ref;
+    * a ref it cannot find, or a document that is not valid limits, raises
+      ``ter.domain.lean.control.ControlLimitsError``; it never returns
+      partial limits.
+    """
+
+    name: str
+
+    def limits(self, ref: str | Path) -> ControlLimits: ...

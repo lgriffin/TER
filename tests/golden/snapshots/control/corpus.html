@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:">
+<meta name="color-scheme" content="light dark">
+<title>Golden corpus</title>
+<style>
+:root{--ter-surface:#fcfcfb;--ter-on-surface:#0b0b0b;--ter-ink:#0b0b0b;--ter-on-ink:#0b0b0b;--ter-ink-2:#52514e;--ter-on-ink-2:#0b0b0b;--ter-muted:#6f6d68;--ter-on-muted:#0b0b0b;--ter-grid:#e1e0d9;--ter-on-grid:#0b0b0b;--ter-baseline:#c3c2b7;--ter-on-baseline:#0b0b0b;--ter-aligned:#2a78d6;--ter-on-aligned:#ffffff;--ter-waste:#e34948;--ter-on-waste:#0b0b0b;--ter-series-1:#2a78d6;--ter-on-series-1:#ffffff;--ter-series-2:#eb6834;--ter-on-series-2:#0b0b0b;--ter-series-3:#1baf7a;--ter-on-series-3:#0b0b0b;--ter-series-4:#eda100;--ter-on-series-4:#0b0b0b;--ter-series-5:#e87ba4;--ter-on-series-5:#0b0b0b;--ter-series-6:#008300;--ter-on-series-6:#ffffff;--ter-series-7:#4a3aa7;--ter-on-series-7:#ffffff;--ter-series-8:#e34948;--ter-on-series-8:#0b0b0b}
+@media (prefers-color-scheme: dark){:root:not([data-theme=light]){--ter-surface:#1a1a19;--ter-on-surface:#ffffff;--ter-ink:#ffffff;--ter-on-ink:#ffffff;--ter-ink-2:#c3c2b7;--ter-on-ink-2:#ffffff;--ter-muted:#a3a19a;--ter-on-muted:#ffffff;--ter-grid:#33332f;--ter-on-grid:#ffffff;--ter-baseline:#52514e;--ter-on-baseline:#ffffff;--ter-aligned:#3987e5;--ter-on-aligned:#ffffff;--ter-waste:#e66767;--ter-on-waste:#0b0b0b;--ter-series-1:#3987e5;--ter-on-series-1:#ffffff;--ter-series-2:#d95926;--ter-on-series-2:#ffffff;--ter-series-3:#199e70;--ter-on-series-3:#ffffff;--ter-series-4:#c98500;--ter-on-series-4:#0b0b0b;--ter-series-5:#d55181;--ter-on-series-5:#ffffff;--ter-series-6:#008300;--ter-on-series-6:#ffffff;--ter-series-7:#9085e9;--ter-on-series-7:#0b0b0b;--ter-series-8:#e66767;--ter-on-series-8:#0b0b0b}}
+:root[data-theme=dark]{--ter-surface:#1a1a19;--ter-on-surface:#ffffff;--ter-ink:#ffffff;--ter-on-ink:#ffffff;--ter-ink-2:#c3c2b7;--ter-on-ink-2:#ffffff;--ter-muted:#a3a19a;--ter-on-muted:#ffffff;--ter-grid:#33332f;--ter-on-grid:#ffffff;--ter-baseline:#52514e;--ter-on-baseline:#ffffff;--ter-aligned:#3987e5;--ter-on-aligned:#ffffff;--ter-waste:#e66767;--ter-on-waste:#0b0b0b;--ter-series-1:#3987e5;--ter-on-series-1:#ffffff;--ter-series-2:#d95926;--ter-on-series-2:#ffffff;--ter-series-3:#199e70;--ter-on-series-3:#ffffff;--ter-series-4:#c98500;--ter-on-series-4:#0b0b0b;--ter-series-5:#d55181;--ter-on-series-5:#ffffff;--ter-series-6:#008300;--ter-on-series-6:#ffffff;--ter-series-7:#9085e9;--ter-on-series-7:#0b0b0b;--ter-series-8:#e66767;--ter-on-series-8:#0b0b0b}
+@media print{:root,:root:not([data-theme=light]),:root[data-theme=dark]{--ter-surface:#fcfcfb;--ter-on-surface:#0b0b0b;--ter-ink:#0b0b0b;--ter-on-ink:#0b0b0b;--ter-ink-2:#52514e;--ter-on-ink-2:#0b0b0b;--ter-muted:#6f6d68;--ter-on-muted:#0b0b0b;--ter-grid:#e1e0d9;--ter-on-grid:#0b0b0b;--ter-baseline:#c3c2b7;--ter-on-baseline:#0b0b0b;--ter-aligned:#2a78d6;--ter-on-aligned:#ffffff;--ter-waste:#e34948;--ter-on-waste:#0b0b0b;--ter-series-1:#2a78d6;--ter-on-series-1:#ffffff;--ter-series-2:#eb6834;--ter-on-series-2:#0b0b0b;--ter-series-3:#1baf7a;--ter-on-series-3:#0b0b0b;--ter-series-4:#eda100;--ter-on-series-4:#0b0b0b;--ter-series-5:#e87ba4;--ter-on-series-5:#0b0b0b;--ter-series-6:#008300;--ter-on-series-6:#ffffff;--ter-series-7:#4a3aa7;--ter-on-series-7:#ffffff;--ter-series-8:#e34948;--ter-on-series-8:#0b0b0b}}
+.ter-chart .ter-f-surface{fill:var(--ter-surface)}.ter-chart .ter-s-surface{stroke:var(--ter-surface)}.ter-chart .ter-f-on-surface{fill:var(--ter-on-surface)}
+.ter-chart .ter-f-ink{fill:var(--ter-ink)}.ter-chart .ter-s-ink{stroke:var(--ter-ink)}.ter-chart .ter-f-on-ink{fill:var(--ter-on-ink)}
+.ter-chart .ter-f-ink-2{fill:var(--ter-ink-2)}.ter-chart .ter-s-ink-2{stroke:var(--ter-ink-2)}.ter-chart .ter-f-on-ink-2{fill:var(--ter-on-ink-2)}
+.ter-chart .ter-f-muted{fill:var(--ter-muted)}.ter-chart .ter-s-muted{stroke:var(--ter-muted)}.ter-chart .ter-f-on-muted{fill:var(--ter-on-muted)}
+.ter-chart .ter-f-grid{fill:var(--ter-grid)}.ter-chart .ter-s-grid{stroke:var(--ter-grid)}.ter-chart .ter-f-on-grid{fill:var(--ter-on-grid)}
+.ter-chart .ter-f-baseline{fill:var(--ter-baseline)}.ter-chart .ter-s-baseline{stroke:var(--ter-baseline)}.ter-chart .ter-f-on-baseline{fill:var(--ter-on-baseline)}
+.ter-chart .ter-f-aligned{fill:var(--ter-aligned)}.ter-chart .ter-s-aligned{stroke:var(--ter-aligned)}.ter-chart .ter-f-on-aligned{fill:var(--ter-on-aligned)}
+.ter-chart .ter-f-waste{fill:var(--ter-waste)}.ter-chart .ter-s-waste{stroke:var(--ter-waste)}.ter-chart .ter-f-on-waste{fill:var(--ter-on-waste)}
+.ter-chart .ter-f-series-1{fill:var(--ter-series-1)}.ter-chart .ter-s-series-1{stroke:var(--ter-series-1)}.ter-chart .ter-f-on-series-1{fill:var(--ter-on-series-1)}
+.ter-chart .ter-f-series-2{fill:var(--ter-series-2)}.ter-chart .ter-s-series-2{stroke:var(--ter-series-2)}.ter-chart .ter-f-on-series-2{fill:var(--ter-on-series-2)}
+.ter-chart .ter-f-series-3{fill:var(--ter-series-3)}.ter-chart .ter-s-series-3{stroke:var(--ter-series-3)}.ter-chart .ter-f-on-series-3{fill:var(--ter-on-series-3)}
+.ter-chart .ter-f-series-4{fill:var(--ter-series-4)}.ter-chart .ter-s-series-4{stroke:var(--ter-series-4)}.ter-chart .ter-f-on-series-4{fill:var(--ter-on-series-4)}
+.ter-chart .ter-f-series-5{fill:var(--ter-series-5)}.ter-chart .ter-s-series-5{stroke:var(--ter-series-5)}.ter-chart .ter-f-on-series-5{fill:var(--ter-on-series-5)}
+.ter-chart .ter-f-series-6{fill:var(--ter-series-6)}.ter-chart .ter-s-series-6{stroke:var(--ter-series-6)}.ter-chart .ter-f-on-series-6{fill:var(--ter-on-series-6)}
+.ter-chart .ter-f-series-7{fill:var(--ter-series-7)}.ter-chart .ter-s-series-7{stroke:var(--ter-series-7)}.ter-chart .ter-f-on-series-7{fill:var(--ter-on-series-7)}
+.ter-chart .ter-f-series-8{fill:var(--ter-series-8)}.ter-chart .ter-s-series-8{stroke:var(--ter-series-8)}.ter-chart .ter-f-on-series-8{fill:var(--ter-on-series-8)}
+:root{--ter-page:#f3f2ee}@media (prefers-color-scheme: dark){:root:not([data-theme=light]){--ter-page:#0f0f0e}}:root[data-theme=dark]{--ter-page:#0f0f0e}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ter-page);color:var(--ter-ink);
+font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1120px;margin:0 auto;padding:32px 24px 48px}
+header{margin-bottom:24px}
+.eyebrow{margin:0;color:var(--ter-muted);font-size:13px;letter-spacing:.06em;
+text-transform:uppercase;font-weight:600}
+h1{margin:4px 0 6px;font-size:30px;line-height:1.2}
+h2{margin:0 0 12px;font-size:17px}
+.meta{margin:0;color:var(--ter-ink-2)}
+code{font:13px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;
+overflow-wrap:anywhere}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+gap:12px;margin-bottom:16px}
+.kpi{background:var(--ter-surface);border:1px solid var(--ter-grid);
+border-radius:12px;padding:14px 16px}
+.kpi span{display:block;color:var(--ter-muted);font-size:13px}
+.kpi b{display:block;font-size:28px;line-height:1.2;margin:2px 0;
+font-variant-numeric:tabular-nums}
+.kpi small{color:var(--ter-ink-2);font-size:12.5px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.card{background:var(--ter-surface);border:1px solid var(--ter-grid);
+border-radius:12px;padding:16px;margin:0}
+.wide{grid-column:1/-1}
+.chart{overflow-x:auto}
+.chart svg{display:block;width:100%;height:auto}
+.wide .chart svg{min-width:540px}
+.half .chart svg{min-width:300px}
+figcaption{color:var(--ter-ink-2);font-size:13px;margin-top:8px}
+section.card,footer.card{margin-top:16px}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--ter-grid);
+vertical-align:top}
+th{color:var(--ter-ink-2);font-weight:600;font-size:13px}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.note{border-left:4px solid var(--ter-series-1)}
+.note p,.prose p{margin:0 0 8px}
+.empty{color:var(--ter-muted);margin:0}
+dl{display:grid;grid-template-columns:minmax(120px,max-content) 1fr;gap:6px 18px;
+margin:0}
+dt{font-weight:600}
+dd{margin:0;color:var(--ter-ink-2)}
+@media (max-width:760px){
+main{padding:20px 16px 32px}
+h1{font-size:25px}
+.grid{grid-template-columns:minmax(0,1fr)}
+.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+.kpi b{font-size:23px}
+dl{grid-template-columns:1fr}
+dd{margin-bottom:6px}
+}
+@media print{
+body{background:#fff;font-size:12px}
+main{max-width:none;padding:0}
+.card,.kpi{break-inside:avoid;border-color:#c3c2b7}
+.chart{overflow:visible}
+.wide .chart svg,.half .chart svg{min-width:0}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+.signals li{margin:0 0 6px}
+.badge{display:inline-block;border-radius:999px;padding:1px 9px;font-size:12px;
+font-weight:600;border:1px solid var(--ter-grid);color:var(--ter-ink-2);
+margin-right:6px}
+.badge.fire{border-color:var(--ter-waste);color:var(--ter-waste)}
+.badge.warn{border-color:var(--ter-series-4);color:var(--ter-ink)}
+.measure h2 small{color:var(--ter-muted);font-weight:400;font-size:13px;
+margin-left:6px}
+.stale{border-left:4px solid var(--ter-series-4)}
+</style>
+</head>
+<body><main class="ter-chart">
+<header><p class="eyebrow">TER process control</p><h1>Golden corpus</h1><p class="meta">8 sessions · Average moving range · limits from 8 baseline sessions · computed 2026-10-10 · detectors <code>bb27bd9b9f83</code></p></header>
+<div class="kpis"><div class="kpi"><span>Sessions</span><b>8</b><small>charted in process order</small></div><div class="kpi"><span>Measures</span><b>16</b><small>with natural limits</small></div><div class="kpi"><span>Signals</span><b>4</b><small>rule matches, either direction</small></div><div class="kpi"><span>Would fire</span><b>4</b><small>unfavourable, structural</small></div></div>
+<section class="card measure" id="measure-avoidable_share"><h2>Avoidable share of generated tokens<small>higher is worse</small></h2><p><span class="badge warn">provisional</span>Limits from 8 sessions; they settle at 20 or more.</p><div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 344" width="980" height="344" role="img" class="ter-chart-svg" aria-labelledby="xmr-avoidable_share-title xmr-avoidable_share-desc" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<title id="xmr-avoidable_share-title">Avoidable share of generated tokens</title>
+<desc id="xmr-avoidable_share-desc">XmR chart of Avoidable share of generated tokens over 8 sessions. Centre 14.4%, upper limit 54.6%, lower limit none. 0 signal(s).</desc>
+<rect width="980" height="344" rx="8" fill="#fcfcfb" class="ter-f-surface"/>
+<text x="64.0" y="24.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Individuals (X)</text>
+<line x1="64.0" y1="159.7" x2="888.0" y2="159.7" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="163.7" fill="#52514e" class="ter-f-ink-2" font-size="10">CL 14.4%</text>
+<line x1="64.0" y1="51.7" x2="888.0" y2="51.7" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="55.7" fill="#6f6d68" class="ter-f-muted" font-size="10">UCL 54.6%</text>
+<path d="M115.5,183.1 L218.5,142.4 L321.5,157.6 L424.5,135.9 L527.5,128.1 L630.5,198.3 L733.5,133.9 L836.5,198.3" fill="none" stroke-width="1.2" stroke="#c3c2b7" class="ter-s-baseline"/>
+<circle cx="115.5" cy="183.1" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>sample-session-001: 5.7% (-0.6 sigma)</title></circle>
+<circle cx="218.5" cy="142.4" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-explore: 20.8% (+0.5 sigma)</title></circle>
+<circle cx="321.5" cy="157.6" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-handoff: 15.2% (+0.1 sigma)</title></circle>
+<circle cx="424.5" cy="135.9" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-rework: 23.2% (+0.7 sigma)</title></circle>
+<circle cx="527.5" cy="128.1" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-shift: 26.1% (+0.9 sigma)</title></circle>
+<circle cx="630.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-iterate: 0.0% (-1.1 sigma)</title></circle>
+<circle cx="733.5" cy="133.9" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-lean-mix: 24.0% (+0.7 sigma)</title></circle>
+<circle cx="836.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>session-test-001: 0.0% (-1.1 sigma)</title></circle>
+<text x="64.0" y="234.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Moving range (mR)</text>
+<line x1="64.0" y1="314.0" x2="888.0" y2="314.0" stroke-width="1" stroke="#c3c2b7" class="ter-s-baseline"/>
+<line x1="64.0" y1="294.5" x2="888.0" y2="294.5" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="298.5" fill="#52514e" class="ter-f-ink-2" font-size="10">mR 15.1%</text>
+<line x1="64.0" y1="250.4" x2="888.0" y2="250.4" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="254.4" fill="#6f6d68" class="ter-f-muted" font-size="10">URL 49.4%</text>
+<path d="M218.5,294.5 L321.5,306.7 L424.5,303.6 L527.5,310.3 L630.5,280.3 L733.5,283.1 L836.5,283.1" fill="none" stroke-width="1.2" stroke="#2a78d6" class="ter-s-series-1"/>
+<text x="64.0" y="334.0" fill="#6f6d68" class="ter-f-muted" font-size="11">8 sessions in process order</text>
+</svg></div><p class="empty">No signals: every session is inside the limits.</p></section>
+<section class="card measure" id="measure-unverified_waste_share"><h2>Avoidable plus unverified share of generated tokens<small>higher is worse</small></h2><p><span class="badge warn">provisional</span>Limits from 8 sessions; they settle at 20 or more.</p><div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 344" width="980" height="344" role="img" class="ter-chart-svg" aria-labelledby="xmr-unverified_waste_share-title xmr-unverified_waste_share-desc" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<title id="xmr-unverified_waste_share-title">Avoidable plus unverified share of generated tokens</title>
+<desc id="xmr-unverified_waste_share-desc">XmR chart of Avoidable plus unverified share of generated tokens over 8 sessions. Centre 16.4%, upper limit 51.1%, lower limit none. 0 signal(s).</desc>
+<rect width="980" height="344" rx="8" fill="#fcfcfb" class="ter-f-surface"/>
+<text x="64.0" y="24.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Individuals (X)</text>
+<line x1="64.0" y1="151.4" x2="888.0" y2="151.4" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="155.4" fill="#52514e" class="ter-f-ink-2" font-size="10">CL 16.4%</text>
+<line x1="64.0" y1="51.7" x2="888.0" y2="51.7" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="55.7" fill="#6f6d68" class="ter-f-muted" font-size="10">UCL 51.1%</text>
+<path d="M115.5,136.4 L218.5,138.7 L321.5,154.8 L424.5,131.7 L527.5,123.4 L630.5,198.3 L733.5,129.6 L836.5,198.3" fill="none" stroke-width="1.2" stroke="#c3c2b7" class="ter-s-baseline"/>
+<circle cx="115.5" cy="136.4" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>sample-session-001: 21.6% (+0.5 sigma)</title></circle>
+<circle cx="218.5" cy="138.7" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-explore: 20.8% (+0.4 sigma)</title></circle>
+<circle cx="321.5" cy="154.8" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-handoff: 15.2% (-0.1 sigma)</title></circle>
+<circle cx="424.5" cy="131.7" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-rework: 23.2% (+0.6 sigma)</title></circle>
+<circle cx="527.5" cy="123.4" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-shift: 26.1% (+0.8 sigma)</title></circle>
+<circle cx="630.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-iterate: 0.0% (-1.4 sigma)</title></circle>
+<circle cx="733.5" cy="129.6" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-lean-mix: 24.0% (+0.7 sigma)</title></circle>
+<circle cx="836.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>session-test-001: 0.0% (-1.4 sigma)</title></circle>
+<text x="64.0" y="234.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Moving range (mR)</text>
+<line x1="64.0" y1="314.0" x2="888.0" y2="314.0" stroke-width="1" stroke="#c3c2b7" class="ter-s-baseline"/>
+<line x1="64.0" y1="294.5" x2="888.0" y2="294.5" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="298.5" fill="#52514e" class="ter-f-ink-2" font-size="10">mR 13.1%</text>
+<line x1="64.0" y1="250.4" x2="888.0" y2="250.4" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="254.4" fill="#6f6d68" class="ter-f-muted" font-size="10">URL 42.7%</text>
+<path d="M218.5,312.8 L321.5,305.6 L424.5,302.0 L527.5,309.7 L630.5,275.1 L733.5,278.3 L836.5,278.3" fill="none" stroke-width="1.2" stroke="#2a78d6" class="ter-s-series-1"/>
+<text x="64.0" y="334.0" fill="#6f6d68" class="ter-f-muted" font-size="11">8 sessions in process order</text>
+</svg></div><p class="empty">No signals: every session is inside the limits.</p></section>
+<section class="card measure" id="measure-value_adding_share"><h2>Value-adding share of generated tokens<small>lower is worse</small></h2><p><span class="badge warn">provisional</span>Limits from 8 sessions; they settle at 20 or more.</p><div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 344" width="980" height="344" role="img" class="ter-chart-svg" aria-labelledby="xmr-value_adding_share-title xmr-value_adding_share-desc" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<title id="xmr-value_adding_share-title">Value-adding share of generated tokens</title>
+<desc id="xmr-value_adding_share-desc">XmR chart of Value-adding share of generated tokens over 8 sessions. Centre 50.7%, upper limit 89.4%, lower limit 12.0%. 0 signal(s).</desc>
+<rect width="980" height="344" rx="8" fill="#fcfcfb" class="ter-f-surface"/>
+<text x="64.0" y="24.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Individuals (X)</text>
+<line x1="64.0" y1="125.0" x2="888.0" y2="125.0" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="129.0" fill="#52514e" class="ter-f-ink-2" font-size="10">CL 50.7%</text>
+<line x1="64.0" y1="51.7" x2="888.0" y2="51.7" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="55.7" fill="#6f6d68" class="ter-f-muted" font-size="10">UCL 89.4%</text>
+<line x1="64.0" y1="198.3" x2="888.0" y2="198.3" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="202.3" fill="#6f6d68" class="ter-f-muted" font-size="10">LCL 12.0%</text>
+<path d="M115.5,152.7 L218.5,117.3 L321.5,144.4 L424.5,149.2 L527.5,123.3 L630.5,93.1 L733.5,127.5 L836.5,92.4" fill="none" stroke-width="1.2" stroke="#c3c2b7" class="ter-s-baseline"/>
+<circle cx="115.5" cy="152.7" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>sample-session-001: 36.1% (-1.1 sigma)</title></circle>
+<circle cx="218.5" cy="117.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-explore: 54.7% (+0.3 sigma)</title></circle>
+<circle cx="321.5" cy="144.4" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-handoff: 40.4% (-0.8 sigma)</title></circle>
+<circle cx="424.5" cy="149.2" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-rework: 37.9% (-1.0 sigma)</title></circle>
+<circle cx="527.5" cy="123.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-shift: 51.5% (+0.1 sigma)</title></circle>
+<circle cx="630.5" cy="93.1" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-iterate: 67.5% (+1.3 sigma)</title></circle>
+<circle cx="733.5" cy="127.5" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-lean-mix: 49.4% (-0.1 sigma)</title></circle>
+<circle cx="836.5" cy="92.4" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>session-test-001: 67.9% (+1.3 sigma)</title></circle>
+<text x="64.0" y="234.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Moving range (mR)</text>
+<line x1="64.0" y1="314.0" x2="888.0" y2="314.0" stroke-width="1" stroke="#c3c2b7" class="ter-s-baseline"/>
+<line x1="64.0" y1="294.5" x2="888.0" y2="294.5" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="298.5" fill="#52514e" class="ter-f-ink-2" font-size="10">mR 14.5%</text>
+<line x1="64.0" y1="250.4" x2="888.0" y2="250.4" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="254.4" fill="#6f6d68" class="ter-f-muted" font-size="10">URL 47.5%</text>
+<path d="M218.5,289.0 L321.5,294.8 L424.5,310.6 L527.5,295.7 L630.5,292.6 L733.5,289.7 L836.5,289.2" fill="none" stroke-width="1.2" stroke="#2a78d6" class="ter-s-series-1"/>
+<text x="64.0" y="334.0" fill="#6f6d68" class="ter-f-muted" font-size="11">8 sessions in process order</text>
+</svg></div><p class="empty">No signals: every session is inside the limits.</p></section>
+<section class="card measure" id="measure-flow_efficiency_tokens"><h2>Flow efficiency (tokens)<small>lower is worse</small></h2><p><span class="badge warn">provisional</span>Limits from 8 sessions; they settle at 20 or more.</p><div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 344" width="980" height="344" role="img" class="ter-chart-svg" aria-labelledby="xmr-flow_efficiency_tokens-title xmr-flow_efficiency_tokens-desc" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<title id="xmr-flow_efficiency_tokens-title">Flow efficiency (tokens)</title>
+<desc id="xmr-flow_efficiency_tokens-desc">XmR chart of Flow efficiency (tokens) over 8 sessions. Centre 83.6%, upper limit none, lower limit 48.9%. 0 signal(s).</desc>
+<rect width="980" height="344" rx="8" fill="#fcfcfb" class="ter-f-surface"/>
+<text x="64.0" y="24.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Individuals (X)</text>
+<line x1="64.0" y1="98.6" x2="888.0" y2="98.6" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="102.6" fill="#52514e" class="ter-f-ink-2" font-size="10">CL 83.6%</text>
+<line x1="64.0" y1="198.3" x2="888.0" y2="198.3" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="202.3" fill="#6f6d68" class="ter-f-muted" font-size="10">LCL 48.9%</text>
+<path d="M115.5,113.6 L218.5,111.3 L321.5,95.2 L424.5,118.3 L527.5,126.6 L630.5,51.7 L733.5,120.4 L836.5,51.7" fill="none" stroke-width="1.2" stroke="#c3c2b7" class="ter-s-baseline"/>
+<circle cx="115.5" cy="113.6" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>sample-session-001: 78.4% (-0.5 sigma)</title></circle>
+<circle cx="218.5" cy="111.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-explore: 79.2% (-0.4 sigma)</title></circle>
+<circle cx="321.5" cy="95.2" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-handoff: 84.8% (+0.1 sigma)</title></circle>
+<circle cx="424.5" cy="118.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-rework: 76.8% (-0.6 sigma)</title></circle>
+<circle cx="527.5" cy="126.6" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-shift: 73.9% (-0.8 sigma)</title></circle>
+<circle cx="630.5" cy="51.7" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-iterate: 100.0% (+1.4 sigma)</title></circle>
+<circle cx="733.5" cy="120.4" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-lean-mix: 76.0% (-0.7 sigma)</title></circle>
+<circle cx="836.5" cy="51.7" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>session-test-001: 100.0% (+1.4 sigma)</title></circle>
+<text x="64.0" y="234.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Moving range (mR)</text>
+<line x1="64.0" y1="314.0" x2="888.0" y2="314.0" stroke-width="1" stroke="#c3c2b7" class="ter-s-baseline"/>
+<line x1="64.0" y1="294.5" x2="888.0" y2="294.5" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="298.5" fill="#52514e" class="ter-f-ink-2" font-size="10">mR 13.1%</text>
+<line x1="64.0" y1="250.4" x2="888.0" y2="250.4" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="254.4" fill="#6f6d68" class="ter-f-muted" font-size="10">URL 42.7%</text>
+<path d="M218.5,312.8 L321.5,305.6 L424.5,302.0 L527.5,309.7 L630.5,275.1 L733.5,278.3 L836.5,278.3" fill="none" stroke-width="1.2" stroke="#2a78d6" class="ter-s-series-1"/>
+<text x="64.0" y="334.0" fill="#6f6d68" class="ter-f-muted" font-size="11">8 sessions in process order</text>
+</svg></div><p class="empty">No signals: every session is inside the limits.</p></section>
+<section class="card measure" id="measure-flow_efficiency_time"><h2>Flow efficiency (time)<small>lower is worse</small></h2><p><span class="badge warn">provisional</span>Limits from 8 sessions; they settle at 20 or more.</p><div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 344" width="980" height="344" role="img" class="ter-chart-svg" aria-labelledby="xmr-flow_efficiency_time-title xmr-flow_efficiency_time-desc" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<title id="xmr-flow_efficiency_time-title">Flow efficiency (time)</title>
+<desc id="xmr-flow_efficiency_time-desc">XmR chart of Flow efficiency (time) over 8 sessions. Centre 85.1%, upper limit none, lower limit 38.6%. 0 signal(s).</desc>
+<rect width="980" height="344" rx="8" fill="#fcfcfb" class="ter-f-surface"/>
+<text x="64.0" y="24.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Individuals (X)</text>
+<line x1="64.0" y1="87.4" x2="888.0" y2="87.4" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="91.4" fill="#52514e" class="ter-f-ink-2" font-size="10">CL 85.1%</text>
+<line x1="64.0" y1="198.3" x2="888.0" y2="198.3" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="202.3" fill="#6f6d68" class="ter-f-muted" font-size="10">LCL 38.6%</text>
+<path d="M115.5,69.3 L218.5,152.3 L321.5,95.1 L424.5,99.5 L527.5,78.3 L630.5,51.7 L733.5,101.5 L836.5,51.7" fill="none" stroke-width="1.2" stroke="#c3c2b7" class="ter-s-baseline"/>
+<circle cx="115.5" cy="69.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>sample-session-001: 92.6% (+0.5 sigma)</title></circle>
+<circle cx="218.5" cy="152.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-explore: 57.9% (-1.8 sigma)</title></circle>
+<circle cx="321.5" cy="95.1" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-handoff: 81.8% (-0.2 sigma)</title></circle>
+<circle cx="424.5" cy="99.5" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-rework: 80.0% (-0.3 sigma)</title></circle>
+<circle cx="527.5" cy="78.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-shift: 88.9% (+0.2 sigma)</title></circle>
+<circle cx="630.5" cy="51.7" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-iterate: 100.0% (+1.0 sigma)</title></circle>
+<circle cx="733.5" cy="101.5" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-lean-mix: 79.2% (-0.4 sigma)</title></circle>
+<circle cx="836.5" cy="51.7" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>session-test-001: 100.0% (+1.0 sigma)</title></circle>
+<text x="64.0" y="234.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Moving range (mR)</text>
+<line x1="64.0" y1="314.0" x2="888.0" y2="314.0" stroke-width="1" stroke="#c3c2b7" class="ter-s-baseline"/>
+<line x1="64.0" y1="294.5" x2="888.0" y2="294.5" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="298.5" fill="#52514e" class="ter-f-ink-2" font-size="10">mR 17.4%</text>
+<line x1="64.0" y1="250.4" x2="888.0" y2="250.4" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="254.4" fill="#6f6d68" class="ter-f-muted" font-size="10">URL 57.0%</text>
+<path d="M218.5,275.2 L321.5,287.3 L424.5,312.0 L527.5,304.1 L630.5,301.6 L733.5,290.8 L836.5,290.8" fill="none" stroke-width="1.2" stroke="#2a78d6" class="ter-s-series-1"/>
+<text x="64.0" y="334.0" fill="#6f6d68" class="ter-f-muted" font-size="11">8 sessions in process order</text>
+</svg></div><p class="empty">No signals: every session is inside the limits.</p></section>
+<section class="card measure" id="measure-edits_validated_share"><h2>Edits covered by a later validation run<small>lower is worse</small></h2><p><span class="badge warn">provisional</span>Limits from 8 sessions; they settle at 20 or more.</p><div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 344" width="980" height="344" role="img" class="ter-chart-svg" aria-labelledby="xmr-edits_validated_share-title xmr-edits_validated_share-desc" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<title id="xmr-edits_validated_share-title">Edits covered by a later validation run</title>
+<desc id="xmr-edits_validated_share-desc">XmR chart of Edits covered by a later validation run over 8 sessions. Centre 75.0%, upper limit none, lower limit none. 0 signal(s).</desc>
+<rect width="980" height="344" rx="8" fill="#fcfcfb" class="ter-f-surface"/>
+<text x="64.0" y="24.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Individuals (X)</text>
+<line x1="64.0" y1="88.4" x2="888.0" y2="88.4" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="92.4" fill="#52514e" class="ter-f-ink-2" font-size="10">CL 75.0%</text>
+<path d="M115.5,51.7 L218.5,51.7 L321.5,198.3 L424.5,51.7 L527.5,51.7 L630.5,51.7 L733.5,51.7 L836.5,198.3" fill="none" stroke-width="1.2" stroke="#c3c2b7" class="ter-s-baseline"/>
+<circle cx="115.5" cy="51.7" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>sample-session-001: 100.0% (+0.7 sigma)</title></circle>
+<circle cx="218.5" cy="51.7" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-explore: 100.0% (+0.7 sigma)</title></circle>
+<circle cx="321.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-handoff: 0.0% (-2.0 sigma)</title></circle>
+<circle cx="424.5" cy="51.7" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-rework: 100.0% (+0.7 sigma)</title></circle>
+<circle cx="527.5" cy="51.7" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-shift: 100.0% (+0.7 sigma)</title></circle>
+<circle cx="630.5" cy="51.7" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-iterate: 100.0% (+0.7 sigma)</title></circle>
+<circle cx="733.5" cy="51.7" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-lean-mix: 100.0% (+0.7 sigma)</title></circle>
+<circle cx="836.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>session-test-001: 0.0% (-2.0 sigma)</title></circle>
+<text x="64.0" y="234.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Moving range (mR)</text>
+<line x1="64.0" y1="314.0" x2="888.0" y2="314.0" stroke-width="1" stroke="#c3c2b7" class="ter-s-baseline"/>
+<line x1="64.0" y1="294.5" x2="888.0" y2="294.5" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="298.5" fill="#52514e" class="ter-f-ink-2" font-size="10">mR 42.9%</text>
+<line x1="64.0" y1="250.4" x2="888.0" y2="250.4" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="254.4" fill="#6f6d68" class="ter-f-muted" font-size="10">URL 140.1%</text>
+<path d="M218.5,314.0 L321.5,268.6 L424.5,268.6 L527.5,314.0 L630.5,314.0 L733.5,314.0 L836.5,268.6" fill="none" stroke-width="1.2" stroke="#2a78d6" class="ter-s-series-1"/>
+<text x="64.0" y="334.0" fill="#6f6d68" class="ter-f-muted" font-size="11">8 sessions in process order</text>
+</svg></div><p class="empty">No signals: every session is inside the limits.</p></section>
+<section class="card measure" id="measure-ter"><h2>Token Efficiency Ratio<small>lower is worse</small></h2><p><span class="badge warn">provisional</span>Limits from 8 sessions; they settle at 20 or more.</p><div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 344" width="980" height="344" role="img" class="ter-chart-svg" aria-labelledby="xmr-ter-title xmr-ter-desc" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<title id="xmr-ter-title">Token Efficiency Ratio</title>
+<desc id="xmr-ter-desc">XmR chart of Token Efficiency Ratio over 8 sessions. Centre 78.8%, upper limit none, lower limit 37.5%. 0 signal(s).</desc>
+<rect width="980" height="344" rx="8" fill="#fcfcfb" class="ter-f-surface"/>
+<text x="64.0" y="24.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Individuals (X)</text>
+<line x1="64.0" y1="101.4" x2="888.0" y2="101.4" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="105.4" fill="#52514e" class="ter-f-ink-2" font-size="10">CL 78.8%</text>
+<line x1="64.0" y1="198.3" x2="888.0" y2="198.3" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="202.3" fill="#6f6d68" class="ter-f-muted" font-size="10">LCL 37.5%</text>
+<path d="M115.5,97.2 L218.5,134.0 L321.5,122.1 L424.5,97.5 L527.5,67.8 L630.5,135.7 L733.5,105.4 L836.5,51.7" fill="none" stroke-width="1.2" stroke="#c3c2b7" class="ter-s-baseline"/>
+<circle cx="115.5" cy="97.2" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>sample-session-001: 80.6% (+0.1 sigma)</title></circle>
+<circle cx="218.5" cy="134.0" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-explore: 64.9% (-1.0 sigma)</title></circle>
+<circle cx="321.5" cy="122.1" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-handoff: 70.0% (-0.6 sigma)</title></circle>
+<circle cx="424.5" cy="97.5" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-rework: 80.5% (+0.1 sigma)</title></circle>
+<circle cx="527.5" cy="67.8" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-shift: 93.2% (+1.0 sigma)</title></circle>
+<circle cx="630.5" cy="135.7" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-iterate: 64.2% (-1.1 sigma)</title></circle>
+<circle cx="733.5" cy="105.4" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-lean-mix: 77.1% (-0.1 sigma)</title></circle>
+<circle cx="836.5" cy="51.7" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>session-test-001: 100.0% (+1.5 sigma)</title></circle>
+<text x="64.0" y="234.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Moving range (mR)</text>
+<line x1="64.0" y1="314.0" x2="888.0" y2="314.0" stroke-width="1" stroke="#c3c2b7" class="ter-s-baseline"/>
+<line x1="64.0" y1="294.5" x2="888.0" y2="294.5" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="298.5" fill="#52514e" class="ter-f-ink-2" font-size="10">mR 15.5%</text>
+<line x1="64.0" y1="250.4" x2="888.0" y2="250.4" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="254.4" fill="#6f6d68" class="ter-f-muted" font-size="10">URL 50.7%</text>
+<path d="M218.5,294.3 L321.5,307.6 L424.5,300.8 L527.5,298.1 L630.5,277.7 L733.5,297.8 L836.5,285.3" fill="none" stroke-width="1.2" stroke="#2a78d6" class="ter-s-series-1"/>
+<text x="64.0" y="334.0" fill="#6f6d68" class="ter-f-muted" font-size="11">8 sessions in process order</text>
+</svg></div><p class="empty">No signals: every session is inside the limits.</p></section>
+<section class="card measure" id="measure-confident_findings"><h2>Confident waste findings<small>higher is worse</small></h2><p><span class="badge warn">provisional</span>Limits from 8 sessions; they settle at 20 or more.</p><div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 344" width="980" height="344" role="img" class="ter-chart-svg" aria-labelledby="xmr-confident_findings-title xmr-confident_findings-desc" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<title id="xmr-confident_findings-title">Confident waste findings</title>
+<desc id="xmr-confident_findings-desc">XmR chart of Confident waste findings over 8 sessions. Centre 1.62, upper limit 8.09, lower limit none. 0 signal(s).</desc>
+<rect width="980" height="344" rx="8" fill="#fcfcfb" class="ter-f-surface"/>
+<text x="64.0" y="24.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Individuals (X)</text>
+<line x1="64.0" y1="168.8" x2="888.0" y2="168.8" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="172.8" fill="#52514e" class="ter-f-ink-2" font-size="10">CL 1.62</text>
+<line x1="64.0" y1="51.7" x2="888.0" y2="51.7" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="55.7" fill="#6f6d68" class="ter-f-muted" font-size="10">UCL 8.09</text>
+<path d="M115.5,180.1 L218.5,107.6 L321.5,180.1 L424.5,180.1 L527.5,180.1 L630.5,198.3 L733.5,125.8 L836.5,198.3" fill="none" stroke-width="1.2" stroke="#c3c2b7" class="ter-s-baseline"/>
+<circle cx="115.5" cy="180.1" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>sample-session-001: 1 (-0.3 sigma)</title></circle>
+<circle cx="218.5" cy="107.6" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-explore: 5 (+1.6 sigma)</title></circle>
+<circle cx="321.5" cy="180.1" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-handoff: 1 (-0.3 sigma)</title></circle>
+<circle cx="424.5" cy="180.1" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-rework: 1 (-0.3 sigma)</title></circle>
+<circle cx="527.5" cy="180.1" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-shift: 1 (-0.3 sigma)</title></circle>
+<circle cx="630.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-iterate: 0 (-0.8 sigma)</title></circle>
+<circle cx="733.5" cy="125.8" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-lean-mix: 4 (+1.1 sigma)</title></circle>
+<circle cx="836.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>session-test-001: 0 (-0.8 sigma)</title></circle>
+<text x="64.0" y="234.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Moving range (mR)</text>
+<line x1="64.0" y1="314.0" x2="888.0" y2="314.0" stroke-width="1" stroke="#c3c2b7" class="ter-s-baseline"/>
+<line x1="64.0" y1="294.5" x2="888.0" y2="294.5" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="298.5" fill="#52514e" class="ter-f-ink-2" font-size="10">mR 2.43</text>
+<line x1="64.0" y1="250.4" x2="888.0" y2="250.4" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="254.4" fill="#6f6d68" class="ter-f-muted" font-size="10">URL 7.94</text>
+<path d="M218.5,281.9 L321.5,281.9 L424.5,314.0 L527.5,314.0 L630.5,306.0 L733.5,281.9 L836.5,281.9" fill="none" stroke-width="1.2" stroke="#2a78d6" class="ter-s-series-1"/>
+<text x="64.0" y="334.0" fill="#6f6d68" class="ter-f-muted" font-size="11">8 sessions in process order</text>
+</svg></div><p class="empty">No signals: every session is inside the limits.</p></section>
+<section class="card measure" id="measure-uncertain_findings"><h2>Uncertain findings (waste until verified)<small>higher is worse</small></h2><p><span class="badge warn">provisional</span>Limits from 8 sessions; they settle at 20 or more.</p><div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 344" width="980" height="344" role="img" class="ter-chart-svg" aria-labelledby="xmr-uncertain_findings-title xmr-uncertain_findings-desc" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<title id="xmr-uncertain_findings-title">Uncertain findings (waste until verified)</title>
+<desc id="xmr-uncertain_findings-desc">XmR chart of Uncertain findings (waste until verified) over 8 sessions. Centre 0.12, upper limit 0.51, lower limit none. 1 signal(s).</desc>
+<rect width="980" height="344" rx="8" fill="#fcfcfb" class="ter-f-surface"/>
+<text x="64.0" y="24.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Individuals (X)</text>
+<line x1="64.0" y1="180.0" x2="888.0" y2="180.0" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="184.0" fill="#52514e" class="ter-f-ink-2" font-size="10">CL 0.12</text>
+<line x1="64.0" y1="124.3" x2="888.0" y2="124.3" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="128.3" fill="#6f6d68" class="ter-f-muted" font-size="10">UCL 0.51</text>
+<path d="M115.5,51.7 L218.5,198.3 L321.5,198.3 L424.5,198.3 L527.5,198.3 L630.5,198.3 L733.5,198.3 L836.5,198.3" fill="none" stroke-width="1.2" stroke="#c3c2b7" class="ter-s-baseline"/>
+<circle cx="115.5" cy="51.7" r="3.5" fill="#e34948" class="ter-f-waste"><title>sample-session-001: 1 (+6.9 sigma) · Beyond limits</title></circle>
+<circle cx="115.5" cy="51.7" r="6.5" fill="none" stroke-width="1.5" stroke="#e34948" class="ter-s-waste"/>
+<circle cx="218.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-explore: 0 (-1.0 sigma)</title></circle>
+<circle cx="321.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-handoff: 0 (-1.0 sigma)</title></circle>
+<circle cx="424.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-rework: 0 (-1.0 sigma)</title></circle>
+<circle cx="527.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-shift: 0 (-1.0 sigma)</title></circle>
+<circle cx="630.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-iterate: 0 (-1.0 sigma)</title></circle>
+<circle cx="733.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-lean-mix: 0 (-1.0 sigma)</title></circle>
+<circle cx="836.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>session-test-001: 0 (-1.0 sigma)</title></circle>
+<text x="64.0" y="234.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Moving range (mR)</text>
+<line x1="64.0" y1="314.0" x2="888.0" y2="314.0" stroke-width="1" stroke="#c3c2b7" class="ter-s-baseline"/>
+<line x1="64.0" y1="304.9" x2="888.0" y2="304.9" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="308.9" fill="#52514e" class="ter-f-ink-2" font-size="10">mR 0.14</text>
+<line x1="64.0" y1="284.3" x2="888.0" y2="284.3" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="288.3" fill="#6f6d68" class="ter-f-muted" font-size="10">URL 0.47</text>
+<path d="M218.5,250.4 L321.5,314.0 L424.5,314.0 L527.5,314.0 L630.5,314.0 L733.5,314.0 L836.5,314.0" fill="none" stroke-width="1.2" stroke="#2a78d6" class="ter-s-series-1"/>
+<text x="64.0" y="334.0" fill="#6f6d68" class="ter-f-muted" font-size="11">8 sessions in process order</text>
+</svg></div><ul class="signals"><li><span class="badge fire">fires</span><b>Beyond limits</b> above the limit 0.51 at <code>sample-session-001</code> (1). Evidence: <code>sample-session-001</code></li></ul></section>
+<section class="card measure" id="measure-rework_cycles"><h2>Rework cycles (same failure)<small>higher is worse</small></h2><p><span class="badge warn">provisional</span>Limits from 8 sessions; they settle at 20 or more.</p><div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 344" width="980" height="344" role="img" class="ter-chart-svg" aria-labelledby="xmr-rework_cycles-title xmr-rework_cycles-desc" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<title id="xmr-rework_cycles-title">Rework cycles (same failure)</title>
+<desc id="xmr-rework_cycles-desc">XmR chart of Rework cycles (same failure) over 8 sessions. Centre 0.12, upper limit 0.89, lower limit none. 1 signal(s).</desc>
+<rect width="980" height="344" rx="8" fill="#fcfcfb" class="ter-f-surface"/>
+<text x="64.0" y="24.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Individuals (X)</text>
+<line x1="64.0" y1="180.0" x2="888.0" y2="180.0" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="184.0" fill="#52514e" class="ter-f-ink-2" font-size="10">CL 0.12</text>
+<line x1="64.0" y1="68.6" x2="888.0" y2="68.6" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="72.6" fill="#6f6d68" class="ter-f-muted" font-size="10">UCL 0.89</text>
+<path d="M115.5,198.3 L218.5,198.3 L321.5,198.3 L424.5,51.7 L527.5,198.3 L630.5,198.3 L733.5,198.3 L836.5,198.3" fill="none" stroke-width="1.2" stroke="#c3c2b7" class="ter-s-baseline"/>
+<circle cx="115.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>sample-session-001: 0 (-0.5 sigma)</title></circle>
+<circle cx="218.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-explore: 0 (-0.5 sigma)</title></circle>
+<circle cx="321.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-handoff: 0 (-0.5 sigma)</title></circle>
+<circle cx="424.5" cy="51.7" r="3.5" fill="#e34948" class="ter-f-waste"><title>golden-rework: 1 (+3.5 sigma) · Beyond limits</title></circle>
+<circle cx="424.5" cy="51.7" r="6.5" fill="none" stroke-width="1.5" stroke="#e34948" class="ter-s-waste"/>
+<circle cx="527.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-shift: 0 (-0.5 sigma)</title></circle>
+<circle cx="630.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-iterate: 0 (-0.5 sigma)</title></circle>
+<circle cx="733.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-lean-mix: 0 (-0.5 sigma)</title></circle>
+<circle cx="836.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>session-test-001: 0 (-0.5 sigma)</title></circle>
+<text x="64.0" y="234.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Moving range (mR)</text>
+<line x1="64.0" y1="314.0" x2="888.0" y2="314.0" stroke-width="1" stroke="#c3c2b7" class="ter-s-baseline"/>
+<line x1="64.0" y1="295.8" x2="888.0" y2="295.8" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="299.8" fill="#52514e" class="ter-f-ink-2" font-size="10">mR 0.29</text>
+<line x1="64.0" y1="254.6" x2="888.0" y2="254.6" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="258.6" fill="#6f6d68" class="ter-f-muted" font-size="10">URL 0.93</text>
+<path d="M218.5,314.0 L321.5,314.0 L424.5,250.4 L527.5,250.4 L630.5,314.0 L733.5,314.0 L836.5,314.0" fill="none" stroke-width="1.2" stroke="#2a78d6" class="ter-s-series-1"/>
+<text x="64.0" y="334.0" fill="#6f6d68" class="ter-f-muted" font-size="11">8 sessions in process order</text>
+</svg></div><ul class="signals"><li><span class="badge fire">fires</span><b>Beyond limits</b> above the limit 0.89 at <code>golden-rework</code> (1). Evidence: <code>golden-rework</code></li></ul></section>
+<section class="card measure" id="measure-risk_findings"><h2>Risk findings<small>higher is worse</small></h2><p><span class="badge warn">provisional</span>Limits from 8 sessions; they settle at 20 or more.</p><div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 344" width="980" height="344" role="img" class="ter-chart-svg" aria-labelledby="xmr-risk_findings-title xmr-risk_findings-desc" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<title id="xmr-risk_findings-title">Risk findings</title>
+<desc id="xmr-risk_findings-desc">XmR chart of Risk findings over 8 sessions. Centre 0.88, upper limit 4.29, lower limit none. 0 signal(s).</desc>
+<rect width="980" height="344" rx="8" fill="#fcfcfb" class="ter-f-surface"/>
+<text x="64.0" y="24.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Individuals (X)</text>
+<line x1="64.0" y1="168.4" x2="888.0" y2="168.4" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="172.4" fill="#52514e" class="ter-f-ink-2" font-size="10">CL 0.88</text>
+<line x1="64.0" y1="51.7" x2="888.0" y2="51.7" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="55.7" fill="#6f6d68" class="ter-f-muted" font-size="10">UCL 4.29</text>
+<path d="M115.5,198.3 L218.5,198.3 L321.5,164.2 L424.5,198.3 L527.5,130.0 L630.5,198.3 L733.5,164.2 L836.5,95.9" fill="none" stroke-width="1.2" stroke="#c3c2b7" class="ter-s-baseline"/>
+<circle cx="115.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>sample-session-001: 0 (-0.8 sigma)</title></circle>
+<circle cx="218.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-explore: 0 (-0.8 sigma)</title></circle>
+<circle cx="321.5" cy="164.2" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-handoff: 1 (+0.1 sigma)</title></circle>
+<circle cx="424.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-rework: 0 (-0.8 sigma)</title></circle>
+<circle cx="527.5" cy="130.0" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-shift: 2 (+1.0 sigma)</title></circle>
+<circle cx="630.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-iterate: 0 (-0.8 sigma)</title></circle>
+<circle cx="733.5" cy="164.2" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-lean-mix: 1 (+0.1 sigma)</title></circle>
+<circle cx="836.5" cy="95.9" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>session-test-001: 3 (+1.9 sigma)</title></circle>
+<text x="64.0" y="234.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Moving range (mR)</text>
+<line x1="64.0" y1="314.0" x2="888.0" y2="314.0" stroke-width="1" stroke="#c3c2b7" class="ter-s-baseline"/>
+<line x1="64.0" y1="294.5" x2="888.0" y2="294.5" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="298.5" fill="#52514e" class="ter-f-ink-2" font-size="10">mR 1.29</text>
+<line x1="64.0" y1="250.4" x2="888.0" y2="250.4" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="254.4" fill="#6f6d68" class="ter-f-muted" font-size="10">URL 4.20</text>
+<path d="M218.5,314.0 L321.5,298.9 L424.5,298.9 L527.5,283.7 L630.5,283.7 L733.5,298.9 L836.5,283.7" fill="none" stroke-width="1.2" stroke="#2a78d6" class="ter-s-series-1"/>
+<text x="64.0" y="334.0" fill="#6f6d68" class="ter-f-muted" font-size="11">8 sessions in process order</text>
+</svg></div><p class="empty">No signals: every session is inside the limits.</p></section>
+<section class="card measure" id="measure-wip_peak"><h2>Peak WIP<small>higher is worse</small></h2><p><span class="badge warn">provisional</span>Limits from 8 sessions; they settle at 20 or more.</p><div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 344" width="980" height="344" role="img" class="ter-chart-svg" aria-labelledby="xmr-wip_peak-title xmr-wip_peak-desc" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<title id="xmr-wip_peak-title">Peak WIP</title>
+<desc id="xmr-wip_peak-desc">XmR chart of Peak WIP over 8 sessions. Centre 3.38, upper limit 10.98, lower limit none. 0 signal(s).</desc>
+<rect width="980" height="344" rx="8" fill="#fcfcfb" class="ter-f-surface"/>
+<text x="64.0" y="24.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Individuals (X)</text>
+<line x1="64.0" y1="163.4" x2="888.0" y2="163.4" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="167.4" fill="#52514e" class="ter-f-ink-2" font-size="10">CL 3.38</text>
+<line x1="64.0" y1="51.7" x2="888.0" y2="51.7" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="55.7" fill="#6f6d68" class="ter-f-muted" font-size="10">UCL 10.98</text>
+<path d="M115.5,198.3 L218.5,139.5 L321.5,168.9 L424.5,183.6 L527.5,168.9 L630.5,183.6 L733.5,95.4 L836.5,168.9" fill="none" stroke-width="1.2" stroke="#c3c2b7" class="ter-s-baseline"/>
+<circle cx="115.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>sample-session-001: 1 (-0.9 sigma)</title></circle>
+<circle cx="218.5" cy="139.5" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-explore: 5 (+0.6 sigma)</title></circle>
+<circle cx="321.5" cy="168.9" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-handoff: 3 (-0.1 sigma)</title></circle>
+<circle cx="424.5" cy="183.6" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-rework: 2 (-0.5 sigma)</title></circle>
+<circle cx="527.5" cy="168.9" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-shift: 3 (-0.1 sigma)</title></circle>
+<circle cx="630.5" cy="183.6" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-iterate: 2 (-0.5 sigma)</title></circle>
+<circle cx="733.5" cy="95.4" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-lean-mix: 8 (+1.8 sigma)</title></circle>
+<circle cx="836.5" cy="168.9" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>session-test-001: 3 (-0.1 sigma)</title></circle>
+<text x="64.0" y="234.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Moving range (mR)</text>
+<line x1="64.0" y1="314.0" x2="888.0" y2="314.0" stroke-width="1" stroke="#c3c2b7" class="ter-s-baseline"/>
+<line x1="64.0" y1="294.5" x2="888.0" y2="294.5" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="298.5" fill="#52514e" class="ter-f-ink-2" font-size="10">mR 2.86</text>
+<line x1="64.0" y1="250.4" x2="888.0" y2="250.4" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="254.4" fill="#6f6d68" class="ter-f-muted" font-size="10">URL 9.34</text>
+<path d="M218.5,286.7 L321.5,300.4 L424.5,307.2 L527.5,307.2 L630.5,307.2 L733.5,273.1 L836.5,279.9" fill="none" stroke-width="1.2" stroke="#2a78d6" class="ter-s-series-1"/>
+<text x="64.0" y="334.0" fill="#6f6d68" class="ter-f-muted" font-size="11">8 sessions in process order</text>
+</svg></div><p class="empty">No signals: every session is inside the limits.</p></section>
+<section class="card measure" id="measure-unvalidated_edits_at_end"><h2>Edits no validation run covered<small>higher is worse</small></h2><p><span class="badge warn">provisional</span>Limits from 8 sessions; they settle at 20 or more.</p><div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 344" width="980" height="344" role="img" class="ter-chart-svg" aria-labelledby="xmr-unvalidated_edits_at_end-title xmr-unvalidated_edits_at_end-desc" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<title id="xmr-unvalidated_edits_at_end-title">Edits no validation run covered</title>
+<desc id="xmr-unvalidated_edits_at_end-desc">XmR chart of Edits no validation run covered over 8 sessions. Centre 0.38, upper limit 1.90, lower limit none. 1 signal(s).</desc>
+<rect width="980" height="344" rx="8" fill="#fcfcfb" class="ter-f-surface"/>
+<text x="64.0" y="24.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Individuals (X)</text>
+<line x1="64.0" y1="170.8" x2="888.0" y2="170.8" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="174.8" fill="#52514e" class="ter-f-ink-2" font-size="10">CL 0.38</text>
+<line x1="64.0" y1="59.4" x2="888.0" y2="59.4" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="63.4" fill="#6f6d68" class="ter-f-muted" font-size="10">UCL 1.90</text>
+<path d="M115.5,198.3 L218.5,198.3 L321.5,125.0 L424.5,198.3 L527.5,198.3 L630.5,198.3 L733.5,198.3 L836.5,51.7" fill="none" stroke-width="1.2" stroke="#c3c2b7" class="ter-s-baseline"/>
+<circle cx="115.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>sample-session-001: 0 (-0.7 sigma)</title></circle>
+<circle cx="218.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-explore: 0 (-0.7 sigma)</title></circle>
+<circle cx="321.5" cy="125.0" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-handoff: 1 (+1.2 sigma)</title></circle>
+<circle cx="424.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-rework: 0 (-0.7 sigma)</title></circle>
+<circle cx="527.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-shift: 0 (-0.7 sigma)</title></circle>
+<circle cx="630.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-iterate: 0 (-0.7 sigma)</title></circle>
+<circle cx="733.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-lean-mix: 0 (-0.7 sigma)</title></circle>
+<circle cx="836.5" cy="51.7" r="3.5" fill="#e34948" class="ter-f-waste"><title>session-test-001: 2 (+3.2 sigma) · Beyond limits</title></circle>
+<circle cx="836.5" cy="51.7" r="6.5" fill="none" stroke-width="1.5" stroke="#e34948" class="ter-s-waste"/>
+<text x="64.0" y="234.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Moving range (mR)</text>
+<line x1="64.0" y1="314.0" x2="888.0" y2="314.0" stroke-width="1" stroke="#c3c2b7" class="ter-s-baseline"/>
+<line x1="64.0" y1="295.8" x2="888.0" y2="295.8" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="299.8" fill="#52514e" class="ter-f-ink-2" font-size="10">mR 0.57</text>
+<line x1="64.0" y1="254.6" x2="888.0" y2="254.6" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="258.6" fill="#6f6d68" class="ter-f-muted" font-size="10">URL 1.87</text>
+<path d="M218.5,314.0 L321.5,282.2 L424.5,282.2 L527.5,314.0 L630.5,314.0 L733.5,314.0 L836.5,250.4" fill="none" stroke-width="1.2" stroke="#2a78d6" class="ter-s-series-1"/>
+<text x="64.0" y="334.0" fill="#6f6d68" class="ter-f-muted" font-size="11">8 sessions in process order</text>
+</svg></div><ul class="signals"><li><span class="badge fire">fires</span><b>Beyond limits</b> above the limit 1.90 at <code>session-test-001</code> (2). Evidence: <code>session-test-001</code></li></ul></section>
+<section class="card measure" id="measure-unresolved_failures_at_end"><h2>Failing checks never seen passing again<small>higher is worse</small></h2><p><span class="badge warn">provisional</span>Limits from 8 sessions; they settle at 20 or more.</p><div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 344" width="980" height="344" role="img" class="ter-chart-svg" aria-labelledby="xmr-unresolved_failures_at_end-title xmr-unresolved_failures_at_end-desc" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<title id="xmr-unresolved_failures_at_end-title">Failing checks never seen passing again</title>
+<desc id="xmr-unresolved_failures_at_end-desc">XmR chart of Failing checks never seen passing again over 8 sessions. Centre 0.12, upper limit 0.89, lower limit none. 1 signal(s).</desc>
+<rect width="980" height="344" rx="8" fill="#fcfcfb" class="ter-f-surface"/>
+<text x="64.0" y="24.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Individuals (X)</text>
+<line x1="64.0" y1="180.0" x2="888.0" y2="180.0" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="184.0" fill="#52514e" class="ter-f-ink-2" font-size="10">CL 0.12</text>
+<line x1="64.0" y1="68.6" x2="888.0" y2="68.6" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="72.6" fill="#6f6d68" class="ter-f-muted" font-size="10">UCL 0.89</text>
+<path d="M115.5,198.3 L218.5,198.3 L321.5,198.3 L424.5,198.3 L527.5,198.3 L630.5,198.3 L733.5,51.7 L836.5,198.3" fill="none" stroke-width="1.2" stroke="#c3c2b7" class="ter-s-baseline"/>
+<circle cx="115.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>sample-session-001: 0 (-0.5 sigma)</title></circle>
+<circle cx="218.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-explore: 0 (-0.5 sigma)</title></circle>
+<circle cx="321.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-handoff: 0 (-0.5 sigma)</title></circle>
+<circle cx="424.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-rework: 0 (-0.5 sigma)</title></circle>
+<circle cx="527.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-shift: 0 (-0.5 sigma)</title></circle>
+<circle cx="630.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-iterate: 0 (-0.5 sigma)</title></circle>
+<circle cx="733.5" cy="51.7" r="3.5" fill="#e34948" class="ter-f-waste"><title>golden-lean-mix: 1 (+3.5 sigma) · Beyond limits</title></circle>
+<circle cx="733.5" cy="51.7" r="6.5" fill="none" stroke-width="1.5" stroke="#e34948" class="ter-s-waste"/>
+<circle cx="836.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>session-test-001: 0 (-0.5 sigma)</title></circle>
+<text x="64.0" y="234.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Moving range (mR)</text>
+<line x1="64.0" y1="314.0" x2="888.0" y2="314.0" stroke-width="1" stroke="#c3c2b7" class="ter-s-baseline"/>
+<line x1="64.0" y1="295.8" x2="888.0" y2="295.8" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="299.8" fill="#52514e" class="ter-f-ink-2" font-size="10">mR 0.29</text>
+<line x1="64.0" y1="254.6" x2="888.0" y2="254.6" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="258.6" fill="#6f6d68" class="ter-f-muted" font-size="10">URL 0.93</text>
+<path d="M218.5,314.0 L321.5,314.0 L424.5,314.0 L527.5,314.0 L630.5,314.0 L733.5,250.4 L836.5,250.4" fill="none" stroke-width="1.2" stroke="#2a78d6" class="ter-s-series-1"/>
+<text x="64.0" y="334.0" fill="#6f6d68" class="ter-f-muted" font-size="11">8 sessions in process order</text>
+</svg></div><ul class="signals"><li><span class="badge fire">fires</span><b>Beyond limits</b> above the limit 0.89 at <code>golden-lean-mix</code> (1). Evidence: <code>golden-lean-mix</code></li></ul></section>
+<section class="card measure" id="measure-generated_tokens"><h2>Generated tokens<small>higher is worse</small></h2><p><span class="badge">charted, never fires</span>Tokens are not a structural basis for an intervention.</p><p><span class="badge warn">provisional</span>Limits from 8 sessions; they settle at 20 or more.</p><div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 344" width="980" height="344" role="img" class="ter-chart-svg" aria-labelledby="xmr-generated_tokens-title xmr-generated_tokens-desc" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<title id="xmr-generated_tokens-title">Generated tokens</title>
+<desc id="xmr-generated_tokens-desc">XmR chart of Generated tokens over 8 sessions. Centre 413, upper limit 891, lower limit none. 0 signal(s).</desc>
+<rect width="980" height="344" rx="8" fill="#fcfcfb" class="ter-f-surface"/>
+<text x="64.0" y="24.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Individuals (X)</text>
+<line x1="64.0" y1="152.7" x2="888.0" y2="152.7" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="156.7" fill="#52514e" class="ter-f-ink-2" font-size="10">CL 413</text>
+<line x1="64.0" y1="51.7" x2="888.0" y2="51.7" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="55.7" fill="#6f6d68" class="ter-f-muted" font-size="10">UCL 891</text>
+<path d="M115.5,139.3 L218.5,159.8 L321.5,198.3 L424.5,156.4 L527.5,151.1 L630.5,172.5 L733.5,92.8 L836.5,151.3" fill="none" stroke-width="1.2" stroke="#c3c2b7" class="ter-s-baseline"/>
+<circle cx="115.5" cy="139.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>sample-session-001: 477 (+0.4 sigma)</title></circle>
+<circle cx="218.5" cy="159.8" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-explore: 380 (-0.2 sigma)</title></circle>
+<circle cx="321.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-handoff: 198 (-1.4 sigma)</title></circle>
+<circle cx="424.5" cy="156.4" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-rework: 396 (-0.1 sigma)</title></circle>
+<circle cx="527.5" cy="151.1" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-shift: 421 (+0.0 sigma)</title></circle>
+<circle cx="630.5" cy="172.5" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-iterate: 320 (-0.6 sigma)</title></circle>
+<circle cx="733.5" cy="92.8" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-lean-mix: 697 (+1.8 sigma)</title></circle>
+<circle cx="836.5" cy="151.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>session-test-001: 420 (+0.0 sigma)</title></circle>
+<text x="64.0" y="234.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Moving range (mR)</text>
+<line x1="64.0" y1="314.0" x2="888.0" y2="314.0" stroke-width="1" stroke="#c3c2b7" class="ter-s-baseline"/>
+<line x1="64.0" y1="294.5" x2="888.0" y2="294.5" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="298.5" fill="#52514e" class="ter-f-ink-2" font-size="10">mR 179</text>
+<line x1="64.0" y1="250.4" x2="888.0" y2="250.4" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="254.4" fill="#6f6d68" class="ter-f-muted" font-size="10">URL 586</text>
+<path d="M218.5,303.5 L321.5,294.3 L424.5,292.5 L527.5,311.3 L630.5,303.0 L733.5,273.1 L836.5,284.0" fill="none" stroke-width="1.2" stroke="#2a78d6" class="ter-s-series-1"/>
+<text x="64.0" y="334.0" fill="#6f6d68" class="ter-f-muted" font-size="11">8 sessions in process order</text>
+</svg></div><p class="empty">No signals: every session is inside the limits.</p></section>
+<section class="card measure" id="measure-agent_seconds"><h2>Agent time<small>higher is worse</small></h2><p><span class="badge">charted, never fires</span>Seconds are not a structural basis for an intervention.</p><p><span class="badge warn">provisional</span>Limits from 8 sessions; they settle at 20 or more.</p><div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 344" width="980" height="344" role="img" class="ter-chart-svg" aria-labelledby="xmr-agent_seconds-title xmr-agent_seconds-desc" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<title id="xmr-agent_seconds-title">Agent time</title>
+<desc id="xmr-agent_seconds-desc">XmR chart of Agent time over 8 sessions. Centre 42s, upper limit 119s, lower limit none. 0 signal(s).</desc>
+<rect width="980" height="344" rx="8" fill="#fcfcfb" class="ter-f-surface"/>
+<text x="64.0" y="24.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Individuals (X)</text>
+<line x1="64.0" y1="164.9" x2="888.0" y2="164.9" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="168.9" fill="#52514e" class="ter-f-ink-2" font-size="10">CL 42s</text>
+<line x1="64.0" y1="51.7" x2="888.0" y2="51.7" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="55.7" fill="#6f6d68" class="ter-f-muted" font-size="10">UCL 119s</text>
+<path d="M115.5,198.3 L218.5,142.5 L321.5,177.7 L424.5,160.1 L527.5,186.5 L630.5,168.9 L733.5,102.9 L836.5,182.1" fill="none" stroke-width="1.2" stroke="#c3c2b7" class="ter-s-baseline"/>
+<circle cx="115.5" cy="198.3" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>sample-session-001: 19s (-0.9 sigma)</title></circle>
+<circle cx="218.5" cy="142.5" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-explore: 57s (+0.6 sigma)</title></circle>
+<circle cx="321.5" cy="177.7" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-handoff: 33s (-0.3 sigma)</title></circle>
+<circle cx="424.5" cy="160.1" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-rework: 45s (+0.1 sigma)</title></circle>
+<circle cx="527.5" cy="186.5" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-shift: 27s (-0.6 sigma)</title></circle>
+<circle cx="630.5" cy="168.9" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-iterate: 39s (-0.1 sigma)</title></circle>
+<circle cx="733.5" cy="102.9" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>golden-lean-mix: 84s (+1.6 sigma)</title></circle>
+<circle cx="836.5" cy="182.1" r="3.5" fill="#2a78d6" class="ter-f-series-1"><title>session-test-001: 30s (-0.5 sigma)</title></circle>
+<text x="64.0" y="234.0" fill="#0b0b0b" class="ter-f-ink" font-size="13" font-weight="600">Moving range (mR)</text>
+<line x1="64.0" y1="314.0" x2="888.0" y2="314.0" stroke-width="1" stroke="#c3c2b7" class="ter-s-baseline"/>
+<line x1="64.0" y1="294.5" x2="888.0" y2="294.5" stroke-width="1" stroke="#52514e" class="ter-s-ink-2"/>
+<text x="894.0" y="298.5" fill="#52514e" class="ter-f-ink-2" font-size="10">mR 29s</text>
+<line x1="64.0" y1="250.4" x2="888.0" y2="250.4" stroke-width="1" stroke-dasharray="5 4" stroke="#6f6d68" class="ter-s-muted"/>
+<text x="894.0" y="254.4" fill="#6f6d68" class="ter-f-muted" font-size="10">URL 95s</text>
+<path d="M218.5,288.5 L321.5,297.9 L424.5,305.9 L527.5,301.9 L630.5,305.9 L733.5,283.8 L836.5,277.7" fill="none" stroke-width="1.2" stroke="#2a78d6" class="ter-s-series-1"/>
+<text x="64.0" y="334.0" fill="#6f6d68" class="ter-f-muted" font-size="11">8 sessions in process order</text>
+</svg></div><p class="empty">No signals: every session is inside the limits.</p></section>
+<footer class="card" id="how-to-read"><h2>How to read these charts</h2><dl><dt>Natural limits</dt><dd>What the process does on its own: the mean of the baseline sessions plus or minus 2.66 average moving ranges (3.145 median moving ranges). Sessions inside them are routine variation.</dd><dt>Tuned limits</dt><dd>Action limits a developer set, with a reason. They replace the natural limits for the beyond-limits rule only.</dd><dt>Beyond limits</dt><dd>One session outside a control limit.</dd><dt>Two of three</dt><dd>Two of three successive sessions more than two sigma from the centre line, on the same side.</dd><dt>Four of five</dt><dd>Four of five successive sessions more than one sigma from the centre line, on the same side.</dd><dt>Run of eight</dt><dd>Eight successive sessions on the same side of the centre line.</dd><dt>Fires</dt><dd>An unfavourable signal on a ratio or count measure: the kind an advisory policy may act on at L4. Token and time totals never fire.</dd></dl></footer>
+</main></body>
+</html>
