@@ -10,9 +10,10 @@ the gates to run before pushing, and what a commit and PR must say.
 git clone https://github.com/lgriffin/TER.git
 cd TER
 python -m venv .venv && source .venv/bin/activate
-python -m pip install -c constraints/dev.txt -e ".[dev]"
-pre-commit install
+python dev.py setup      # installs .[dev] and the pre-commit hooks
 ```
+
+On Windows, activate with `.venv\Scripts\activate`.
 
 Add `embeddings` to the extras (`".[dev,embeddings]"`) to run TER 3's
 semantic analysis with the real sentence-transformers model; CI installs it
@@ -147,23 +148,23 @@ outside system's stack would pull in to the same two contracts.
 
 ## Gates to run before pushing
 
-These are the CI jobs, run locally:
+These are the CI jobs, run locally by `dev.py`:
 
 ```bash
-ruff format --check src tests
-ruff check src tests
-mypy src/
-lint-imports
-ter-req lint --strict --tests tests
-ter-req points --check
-python -m pytest tests/golden tests/contract tests/architecture -q
-python -m pytest --cov=ter_calculator --cov=ter --cov-branch --req-trace=req-trace.json
-ter-req trace --results req-trace.json --gate L0
-ter-req trace --results req-trace.json --gate L1
-ter-req trace --results req-trace.json --gate L2
+python dev.py            # list the tasks
+python dev.py fast       # quick loop: stop at first failure, no model
+python dev.py fmt        # format and auto-fix lint
+python dev.py check      # everything CI checks: lint, then the L0-L3 gates
 ```
 
-If a formatter check fails, run `ruff format src tests` and review the diff.
+`python dev.py lint` is the CI lint job (ruff, mypy, `lint-imports`,
+`ter-req lint --strict`, `ter-req points --check`); `python dev.py gates` runs
+the suite with `--req-trace` and then `ter-req trace` for each of L0 to L3.
+Arguments after `test`, `fast` or `gates` go to pytest, so
+`python dev.py fast tests/unit` narrows the loop. `tests/docs/test_dev_tasks.py`
+fails if a `dev.py` command is missing from CI.
+
+If a formatter check fails, run `python dev.py fmt` and review the diff.
 If `ter-req points --check` fails, run `ter-req points` and commit the
 regenerated `docs/ter4/points.md`.
 

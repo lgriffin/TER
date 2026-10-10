@@ -13,9 +13,11 @@ definition of done, Lean, hooks and the A3.
 git clone https://github.com/lgriffin/TER.git
 cd TER
 python -m venv .venv && source .venv/bin/activate
-python -m pip install -c constraints/dev.txt -e ".[dev]"
-pre-commit install
+python dev.py setup      # installs .[dev] and the pre-commit hooks
 ```
+
+On Windows, activate with `.venv\Scripts\activate`. Every other command on
+this page is the same on every platform.
 
 Python 3.11, 3.12 and 3.13 are supported. With `.[dev]` alone the suite is
 green: the 39 TER 3 tests marked `embeddings` are skipped, each with the
@@ -87,18 +89,18 @@ ter-req report --results req-trace.json   # coverage per maturity level
 
 ## Gates to run before pushing
 
+`dev.py` runs every check CI runs, with the tools from your active
+environment and `src` first on the path, so it tests this checkout:
+
 ```bash
-ruff format --check src tests
-ruff check src tests
-mypy src/
-lint-imports
-ter-req lint --strict --tests tests
-ter-req points --check
-python -m pytest --req-trace=req-trace.json
-ter-req trace --results req-trace.json --gate L0
-ter-req trace --results req-trace.json --gate L1
-ter-req trace --results req-trace.json --gate L2
+python dev.py            # list the tasks
+python dev.py fast       # quick loop: stop at first failure, no model
+python dev.py fmt        # format and auto-fix lint
+python dev.py check      # everything CI checks: lint, then the L0-L3 gates
 ```
+
+A test (`tests/docs/test_dev_tasks.py`) keeps `dev.py` and CI in step: every
+command `python dev.py check` runs is also a CI step.
 
 Two rules the gates rely on you to keep:
 
