@@ -123,7 +123,16 @@ def test_many_prompts_and_findings_are_summarised() -> None:
     s.say("done")
     page = render_a3_html(_report(s, tuple(f"p{i}" for i in range(4))))
     assert "1 more prompt(s)" in page
-    assert "more finding(s) in the JSON output" in page
+    report = _report(s, tuple(f"p{i}" for i in range(4)))
+    assert "more finding(s), also in the JSON output" in page
+    # Findings past the first six still get an anchored card, so every
+    # countermeasure can link to every finding it answers.
+    assert len(report.analysis.findings) > len(report.root_causes)
+    for f in report.analysis.findings:
+        assert f'id="f-{f.id}"' in page
+    for c in report.countermeasures:
+        for finding_id in c.addresses:
+            assert f'<a href="#f-{finding_id}">' in page
 
 
 def test_fmt_seconds() -> None:

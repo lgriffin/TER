@@ -11,7 +11,7 @@ on one landscape A3 sheet.
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
 from ter.domain.lean import (
@@ -32,7 +32,7 @@ from ter.domain.events import describe_limit
 from ter.domain.lean.a3 import A3_SCHEMA
 from ter.domain.lean.countermeasures import Action, ActionKind
 from ter.domain.lean.model import UNCERTAIN_BELOW, Stage
-from ter.domain.lean.usage import UsageStatus
+from ter.domain.lean.usage import ReadUsage, UsageStatus
 from ter.domain.lean.value import JudgedKind, ValueClass
 from ter.domain.report import WasteByType
 from ter.domain.outcome import CheckResult
@@ -414,6 +414,7 @@ padding:1px 10px;font-size:12.5px;color:var(--ter-ink-2);max-width:100%;overflow
 .verdict{font-weight:700}
 .verdict.ok{border-color:var(--ter-series-3)}
 .verdict.bad{border-color:var(--ter-waste)}
+.verdict.unsure{border-color:var(--ter-series-4)}
 nav.toc{position:sticky;top:0;z-index:2;background:var(--ter-page);margin:0 0 14px;
 padding:8px 0;border-bottom:1px solid var(--ter-grid)}
 nav.toc ol{display:flex;gap:4px 14px;flex-wrap:wrap;margin:0;padding:0;list-style:none;font-size:13px}
@@ -707,7 +708,7 @@ def _chips(report: A3Report) -> str:
         chips.append(f"<li><b>{esc(_usd(report.cost.usd))}</b>{est}</li>")
     if report.outcome is not None:
         v = report.outcome.verdict.value
-        tone = "ok" if v == "accepted" else "bad"
+        tone = {"accepted": "ok", "rejected": "bad"}.get(v, "unsure")
         chips.append(f'<li class="verdict {tone}">Outcome {esc(v)}</li>')
     return f'<ul class="chips" aria-label="Session facts">{"".join(chips)}</ul>'
 
@@ -1121,7 +1122,11 @@ def _outcome(report: A3Report) -> str:
 
     def row(r: CheckResult) -> str:
         status = "no evidence" if r.status is None else r.status.value
-        tone = "ok" if status == "passed" else "waste"
+        tone = (
+            "ok"
+            if status == "passed"
+            else ("waste" if r.status is not None and r.status.is_failure else "warn")
+        )
         optional = "" if r.check.required else " (optional)"
         sources = ", ".join(e.source for e in r.evidence) or "-"
         detail = next((e.detail for e in r.evidence if e.detail), "")
@@ -1211,6 +1216,64 @@ def _analysis(report: A3Report) -> str:
 FILES_SHOWN = 10
 
 
+@dataclass(frozen=True)
+class _Changes:
+    """When each repository file was first read and successfully edited."""
+
+    #: Files with at least one edit that did not fail, in first-edit order.
+    changed: tuple[str, ...]
+    first_read: dict[str, int]
+    first_edit: dict[str, int]
+    last_edit: dict[str, int]
+    #: Changed files that were not in the repository at the start commit.
+    created: frozenset[str]
+
+    def read_before_edit(self, path: str) -> bool:
+        read = self.first_read.get(path)
+        return read is not None and read < self.first_edit[path]
+
+    def changed_after_read(self, path: str) -> bool:
+        read = self.first_read.get(path)
+        return (
+            read is not None and path in self.last_edit and read < self.last_edit[path]
+        )
+
+
+def _changes(report: A3Report) -> _Changes:
+    """Order reads against edits, leaving out edits whose tool call failed."""
+    a = report.analysis
+    usage, repo = a.usage, a.repository
+    index = {s.event_id: s.index for s in a.steps}
+    first_read: dict[str, int] = {}
+    for r in usage.reads if usage is not None else ():
+        at = index.get(r.event_id)
+        if at is not None and (r.path not in first_read or at < first_read[r.path]):
+            first_read[r.path] = at
+    first_edit: dict[str, int] = {}
+    last_edit: dict[str, int] = {}
+    if repo is not None:
+        for s in a.steps:
+            if not (s.is_edit and s.paths) or s.event_id in repo.failed_edits:
+                continue
+            path = repo.repository_path(s.paths[0])
+            if path is None:
+                continue
+            first_edit.setdefault(path, s.index)
+            last_edit[path] = s.index
+    files = repo.files if repo is not None else frozenset()
+    return _Changes(
+        changed=tuple(first_edit),
+        first_read=first_read,
+        first_edit=first_edit,
+        last_edit=last_edit,
+        created=frozenset(p for p in first_edit if p not in files),
+    )
+
+
+#: Unused reads listed before the rest fold into a disclosure.
+UNUSED_SHOWN = 8
+
+
 def _repository(report: A3Report) -> str:
     """L3: what the session read from its repository and whether later work
     used it (TER-EVD-008), files explored against files changed, and how the
@@ -1224,9 +1287,8 @@ def _repository(report: A3Report) -> str:
     pending = usage.count(UsageStatus.PENDING)
     material = sum(r.material for r in usage.reads)
     share = usage.share_used
-    changed = set(usage.changed)
-    explored = set(usage.explored)
-    both = sum(p in changed for p in usage.explored)
+    ch = _changes(report)
+    both = sum(ch.changed_after_read(p) for p in usage.explored)
     tiles = [
         (
             "Reads later used",
@@ -1245,7 +1307,7 @@ def _repository(report: A3Report) -> str:
             "Explored → changed",
             f"{both} / {len(usage.explored)}",
             _meter(both / len(usage.explored) if usage.explored else None, "flow"),
-            f"files read that were then edited; {len(usage.changed)} file(s) changed in all",
+            f"files read and then edited; {len(ch.changed)} file(s) changed in all",
         ),
     ]
     cards = "".join(
@@ -1253,23 +1315,23 @@ def _repository(report: A3Report) -> str:
         for label, value, meter, sub in tiles
     )
 
-    def files(paths: Sequence[str], mark: str) -> str:
+    def explored_mark(p: str) -> str:
+        if ch.changed_after_read(p):
+            return (
+                '<span class="mark yes" aria-label="changed after it was read">✓</span>'
+            )
+        return '<span class="mark" aria-label="not changed after it was read">·</span>'
+
+    def changed_mark(p: str) -> str:
+        if p in ch.created:
+            return '<span class="mark" aria-label="created by the session">+</span>'
+        if ch.read_before_edit(p):
+            return '<span class="mark yes" aria-label="read before its first edit">✓</span>'
+        return '<span class="mark no" aria-label="edited before it was read">!</span>'
+
+    def files(paths: Sequence[str], mark: Callable[[str], str]) -> str:
         def li(p: str) -> str:
-            if mark == "explored":
-                yes = p in changed
-                sign = (
-                    '<span class="mark yes" aria-label="changed">✓</span>'
-                    if yes
-                    else '<span class="mark" aria-label="not changed">·</span>'
-                )
-            else:
-                yes = p in explored
-                sign = (
-                    '<span class="mark yes" aria-label="read first">✓</span>'
-                    if yes
-                    else '<span class="mark no" aria-label="not read first">!</span>'
-                )
-            return f"<li>{sign}<code>{esc(p)}</code></li>"
+            return f"<li>{mark(p)}<code>{esc(p)}</code></li>"
 
         head = "".join(li(p) for p in paths[:FILES_SHOWN])
         body = f'<ul class="files">{head}</ul>'
@@ -1285,18 +1347,31 @@ def _repository(report: A3Report) -> str:
         (r for r in usage.reads if r.status is UsageStatus.UNUSED),
         key=lambda r: -r.context_tokens,
     )
-    unused_rows = "".join(
-        f"<tr><td><code>{esc(r.path)}</code>{_evidence((r.event_id,))}</td>"
-        f'<td class="num">{r.context_tokens:,}</td></tr>'
-        for r in unused_reads[:8]
+    head_row = (
+        '<thead><tr><th scope="col">File and read event</th>'
+        '<th scope="col" class="num">Context tokens</th></tr></thead>'
     )
-    unused_table = (
-        '<h3>Reads nothing used</h3><div class="chart"><table><thead><tr>'
-        '<th scope="col">File and read event</th><th scope="col" class="num">Context tokens</th>'
-        f"</tr></thead><tbody>{unused_rows}</tbody></table></div>"
-        if unused_rows
-        else ""
-    )
+
+    def unused_rows(reads: Sequence[ReadUsage]) -> str:
+        return "".join(
+            f"<tr><td><code>{esc(r.path)}</code>{_evidence((r.event_id,))}</td>"
+            f'<td class="num">{r.context_tokens:,}</td></tr>'
+            for r in reads
+        )
+
+    unused_table = ""
+    if unused_reads:
+        shown, rest = unused_reads[:UNUSED_SHOWN], unused_reads[UNUSED_SHOWN:]
+        unused_table = (
+            f'<h3>Reads nothing used</h3><div class="chart"><table>{head_row}'
+            f"<tbody>{unused_rows(shown)}</tbody></table></div>"
+        )
+        if rest:
+            unused_table += (
+                f"<details><summary>Show the other {len(rest)} unused read(s)</summary>"
+                f'<div class="chart"><table>{head_row}<tbody>{unused_rows(rest)}'
+                "</tbody></table></div></details>"
+            )
     value = a.value
     value_table = ""
     if value is not None:
@@ -1336,10 +1411,11 @@ def _repository(report: A3Report) -> str:
         where
         + '<div class="split"><div>'
         + f'<div class="kpis" role="list" aria-label="Repository evidence">{cards}</div>'
-        + '<h3>Files explored <small class="fine">(✓ later changed)</small></h3>'
-        + files(usage.explored, "explored")
-        + '<h3>Files changed <small class="fine">(! changed without reading it first)</small></h3>'
-        + files(usage.changed, "changed")
+        + '<h3>Files explored <small class="fine">(✓ changed after it was read)</small></h3>'
+        + files(usage.explored, explored_mark)
+        + '<h3>Files changed <small class="fine">(✓ read before its first edit, '
+        "! edited before it was read, + created)</small></h3>"
+        + files(ch.changed, changed_mark)
         + f"</div><div>{unused_table}{value_table}</div></div>"
     )
 
@@ -1366,12 +1442,18 @@ def _root_causes(report: A3Report, ranked: Sequence[_Ranked]) -> str:
         _finding_card(i, f, fixes.get(f.id))
         for i, f in enumerate(report.root_causes, 1)
     )
-    hidden = len(report.analysis.findings) - len(report.root_causes)
-    tail = (
-        f'<p class="fine">{hidden} more finding(s) in the JSON output.</p>'
-        if hidden > 0
-        else ""
-    )
+    shown = {f.id for f in report.root_causes}
+    hidden = [f for f in report.analysis.findings if f.id not in shown]
+    tail = ""
+    if hidden:
+        start = len(report.root_causes) + 1
+        more = "".join(
+            _finding_card(i, f, fixes.get(f.id)) for i, f in enumerate(hidden, start)
+        )
+        tail = (
+            f"<details><summary>Show {len(hidden)} more finding(s), also in the JSON "
+            f'output</summary><ol class="findings" start="{start}">{more}</ol></details>'
+        )
     return (
         '<p class="fine">Largest cost first; uncertain findings and risks after. Each cites the '
         "events it rests on and links to the countermeasure that answers it.</p>"
@@ -1431,16 +1513,13 @@ def _action(a: Action) -> str:
     )
 
 
-def _countermeasure(r: _Ranked, shown: set[str]) -> str:
+def _countermeasure(r: _Ranked) -> str:
     c = r.measure
     unsure = ' <span class="tag warn">verify first</span>' if c.uncertain else ""
+    # Every finding has a card (the ones past the first six in a disclosure),
+    # so every answer links.
     answers = "".join(
-        (
-            f'<li><a href="#f-{_slug(f.id)}">{esc(f.title)}</a></li>'
-            if f.id in shown
-            else f"<li>{esc(f.title)} <code>{esc(f.id)}</code></li>"
-        )
-        for f in r.findings
+        f'<li><a href="#f-{_slug(f.id)}">{esc(f.title)}</a></li>' for f in r.findings
     )
     missing = [i for i in c.addresses if i not in {f.id for f in r.findings}]
     answers += "".join(f"<li><code>{esc(i)}</code></li>" for i in missing)
@@ -1459,14 +1538,13 @@ def _countermeasures(report: A3Report, ranked: Sequence[_Ranked]) -> str:
         return (
             '<p class="empty">Nothing to change: no detector fired on this session.</p>'
         )
-    shown = {f.id for f in report.root_causes}
     return (
         '<p class="fine">In the order to act on them: confident before verify-first, outcome '
         "risks first, then by the tokens their findings claim. Derived from the findings, "
         "never from token thresholds. Hook scripts use documented Claude Code behaviour (exit 2 "
         "blocks a PreToolUse call, or returns stderr to the agent after PostToolUse); adapt "
         "paths and commands before use.</p>"
-        f'<div class="cms">{"".join(_countermeasure(r, shown) for r in ranked)}</div>'
+        f'<div class="cms">{"".join(_countermeasure(r) for r in ranked)}</div>'
     )
 
 

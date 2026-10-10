@@ -624,8 +624,8 @@ def test_a_grounded_a3_page_shows_reads_used_and_files_explored_against_changed(
     assert "Reads later used" in section and "50%" in section
     assert "Explored → changed" in section and "1 / 2" in section
     assert (
-        f'<span class="mark yes" aria-label="changed">✓</span><code>{PRICING}</code>'
-        in section
+        '<span class="mark yes" aria-label="changed after it was read">✓</span>'
+        f"<code>{PRICING}</code>" in section
     )
     # The unused read is listed with its context tokens and its read event.
     unused = read_of(analysis, SEED)
@@ -649,3 +649,63 @@ def test_an_ungrounded_a3_page_has_no_repository_section(shop: Path) -> None:
     page = render_a3_html(build_a3(explain(s.events, RegexTokenizer()), ["x"]))
     assert "s-repository" not in page
     assert '<li class="level">L2 Explained</li>' in page
+
+
+@pytest.mark.req("TER-RPT-007")
+def test_the_changed_list_orders_reads_against_edits_and_skips_failed_edits(
+    shop: Path,
+) -> None:
+    from ter.adapters.driving.reports import render_a3_html
+    from ter.domain.lean import build_a3
+
+    failed = "<tool_use_error>String to replace not found in file.</tool_use_error>"
+    s = Script()
+    s.prompt("Fix the rounding in pricing.py")
+    s.read(at(PRICING), SHOP[PRICING])
+    s.edit(at(PRICING), "* 1.2", "* 12 / 10")  # read first
+    s.edit(at(CHECKOUT), "a", "b")  # edited, then read
+    s.read(at(CHECKOUT), SHOP[CHECKOUT])
+    s.write(at("src/app/new.py"), "X = 1\n")  # created
+    s.read(at(WEB), SHOP[WEB])
+    s.edit(at(WEB), "a", "b", output=failed)  # failed: not a change
+    s.bash("pytest -q tests/test_pricing.py", PASS)
+    s.say("Fixed.")
+    page = render_a3_html(build_a3(analyse(s, shop), ["Fix the rounding"]))
+    section = page[page.index('id="s-repository"') : page.index('id="s-5"')]
+    changed = section[section.index("Files changed") :]
+    changed = changed[: changed.index("</ul>")]
+    assert (
+        f'aria-label="read before its first edit">✓</span><code>{PRICING}<' in changed
+    )
+    assert (
+        f'aria-label="edited before it was read">!</span><code>{CHECKOUT}<' in changed
+    )
+    assert (
+        'aria-label="created by the session">+</span><code>src/app/new.py<' in changed
+    )
+    assert WEB not in changed
+    # Explored then changed counts only reads followed by a successful edit.
+    assert "1 / 3" in section
+
+
+@pytest.mark.req("TER-RPT-007")
+def test_every_unused_read_is_listed(shop: Path) -> None:
+    from ter.adapters.driving.reports import render_a3_html
+    from ter.domain.lean import build_a3
+
+    s = Script()
+    s.prompt("Fix the rounding in pricing.py")
+    for _ in range(5):
+        s.read(at(SEED), SHOP_WITH_SCRIPTS[SEED])
+        s.read(at(WEB), SHOP[WEB])
+    s.read(at(PRICING), SHOP[PRICING])
+    s.edit(at(PRICING), "* 1.2", "* 12 / 10")
+    s.say("Fixed.")
+    analysis = analyse(s, shop)
+    assert analysis.usage is not None
+    unused = [r for r in analysis.usage.reads if r.status is UsageStatus.UNUSED]
+    assert len(unused) > 8
+    page = render_a3_html(build_a3(analysis, ["Fix"]))
+    assert f"Show the other {len(unused) - 8} unused read(s)" in page
+    for r in unused:
+        assert r.event_id in page

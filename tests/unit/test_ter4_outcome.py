@@ -473,3 +473,18 @@ def test_outcome_lists_open_checks_first_and_folds_the_rest() -> None:
     assert "Show the other 13 checks</summary>" in page
     assert page.index("<code>broken</code>") < page.index("<code>ok00</code>")
     assert "<code>ok19</code>" in page  # every check is on the page
+
+
+@pytest.mark.req("TER-SCR-004")
+def test_an_incomplete_outcome_and_skipped_check_are_not_shown_as_failures() -> None:
+    judged = _explain("run-1", {"run-1": _ev(("a", P), ("b", S))})
+    assert judged.outcome is not None
+    assert judged.outcome.verdict is Verdict.INCOMPLETE
+    page = render_a3_html(judged.a3)
+    assert '<li class="verdict unsure">Outcome incomplete</li>' in page
+    assert '<span class="tag warn">skipped</span>' in page
+    box = page[page.index('id="s-outcome"') :]
+    assert '<span class="tag waste">' not in box[: box.index("</section>")]
+    rejected = render_a3_html(_explain(str(PYTEST_JUNIT)).a3)
+    assert '<li class="verdict bad">Outcome rejected</li>' in rejected
+    assert '<span class="tag waste">failed</span>' in rejected

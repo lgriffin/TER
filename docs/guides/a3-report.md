@@ -85,8 +85,11 @@ python -m ter a3 session.jsonl --html a3.html --ter model
 
 The page is self-contained (no scripts, no requests), follows light and dark
 themes, reflows to one column on a phone, and prints on one A3 landscape
-sheet. Every number in it is in the JSON, and every finding cites event ids
-you can find in `ter explain --json` output or the evidence graph.
+sheet. Every measure and finding on it is in the JSON, and every finding
+cites event ids you can find in `ter explain --json` output or the evidence
+graph. The countermeasure order, the *Action N* numbers and each action's
+claimed tokens and share of waste are worked out on the page from the JSON's
+findings and scorecard; the JSON keeps countermeasures in detector order.
 
 A header row of chips gives the maturity the page was built at (L2 Explained,
 or L3 Grounded with `--repo`), the session, events, generated tokens, agent
@@ -141,11 +144,13 @@ findings (defects) claim no token cost.
 
 **Repository evidence** (L3, only with `--repo`). The share of judged
 repository reads that later work used, the context tokens carried by reads
-nothing used, files explored against files changed (a tick marks an explored
-file that was later edited; `!` marks a changed file the agent never read
-first), the unused reads by context tokens with their read events, and the
-outcome-value table: exploration, reasoning and validation steps judged
-required, supporting or of no value.
+nothing used, and files explored against files changed. In the explored list
+a tick marks a file edited after it was read. In the changed list a tick marks
+a file read before its first edit, `!` one edited before it was read, and `+`
+one the session created; edits whose tool call failed do not count as
+changes. Then the unused reads by context tokens with their read events (past
+the first eight in a disclosure), and the outcome-value table: exploration,
+reasoning and validation steps judged required, supporting or of no value.
 
 **5 Countermeasures.** One numbered block per detector that fired, in the
 order to act on them: confident before verify-first, outcome risks first,
