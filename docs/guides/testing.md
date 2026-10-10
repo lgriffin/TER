@@ -287,30 +287,27 @@ requirements; defensive fallbacks and presentation paths may sit lower.
 
 | Job | Step | Command |
 |---|---|---|
-| Lint and type-check | Ruff format | `ruff format --check src tests` |
-| | Ruff lint | `ruff check src tests` |
+| Lint and type-check | Ruff format | `ruff format --check src tests dev.py` |
+| | Ruff lint | `ruff check src tests dev.py` |
 | | Mypy | `mypy src/` |
 | | Architecture import contracts | `lint-imports` |
-| | EARS requirements and vision points lint | `ter-req lint --tests tests` |
+| | EARS requirements and vision points lint | `ter-req lint --strict --tests tests` |
 | | Vision points index is up to date | `ter-req points --check` |
 | Python 3.11, 3.12, 3.13 | L0 gate | `python -m pytest tests/golden tests/contract tests/architecture -q` |
 | | Tests with branch coverage | `python -m pytest --cov=ter_calculator --cov=ter --cov-branch --cov-report=term-missing --cov-report=xml --req-trace=req-trace.json` |
-| | Traceability gates (3.11 only) | `ter-req trace --results req-trace.json --gate L0` (then L1, L2) |
+| | Traceability gates (3.11 only) | `ter-req trace --results req-trace.json --gate L0` (then L1, L2, L3) |
 | Package | Build and smoke test | `python -m build`, `twine check`, install the wheel, `ter --help` |
 
-Run the same locally before pushing (the [contributing guide](contributing.md)
-has the full checklist):
+Run the same locally before pushing with `dev.py` (the
+[contributing guide](contributing.md) lists every task):
 
 ```bash
-ruff format --check src tests
-ruff check src tests
-mypy src/
-lint-imports
-ter-req lint --strict --tests tests
-ter-req points --check
-python -m pytest --req-trace=req-trace.json
-ter-req trace --results req-trace.json --gate L2
+python dev.py lint       # the lint job
+python dev.py gates      # the suite with --req-trace, then the L0-L3 gates
+python dev.py check      # both
 ```
+
+`tests/docs/test_dev_tasks.py` fails if `dev.py` runs a command CI does not.
 
 `--strict` also fails on warnings (proof that exists only on an unmerged
 branch), which CI will hit once that branch merges.

@@ -299,12 +299,9 @@ The TER 3 pipeline is described in [docs/architecture.md](docs/architecture.md).
 ## Development
 
 ```bash
-python -m pip install -c constraints/dev.txt -e ".[dev]"
-python -m pytest
-ruff format --check src tests && ruff check src tests
-mypy src/
-lint-imports
-ter-req lint --strict --tests tests && ter-req points --check
+python dev.py setup      # install .[dev] and the pre-commit hooks
+python dev.py fast       # quick loop
+python dev.py check      # the CI lint and test jobs
 ```
 
 Branch coverage is enforced at 90%. The [testing guide](docs/guides/testing.md)
@@ -319,7 +316,7 @@ diffs on purpose, strict typing for `ter` code).
 - **Embedding model or tiktoken download fails**: install
   `".[embeddings]"` with network access once, or use the offline TER 4
   commands (`ter a3`, `ter explain`), which do not download anything.
-- **`docs/ter4/points.md is stale`**: run `ter-req points` and commit it.
+- **`docs/ter4/points.md is stale`**: run `python dev.py points` and commit it.
 
 ## Project documents
 
