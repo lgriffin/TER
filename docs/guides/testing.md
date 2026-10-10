@@ -51,13 +51,22 @@ picking up a `pytest` from another environment. `pyproject.toml` sets
 ### Tests that need the network
 
 Two TER 3 dependencies download data on first use: tiktoken's `cl100k_base`
-encoding and the sentence-transformers embedding model. On a machine with no
-access to those hosts, tests that exercise them fail with download errors:
-today `tests/unit/test_input_analysis.py`, `tests/integration/test_cli.py`
-and parts of `tests/features/steps/core_steps.py` and `intent_steps.py`
-(about 39 tests). Everything TER 4 does, including every golden test, runs
-offline because it pins the deterministic `RegexTokenizer` and
-`HashingEmbedder` adapters.
+encoding and the sentence-transformers embedding model.
+
+Tests that run the real embedding model carry the `embeddings` marker (in a
+`.feature` file, the `@embeddings` tag): today 39 tests in
+`tests/unit/test_input_analysis.py`, `tests/integration/test_cli.py` and the
+intent scenarios under `tests/features`. Without the `embeddings` extra they
+are skipped, each with the install command as its reason (`pytest -rs` lists
+them). With the extra installed they run, and need the Hugging Face host for
+the model. CI sets `TER_REQUIRE_EMBEDDINGS=1`, which turns the skip off, so a
+missing model fails CI instead of hiding behind a skip. Mark any new test that
+needs the real model the same way.
+
+tiktoken falls back to a character estimate when it cannot download its
+encoding, so those tests pass offline, slowly. Everything TER 4 does,
+including every golden test, runs offline because it pins the deterministic
+`RegexTokenizer` and `HashingEmbedder` adapters.
 
 ## Unit tests
 
