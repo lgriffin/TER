@@ -448,10 +448,11 @@ class TestUnrelatedModification:
         edit, result = s.edit(at(SUMMARY), "len(rows)", "len(list(rows))")
         [f] = found(analyse(s, shop), "unrelated_modification")
         assert f.confidence == 0.6 and f.uncertain
-        assert f.waste is LeanWaste.OVERPRODUCTION and f.kind is FindingKind.WASTE
+        # Judged not waste (0 of 29): a risk that claims no cost (ADR 0006).
+        assert f.waste is LeanWaste.OVERPRODUCTION and f.kind is FindingKind.RISK
         assert result is not None
         assert f.evidence == (prompt.id, edit.id, result.id)
-        assert f.waste_events == (edit.id, result.id)
+        assert f.waste_events == () and f.tokens == 0
         assert f.subject == SUMMARY and SUMMARY in f.title
 
     def test_edits_inside_the_surface_are_not_reported(self, shop: Path) -> None:
@@ -469,8 +470,8 @@ class TestUnrelatedModification:
         first, _ = s.edit(at(SUMMARY), "len(rows)", "len(list(rows))")
         second, _ = s.edit(at(SUMMARY), "monthly_summary", "month_summary")
         [f] = found(analyse(s, shop), "unrelated_modification")
-        assert first.id in f.waste_events and second.id in f.waste_events
-        assert f.id == f"unrelated_modification:{first.id}"
+        assert first.id in f.evidence and second.id in f.evidence
+        assert f.id.startswith("unrelated_modification:")
 
     def test_a_new_test_module_with_no_link_is_uncertain(self, shop: Path) -> None:
         s = Script()

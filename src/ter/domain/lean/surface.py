@@ -441,7 +441,9 @@ class UnrelatedModification:
 
     id: str = "unrelated_modification"
     waste: LeanWaste = LeanWaste.OVERPRODUCTION
-    kind: FindingKind = FindingKind.WASTE
+    # Judged not waste on real sessions (0 of 29), so it is a pointer for
+    # review that claims no cost, not uncertain waste (ADR 0006).
+    kind: FindingKind = FindingKind.RISK
     summary: str = (
         "An edit to a repository file with no import link to the task's "
         "expected change surface."

@@ -44,7 +44,7 @@ def found(script: Script, detector: str) -> list[Finding]:
 
 @pytest.mark.req("TER-DET-003")
 class TestExcessiveContext:
-    def test_context_above_the_band_is_uncertain_inventory(self) -> None:
+    def test_context_above_the_band_is_inventory(self) -> None:
         s = Script()
         s.prompt("fix the bug in src/a.py")
         reads = [s.read(f"src/m{i}.py")[0] for i in range(7)]
@@ -52,7 +52,7 @@ class TestExcessiveContext:
         [f] = found(s, "excessive_context")
         # Band for one changed file: 3 x 1 + 3 = 6 items; 7 is one over.
         assert f.waste is LeanWaste.INVENTORY and f.kind is FindingKind.WASTE
-        assert f.uncertain and f.confidence == 0.57
+        assert not f.uncertain and f.confidence == 0.72  # judged 10 of 10
         assert reads[6].id in f.waste_events and reads[5].id not in f.waste_events
         assert edit.id in f.evidence and f.id.endswith(edit.id)
 
@@ -188,7 +188,7 @@ class TestUnusedTraversal:
         s.say("Added retries to net.py.")
         [f] = found(s, "unused_traversal")
         assert f.waste is LeanWaste.MOTION and f.kind is FindingKind.WASTE
-        assert f.uncertain and f.confidence == 0.6
+        assert not f.uncertain and f.confidence == 0.72  # judged 10 of 10
         assert result is not None
         assert f.waste_events == (search.id, result.id)
 

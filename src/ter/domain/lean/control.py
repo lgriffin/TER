@@ -309,7 +309,8 @@ CONTROL_MEASURES: tuple[ControlMeasure, ...] = (
         "Confident waste findings",
         Basis.COUNT,
         Direction.HIGHER_IS_WORSE,
-        lambda a: float(a.scorecard.findings),
+        # Scorecard findings include uncertain ones (ADR 0006).
+        lambda a: float(a.scorecard.findings - a.scorecard.uncertain_findings),
     ),
     ControlMeasure(
         "uncertain_findings",

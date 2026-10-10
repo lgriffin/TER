@@ -1084,9 +1084,10 @@ points:
     status: partial
     definition_of_done:
       - Reports compare files explored with files eventually changed.
-    rules: [TER-EVD-008]
+    rules: [TER-EVD-008, TER-RPT-007]
     verification:
       - 'test: tests/unit/test_ter4_evidence_usage.py::TestEvidenceUsage'
+      - 'test: tests/unit/test_ter4_evidence_usage.py::test_a_grounded_a3_page_shows_reads_used_and_files_explored_against_changed'
       - 'planned: usage rates on real sessions with their repository at the start commit (D4)'
 
   - id: P068
@@ -1099,9 +1100,10 @@ points:
       - >-
         Reports give the share of retrieved evidence that later actions
         used.
-    rules: [TER-EVD-008]
+    rules: [TER-EVD-008, TER-RPT-007]
     verification:
       - 'test: tests/unit/test_ter4_evidence_usage.py::TestEvidenceUsage'
+      - 'test: tests/unit/test_ter4_evidence_usage.py::test_a_grounded_a3_page_shows_reads_used_and_files_explored_against_changed'
       - 'planned: usage rates on real sessions with their repository at the start commit (D4)'
 
   - id: P069
@@ -1128,9 +1130,10 @@ points:
     status: partial
     definition_of_done:
       - Reads with no downstream use are marked and costed.
-    rules: [TER-EVD-008]
+    rules: [TER-EVD-008, TER-RPT-007]
     verification:
       - 'test: tests/unit/test_ter4_evidence_usage.py::TestEvidenceUsage'
+      - 'test: tests/unit/test_ter4_evidence_usage.py::test_a_grounded_a3_page_shows_reads_used_and_files_explored_against_changed'
       - 'planned: usage rates on real sessions with their repository at the start commit (D4)'
 
   - id: P071
@@ -1345,12 +1348,13 @@ points:
     definition_of_done:
       - Session reports show a 95% interval for TER.
       - Heuristic classifications carry a confidence value.
-    rules: [TER-ANL-003, TER-ANL-021, TER-RPT-001, TER-RPT-002]
+    rules: [TER-ANL-003, TER-ANL-021, TER-RPT-001, TER-RPT-002, TER-RPT-006]
     verification:
       - 'test: tests/unit/test_explainability_uncertainty_v11.py::test_result_formatters_expose_uncertainty_and_explanations'
       - 'test: tests/golden/test_report_snapshots.py'
       - 'test: tests/unit/test_ter4_reports.py::TestHtmlReport::test_uncertainty_note'
       - 'test: tests/unit/test_ter4_lean_properties.py::test_findings_are_traceable_and_bounded'
+      - 'test: tests/unit/test_ter4_a3.py::test_the_summary_ranks_countermeasures_and_links_them_to_their_findings'
 
   - id: P086
     text: >-
@@ -1363,8 +1367,12 @@ points:
       - >-
         Reports show low-confidence tokens and label low-confidence findings
         as uncertain.
-    rules: [TER-ANL-003, TER-ANL-021, TER-RPT-001, TER-RPT-002]
+      - >-
+        Uncertain waste counts in the waste totals until verified, with its
+        share reported separately (ADR 0006).
+    rules: [TER-ANL-003, TER-ANL-021, TER-ANL-022, TER-RPT-001, TER-RPT-002]
     verification:
+      - 'test: tests/unit/test_ter4_lean_analysis.py::test_uncertain_waste_counts_until_verified'
       - 'test: tests/unit/test_explainability_uncertainty_v11.py::test_result_formatters_expose_uncertainty_and_explanations'
       - 'test: tests/unit/test_formatter_html.py::test_format_html_is_standalone_and_interactive'
       - 'test: tests/golden/test_report_snapshots.py'

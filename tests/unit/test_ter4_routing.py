@@ -484,14 +484,18 @@ class TestKeepTheProfile:
         assert not p.decisions[0].escalated and p.events == ()
 
     def test_an_uncertain_signal_keeps_the_role(self) -> None:
-        # unused_context is always uncertain at L2.
+        # Uncertain waste counts until verified, but never triggers an
+        # intervention (ADR 0006): an unobserved re-read is uncertain.
         s = Script()
         s.prompt("explain src/a.py")
-        s.read("src/a.py")
+        s.read("src/a.py", None)
+        s.read("src/a.py", None)
         s.say("ok")
         a = analyse(s)
-        assert any(f.detector == "unused_context" and f.uncertain for f in a.findings)
-        p = plan(s, profile(escalate_on=frozenset({"unused_context"})))
+        assert any(
+            f.detector == "repeated_exploration" and f.uncertain for f in a.findings
+        )
+        p = plan(s, profile(escalate_on=frozenset({"repeated_exploration"})))
         assert not p.decisions[0].escalated and p.events == ()
 
     def test_a_signal_in_another_task_keeps_this_one(self) -> None:

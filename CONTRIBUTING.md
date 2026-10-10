@@ -17,10 +17,12 @@ python -m pip install -c constraints/dev.txt -e ".[dev]"
 pre-commit install
 ```
 
-Python 3.11, 3.12 and 3.13 are supported. Add `embeddings` to the extras to
-run TER 3 with its sentence-transformers model. Without network access to the
-tiktoken and Hugging Face hosts about 39 TER 3 tests fail with download
-errors; everything else, including every golden test, runs offline.
+Python 3.11, 3.12 and 3.13 are supported. With `.[dev]` alone the suite is
+green: the 39 TER 3 tests marked `embeddings` are skipped, each with the
+install command as its reason. Add `embeddings` to the extras to run them; they
+then need network access to the Hugging Face host for the model. Everything
+else, including every golden test, runs offline. CI installs the extra and sets
+`TER_REQUIRE_EMBEDDINGS=1`, so there they always run.
 
 ## The hexagon and its dependency rule
 

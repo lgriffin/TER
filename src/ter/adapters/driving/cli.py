@@ -960,7 +960,8 @@ def format_findings(
         if evidence:
             lines.append(evidence)
     lines.append(
-        f"  findings         {sc.findings} confident, {sc.uncertain_findings} uncertain, "
+        f"  findings         {sc.findings} waste ({sc.uncertain_findings} uncertain, "
+        "counted until verified), "
         f"{sc.risks} risk(s)"
     )
     for f in analysis.findings:

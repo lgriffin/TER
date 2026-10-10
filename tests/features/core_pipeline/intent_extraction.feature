@@ -15,6 +15,7 @@ Feature: Intent Extraction from Session Prompts
 
   # ── Scenario 1: Clear single prompt ──────────────────────────────────────
 
+  @embeddings
   Scenario: Clear single prompt produces a valid IntentVector
     Given a session with the user prompt "Add a login page with email and password"
     When intent is extracted
@@ -26,6 +27,7 @@ Feature: Intent Extraction from Session Prompts
 
   # ── Scenario 2: Multiple prompts combined ────────────────────────────────
 
+  @embeddings
   Scenario: Multiple user prompts are combined into a coherent intent
     Given a session with the following user prompts:
       | prompt                                         |
@@ -40,6 +42,7 @@ Feature: Intent Extraction from Session Prompts
 
   # ── Scenario 3: Short or ambiguous prompt ────────────────────────────────
 
+  @embeddings
   Scenario: Short or ambiguous prompt produces low confidence intent
     Given a session with the user prompt "fix it"
     When intent is extracted
@@ -49,6 +52,7 @@ Feature: Intent Extraction from Session Prompts
 
   # ── Scenario 4: Related spans score higher ──────────────────────────────
 
+  @embeddings
   Scenario: Spans related to the intent score higher similarity than unrelated spans
     Given a session with the user prompt "Add a login page with email and password"
     And a token span with text "Creating the login form with email input field"
@@ -70,6 +74,7 @@ Feature: Intent Extraction from Session Prompts
 
   # ── Scenario 6: Embedding dimensionality ─────────────────────────────────
 
+  @embeddings
   Scenario: Intent embedding has exactly 384 dimensions
     Given a session with the user prompt "Refactor the authentication module"
     When intent is extracted

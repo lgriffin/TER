@@ -84,14 +84,30 @@ python -m ter a3 session.jsonl --html a3.html --ter model
 | `--repo-engine NAME` | Repository engine for `--repo` (default `syntax`: Python, TypeScript, JavaScript, Svelte and Vue imports) |
 
 The page is self-contained (no scripts, no requests), follows light and dark
-themes, and prints on one A3 landscape sheet. Every number in it is in the
-JSON, and every finding cites event ids you can find in `ter explain --json`
-output or the evidence graph.
+themes, reflows to one column on a phone, and prints on one A3 landscape
+sheet. Every measure and finding on it is in the JSON, and every finding
+cites event ids you can find in `ter explain --json` output or the evidence
+graph. The countermeasure order, the *Action N* numbers and each action's
+claimed tokens and share of waste are worked out on the page from the JSON's
+findings and scorecard; the JSON keeps countermeasures in detector order.
+
+A header row of chips gives the maturity the page was built at (L2 Explained,
+or L3 Grounded with `--repo`), the session, events, generated tokens, agent
+time, cost when priced, and the outcome verdict when `--outcome` was given. A
+section bar under it stays at the top of the window while you scroll and
+jumps to each section.
 
 ### Section by section
 
-The sections follow A3 problem-solving order. Read them in order; resist
-jumping to the countermeasures.
+**At a glance.** The problem statement, four headline measures with a bar
+each (value-adding share, avoidable waste, flow efficiency, TER) and *Do
+these first*: the top three countermeasures in the order to act on them,
+each with what its findings claim and where the change lands (`CLAUDE.md`,
+`.claude/settings.json`, or your way of working). Each links to its full
+countermeasure in section 5.
+
+The numbered sections after it follow A3 problem-solving order. Use the
+summary to decide what to change and sections 1 to 4 to check why.
 
 **1 Background.** The developer's prompts and a one-line problem statement,
 for example: *"39% of the 697 tokens the agent generated went to avoidable
@@ -119,14 +135,28 @@ in the flow the waste sits.
 activity classes, flow by tokens and by time, and any fail → fix cycles with
 their verdict: *iteration* (the failure moved) or *rework* (it did not).
 
-**4 Root causes.** Every finding: detector, Lean waste, confidence, title, an
-explanation in plain words, its cost, and the evidence event ids. Uncertain
-findings are marked and are not counted in the headline numbers. Risk
+**4 Root causes.** Every finding as a card: detector, Lean waste, confidence
+(with a bar), title, an explanation in plain words, its cost, the evidence
+event ids, and a *Fix* link to the countermeasure that answers it. Waste
+cards have a red edge, risks a violet one, and uncertain findings a dashed
+yellow one; uncertain findings are not counted in the headline numbers. Risk
 findings (defects) claim no token cost.
 
-**5 Countermeasures.** One block per detector that fired, most costly first.
-Each has a title, a rationale naming the findings it answers, and concrete
-actions of four kinds:
+**Repository evidence** (L3, only with `--repo`). The share of judged
+repository reads that later work used, the context tokens carried by reads
+nothing used, and files explored against files changed. In the explored list
+a tick marks a file edited after it was read. In the changed list a tick marks
+a file read before its first edit, `!` one edited before it was read, and `+`
+one the session created; edits whose tool call failed do not count as
+changes. Then the unused reads by context tokens with their read events (past
+the first eight in a disclosure), and the outcome-value table: exploration,
+reasoning and validation steps judged required, supporting or of no value.
+
+**5 Countermeasures.** One numbered block per detector that fired, in the
+order to act on them: confident before verify-first, outcome risks first,
+then by the tokens their findings claim. Each has a title, the findings it
+answers (linked back to their cards), a rationale, and concrete actions of
+four kinds, each snippet labelled with the file it goes in:
 
 | Action kind | What it is | Example |
 |---|---|---|
@@ -136,7 +166,8 @@ actions of four kinds:
 | Practice | Something for the developer to do | "Run the failing test alone with full output before the next edit" |
 
 A countermeasure that answers only uncertain findings says so: verify the
-finding before acting on it.
+finding before acting on it. Its cost still counts, because uncertain waste
+is waste until verified (ADR 0006).
 
 **6 Follow-up.** One row per fired detector: the metric, its current value,
 the target for the next session, and where to read it in the JSON (for

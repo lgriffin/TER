@@ -38,6 +38,10 @@ from .model import (
 
 __all__ = [
     "DECISION_NOVELTY",
+    "DOC_EDITS_WORTH_A_CHECK",
+    "REGENERATED_SHARE",
+    "JUDGED_CONFIDENCE",
+    "RESTATED_NOVELTY",
     "DEFAULT_REGISTRY",
     "ContextBand",
     "DetectorRegistry",
@@ -70,9 +74,23 @@ _DOC_SUFFIXES = frozenset({".md", ".rst", ".txt", ".adoc"})
 
 #: A reasoning span adds a decision when more than this share of its content
 #: words are new: in neither the prompt nor the earlier reasoning it is
-#: compared with (TER-LEN-004). The same bound separates restated reasoning
-#: from reasoning that moves on.
+#: compared with (TER-LEN-004). Repeated reasoning uses the tighter
+#: RESTATED_NOVELTY, so a block with 20% to 25% new words neither restates
+#: nor adds a decision.
 DECISION_NOVELTY = 0.25
+#: Repeated reasoning: at most this share of a block's key words may be new
+#: (judged on real sessions, 10 Oct 2026: blocks repeating 80% or more of
+#: earlier key words were waste, 76% to 79% were not).
+RESTATED_NOVELTY = 0.20
+#: Documentation-only edits reported without a check raise a finding only
+#: from this many edits on (fewer were never waste on real sessions).
+DOC_EDITS_WORTH_A_CHECK = 3
+#: A whole-file rewrite is regeneration only when at least this share of the
+#: new file repeats existing content (less is mostly new work).
+REGENERATED_SHARE = 0.30
+#: Confidence of a detector whose judged sample was 10 of 10 waste: the 95%
+#: Wilson lower bound of that sample (first judged sample, 10 Oct 2026).
+JUDGED_CONFIDENCE = 0.72
 
 
 @dataclass(frozen=True)
@@ -215,8 +233,9 @@ class RepeatedToolCall:
         "and nothing was edited in between; 0.85 for a validation re-run with "
         "no edit in between; 0.75 when edits happened in between but the "
         "output is still identical. 0.50 (uncertain) when an output was not "
-        "observed, or when a new prompt arrived between the two calls (the "
-        "repeat may answer it). Different output: no finding. File reads and "
+        "observed. No finding when a new prompt arrived between the two calls "
+        "(new information: 17 of 17 such repeats judged on real sessions were "
+        "not waste) or when the output differs. File reads and "
         "searches are left to repeated_exploration; a validation re-run after "
         "edits is left to rework_cycle."
     )
@@ -239,6 +258,11 @@ class RepeatedToolCall:
             edited = bool(_edits_between(view, earlier.index, step.index))
             if step.is_validation and edited:
                 continue
+            if last_prompt > earlier.index:
+                # A new prompt is new information. Calibrated on real
+                # sessions: 13 such repeats on this project's transcripts and
+                # 4 more judged on 10 Oct 2026 (judge-l2), none of them waste.
+                continue
             before = view.completion_of.get(earlier.index)
             after = view.completion_of.get(step.index)
             if before is None or after is None:
@@ -246,14 +270,6 @@ class RepeatedToolCall:
                 note = "One of the two results was not observed, so the output may have differed."
             elif before.output_hash != after.output_hash:
                 continue
-            elif last_prompt > earlier.index:
-                # Calibrated on this project's own transcripts: all 13
-                # confident repeats there crossed a prompt (a turn-ending
-                # no_reply_needed in each new turn, a device list re-checked
-                # when asked again, a tool schema re-loaded in a later turn),
-                # and none was waste. A new prompt is new information.
-                confidence = 0.5
-                note = "A new prompt arrived in between, so the repeat may answer it."
             elif step.is_validation:
                 confidence = 0.85
                 note = "No file was edited between the two runs, so the second could not tell the agent anything new."
@@ -453,7 +469,8 @@ class UnvalidatedImplementation:
         "tool, even beside a change (sed -i … && pytest). 0.85 when no check "
         "ran in the whole session; 0.75 when checks ran earlier but not after "
         "these edits; 0.50 (uncertain) when every unvalidated edit is "
-        "documentation. 0.85 when the last validation before the response "
+        "documentation and there are at least 3 of them; fewer than 3 "
+        "documentation edits: no finding. 0.85 when the last validation before the response "
         "failed."
     )
 
@@ -489,6 +506,9 @@ class UnvalidatedImplementation:
                 for e in pending
                 for p in e.paths
             ) and any(e.paths for e in pending)
+            # Judged on real sessions (10 Oct 2026): 8 of 8 findings for one
+            # or two documentation edits were not waste, so they raise none.
+            few_docs = docs and len(pending) < DOC_EDITS_WORTH_A_CHECK
             if docs:
                 confidence, why = (
                     0.5,
@@ -501,18 +521,19 @@ class UnvalidatedImplementation:
                 )
             else:
                 confidence, why = 0.85, "No check ran anywhere in the session."
-            yield _finding(
-                self,
-                view,
-                confidence=confidence,
-                title=f"{len(pending)} edit(s) reported without validation",
-                explanation=(
-                    f"The agent edited {_files(pending)} and then responded without "
-                    f"running tests, a type check or the code. {why}"
-                ),
-                evidence=(*(s for e in pending for s in view.pair(e)), final),
-                subject=_files(pending),
-            )
+            if not few_docs:
+                yield _finding(
+                    self,
+                    view,
+                    confidence=confidence,
+                    title=f"{len(pending)} edit(s) reported without validation",
+                    explanation=(
+                        f"The agent edited {_files(pending)} and then responded "
+                        f"without running tests, a type check or the code. {why}"
+                    ),
+                    evidence=(*(s for e in pending for s in view.pair(e)), final),
+                    subject=_files(pending),
+                )
         if last_run is not None and final.index > last_run.index:
             result = view.completion_of.get(last_run.index)
             if result is not None and result.outcome is Outcome.FAILED:
@@ -790,10 +811,11 @@ class UnusedContext:
     confidence_rule: str = (
         "Judged only once the agent has responded after the read. A read counts "
         "as used when a later reasoning, response or tool call names the file, "
-        "or names something the file defines, or edits it. Otherwise 0.65 when "
-        "the file defined names that were never used, 0.55 when it defined none. "
-        "Always uncertain: reading to rule something out is legitimate, and only "
-        "repository evidence (L3) can tell."
+        "or names something the file defines, or edits it. Otherwise 0.72. "
+        "Calibrated on real sessions: 10 of 10 judged findings were waste "
+        "(10 Oct 2026), so it counts at 0.72, the 95% lower bound of that "
+        "sample. Reading to rule something out is legitimate, so a larger "
+        "sample or repository evidence (L3) may lower it again."
     )
 
     def detect(self, view: SessionView) -> Iterable[Finding]:
@@ -820,7 +842,7 @@ class UnusedContext:
             yield _finding(
                 self,
                 view,
-                confidence=0.65 if step.identifiers else 0.55,
+                confidence=JUDGED_CONFIDENCE,
                 title=f"Read {_short(path)} and never used it",
                 explanation=(
                     f"Nothing the agent did after reading {path} names the file"
@@ -869,8 +891,11 @@ class UnnecessaryHandoff:
     confidence_rule: str = (
         "A later tool call by the agent itself shares at least 3 content words "
         "with the handoff's task and covers at least half of the task's words. "
-        "Confidence 0.45 + 0.40 × coverage, capped at 0.85. The handoff (and "
-        "its waiting time) is the waste; the agent's own call is kept."
+        "Confidence 0.45 + 0.40 × coverage, at least 0.72 and capped at 0.85. "
+        "Calibrated on real sessions: 10 of 10 judged findings were waste "
+        "(10 Oct 2026); 0.72 is the 95% lower bound of that sample. The "
+        "handoff (and its waiting time) is the waste; the agent's own call is "
+        "kept."
     )
 
     def detect(self, view: SessionView) -> Iterable[Finding]:
@@ -902,7 +927,7 @@ class UnnecessaryHandoff:
             yield _finding(
                 self,
                 view,
-                confidence=min(0.85, 0.45 + 0.4 * score),
+                confidence=min(0.85, max(JUDGED_CONFIDENCE, 0.45 + 0.4 * score)),
                 title=f"Delegated {_short(handoff.subject)}, then did it directly",
                 explanation=(
                     f"The agent handed '{_short(handoff.subject)}' to a subagent, then ran "
@@ -926,7 +951,7 @@ class RepeatedReasoning:
     summary: str = "A reasoning block that restates an earlier one for the same prompt."
     confidence_rule: str = (
         "Same prompt and no edit in between. The later block shares at least 3 "
-        "content words with the earlier one, at most 25% of its content words "
+        "content words with the earlier one, at most 20% of its content words "
         "are new (in neither the earlier block nor the prompt), and none of its "
         "new words comes from a tool result observed since the earlier block "
         "(that would be new evidence). Confidence 0.85 − "
@@ -957,7 +982,7 @@ class RepeatedReasoning:
                     continue
                 new = step.words - earlier.words - prompt
                 novelty = len(new) / len(step.words)
-                if novelty > DECISION_NOVELTY:
+                if novelty > RESTATED_NOVELTY:
                     continue
                 if any(new & words for i, words in observed if i > earlier.index):
                     # It names something a tool showed since: new evidence.
@@ -997,7 +1022,9 @@ class Regeneration:
         "A whole-file write of a file the agent had itself written, keeping at "
         "least 80% of its lines: 0.80. A whole-file write of a file it had read "
         "(3+ lines), keeping at least 60% of them: 0.60 (uncertain; small files "
-        "are often rewritten on purpose). The retained share of the write is waste."
+        "are often rewritten on purpose). No finding when under 30% of the new "
+        "file repeats existing content: that rewrite is mostly new work. The "
+        "retained share of the write is waste."
     )
 
     def detect(self, view: SessionView) -> Iterable[Finding]:
@@ -1018,6 +1045,8 @@ class Regeneration:
             if not new:
                 continue
             if prior_write is not None and prior_write.lines:
+                if _repeated(prior_write, step) < REGENERATED_SHARE:
+                    continue
                 kept = len(prior_write.lines & new) / len(prior_write.lines)
                 if kept >= 0.8:
                     yield self._found(
@@ -1026,7 +1055,7 @@ class Regeneration:
                 continue
             if prior_read is not None and len(prior_read.lines) >= 3:
                 kept = len(prior_read.lines & new) / len(prior_read.lines)
-                if kept >= 0.6:
+                if kept >= 0.6 and _repeated(prior_read, step) >= REGENERATED_SHARE:
                     yield self._found(
                         view, step, prior_read, kept, 0.6, "it had just read"
                     )
@@ -1041,7 +1070,7 @@ class Regeneration:
         what: str,
     ) -> Finding:
         path = step.paths[0]
-        share = len(prior.lines & step.lines) / len(step.lines)
+        share = _repeated(prior, step)
         return _finding(
             self,
             view,
@@ -1057,6 +1086,11 @@ class Regeneration:
             share=share,
             subject=path,
         )
+
+
+def _repeated(prior: Step, step: Step) -> float:
+    """The share of a write's lines that were already in ``prior``."""
+    return len(prior.lines & step.lines) / len(step.lines)
 
 
 @dataclass(frozen=True)
@@ -1255,9 +1289,9 @@ class ExcessiveContext:
         "searches, fetches, handoffs, exploring shell commands) before the first "
         "edit: a finding when they exceed per_file (3) × files the task changes "
         "+ slack (3). Items past the band that are not reads of a changed file "
-        "are the waste. Confidence 0.55 + 0.02 per item over the band, capped "
-        "at 0.65: always uncertain at L2, since only repository scope (L3) can "
-        "tell whether the extra context was needed."
+        "are the waste. Confidence 0.72. Calibrated on real sessions: 10 of "
+        "10 judged findings were waste (10 Oct 2026); 0.72 is the 95% lower "
+        "bound of that sample."
     )
 
     def detect(self, view: SessionView) -> Iterable[Finding]:
@@ -1278,7 +1312,7 @@ class ExcessiveContext:
             yield _finding(
                 self,
                 view,
-                confidence=min(0.65, 0.55 + 0.02 * over),
+                confidence=JUDGED_CONFIDENCE,
                 title=f"{len(before)} context items before changing {len(changed)} file(s)",
                 explanation=(
                     f"The task acquired {len(before)} distinct context items before its "
@@ -1419,8 +1453,9 @@ class UnusedTraversal:
         "Judged only once the agent has responded after it. A search (Grep, "
         "Glob) or traversing shell command (ls, find, tree, rg, grep) whose "
         "output lists file names, none of which a later event reads, edits or "
-        "names: 0.60. Always uncertain at L2: a traversal can rule a place out, "
-        "and only repository evidence (L3) can tell. Empty or unobserved output "
+        "names: 0.72. Calibrated on real sessions: 10 of 10 judged findings "
+        "were waste (10 Oct 2026); 0.72 is the 95% lower bound of that "
+        "sample. Empty or unobserved output "
         "and repeats of an earlier traversal (left to repeated_exploration) are "
         "not findings."
     )
@@ -1446,7 +1481,7 @@ class UnusedTraversal:
             yield _finding(
                 self,
                 view,
-                confidence=0.6,
+                confidence=JUDGED_CONFIDENCE,
                 title=f"Traversal {_short(step.subject)} led nowhere",
                 explanation=(
                     f"{step.native_name} listed {len(listed)} file name(s) ({shown}) "

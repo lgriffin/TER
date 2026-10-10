@@ -29,7 +29,8 @@ productive agent behaviour (point 91).
    the same output, the same failure signature after a fix), never token
    counts. Findings below confidence 0.70 are *uncertain*: reported, counted
    in their own bucket, and never folded into avoidable waste or flow
-   efficiency. Risk findings (unvalidated or uninformed changes) claim no
+   efficiency. (Superseded by ADR 0006: uncertain waste now counts until
+   verified, still in its own bucket.) Risk findings (unvalidated or uninformed changes) claim no
    cost.
 4. **Iteration is not rework.** A failed check followed by edits and a run
    that passes or fails differently is productive iteration (flow state
@@ -47,8 +48,8 @@ productive agent behaviour (point 91).
 
 ## Consequences
 
-- Session-only evidence limits some detectors: "unused context" is always
-  uncertain until repository evidence (L3) can show a read mattered.
+- Session-only evidence limits some detectors: "unused context" was
+  uncertain until a judged sample (ADR 0006) promoted it.
 - Validation outcomes are read from tool output text, because the
   `ter.event/0.1` contract carries no error flag. Unknown outcomes form no
   cycle rather than a guessed one. Adding an `is_error` field to the
