@@ -178,7 +178,12 @@ def test_precommit_never_rewrites_byte_exact_files() -> None:
     hooks = _precommit_hooks()
     golden = [
         p.relative_to(ROOT).as_posix()
-        for d in ("tests/golden/snapshots", "tests/fixtures", "docs/ter4/img")
+        for d in (
+            "tests/golden/snapshots",
+            "tests/fixtures",
+            "docs/ter4/img",
+            "docs/examples",
+        )
         for p in (ROOT / d).rglob("*")
         if p.is_file()
     ]

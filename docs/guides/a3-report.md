@@ -153,7 +153,8 @@ their verdict: *iteration* (the failure moved) or *rework* (it did not).
 (with a bar), title, an explanation in plain words, its cost, the evidence
 event ids, and a *Fix* link to the countermeasure that answers it. Waste
 cards have a red edge, risks a violet one, and uncertain findings a dashed
-yellow one; uncertain findings are not counted in the headline numbers. Risk
+yellow one; uncertain findings count in the headline waste until verified
+and are reported separately ([ADR 0006](../decisions/0006-uncertain-waste-counts-until-verified.md)). Risk
 findings (defects) claim no token cost.
 
 **Repository evidence** (L3, only with `--repo`). The share of judged

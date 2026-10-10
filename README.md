@@ -41,8 +41,9 @@ flowchart LR
   `ter.event` stream, and live analysis equals batch analysis.
 - **Lean, with evidence.** Each event is value-adding, necessary
   non-value-adding or avoidable; every waste finding cites the events it
-  rests on and publishes its confidence rule. Uncertain findings are shown,
-  never counted.
+  rests on and publishes its confidence rule. Uncertain findings are
+  labelled and count as waste until verified, but never trigger an
+  intervention ([ADR 0006](docs/decisions/0006-uncertain-waste-counts-until-verified.md)).
 - **Controlled by requirements.** Every behaviour is an EARS requirement
   traced to tests and gated in CI, under a 200-point vision with a definition
   of done per point.
@@ -78,6 +79,17 @@ on real sessions, what is still unproven, and how L4 to L6 will be built.
 Points that need real session data stay partial until real sessions confirm
 them. Live numbers: `ter-req report` (requirements) and
 [docs/ter4/points.md](docs/ter4/points.md) (points).
+
+### See an example A3
+
+[docs/examples/a3](docs/examples/a3/README.md) is the A3 of a synthetic
+session that shows most of what TER 4 does on one page: confident and
+uncertain findings, rework told apart from iteration, a whole-file rewrite,
+drift after the developer changed the ask, risks beside waste, a Pareto, ranked
+countermeasures for `CLAUDE.md` and settings, and the session placed on the
+golden corpus's control limits, with four signals firing.
+
+[![The example A3: problem, headline measures and the first countermeasures](docs/examples/a3/a3-summary.png)](docs/examples/a3/README.md)
 
 ## Quick start
 

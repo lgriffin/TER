@@ -24,6 +24,7 @@ tests/equivalence/     # Live (incremental) analysis and explanation == batch on
 tests/fixtures/hooks/  # Example Claude Code hook payloads pinned by contract tests
 docs/                  # Architecture, user guide, context orchestrator reference
 docs/history/          # TER 3 release notes and version plans (history only)
+docs/examples/a3/      # Example A3 linked from the README (tests/docs/test_example_a3.py keeps it current)
 docs/guides/           # Practical guides: testing, lean, hooks, ears, definition of done, A3, architecture, contributing
 sample_sessions/       # Sample JSONL files for testing
 ```
