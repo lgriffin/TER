@@ -335,6 +335,39 @@ The first run found:
   events that crashed the analysis;
 - a short write was never finished.
 
+## Mutation score
+
+Coverage says a line ran; it does not say a test would notice the line
+changing. mutmut makes one small change at a time to `src/ter/domain` (a
+`<` for a `<=`, a constant changed, an argument dropped) and runs the tests
+that reach the changed function (golden, contract, equivalence and unit, as
+`[tool.mutmut]` in `pyproject.toml` sets). A mutant a test fails on is
+killed; one every test passes on survived, and is a behaviour no test pins.
+
+`scripts/mutation.py` turns the run into a score per module: the share of
+its mutants killed, timed out or caught by the type checker. A mutant no
+test reaches counts as missed and a skipped one does not count.
+`tests/mutation/baseline.json` holds each module's score, and the check
+fails when a module scores lower, or has no baseline (TER-TST-015). Scores
+only go up:
+
+```bash
+python dev.py mutation                        # the whole domain (about two hours)
+python dev.py mutation --changed origin/main  # the modules this branch changes
+python scripts/mutation.py ter.domain.scoring # one module or package
+python scripts/mutation.py --shard 2/4        # one of the four parts CI runs
+python scripts/mutation.py ter.domain.scoring --update  # raise its baseline
+```
+
+The `Mutation score` workflow runs the check on the domain modules a pull
+request changes, and on the whole domain, in four shards, when main changes, every Monday and
+on demand (TER-TST-016). When a change of yours fails it, look at the
+survivors (`mutmut results`, then `mutmut show <name>`), add a test that
+fails on them, and commit the raised baseline with `--update`. `--update`
+refuses to lower a score, so a drop is fixed with tests, never by editing
+the baseline. A survivor that cannot be killed (an equivalent mutant, such as
+a changed log message) is marked with `# pragma: no mutate` on its line.
+
 ## Software bill of materials
 
 `scripts/sbom.py` writes a CycloneDX 1.6 SBOM of an environment holding the
@@ -475,6 +508,7 @@ requirements; defensive fallbacks and presentation paths may sit lower.
 | Package | Build and smoke-test package | `python -m build`, `twine check`, install the wheel in a clean venv, `ter --help`, the schemas ship |
 | | Smoke-test the installed wheel | `TER_SMOKE_BIN=/tmp/ter-wheel-test/bin python -m pytest tests/smoke -q` |
 | | SBOM of the tested install | `python scripts/sbom.py --env /tmp/ter-wheel-test`, `TER_SBOM=dist/ter.cdx.json TER_SBOM_ENV=/tmp/ter-wheel-test python -m pytest tests/sbom -q`, upload as the `sbom` artifact |
+| Mutation score | Mutation score ratchet | `python scripts/mutation.py --changed origin/main` on a pull request; the whole domain in four shards (`--shard K/4`) on main, weekly and on demand |
 
 Run the same locally before pushing with `dev.py` (the
 [contributing guide](contributing.md) lists every task):

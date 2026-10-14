@@ -100,6 +100,7 @@ python dev.py check      # the CI lint and test jobs: lint, coverage, L0-L4 gate
 python dev.py smoke      # every command end to end (CI also runs it on the wheel)
 python dev.py fuzz       # the resilience fuzzers at 20x examples, before changing a reader
 python dev.py sbom       # the CycloneDX SBOM of the built wheel, as CI publishes it
+python dev.py mutation --changed origin/main  # mutation score of the domain modules you changed
 ```
 
 A test (`tests/docs/test_dev_tasks.py`) keeps `dev.py` and CI in step: every

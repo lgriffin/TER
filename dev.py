@@ -109,6 +109,10 @@ def _sbom(extra: list[str]) -> list[Command]:
     return [[sys.executable, "scripts/sbom.py", *extra]]
 
 
+def _mutation(extra: list[str]) -> list[Command]:
+    return [[sys.executable, "scripts/mutation.py", *extra]]
+
+
 def _golden(extra: list[str]) -> list[Command]:
     return [py("pytest", "tests/golden", "-q", *extra)]
 
@@ -146,6 +150,10 @@ TASKS: dict[str, Task] = {
     "sbom": Task(
         "write the CycloneDX SBOM of the built wheel to dist/ter.cdx.json (as CI)",
         _sbom,
+    ),
+    "mutation": Task(
+        "ter.domain's mutation score vs its baseline (--changed origin/main: as a PR)",
+        _mutation,
     ),
     "golden": Task(
         "golden snapshots; TER_UPDATE_GOLDEN=1 rewrites them on purpose", _golden

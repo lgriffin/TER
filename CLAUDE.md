@@ -19,6 +19,7 @@ tests/contract/        # One suite per port; real adapters and fakes must both p
 tests/schema/          # JSON Schema contracts: writers conform, readers accept what the schema allows
 tests/smoke/           # Every CLI subcommand end to end in fresh processes (TER_SMOKE_BIN=<venv>/bin runs an install)
 tests/resilience/      # Fuzzers (mutated real documents) and fault injection for every reader and append-only file
+tests/mutation/        # Mutation score ratchet (scripts/mutation.py); baseline.json only goes up
 tests/sbom/            # The SBOM check (scripts/sbom.py problems); TER_SBOM + TER_SBOM_ENV check CI's against the tested install
 tests/architecture/    # Import-contract fitness tests
 tests/requirements/    # EARS catalogue lint, trace and ter-req tooling tests
@@ -40,6 +41,7 @@ python dev.py check                       # The CI lint and test jobs (lint, cov
 python dev.py fast                        # Quick loop: -x, last failures first, no embedding model
 python dev.py smoke                       # Every command end to end (CI also runs it against the built wheel)
 python dev.py fuzz                        # The resilience fuzzers at 20x their CI examples
+python dev.py mutation --changed origin/main  # mutmut over the domain modules a branch changes, held to tests/mutation/baseline.json
 python dev.py sbom                        # CycloneDX SBOM of the built wheel to dist/ter.cdx.json (CI uploads it as the sbom artifact)
 pytest --test-order-seed=N                # Tests run shuffled; the header names the seed to rerun an order
 pytest                                    # Run all tests
@@ -77,6 +79,7 @@ Python 3.11+: Follow standard conventions. Dataclasses for models, enums for dom
 - TER scoring arithmetic lives in `ter.domain.scoring`; `ter_calculator.compute` delegates to it.
 - Every versioned document format (`ter.<name>/<version>`) ships a JSON Schema in `src/ter/data/schemas/<name>/<version>.json`; a new field or enum value updates the schema in the same change (`tests/schema`, TER-TST-001..005). Formats without one yet are on `PENDING` in `tests/schema/test_catalogue.py`, which only shrinks.
 - Model prices are data in `src/ter/data/price_book.json`, read through the `PriceBook` port (ADR 0003). Never hard-code rates.
+- A change to `ter.domain` keeps every module's mutation score at or above `tests/mutation/baseline.json` (TER-TST-015); kill survivors with tests, then `--update` the baseline.
 - Scoring changes must show up as a golden snapshot diff, committed on purpose.
 - Tag tests with `@pytest.mark.req("TER-XXX-NNN")` for the requirement they verify. Every behaviour is an EARS requirement in `requirements/*.yaml` (see `docs/ter4/requirements.md`); new ones start `status: planned` and become `verified` once a passing test cites them.
 - Every TER 4 change names the vision point ids it advances (`P044`, …) in its commit message and PR body, and updates those points' `status` and `verification` in `requirements/points.yaml` in the same PR (then `ter-req points`). A point is `done` only when its rules are verified by tests. Index: `docs/ter4/points.md`.

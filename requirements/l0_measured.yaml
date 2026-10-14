@@ -471,6 +471,34 @@ requirements:
       state; the reported seed reproduces the failing order.
     status: verified
 
+  - id: TER-TST-015
+    pattern: unwanted
+    text: >-
+      If a module of the pure domain has a lower mutation score than its
+      committed baseline, or has no baseline, then the mutation check shall
+      fail and name the module.
+    level: L0
+    source_points: [202]
+    rationale: >-
+      A mutant the tests miss is a behaviour no test pins; holding each
+      module to its baseline means a change can add tests but never quietly
+      leave behaviour untested.
+    status: verified
+
+  - id: TER-TST-016
+    pattern: event-driven
+    text: >-
+      When a pull request changes modules of the pure domain, the CI
+      pipeline shall run the mutation check on those modules, and when the
+      main branch changes or the weekly schedule fires, on the whole domain.
+    level: L0
+    source_points: [202]
+    rationale: >-
+      Mutating the whole domain takes about two hours, too slow for every
+      pull request; the modules a change touches are where its score can
+      fall.
+    status: verified
+
   - id: TER-SBM-001
     pattern: ubiquitous
     text: >-

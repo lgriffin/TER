@@ -35,6 +35,7 @@ dev = [
     "hypothesis>=6,<7",
     "jsonschema>=4.18,<5",
     "hypothesis-jsonschema>=0.23,<1",
+    "mutmut>=3.8,<4",
 ]
 
 [project.scripts]
@@ -325,3 +326,23 @@ forbidden_modules = ["ter.bootstrap", "ter.application"]
 # command line, whose services only the composition root builds. That one
 # lazy delegation in the TER 3 CLI entry point is exempt (and only it).
 ignore_imports = ["ter_calculator.cli -> ter.bootstrap"]
+
+[tool.mutmut]
+# Mutation score of the pure domain (scripts/mutation.py, TER-TST-015).
+# The tests that reach ter.domain (tests/requirements: the EARS and points
+# rules); the embedding model never runs here.
+source_paths = ["src/ter/domain/"]
+pytest_add_cli_args_test_selection = [
+    "tests/golden", "tests/contract", "tests/equivalence", "tests/unit",
+    "tests/requirements",
+    "-m", "not embeddings",
+]
+# Declared order: a mutant's tests run the same way every time.
+pytest_add_cli_args = ["-p", "no:cacheprovider", "--test-order=declared", "-q"]
+# What the selected tests read from the checkout.
+also_copy = [
+    ".github", ".pre-commit-config.yaml", "CHANGELOG.md", "CLAUDE.md",
+    "CONTRIBUTING.md", "README.md", "ROADMAP.md", "SECURITY.md", "benchmarks",
+    "conftest.py", "constraints", "dev.py", "docs", "presentation",
+    "pyproject.toml", "requirements", "sample_sessions", "scripts", "src", "tests",
+]

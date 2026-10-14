@@ -1,0 +1,54 @@
+name: Mutation score
+
+# mutmut mutates ter.domain and the tests must catch the mutants: no module
+# may score below tests/mutation/baseline.json (scripts/mutation.py). A pull
+# request mutates only the domain modules it changes; the whole domain (about
+# two hours on four cores) runs in four shards on main, weekly and on demand.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+jobs:
+  changed:
+    name: Mutation score of the changed modules
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install -c constraints/ci.txt -e ".[dev]"
+      - name: Mutation score of the changed domain modules
+        run: python scripts/mutation.py --changed "origin/${{ github.base_ref }}"
+
+  domain:
+    name: Mutation score of the domain (${{ matrix.shard }}/4)
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install -c constraints/ci.txt -e ".[dev]"
+      - name: Mutation score of a shard of the domain
+        run: python scripts/mutation.py --shard ${{ matrix.shard }}/4
