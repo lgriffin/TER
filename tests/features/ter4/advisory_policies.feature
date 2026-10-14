@@ -33,6 +33,11 @@ Feature: L4 Advisory policies
     Then TER advises "Reuse the earlier read."
     And the advice shows the repeated_exploration signal and events "e1, e2"
 
+  @req:TER-INT-002
+  Scenario: At L4 the only action a policy may take is advice
+    Given the policy may also correct the agent session
+    Then reading the policy file is refused with "L5"
+
   @req:TER-INT-007
   Scenario: A signal that cites no event is never advised
     Given the policy file is approved by "Leigh"
@@ -46,9 +51,10 @@ Feature: L4 Advisory policies
     When a repeated_exploration signal with confidence 0.85 cites events "e1, e2"
     Then the outcome is "ineligible"
 
-  @req:TER-INT-010
-  Scenario Outline: An uncertain signal counts as waste but never triggers advice
-    Given the policy file is approved by "Leigh"
+  @req:TER-INT-021
+  Scenario Outline: A signal below the 0.70 floor is uncertain and never advised
+    Given the policy accepts signals with confidence 0.50 or more
+    And the policy file is approved by "Leigh"
     When a repeated_exploration signal with confidence <confidence> cites events "e1, e2"
     Then the outcome is "<outcome>"
 
@@ -63,7 +69,7 @@ Feature: L4 Advisory policies
     When repeated_exploration signals arrive at tool events 1, 3 and 6
     Then the outcomes are "advised, cooldown, advised"
 
-  @req:TER-INT-002
+  @req:TER-INT-001
   Scenario: Below the L4 ceiling an approved policy still advises nothing
     Given the policy file is approved by "Leigh"
     And the maturity ceiling is L3

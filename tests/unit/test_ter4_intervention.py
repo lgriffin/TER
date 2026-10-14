@@ -150,7 +150,7 @@ def test_a_detector_not_marked_eligible_is_never_advised() -> None:
 # --- uncertain signals count as waste but never intervene (ADR 0006) --------
 
 
-@pytest.mark.req("TER-INT-010")
+@pytest.mark.req("TER-INT-021")
 def test_an_uncertain_signal_is_never_advised_even_if_the_policy_allows() -> None:
     assert outcomes(signal(confidence=0.69), min_confidence=0.5) == [
         Outcome.LOW_CONFIDENCE

@@ -13,7 +13,7 @@ from typing import Any
 import pytest
 from pytest_bdd import given, parsers, scenarios, then, when
 
-from ter.domain.intervention import Outcome, Signal, Verdict
+from ter.domain.intervention import Outcome, PolicyError, Signal, Verdict
 from ter.domain.maturity import Maturity
 from ter.domain.policy_set import POLICY_SCHEMA, PolicySet, UnapprovedPolicyError
 
@@ -83,6 +83,16 @@ def eligible(document: dict[str, Any], detector: str) -> None:
     document["eligibility"]["detectors"] = [detector]
 
 
+@given(parsers.parse("the policy accepts signals with confidence {floor:f} or more"))
+def accepts(document: dict[str, Any], floor: float) -> None:
+    document["policies"][0]["min_confidence"] = floor
+
+
+@given("the policy may also correct the agent session")
+def corrective(document: dict[str, Any]) -> None:
+    document["policies"][0]["actions"] = ["advise", "correct"]
+
+
 @given("calibration marks no detector eligible")
 def none_eligible(document: dict[str, Any]) -> None:
     document["eligibility"]["detectors"] = []
@@ -150,6 +160,12 @@ def signals_at(world: dict[str, Any], first: int, second: int, third: int) -> No
 @then(parsers.parse('TER refuses with "{text}"'))
 def refuses(world: dict[str, Any], text: str) -> None:
     assert text in world.get("refused", ""), world.get("refused")
+
+
+@then(parsers.parse('reading the policy file is refused with "{text}"'))
+def file_refused(document: dict[str, Any], text: str) -> None:
+    with pytest.raises(PolicyError, match=text):
+        PolicySet.from_mapping(document)
 
 
 @then(parsers.parse('the policy file\'s approval state is "{state}"'))

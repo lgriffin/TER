@@ -27,7 +27,7 @@ flowchart TB
 |---|---|---:|---|
 | Unit | `tests/unit/` | 1,400 | One module's behaviour: TER 3 modules (`test_classifier.py`, `test_waste.py`, …) and TER 4 (`test_ter4_*.py`) |
 | Property | `tests/unit/test_ter4_lean_properties.py`, `test_ter4_stream_properties.py` | (in unit) | Invariants over generated sessions (hypothesis) |
-| BDD | `tests/features/**/*.feature` with steps in `tests/features/steps/*_steps.py` | 210 | TER 3 user stories and TER 4 scenarios written from EARS requirements, in Gherkin (pytest-bdd) |
+| BDD | `tests/features/**/*.feature` with steps in `tests/features/steps/*_steps.py` | 211 | TER 3 user stories and TER 4 scenarios written from EARS requirements, in Gherkin (pytest-bdd) |
 | Integration | `tests/integration/test_cli.py` | 12 | The `ter` CLI end to end on real files |
 | Contract | `tests/contract/` | 100 | Every adapter of a port, real and fake, meets the same obligations |
 | Schema | `tests/schema/` | 50 | Every versioned document format has a JSON Schema; writers conform, readers accept what it allows |

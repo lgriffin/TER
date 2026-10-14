@@ -120,6 +120,33 @@ def test_the_lint_reads_req_tags_from_feature_files(tmp_path: Path) -> None:
 
 
 @pytest.mark.req("TER-TST-018")
+def test_only_tag_lines_cite_and_an_empty_tag_is_reported(tmp_path: Path) -> None:
+    (tmp_path / "x.feature").write_text(
+        textwrap.dedent(
+            """\
+            Feature: x
+              A description naming @req:TER-XXX-997 cites nothing.
+
+              @req:
+              Scenario: one
+                Given a step about @req:TER-XXX-998
+                  \"\"\"
+                  @req:TER-XXX-999 inside a docstring
+                  \"\"\"
+                And a fenced block
+                  ```
+                  @req:TER-XXX-996
+                  ```
+            """
+        ),
+        encoding="utf-8",
+    )
+    assert req_cli.scan_citations(tmp_path) == {
+        req_cli.EMPTY_TAG: [f"{tmp_path.as_posix()}/x.feature:4"]
+    }
+
+
+@pytest.mark.req("TER-TST-018")
 def test_every_ter4_scenario_cites_a_known_requirement() -> None:
     """TER 4 scenarios live in tests/features/ter4 and each one cites the
     requirement it verifies; the lint (CI) checks the ids are known."""
