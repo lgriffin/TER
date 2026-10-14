@@ -545,6 +545,29 @@ python dev.py smoke      # the smoke suite, against this checkout
 `--strict` also fails on warnings (proof that exists only on an unmerged
 branch), which CI will hit once that branch merges.
 
+## Test-first workflow
+
+A new behaviour starts with its test. Two `dev.py` steps hold you to the
+order, so a test that could never have failed does not pass as evidence:
+
+```bash
+python dev.py red tests/unit/test_ter4_policy_set.py::test_new_rule    # 1. before the change
+python dev.py green tests/unit/test_ter4_policy_set.py::test_new_rule  # 2. after it
+python dev.py check                                                     # 3. everything CI runs
+```
+
+- `red` succeeds only when the named tests ran and at least one failed. It
+  fails if they pass already (they would not notice the behaviour missing),
+  if none is selected, or if they do not run at all: a collection or usage
+  error is not a failing test (TER-TST-019).
+- `green` succeeds only when the named tests all pass and each cites the
+  requirement it verifies, with `@pytest.mark.req` or a scenario's `@req:`
+  tag; it lists the tests that cite nothing (TER-TST-020).
+
+Both take pytest node ids, files or directories, and leave pytest's cache
+alone, so `python dev.py fast` still reruns your last failures first.
+`scripts/tdd.py` holds the two steps and `tests/tdd/` their tests.
+
 ## Writing a new test end to end
 
 Suppose you are adding a rule: an edit to a file the agent then deletes is
@@ -577,7 +600,8 @@ wasted. The full path from idea to gate:
    ```
 
 4. **Write the tests first**: positive, negative and boundary, tagged with
-   the id. They fail until the detector exists.
+   the id. They fail until the detector exists, and
+   `python dev.py red tests/unit/test_ter4_lean_detectors.py` proves it.
 
    ```python
    @pytest.mark.req("TER-DET-011")
@@ -591,7 +615,8 @@ wasted. The full path from idea to gate:
            assert f.waste is LeanWaste.OVERPRODUCTION
    ```
 
-5. **Implement** until they pass. Add a property if an invariant is involved,
+5. **Implement** until `python dev.py green tests/unit/test_ter4_lean_detectors.py`
+   passes: every test green and every one citing its requirement. Add a property if an invariant is involved,
    and a synthetic golden session if the behaviour is visible in reports;
    regenerate snapshots with `TER_UPDATE_GOLDEN=1` and review the diff.
 6. **Promote**: set `status: verified` on the requirement, update the

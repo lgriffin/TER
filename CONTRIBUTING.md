@@ -94,6 +94,8 @@ environment and `src` first on the path, so it tests this checkout:
 
 ```bash
 python dev.py            # list the tasks
+python dev.py red TEST   # test first: the new test must fail before the change
+python dev.py green TEST # then it passes and cites its EARS requirement
 python dev.py fast       # quick loop: stop at first failure, no model
 python dev.py fmt        # format and auto-fix lint
 python dev.py check      # the CI lint and test jobs: lint, coverage, L0-L4 gates

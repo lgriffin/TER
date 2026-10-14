@@ -23,6 +23,7 @@ tests/mutation/        # Mutation score ratchet (scripts/mutation.py); baseline.
 tests/sbom/            # The SBOM check (scripts/sbom.py problems); TER_SBOM + TER_SBOM_ENV check CI's against the tested install
 tests/architecture/    # Import-contract fitness tests
 tests/requirements/    # EARS catalogue lint, trace and ter-req tooling tests
+tests/tdd/             # The red/green test-first steps (scripts/tdd.py)
 tests/docs/            # Doc checks: relative links, command examples, points index
 requirements/          # EARS requirement catalogue (YAML per maturity level) + points.yaml (200 vision points)
 tests/equivalence/     # Live (incremental) analysis and explanation == batch on the golden corpus
@@ -39,6 +40,8 @@ sample_sessions/       # Sample JSONL files for testing
 ```bash
 python dev.py check                       # The CI lint and test jobs (lint, coverage, L0-L4 gates); `python dev.py` lists tasks
 python dev.py fast                        # Quick loop: -x, last failures first, no embedding model
+python dev.py red TEST                    # Test first: the new test must fail before the change
+python dev.py green TEST                  # Then it passes and cites its EARS requirement
 python dev.py smoke                       # Every command end to end (CI also runs it against the built wheel)
 python dev.py fuzz                        # The resilience fuzzers at 20x their CI examples
 python dev.py mutation --changed origin/main  # mutmut over the domain modules a branch changes, held to tests/mutation/baseline.json

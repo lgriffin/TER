@@ -3262,7 +3262,7 @@ points:
       requirements and a test-first workflow.
     level: L0
     kind: capability
-    status: partial
+    status: done
     origin:
       source: TER project
       ref: "Testing harness thread, 14 Oct 2026"
@@ -3278,8 +3278,10 @@ points:
         injected without an unhandled exception.
       - >-
         A mutation score over the pure domain never drops below its
-        committed baseline in CI, and TER 4 requirements have BDD scenarios
-        that cite their ids and count in the trace gate.
+        committed baseline in CI; TER 4 requirements have BDD scenarios that
+        cite their ids and count in the trace gate; and a test-first step
+        refuses a new test that passes before the change, or that passes
+        after it without citing its requirement.
     rules:
       - TER-TST-001
       - TER-TST-002
@@ -3299,6 +3301,8 @@ points:
       - TER-TST-016
       - TER-TST-017
       - TER-TST-018
+      - TER-TST-019
+      - TER-TST-020
     verification:
       - 'test: tests/schema/test_catalogue.py'
       - 'test: tests/schema/test_writers.py'
@@ -3313,7 +3317,7 @@ points:
       - 'ci: Mutation score of a shard of the domain'
       - 'test: tests/requirements/test_bdd_trace.py'
       - 'test: tests/features/steps/ter4_advisory_steps.py'
-      - 'planned: test-first workflow'
+      - 'test: tests/tdd/test_tdd.py'
 
   - id: P203
     text: >-

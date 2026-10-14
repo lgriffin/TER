@@ -113,6 +113,14 @@ def _mutation(extra: list[str]) -> list[Command]:
     return [[sys.executable, "scripts/mutation.py", *extra]]
 
 
+def _red(extra: list[str]) -> list[Command]:
+    return [[sys.executable, "scripts/tdd.py", "red", *extra]]
+
+
+def _green(extra: list[str]) -> list[Command]:
+    return [[sys.executable, "scripts/tdd.py", "green", *extra]]
+
+
 def _golden(extra: list[str]) -> list[Command]:
     return [py("pytest", "tests/golden", "-q", *extra)]
 
@@ -128,6 +136,13 @@ TASKS: dict[str, Task] = {
         "ruff, mypy, import contracts, EARS lint, points index (CI lint job)", _lint
     ),
     "test": Task("the whole suite; extra arguments go to pytest", _test),
+    "red": Task(
+        "test first: the new tests must fail before the change (pytest node ids)",
+        _red,
+    ),
+    "green": Task(
+        "then: the same tests pass and each cites its EARS requirement", _green
+    ),
     "fast": Task(
         "quick loop: stop at first failure, last failures first, no model", _fast
     ),

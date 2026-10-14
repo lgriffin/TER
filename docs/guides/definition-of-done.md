@@ -203,8 +203,12 @@ current.
    CI runs `ter-req points --check` and fails when points.md is stale;
    `tests/docs/test_docs.py` checks the same thing in the test suite.
 
-4. **Never mark a real-data point done** from synthetic tests.
-5. **Number a new goal past P200 with its origin**; never edit the text of
+4. **Write the test before the code**: `python dev.py red TEST` before the
+   change, `python dev.py green TEST` after it (the
+   [testing guide](testing.md#test-first-workflow) has the workflow). A
+   `test:` entry is evidence only if that test could fail.
+5. **Never mark a real-data point done** from synthetic tests.
+6. **Number a new goal past P200 with its origin**; never edit the text of
    P001 to P200 or give them an origin.
 
 A commit message that follows the rule:
