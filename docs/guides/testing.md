@@ -27,7 +27,7 @@ flowchart TB
 |---|---|---:|---|
 | Unit | `tests/unit/` | 1,400 | One module's behaviour: TER 3 modules (`test_classifier.py`, `test_waste.py`, …) and TER 4 (`test_ter4_*.py`) |
 | Property | `tests/unit/test_ter4_lean_properties.py`, `test_ter4_stream_properties.py` | (in unit) | Invariants over generated sessions (hypothesis) |
-| BDD | `tests/features/**/*.feature` with steps in `tests/features/steps/*_steps.py` | 200 | TER 3 user stories in Gherkin (pytest-bdd) |
+| BDD | `tests/features/**/*.feature` with steps in `tests/features/steps/*_steps.py` | 210 | TER 3 user stories and TER 4 scenarios written from EARS requirements, in Gherkin (pytest-bdd) |
 | Integration | `tests/integration/test_cli.py` | 12 | The `ter` CLI end to end on real files |
 | Contract | `tests/contract/` | 100 | Every adapter of a port, real and fake, meets the same obligations |
 | Schema | `tests/schema/` | 50 | Every versioned document format has a JSON Schema; writers conform, readers accept what it allows |
@@ -131,9 +131,29 @@ Scenario: Mixed alignment session produces valid TER with phase breakdown
   When the TER is calculated
 ```
 
-Use BDD when a behaviour is best read by a non-developer as a scenario. New
-TER 4 behaviour is usually better served by a unit or property test tagged
-with its requirement.
+TER 4 scenarios live in `tests/features/ter4/` and are written from the EARS
+requirements: each scenario carries a `@req:<id>` tag for the requirement it
+verifies, which `ter.adapters.driving.pytest_req` turns into
+`@pytest.mark.req("<id>")`. A scenario then counts in `--req-trace` and the
+trace gates like any other test (TER-TST-017), and `ter-req lint --tests
+tests` reads the tags, so a tag naming an unknown id fails CI with its file
+and line (TER-TST-018). Other tags (`@embeddings`, `@slow`) stay pytest
+markers.
+
+```gherkin
+@req:TER-INT-016
+Scenario: A policy is silent during its cooldown
+  Given the policy file is approved by "Leigh"
+  When repeated_exploration signals arrive at tool events 1, 3 and 6
+  Then the outcomes are "advised, cooldown, advised"
+```
+
+`advisory_policies.feature` covers L4 Advisory: approval, evidence,
+eligibility, uncertain signals, cooldown and the maturity ceiling. Its steps
+(`steps/ter4_advisory_steps.py`) drive the real policy parser and
+Intervention Engine, never a stand-in. Use BDD when a behaviour is best read
+as a scenario by someone who will not read the code, such as a policy owner;
+edge cases and properties stay in unit and property tests.
 
 ## Golden snapshots
 

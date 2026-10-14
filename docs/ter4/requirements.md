@@ -148,7 +148,8 @@ discouraged terms to preferred ones (`transcript: session`). The lint reports
 each use, so the catalogue keeps one word for one concept.
 
 `ter-req lint --tests tests` also scans the test tree for
-`mark.req("...")` and fails on any id that is not in the catalogue.
+`mark.req("...")`, and `.feature` files for `@req:<id>` scenario tags, and
+fails on any id that is not in the catalogue.
 
 ### 2. Forward and backward trace (`ter-req trace`)
 
@@ -156,7 +157,8 @@ The root `conftest.py` registers `ter.adapters.driving.pytest_req`. With
 `pytest --req-trace=req-trace.json`, it records every test that carries a
 `req` marker and its outcome (`passed`, `failed`, `skipped`, `xfailed`,
 `xpassed`, or `not-run` when deselected). A marker can cite several ids:
-`@pytest.mark.req("TER-SRC-004", "TER-ANL-001")`.
+`@pytest.mark.req("TER-SRC-004", "TER-ANL-001")`. A BDD scenario's
+`@req:<id>` tag becomes the same marker, so scenarios are traced too.
 
 `ter-req trace --results req-trace.json --gate L0` then fails when:
 

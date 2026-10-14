@@ -12,7 +12,7 @@ Last updated: 2026-10-14
 src/ter/               # TER 4 hexagon: domain/ ports/ application/ adapters/ bootstrap/
 src/ter_calculator/    # TER 3 modules (wrapped by ter adapters during the rebuild)
 tests/unit/            # Unit tests
-tests/features/        # BDD feature files and step definitions
+tests/features/        # BDD feature files and step definitions; TER 4 scenarios in ter4/ cite EARS ids with @req:<id> tags
 tests/integration/     # Integration tests
 tests/golden/          # Golden snapshots freezing TER 3 scores (TER_UPDATE_GOLDEN=1 to regenerate)
 tests/contract/        # One suite per port; real adapters and fakes must both pass
@@ -81,7 +81,7 @@ Python 3.11+: Follow standard conventions. Dataclasses for models, enums for dom
 - Model prices are data in `src/ter/data/price_book.json`, read through the `PriceBook` port (ADR 0003). Never hard-code rates.
 - A change to `ter.domain` keeps every module's mutation score at or above `tests/mutation/baseline.json` (TER-TST-015); kill survivors with tests, then `--update` the baseline.
 - Scoring changes must show up as a golden snapshot diff, committed on purpose.
-- Tag tests with `@pytest.mark.req("TER-XXX-NNN")` for the requirement they verify. Every behaviour is an EARS requirement in `requirements/*.yaml` (see `docs/ter4/requirements.md`); new ones start `status: planned` and become `verified` once a passing test cites them.
+- Tag tests with `@pytest.mark.req("TER-XXX-NNN")` for the requirement they verify (a BDD scenario: `@req:TER-XXX-NNN` above it). Every behaviour is an EARS requirement in `requirements/*.yaml` (see `docs/ter4/requirements.md`); new ones start `status: planned` and become `verified` once a passing test cites them.
 - Every TER 4 change names the vision point ids it advances (`P044`, …) in its commit message and PR body, and updates those points' `status` and `verification` in `requirements/points.yaml` in the same PR (then `ter-req points`). A point is `done` only when its rules are verified by tests. Index: `docs/ter4/points.md`.
 - New `ter` code is strictly typed (mypy overrides in pyproject.toml).
 - Analysis is a fold over `ter.event`: `AnalysisEngine.apply` must stay O(1) amortised and idempotent by event id, and batch must equal incremental (`docs/ter4/l1-observed.md`).

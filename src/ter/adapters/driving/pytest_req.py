@@ -7,6 +7,10 @@ JSON map of requirement id to the citing tests and their outcomes::
     {"schema": "ter.req-trace/1",
      "requirements": {"TER-ANL-001": [{"nodeid": "tests/...", "outcome": "passed"}]}}
 
+BDD scenarios cite them with a ``@req:TER-ANL-001`` tag in the ``.feature``
+file (pytest-bdd), which becomes the same marker, so a scenario counts in
+the trace like any other test.
+
 ``python -m ter.adapters.driving.req_cli trace`` reads that file. The plugin
 is registered by the repository's root ``conftest.py``.
 """
@@ -14,12 +18,15 @@ is registered by the repository's root ``conftest.py``.
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
 
 TRACE_SCHEMA = "ter.req-trace/1"
 NOT_RUN = "not-run"
+#: The Gherkin tag that cites a requirement: ``@req:TER-ANL-001``.
+REQ_TAG = "req:"
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
@@ -38,6 +45,23 @@ def pytest_configure(config: pytest.Config) -> None:
         config.pluginmanager.register(
             RequirementTracer(Path(str(path))), "ter-req-tracer"
         )
+
+
+@pytest.hookimpl(optionalhook=True, tryfirst=True)
+def pytest_bdd_apply_tag(
+    tag: str, function: Callable[..., object]
+) -> Callable[..., object] | None:
+    """Turn a scenario's ``@req:<id>`` tag into ``@pytest.mark.req(<id>)``.
+
+    Other tags are left to pytest-bdd, which makes each one a marker.
+    """
+    if not tag.startswith(REQ_TAG):
+        return None
+    rid = tag.removeprefix(REQ_TAG)
+    if not rid:
+        raise pytest.UsageError(f"the tag @{tag} names no requirement id")
+    marked: Callable[..., object] = pytest.mark.req(rid)(function)
+    return marked
 
 
 def cited_ids(item: pytest.Item) -> list[str]:

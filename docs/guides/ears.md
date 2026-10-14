@@ -207,6 +207,10 @@ class TestReworkCycle:
     def test_identical_failure_after_fix_is_rework(self) -> None: ...
 ```
 
+A BDD scenario cites one with a tag in its `.feature` file:
+`@req:TER-INT-016` above the `Scenario:` line (see the
+[testing guide](testing.md#bdd-features)).
+
 Cite a requirement only from a test that proves it. A test that exercises the
 code but would still pass if the behaviour broke is not verification.
 
