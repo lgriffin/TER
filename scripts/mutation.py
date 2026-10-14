@@ -27,7 +27,7 @@ import re
 import subprocess
 import sys
 from collections import Counter
-from collections.abc import Iterable, Mapping
+from collections.abc import Collection, Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -129,6 +129,20 @@ def drops(
     return found
 
 
+def unmeasured(
+    measured: Mapping[str, Score],
+    baseline: Mapping[str, Mapping[str, float]],
+    selection: Selection,
+) -> list[str]:
+    """Every selected module, by name or with a baseline, that the run did
+    not score: a check that compared nothing would pass."""
+    expected = set(selection.exact) | {m for m in baseline if selection.holds(m)}
+    return [
+        f"{module} produced no mutant results"
+        for module in sorted(expected - set(measured))
+    ]
+
+
 def domain_modules() -> list[str]:
     """Every module under ``src/ter/domain``, as ``ter.domain.x.y``."""
     modules = []
@@ -208,10 +222,11 @@ def load_baseline() -> dict[str, dict[str, float]]:
     return data
 
 
-def write_baseline(measured: Mapping[str, Score], keep: bool) -> None:
-    """Record ``measured``; with ``keep``, modules not measured stay as they
-    were and none goes down."""
-    modules = dict(load_baseline()) if keep else {}
+def write_baseline(measured: Mapping[str, Score], known: Collection[str]) -> None:
+    """Raise the baseline to ``measured``. No module goes down, modules not
+    measured stay as they were, and modules no longer in ``known`` (the
+    domain) are dropped."""
+    modules = {m: s for m, s in load_baseline().items() if m in known}
     for module, score in measured.items():
         held = modules.get(module)
         if held is not None and round(score.ratio, 4) < float(held["score"]):
@@ -234,11 +249,9 @@ def _mutmut(*args: str) -> str:
         capture_output=args[0] == "results",
         text=True,
     )
-    if args[0] == "results":
-        return done.stdout
     if done.returncode != 0:
         raise SystemExit(f"mutmut {args[0]} exited {done.returncode}")
-    return ""
+    return done.stdout or ""
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -269,10 +282,11 @@ def main(argv: list[str] | None = None) -> int:
     for module, score in measured.items():
         print(f"{module:<45} {score.ratio:6.1%}  {score.killed}/{score.mutants}")
     if args.update:
-        write_baseline(measured, keep=bool(selection))
+        write_baseline(measured, known=set(domain_modules()))
         print(f"wrote {BASELINE.relative_to(ROOT)}")
         return 0
-    found = drops(measured, load_baseline())
+    baseline = load_baseline()
+    found = unmeasured(measured, baseline, selection) + drops(measured, baseline)
     for problem in found:
         print(f"FAILED {problem}", file=sys.stderr)
     return 1 if found else 0

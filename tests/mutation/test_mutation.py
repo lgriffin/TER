@@ -97,17 +97,59 @@ def test_the_baseline_is_raised_but_never_lowered(
 ) -> None:
     baseline = tmp_path / "baseline.json"
     monkeypatch.setattr(mutation, "BASELINE", baseline)
+    known = {"ter.domain.a", "ter.domain.b"}
+    first = {"ter.domain.a": Score(1, 2), "ter.domain.b": Score(1, 4)}
     mutation.write_baseline(
-        {"ter.domain.a": Score(1, 2), "ter.domain.b": Score(1, 4)}, False
+        {**first, "ter.domain.gone": Score(1, 1)}, known | {"ter.domain.gone"}
     )
-    mutation.write_baseline({"ter.domain.a": Score(2, 2)}, keep=True)
+    # A module not measured stays, and one no longer in the domain is dropped.
+    mutation.write_baseline({"ter.domain.a": Score(2, 2)}, known)
     held = json.loads(baseline.read_text("utf-8"))["modules"]
     assert held == {
         "ter.domain.a": {"killed": 2, "mutants": 2, "score": 1.0},
         "ter.domain.b": {"killed": 1, "mutants": 4, "score": 0.25},
     }
-    with pytest.raises(SystemExit, match="would go down"):
-        mutation.write_baseline({"ter.domain.b": Score(0, 4)}, keep=True)
+    # A whole-domain update is held to the committed scores too.
+    with pytest.raises(SystemExit, match="ter.domain.b would go down"):
+        mutation.write_baseline(
+            {"ter.domain.a": Score(2, 2), "ter.domain.b": Score(0, 4)}, known
+        )
+    assert json.loads(baseline.read_text("utf-8"))["modules"] == held
+
+
+@pytest.mark.req("TER-TST-015")
+def test_a_selected_module_the_run_did_not_score_fails() -> None:
+    baseline = {
+        "ter.domain.lean.steps": {"score": 0.8},
+        "ter.domain.events": {"score": 0.9},
+    }
+    measured = {"ter.domain.events": Score(9, 10)}
+    whole = mutation.unmeasured(measured, baseline, Selection())
+    assert whole == ["ter.domain.lean.steps produced no mutant results"]
+    package = Selection(prefixes=("ter.domain.lean",))
+    assert mutation.unmeasured(measured, baseline, package) == whole
+    assert (
+        mutation.unmeasured(measured, baseline, Selection(exact=("ter.domain.events",)))
+        == []
+    )
+    # All of a module's mutants skipped: it has no score, so it is unmeasured.
+    skipped = ["    ter.domain.new.x_f__mutmut_1: skipped"]
+    new = Selection(exact=("ter.domain.new",))
+    assert mutation.unmeasured(mutation.scores(skipped, new), {}, new) == [
+        "ter.domain.new produced no mutant results"
+    ]
+
+
+@pytest.mark.req("TER-TST-015")
+def test_a_failing_mutmut_command_fails_the_check(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def failed(*args: object, **kwargs: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args, 1, stdout="partial", stderr="")
+
+    monkeypatch.setattr(mutation.subprocess, "run", failed)
+    with pytest.raises(SystemExit, match="mutmut results exited 1"):
+        mutation._mutmut("results", "--all", "true")
 
 
 @pytest.mark.req("TER-TST-016")
