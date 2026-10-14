@@ -559,10 +559,12 @@ python dev.py check                                                     # 3. eve
 - `red` succeeds only when the named tests ran and at least one failed. It
   fails if they pass already (they would not notice the behaviour missing),
   if none is selected, or if they do not run at all: a collection or usage
-  error is not a failing test (TER-TST-019).
-- `green` succeeds only when the named tests all pass and each cites the
-  requirement it verifies, with `@pytest.mark.req` or a scenario's `@req:`
-  tag; it lists the tests that cite nothing (TER-TST-020).
+  error, or a fixture that errors before the test body, is not a failing
+  test (TER-TST-019).
+- `green` succeeds only when every named test passed (a skip or an expected
+  failure is not a pass) and each cites the requirement it verifies, with
+  `@pytest.mark.req` or a scenario's `@req:` tag. It lists the tests that did
+  not pass and the tests that cite nothing (TER-TST-020).
 
 Both take pytest node ids, files or directories, and leave pytest's cache
 alone, so `python dev.py fast` still reruns your last failures first.
