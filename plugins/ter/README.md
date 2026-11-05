@@ -1,4 +1,7 @@
-# TER plugin for Claude Code
+# TER plugin for Claude Code (exploratory)
+
+> Exploratory: skills, names and install steps may change. Guide:
+> [docs/guides/claude-plugin.md](../../docs/guides/claude-plugin.md).
 
 Two skills that let Claude run TER for you:
 
