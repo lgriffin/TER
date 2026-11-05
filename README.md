@@ -111,6 +111,15 @@ ter a3 ~/.claude/projects/my-project/SESSION_ID.jsonl --html a3.html
 ter report --latest ~/.claude/projects/my-project --html latest.html
 ```
 
+### Ask Claude instead (Claude Code plugin)
+
+The [TER plugin](plugins/ter/README.md) lets Claude Code run TER for you:
+`/ter:analyze` writes the A3 for this or another session, explains the
+findings and offers to apply the countermeasures; `/ter:setup-hooks` turns on
+live capture and advice with your consent. Install TER as above, then in
+Claude Code run `/plugin marketplace add lgriffin/TER` and
+`/plugin install ter@ter`.
+
 ### Installation options
 
 ```bash
