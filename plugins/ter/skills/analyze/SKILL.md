@@ -2,7 +2,7 @@
 name: analyze
 description: Lean analysis of a Claude Code session with TER. Use when the user asks how efficient or wasteful a session was, wants a Lean A3 for a session, or asks what to change in CLAUDE.md, hooks or settings to cut agent waste.
 argument-hint: "[session .jsonl path | 'this' | 'last']"
-allowed-tools: Bash(python -m ter *), Bash(ter list *)
+allowed-tools: Bash(python -m ter --version), Bash(python -m ter a3 *), Bash(python -m ter explain *), Bash(python -m ter_calculator list *)
 ---
 
 # Analyse a session with TER
@@ -27,7 +27,8 @@ python -m pip install "ter-calculator @ git+https://github.com/lgriffin/TER"
 ```
 
 Use the interpreter the user names if they have one (a virtual environment's
-`python`), and use that same interpreter for every command below.
+`python`), and use that same interpreter for every command below, so every
+step runs the same installation.
 
 ## 2. Pick the session
 
@@ -42,7 +43,7 @@ The argument is `$ARGUMENTS`.
   newest first, and pick with the user if more than one fits:
 
   ```bash
-  ter list --limit 10 --format json
+  python -m ter_calculator list --limit 10 --format json
   ```
 
 ## 3. Run the A3

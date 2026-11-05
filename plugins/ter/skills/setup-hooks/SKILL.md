@@ -3,7 +3,7 @@ name: setup-hooks
 description: Turn on TER's Claude Code hooks, to capture sessions live and, once the user has approved a policy file, to show live waste advice at the end of each turn.
 argument-hint: "[capture | advice | check]"
 disable-model-invocation: true
-allowed-tools: Bash(python -m ter *)
+allowed-tools: Bash(python -m ter --version), Bash(python -m ter observe *), Bash(python -m ter policy check *), Bash(python -m ter policy effectiveness *)
 ---
 
 # Set up TER's hooks
@@ -31,6 +31,10 @@ settings file they can read.
 - Find the absolute path of that interpreter
   (`python -c "import sys; print(sys.executable)"`). Hooks run without the
   user's shell setup, so the command must name it in full.
+- Quote every path you put into a hook command (interpreter, event log,
+  policy file, ledger, limits) in double quotes, escaped as `\"` inside the
+  JSON string, so a path with spaces stays one argument. Refuse a path that
+  contains a double quote, `$`, or a backtick rather than trying to escape it.
 - Ask which settings file: the project's `.claude/settings.json` or the user's
   `~/.claude/settings.json` (every project). Show the exact JSON you will
   merge, keep every hook already there, and write only after a yes.
@@ -38,18 +42,18 @@ settings file they can read.
 ## Capture
 
 Merge this into the chosen settings file, with `PYTHON` replaced by the
-absolute interpreter path and `EVENTS` by the folder the user wants
-(default `~/.cache/ter/events`; the log holds prompts and tool output, so keep
-it in their home directory):
+absolute interpreter path and `EVENTS` by the folder the user wants, each
+quoted as above (default `~/.cache/ter/events`; the log holds prompts and
+tool output, so keep it in their home directory):
 
 ```json
 {
   "hooks": {
     "UserPromptSubmit": [
-      {"hooks": [{"type": "command", "command": "PYTHON -m ter hook --event-log EVENTS"}]}
+      {"hooks": [{"type": "command", "command": "\"PYTHON\" -m ter hook --event-log \"EVENTS\""}]}
     ],
     "PostToolUse": [
-      {"matcher": "*", "hooks": [{"type": "command", "command": "PYTHON -m ter hook --event-log EVENTS"}]}
+      {"matcher": "*", "hooks": [{"type": "command", "command": "\"PYTHON\" -m ter hook --event-log \"EVENTS\""}]}
     ]
   }
 }
@@ -77,17 +81,23 @@ sign-off recorded in the file, and any edit voids it.
    A starting file is `docs/examples/policies/l4-advisory.json` in the TER
    repository. It ships unapproved.
 
-2. Recommend a shadow run over past sessions first, so the user can judge the
-   advice before any is shown:
+2. Tell the user to read the policies and approve the file themselves, in
+   their own terminal:
+   `python -m ter policy approve POLICIES.json --by THEIR_NAME`.
+   **Never run `policy approve` yourself, and never edit a policy file to make
+   it pass.** If `policy check` still exits 1, stop and show why. Any later
+   edit voids the approval, so the user approves again after every change.
+
+3. With the file approved, recommend a shadow run over past sessions, so the
+   user can judge the advice before any is shown (shadow mode refuses an
+   unapproved file). It writes a ledger and the judge CSV, so ask first:
 
    ```bash
    python -m ter policy shadow POLICIES.json SESSIONS --ledger SHADOW_LEDGER --judge judge.csv
    ```
 
-3. Tell the user to approve it themselves, in their own terminal:
-   `python -m ter policy approve POLICIES.json --by THEIR_NAME`.
-   **Never run `policy approve` yourself, and never edit a policy file to make
-   it pass.** If `policy check` still exits 1, stop and show why.
+   Go through the judge CSV with the user. If they change a policy because
+   of it, they approve the file again before step 4.
 
 4. Once it is approved, add a `Stop` entry to the same settings file:
 
@@ -95,7 +105,7 @@ sign-off recorded in the file, and any edit voids it.
    {
      "hooks": {
        "Stop": [
-         {"hooks": [{"type": "command", "command": "PYTHON -m ter hook --event-log EVENTS --advise POLICIES.json --ledger LEDGER"}]}
+         {"hooks": [{"type": "command", "command": "\"PYTHON\" -m ter hook --event-log \"EVENTS\" --advise \"POLICIES.json\" --ledger \"LEDGER\""}]}
        ]
      }
    }

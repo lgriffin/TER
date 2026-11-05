@@ -223,6 +223,7 @@ def _ter_req(argv: list[str]) -> object:
 
 PROGRAMS: dict[str, Callable[[list[str]], object]] = {
     "ter": _ter,
+    "python -m ter_calculator": _ter,
     "python -m ter": _ter4,
     "ter-req": _ter_req,
     "python -m ter.adapters.driving.req_cli": _ter_req,

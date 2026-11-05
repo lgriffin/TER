@@ -42,6 +42,27 @@ def _frontmatter(path: Path) -> dict[str, object] | None:
     return data if isinstance(data, dict) else None
 
 
+#: Pre-approved Bash commands must name a subcommand: a bare wildcard would
+#: also pre-approve `policy approve`, which is the user's own sign-off
+#: (docs/guides/hooks.md), so no grant may name it either.
+BARE_WILDCARDS = {"python -m ter *", "python -m ter_calculator *", "ter *"}
+
+
+def _grant_problems(skill: Path, granted: object) -> list[str]:
+    if granted is None:
+        return []
+    if not isinstance(granted, str):
+        return [f"{skill}: allowed-tools is not a string"]
+    problems: list[str] = []
+    for rule in (part.strip() for part in granted.split("),")):
+        command = rule.removeprefix("Bash(").rstrip(")")
+        if command in BARE_WILDCARDS:
+            problems.append(f"{skill}: allowed-tools must not grant {command!r}")
+        if "policy approve" in command:
+            problems.append(f"{skill}: allowed-tools must not grant 'policy approve'")
+    return problems
+
+
 def _skill_problems(plugin: Path) -> list[str]:
     problems: list[str] = []
     skills = sorted((plugin / "skills").glob("*/SKILL.md"))
@@ -57,6 +78,7 @@ def _skill_problems(plugin: Path) -> list[str]:
         description = meta.get("description")
         if not isinstance(description, str) or not description.strip():
             problems.append(f"{skill}: no description")
+        problems.extend(_grant_problems(skill, meta.get("allowed-tools")))
     return problems
 
 
@@ -82,6 +104,9 @@ def plugin_problems(root: Path) -> list[str]:
             )
             continue
         name, source = entry.get("name"), entry.get("source")
+        if not isinstance(name, str) or not name.strip():
+            problems.append(f"marketplace.json: plugin entry {entry!r} has no name")
+            continue
         if not isinstance(source, str) or not source.startswith("./") or ".." in source:
             problems.append(
                 f"marketplace.json: {name}: source must be ./<path> in this repo"
@@ -117,6 +142,7 @@ def test_plugin_check_names_each_broken_file(tmp_path: Path) -> None:
                     {"name": "good", "source": "./p"},
                     {"name": "gone", "source": "./nowhere"},
                     {"name": "up", "source": "../outside"},
+                    {"source": "./p"},
                 ],
             }
         ),
@@ -131,6 +157,13 @@ def test_plugin_check_names_each_broken_file(tmp_path: Path) -> None:
     (plugin / "skills" / "a" / "SKILL.md").write_text(
         "---\nname: b\n---\nbody\n", encoding="utf-8"
     )
+    (plugin / "skills" / "d").mkdir()
+    (plugin / "skills" / "d" / "SKILL.md").write_text(
+        "---\nname: d\ndescription: x\n"
+        "allowed-tools: Bash(python -m ter *), Bash(python -m ter policy approve *)\n"
+        "---\n",
+        encoding="utf-8",
+    )
     (plugin / "skills" / "c").mkdir()
     (plugin / "skills" / "c" / "SKILL.md").write_text(
         "no frontmatter\n", encoding="utf-8"
@@ -144,6 +177,9 @@ def test_plugin_check_names_each_broken_file(tmp_path: Path) -> None:
     assert any("c/SKILL.md: no YAML frontmatter" in p for p in problems)
     assert any("nowhere" in p and "missing" in p for p in problems)
     assert any("up: source must be" in p for p in problems)
+    assert any("has no name" in p for p in problems)
+    assert any("must not grant 'python -m ter *'" in p for p in problems)
+    assert any("must not grant 'policy approve'" in p for p in problems)
 
 
 @pytest.mark.req("TER-REQ-014")

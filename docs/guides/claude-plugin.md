@@ -83,8 +83,8 @@ finds the absolute path of the Python that TER is installed in, asks which
 settings file to use, shows the JSON it will merge, and writes it only after
 you agree.
 
-For live advice it walks through `policy check`, a shadow run and, later,
-`policy effectiveness`. **It never runs `policy approve`.** Approval is your
+For live advice it walks through `policy check`, your approval, a shadow
+run and, later, `policy effectiveness`. **It never runs `policy approve`.** Approval is your
 sign-off, and the skill tells you to type that command yourself.
 
 ## Why the plugin ships no hooks
