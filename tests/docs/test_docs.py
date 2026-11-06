@@ -25,6 +25,7 @@ LINKED_PAGES: tuple[Path, ...] = (
     ROOT / "README.md",
     *sorted((ROOT / "docs").rglob("*.md")),
     *sorted((ROOT / "presentation").glob("*.md")),
+    *sorted((ROOT / "plugins").rglob("*.md")),
 )
 
 #: Pages whose fenced shell examples must name real commands and options.
@@ -34,6 +35,7 @@ COMMAND_PAGES: tuple[Path, ...] = (
     *sorted((ROOT / "docs" / "ter4").glob("*.md")),
     ROOT / "docs" / "hooks-guide.md",
     *sorted((ROOT / "presentation").glob("*.md")),
+    *sorted((ROOT / "plugins").rglob("*.md")),
 )
 
 SHELL_LANGUAGES = {"bash", "sh", "shell", "console"}
@@ -221,6 +223,7 @@ def _ter_req(argv: list[str]) -> object:
 
 PROGRAMS: dict[str, Callable[[list[str]], object]] = {
     "ter": _ter,
+    "python -m ter_calculator": _ter,
     "python -m ter": _ter4,
     "ter-req": _ter_req,
     "python -m ter.adapters.driving.req_cli": _ter_req,

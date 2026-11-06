@@ -111,6 +111,15 @@ ter a3 ~/.claude/projects/my-project/SESSION_ID.jsonl --html a3.html
 ter report --latest ~/.claude/projects/my-project --html latest.html
 ```
 
+### Ask Claude instead (Claude Code plugin, exploratory)
+
+The exploratory [TER plugin](docs/guides/claude-plugin.md) lets Claude Code run TER for you:
+`/ter:analyze` writes the A3 for this or another session, explains the
+findings and offers to apply the countermeasures; `/ter:setup-hooks` turns on
+live capture and advice with your consent. Install TER as above, then in
+Claude Code run `/plugin marketplace add lgriffin/TER` and
+`/plugin install ter@ter`.
+
 ### Installation options
 
 ```bash
@@ -239,6 +248,7 @@ ter-req points --check                              # fail if it is stale
 | [Lean](docs/guides/lean.md) | Value stream, activity classes, waste taxonomy, each detector, flow, A3 thinking |
 | [Reports and the A3](docs/guides/a3-report.md) | Reading and producing the per-run report and the A3; applying countermeasures |
 | [Hooks](docs/guides/hooks.md) | Capturing sessions live; hooks recommended by waste findings |
+| [Claude Code plugin](docs/guides/claude-plugin.md) | Exploratory: Claude runs TER, explains the A3 and applies countermeasures |
 | [EARS requirements](docs/guides/ears.md) | The grammar, the catalogue, lint rules, tagging tests, trace and report |
 | [Vision points and definition of done](docs/guides/definition-of-done.md) | The 200 points, statuses, when a point is done, the real-data rule |
 | [Contributing](docs/guides/contributing.md) | Setup, workflow, gates, commit and PR conventions |
