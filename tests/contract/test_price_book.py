@@ -15,6 +15,7 @@ import pytest
 
 from ter.adapters.driven.in_memory import InMemoryPriceBook
 from ter.adapters.driven.pricing import JsonPriceBook
+from ter.adapters.driven.pricing.focus import FocusSkuPriceBook
 from ter.domain import PriceEntry, Rates, UnknownModelError
 from ter.ports import PriceBook
 
@@ -38,7 +39,68 @@ def _memory() -> PriceBook:
     )
 
 
-@pytest.fixture(params=[_json, _memory], ids=["json", "in-memory"])
+FOCUS = Path(__file__).resolve().parents[1] / "fixtures" / "focus"
+
+
+def _focus() -> PriceBook:
+    return FocusSkuPriceBook(FOCUS / "sku_price.csv")
+
+
+def _focus_details() -> PriceBook:
+    return FocusSkuPriceBook(
+        FOCUS / "sku_price.no-details.csv", details=FOCUS / "cost_and_usage.csv"
+    )
+
+
+def focus_csv(entries: list[PriceEntry], path: Path) -> Path:
+    """``entries`` as a FOCUS 1.5 SKU Price file, one row per token rate."""
+    columns = [
+        "ServiceProviderName",
+        "SkuId",
+        "SkuPriceId",
+        "ContractId",
+        "PricingCurrency",
+        "PricingUnit",
+        "UnitPrice",
+        "UnitPriceType",
+        "SkuPriceEffectiveStart",
+        "SkuPriceEffectiveEnd",
+        "SkuPriceDetails",
+    ]
+    labels = {
+        "input": ("Input", "Uncached"),
+        "cache_read": ("Input", "Read"),
+        "cache_write": ("Input", "Write"),
+        "output": ("Output", None),
+    }
+    lines = [",".join(columns)]
+    for n, entry in enumerate(entries):
+        for key, (direction, action) in labels.items():
+            details = {"ModelId": entry.model, "TokenDirection": direction}
+            if action:
+                details["TokenCacheAction"] = action
+            cells = [
+                "Example",
+                entry.model,
+                f"{entry.model}-{key}-{n}",
+                "",
+                "USD",
+                "1M Tokens",
+                repr(getattr(entry.rates, key)),
+                "List",
+                entry.effective_from.isoformat(),
+                "",
+                '"' + json.dumps(details).replace('"', '""') + '"',
+            ]
+            lines.append(",".join(cells))
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
+@pytest.fixture(
+    params=[_json, _memory, _focus, _focus_details],
+    ids=["json", "in-memory", "focus-sku-price", "focus-sku-price-details"],
+)
 def book(request: pytest.FixtureRequest) -> PriceBook:
     factory: Factory = request.param
     return factory()
@@ -121,10 +183,12 @@ def _dated_json(tmp_path: Path) -> PriceBook:
     return JsonPriceBook(path)
 
 
-@pytest.fixture(params=["json", "in-memory"])
+@pytest.fixture(params=["json", "in-memory", "focus-sku-price"])
 def dated_book(request: pytest.FixtureRequest, tmp_path: Path) -> PriceBook:
     if request.param == "json":
         return _dated_json(tmp_path)
+    if request.param == "focus-sku-price":
+        return FocusSkuPriceBook(focus_csv(_dated_entries(), tmp_path / "dated.csv"))
     return InMemoryPriceBook(_dated_entries())
 
 

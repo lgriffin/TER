@@ -141,7 +141,8 @@
         "input",
         "cache_read",
         "cache_write",
-        "output"
+        "output",
+        "by_model"
       ],
       "properties": {
         "model_turns": {
@@ -163,6 +164,53 @@
         "output": {
           "type": "integer",
           "minimum": 0
+        },
+        "by_model": {
+          "description": "Usage by the model that served each turn (ADR 0008), so each model's share can be joined to that model's billing rows; model is null when the source names none.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "model",
+              "model_turns",
+              "input",
+              "cache_read",
+              "cache_write",
+              "output"
+            ],
+            "properties": {
+              "model": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/+-]*$"
+              },
+              "model_turns": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "input": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "cache_read": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "cache_write": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "output": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
         }
       }
     },

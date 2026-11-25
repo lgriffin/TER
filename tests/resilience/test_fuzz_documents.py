@@ -166,3 +166,100 @@ def test_a_damaged_ledger_is_read(data: st.DataObject) -> None:
         ledger.sessions()
     assert all(e.session_id == session for e in entries)
     assert sentinel in {e.id for e in entries}, "a valid line among damage is lost"
+
+
+FOCUS_PRICES = (REPO_ROOT / "tests" / "fixtures" / "focus" / "sku_price.csv").read_text(
+    encoding="utf-8"
+)
+
+
+def _read_prices(text: str) -> None:
+    from ter.adapters.driven.pricing.focus import FocusPriceError, FocusSkuPriceBook
+
+    with tempfile.TemporaryDirectory() as folder:
+        path = Path(folder) / "prices.csv"
+        path.write_text(text, encoding="utf-8")
+        try:
+            book = FocusSkuPriceBook(path)
+        except FocusPriceError:
+            event("refused")
+            return
+        event("read")
+        for model in book.models():
+            book.rate(model)
+
+
+@pytest.mark.req("TER-TST-011")
+@FUZZ
+@given(data=st.data())
+def test_a_focus_price_file_is_read_or_refused_with_a_price_error(
+    data: st.DataObject,
+) -> None:
+    lines = FOCUS_PRICES.splitlines()
+    for _ in range(data.draw(st.integers(0, 4))):
+        index = data.draw(st.integers(0, len(lines) - 1))
+        cells = lines[index].split(",")
+        cell = data.draw(st.integers(0, len(cells) - 1))
+        cells[cell] = data.draw(
+            st.one_of(
+                st.text(max_size=12),
+                st.sampled_from(["", "List", "USD", "1M Tokens", "-1", "nan", '{"a"']),
+            )
+        )
+        lines[index] = ",".join(cells)
+    _read_prices("\n".join(lines) + "\n")
+
+
+FOCUS_BILLING = (REPO_ROOT / "tests" / "fixtures" / "focus" / "billing.csv").read_text(
+    encoding="utf-8"
+)
+RECORD = (
+    REPO_ROOT / "tests" / "golden" / "snapshots" / "record" / "lean_mix.record.json"
+)
+
+
+def _join_billing(text: str) -> None:
+    from ter.adapters.driving.focus_export import FocusExportError, export_focus
+
+    with tempfile.TemporaryDirectory() as folder:
+        path = Path(folder) / "billing.csv"
+        path.write_text(text, encoding="utf-8")
+        try:
+            export = export_focus(path, [RECORD])
+        except FocusExportError:
+            event("refused")
+            return
+        event("joined" if export.rows_joined else "read")
+        assert export.rows_joined <= export.rows
+
+
+@pytest.mark.req("TER-TST-011")
+@FUZZ
+@given(data=st.data())
+def test_a_focus_billing_file_is_joined_or_refused_with_an_export_error(
+    data: st.DataObject,
+) -> None:
+    lines = FOCUS_BILLING.splitlines()
+    for _ in range(data.draw(st.integers(0, 4))):
+        index = data.draw(st.integers(0, len(lines) - 1))
+        cells = lines[index].split(",")
+        cell = data.draw(st.integers(0, len(cells) - 1))
+        cells[cell] = data.draw(
+            st.one_of(
+                st.text(max_size=12),
+                st.sampled_from(
+                    [
+                        "",
+                        "1M Tokens",
+                        "-1",
+                        "nan",
+                        "inf",
+                        '{"a"',
+                        "2026-04-01T00:00:00Z",
+                        '"',
+                    ]
+                ),
+            )
+        )
+        lines[index] = ",".join(cells)
+    _join_billing("\n".join(lines) + "\n")

@@ -52,6 +52,8 @@ class RecordCheck:
     same_session: bool
     #: Every differing figure as (path, claimed, rebuilt).
     differences: tuple[tuple[str, object, object], ...]
+    #: What the check could not compare, and why.
+    notes: tuple[str, ...] = ()
 
     @property
     def ok(self) -> bool:
@@ -71,9 +73,20 @@ def check_record(
     )
     integrity = claimed.get("integrity")
     named = integrity.get("events_digest") if isinstance(integrity, Mapping) else None
+    notes: list[str] = []
+    usage = claimed.get("usage")
+    if isinstance(usage, Mapping) and "by_model" not in usage:
+        # Exported before usage was split by model (ADR 0008): its other
+        # figures still verify; export it again to join it to billing.
+        rebuilt["usage"].pop("by_model", None)
+        notes.append(
+            "usage.by_model not compared: the record was exported before TER "
+            "split usage by model; export it again to join it to billing"
+        )
     return RecordCheck(
         same_session=named == rebuilt["integrity"]["events_digest"],
         differences=tuple(record_differences(claimed, rebuilt)),
+        notes=tuple(notes),
     )
 
 

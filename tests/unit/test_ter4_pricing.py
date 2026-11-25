@@ -251,3 +251,29 @@ class TestTer3ReadsThePriceBook:
             t.cached_write_per_mtok,
         ) == rates
         assert default_price_book().rate(tier) == Rates(*rates)
+
+
+@pytest.mark.req("TER-ANL-047")
+def test_an_entry_that_ends_leaves_its_model_unpriced_from_its_end() -> None:
+    rates = Rates(input=1.0, output=5.0, cache_read=0.1, cache_write=1.25)
+    schedule = PriceSchedule(
+        [
+            PriceEntry(
+                "m",
+                date(2026, 1, 1),
+                rates,
+                aliases=("fam",),
+                effective_to=date(2026, 3, 1),
+            )
+        ]
+    )
+    assert schedule.rate("m", date(2026, 2, 28)) == rates
+    assert schedule.rate("fam", date(2026, 2, 28)) == rates
+    for day in (date(2026, 3, 1), date(2026, 3, 2)):
+        with pytest.raises(UnknownModelError, match="its price ended on 2026-03-01"):
+            schedule.rate("m", day)
+    # With no date, the latest rates are still the latest published.
+    assert schedule.rate("m") == rates
+    # An entry with no end stays in effect.
+    open_ended = PriceSchedule([PriceEntry("m", date(2026, 1, 1), rates)])
+    assert open_ended.rate("m", date(2099, 1, 1)) == rates

@@ -70,6 +70,7 @@ BUILTIN_CAPABILITIES: dict[str, str] = {
     "InterventionLedger.jsonl": "ter.adapters.driven.intervention_ledger:JsonlInterventionLedger",
     "InterventionPolicies.json": "ter.adapters.driven.intervention_policies:JsonInterventionPolicies",
     "OutcomeSource.junit": "ter.adapters.driven.junit:JUnitOutcomeSource",
+    "PriceBook.focus-sku-price": "ter.adapters.driven.pricing.focus:FocusSkuPriceBook",
     "PriceBook.json": "ter.adapters.driven.pricing:JsonPriceBook",
     "RepositoryEvidence.git": "ter.adapters.driven.repository:GitRepositoryEvidence",
     "RepositoryEvidence.lexical": "ter.adapters.driven.repository:LexicalRepositoryEvidence",

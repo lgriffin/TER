@@ -107,7 +107,7 @@ add an exemption.
 | `Tokenizer` | driven | `RegexTokenizer` (offline, deterministic), `TiktokenTokenizer` | the regex one doubles as the fake | covered by golden and unit tests |
 | `Embedder` | driven | `HashingEmbedder` (offline, deterministic) | same | covered by golden tests |
 | `Clock` | driven | `SystemClock` | `FixedClock` | unit tests |
-| `PriceBook` | driven | `JsonPriceBook` (reads `src/ter/data/price_book.json`) | `InMemoryPriceBook` | `tests/contract/test_price_book.py` |
+| `PriceBook` | driven | `JsonPriceBook` (reads `src/ter/data/price_book.json`), `FocusSkuPriceBook` ([focus.md](../ter4/focus.md)) | `InMemoryPriceBook` | `tests/contract/test_price_book.py` |
 | `EventLog` | driven | `JsonlEventLog` | `InMemoryEventLog` | `tests/contract/test_event_log.py` |
 | `TerScorer` | driven | `Ter3Scorer` (wraps TER 3) | `FixedTerScorer` | `tests/contract/test_ter_scorer.py` |
 | `OutcomeSource` | driven | `JUnitOutcomeSource` (JUnit XML test results, [outcome.md](../ter4/outcome.md)) | `InMemoryOutcomeSource` | `tests/contract/test_outcome_source.py` |

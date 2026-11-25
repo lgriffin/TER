@@ -6,6 +6,8 @@ All notable public changes to TER are documented in this file. The project follo
 
 ### Added
 
+- FOCUS 1.5 SKU Price files as a price book (`PriceBook.focus-sku-price`, P208): `record export --prices sku_price.csv` prices a Record from a provider's List USD rows, with token labels from the row's SKU Price Details or a Cost and Usage file (`--price-details`).
+- `python -m ter record focus RECORDS... --billing cost_and_usage.csv` (P209): joins TER Records to FOCUS billing rows by model and charge period and writes the file back with `x_Ter*` efficiency columns, every FOCUS column unchanged. Records gain `usage.by_model` so the join can split tokens by the model that served them.
 - OpenTelemetry GenAI span exports as a TER session source (`SessionSource.otel-genai`, ADR 0008, P207): inference and tool spans to `ter.event`, read by pinned convention version, cached tokens taken out of the input count, unmapped spans counted against coverage. Every golden session read from its span export gives the same events as its transcript.
 - TER 4 foundation (maturity level L0): a new `ter` package laid out as a hexagon of domain, ports, application, adapters and bootstrap, with import-linter contracts enforcing inward-only dependencies.
 - Provider-neutral `ter.event/0.1` event model with stable event ids, provenance, tool kinds and coverage of unmapped records, plus a Claude Code JSONL adapter.
