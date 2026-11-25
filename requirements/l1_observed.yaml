@@ -425,6 +425,23 @@ requirements:
       they would read as excessive planning.
     status: verified
 
+  - id: TER-SRC-025
+    pattern: event-driven
+    text: >-
+      When a Claude Code tool result returns images and no text, the
+      session source shall give the tool.completed event a text naming a
+      digest of each image's bytes, equal to the digest a redacted copy
+      records.
+    level: L1
+    port: SessionSource
+    source_points: [102]
+    rationale: >-
+      An image result had empty text, so every re-read of a screenshot
+      compared equal. On the owner's sessions (25 Nov 2026) 17 of 65 image
+      re-reads were of an image redrawn in between. The digest makes a
+      redrawn image differ without keeping its pixels.
+    status: verified
+
   - id: TER-TST-008
     pattern: unwanted
     text: >-
