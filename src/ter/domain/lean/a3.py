@@ -289,6 +289,6 @@ def build_a3(
         inventory=inventory,
         cost=None
         if prices is None
-        else price_session(analysis.steps, inventory, prices),
+        else price_session(analysis.steps, inventory, prices, analysis.classifications),
     )
     return report if control is None else report.placed(control)
