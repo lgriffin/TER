@@ -29,7 +29,8 @@ from ter.domain.lean.facts import (
     scripts_run,
     shell_intent,
 )
-from ter.domain.lean.intent import distinctive
+from ter.domain.events import EventId
+from ter.domain.lean.intent import Alignment, AlignmentBand, SubjectBasis, distinctive
 from ter.domain.lean.model import ShellIntent
 
 
@@ -449,3 +450,178 @@ def test_a_compaction_summary_does_not_replace_the_intent() -> None:
     a = run(s)
     assert len(a.intent.record.revisions) == 1
     assert found(s, "intent_drift") == []
+
+
+# --- Boundaries of the announcement and name rules (TER-ITN-009) --------------
+
+
+def alignment(
+    names: tuple[str, ...] = (),
+    subject: frozenset[str] = frozenset(),
+    *,
+    extra: bool = False,
+    extra_terms: frozenset[str] = frozenset(),
+    extra_words: frozenset[str] = frozenset(),
+) -> Alignment:
+    return Alignment(
+        event_id=EventId("e"),
+        index=0,
+        revision=1,
+        score=0.0,
+        band=AlignmentBand.LOW,
+        basis=SubjectBasis.NAMES,
+        subject=subject,
+        names=names,
+        extra=extra,
+        extra_terms=extra_terms,
+        extra_words=extra_words,
+    )
+
+
+@pytest.mark.req("TER-ITN-009")
+def test_a_sentence_that_is_not_an_announcement_announces_nothing() -> None:
+    words = frozenset({"RetryPolicy"})
+    change = alignment(("RetryPolicy",))
+    assert not alignment(extra_words=words).announces(change)
+    assert alignment(extra=True, extra_words=words).announces(change)
+
+
+@pytest.mark.req("TER-ITN-009")
+@pytest.mark.parametrize(
+    ("named", "names", "expected"),
+    [
+        (("mean",), ("mean",), False),
+        (("mean", "variance"), ("mean", "variance"), True),
+        (("mean", "variance"), ("mean", "variance", "out", "rows"), True),
+        (("mean", "variance"), ("mean", "variance", "out", "rows", "fees"), False),
+        (("mean", "variance", "out"), ("mean", "variance", "out", "rows"), True),
+    ],
+)
+def test_plain_names_must_be_two_and_at_least_half(
+    named: tuple[str, ...], names: tuple[str, ...], expected: bool
+) -> None:
+    sentence = alignment(extra=True, extra_words=frozenset(named))
+    assert sentence.announces(alignment(names)) is expected
+
+
+@pytest.mark.req("TER-ITN-009")
+@pytest.mark.parametrize(
+    ("shared", "expected"),
+    [(set(), False), ({"retry"}, False), ({"retry", "backoff"}, True)],
+)
+def test_a_change_without_names_must_share_two_key_terms(
+    shared: set[str], expected: bool
+) -> None:
+    sentence = alignment(extra=True, extra_terms=frozenset(shared | {"also"}))
+    change = alignment(subject=frozenset({"retry", "backoff", "delay"}))
+    assert sentence.announces(change) is expected
+
+
+@pytest.mark.req("TER-ITN-009")
+@pytest.mark.parametrize(
+    ("name", "expected"),
+    [
+        ("a_b", False),
+        ("ab_c", True),
+        ("AB1", False),
+        ("ABCD", True),
+        ("ABC", False),
+        ("__ab_c", True),
+        ("abc_d__", True),
+        ("__dunder__", False),
+        ("x9", False),
+        ("row9", True),
+        ("rowsX", True),
+    ],
+)
+def test_distinctive_name_boundaries(name: str, expected: bool) -> None:
+    assert distinctive(name) is expected
+
+
+# --- Boundaries of giving a goal up (TER-ITN-010) -----------------------------
+
+
+@pytest.mark.req("TER-ITN-010")
+@pytest.mark.parametrize(
+    "giving_up",
+    [
+        "Forget the cache.",
+        "Scratch that, the cache.",
+        "The cache: drop it.",
+        "The cache: drop the idea.",
+        "We no longer want the cache.",
+        "Do not need to add the cache.",
+        "Do not worry about the cache.",
+        "Stop doing the cache.",
+        "Stop trying the cache.",
+    ],
+)
+def test_more_ways_of_giving_a_goal_up(giving_up: str) -> None:
+    s = Script()
+    s.prompt("Add a row cache to src/rows.py and parse CSV text into rows.")
+    s.prompt(giving_up + " Just parse CSV text into rows in src/rows.py.")
+    current = run(s).intent.record.current
+    assert current is not None and key_terms("cache") <= current.abandoned
+
+
+@pytest.mark.req("TER-ITN-010")
+@pytest.mark.parametrize(
+    "rule",
+    ["Drop me a note when done.", "Stop at the first failure.", "Don't push."],
+)
+def test_bare_rule_words_abandon_nothing(rule: str) -> None:
+    s = Script()
+    s.prompt("Add a row cache to src/rows.py and parse CSV text into rows.")
+    s.prompt(rule + " Just parse CSV text into rows in src/rows.py.")
+    current = run(s).intent.record.current
+    assert current is not None and current.abandoned == frozenset()
+
+
+# --- Boundaries of running and scratch edits (TER-DET-013, TER-DET-015) ------
+
+
+@pytest.mark.req("TER-DET-013", "TER-DET-005")
+def test_running_one_of_two_edited_scripts_leaves_the_other_unchecked() -> None:
+    s = Script()
+    s.prompt("Make both nightly scripts skip empty folders")
+    s.edit("scripts/nightly.sh")
+    s.edit("scripts/weekly.sh")
+    s.bash("bash scripts/nightly.sh --dry-run", "ok")
+    s.say("Done.")
+    [f] = found(s, "unvalidated_implementation")
+    assert "weekly" in f.subject and "nightly" not in f.subject
+
+
+@pytest.mark.req("TER-DET-013", "TER-DET-005")
+def test_a_script_named_by_a_non_shell_tool_is_not_run() -> None:
+    s = Script()
+    s.prompt("Make the nightly script skip empty folders")
+    s.edit("scripts/nightly.sh")
+    s.call("Grep", ToolKind.FS_SEARCH, {"pattern": "bash nightly.sh"}, "none")
+    s.say("Done.")
+    assert len(found(s, "unvalidated_implementation")) == 1
+
+
+@pytest.mark.req("TER-DET-015", "TER-DET-005")
+@pytest.mark.parametrize(
+    "path",
+    ["/tmp/x.py", "C:\\Temp\\x.py", "/work/SCRATCHPAD/x.py", "/var/folders/a/x.py"],
+)
+def test_scratch_folders(path: str) -> None:
+    s = Script()
+    s.prompt("Queue the overnight benchmark")
+    s.write(path, "x = 1")
+    s.say("Queued.")
+    [f] = found(s, "unvalidated_implementation")
+    assert f.confidence == 0.5
+
+
+@pytest.mark.req("TER-DET-015", "TER-DET-005")
+@pytest.mark.parametrize("path", ["src/tmpl.py", "src/temporal/x.py", "/tmpdir/x.py"])
+def test_folders_that_only_look_like_scratch(path: str) -> None:
+    s = Script()
+    s.prompt("Queue the overnight benchmark")
+    s.write(path, "x = 1")
+    s.say("Queued.")
+    [f] = found(s, "unvalidated_implementation")
+    assert f.confidence == 0.85
