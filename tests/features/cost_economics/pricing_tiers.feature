@@ -5,10 +5,10 @@ Feature: Model Pricing Tiers
 
   Scenario: Haiku pricing is correctly configured
     Given the "haiku" pricing tier
-    Then input_per_mtok is 0.80
-    And output_per_mtok is 4.00
-    And cached_read_per_mtok is 0.08
-    And cached_write_per_mtok is 1.00
+    Then input_per_mtok is 1.00
+    And output_per_mtok is 5.00
+    And cached_read_per_mtok is 0.10
+    And cached_write_per_mtok is 1.25
 
   Scenario: Sonnet pricing is correctly configured
     Given the "sonnet" pricing tier
@@ -19,10 +19,10 @@ Feature: Model Pricing Tiers
 
   Scenario: Opus pricing is correctly configured
     Given the "opus" pricing tier
-    Then input_per_mtok is 15.00
-    And output_per_mtok is 75.00
-    And cached_read_per_mtok is 1.50
-    And cached_write_per_mtok is 18.75
+    Then input_per_mtok is 5.00
+    And output_per_mtok is 25.00
+    And cached_read_per_mtok is 0.50
+    And cached_write_per_mtok is 6.25
 
   Scenario Outline: Different tiers produce different output costs
     Given a session with 5000 output tokens
@@ -31,6 +31,6 @@ Feature: Model Pricing Tiers
 
     Examples:
       | tier   | rate  |
-      | haiku  | 4.00  |
+      | haiku  | 5.00  |
       | sonnet | 15.00 |
-      | opus   | 75.00 |
+      | opus   | 25.00 |
