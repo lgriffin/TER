@@ -66,7 +66,9 @@ def add_record_parser(
     )
     sub = record.add_subparsers(dest="record_command", required=True)
     export = sub.add_parser("export", help="write a session's ter.record/0.1 object")
-    export.add_argument("path", type=Path, help="session .jsonl or GARE run")
+    export.add_argument(
+        "path", type=Path, help="session .jsonl, GARE run or OpenTelemetry span export"
+    )
     export.add_argument(
         "--out", type=Path, metavar="FILE", help="write to FILE (default: stdout)"
     )

@@ -94,7 +94,7 @@ Every driven adapter is a capability named `<Port>.<adapter>`, declared in
 
 | Port | Real adapters (capability names) | Fake | Level |
 |---|---|---|---|
-| `SessionSource` | `claude-code` (Claude Code JSONL), `gare` (GARE run export, [gare.md](gare.md)) | `InMemorySessionSource` | L0, L6 |
+| `SessionSource` | `claude-code` (Claude Code JSONL), `gare` (GARE run export, [gare.md](gare.md)), `otel-genai` (OpenTelemetry GenAI span export, [otel-genai.md](otel-genai.md)) | `InMemorySessionSource` | L0, L6 |
 | `Tokenizer` | `regex`, `tiktoken` | regex | L0 |
 | `Embedder` | `hashing` | same | L0 |
 | `PriceBook` | `json` (`ter/data/price_book.json`) | `InMemoryPriceBook` | L0 |

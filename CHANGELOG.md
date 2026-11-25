@@ -6,6 +6,7 @@ All notable public changes to TER are documented in this file. The project follo
 
 ### Added
 
+- OpenTelemetry GenAI span exports as a TER session source (`SessionSource.otel-genai`, ADR 0008, P207): inference and tool spans to `ter.event`, read by pinned convention version, cached tokens taken out of the input count, unmapped spans counted against coverage. Every golden session read from its span export gives the same events as its transcript.
 - TER 4 foundation (maturity level L0): a new `ter` package laid out as a hexagon of domain, ports, application, adapters and bootstrap, with import-linter contracts enforcing inward-only dependencies.
 - Provider-neutral `ter.event/0.1` event model with stable event ids, provenance, tool kinds and coverage of unmapped records, plus a Claude Code JSONL adapter.
 - Deterministic offline tokenizer and embedder adapters.

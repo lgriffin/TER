@@ -78,6 +78,7 @@ BUILTIN_CAPABILITIES: dict[str, str] = {
     "RoutingProfiles.json": "ter.adapters.driven.routing_profiles:JsonRoutingProfiles",
     "SessionSource.claude-code": "ter.adapters.driven.claude_code:ClaudeCodeJsonlSource",
     "SessionSource.gare": "ter.adapters.driven.gare:GareRunSource",
+    "SessionSource.otel-genai": "ter.adapters.driven.otel_genai:OtelGenAiSource",
     "TerScorer.ter3": "ter.adapters.driven.ter3:Ter3Scorer",
     "Tokenizer.regex": "ter.adapters.driven.tokenizers:RegexTokenizer",
     "Tokenizer.tiktoken": "ter.adapters.driven.tokenizers:TiktokenTokenizer",

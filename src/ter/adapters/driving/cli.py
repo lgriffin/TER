@@ -738,7 +738,9 @@ def _parser(default_log_dir: Path, out: IO[str]) -> argparse.ArgumentParser:
         "route",
         help="L3: classify each task and choose a model role for it (advisory)",
     )
-    route.add_argument("path", type=Path, help="session .jsonl or GARE run")
+    route.add_argument(
+        "path", type=Path, help="session .jsonl, GARE run or OpenTelemetry span export"
+    )
     route.add_argument(
         "--profile", help="routing profile name (default: the profiles' default)"
     )

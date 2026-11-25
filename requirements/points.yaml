@@ -3451,3 +3451,38 @@ points:
     verification:
       - 'test: tests/unit/test_ter4_shape.py'
       - 'test: tests/golden/test_lean_snapshots.py'
+
+  - id: P207
+    text: >-
+      Read any agent that emits OpenTelemetry GenAI spans as a TER session
+      source, by convention version, so efficiency is measured the same way
+      whichever harness ran the work.
+    level: L1
+    kind: capability
+    status: done
+    origin:
+      source: TER project
+      ref: "Upstream of the Bill direction document, Stage U2, 25 Nov 2026 (ADR 0008)"
+      author: Leigh Griffin
+    definition_of_done:
+      - >-
+        `python -m ter record export` and every other command read an OTLP
+        JSON span export: inference spans become model turns with their
+        usage, tool spans tool requests and completions, and every span TER
+        cannot map counts against coverage.
+      - >-
+        An export naming a convention version TER does not know is refused
+        with that version named.
+      - >-
+        Every golden session, exported as spans, gives the same events and
+        the same Record as its transcript, apart from the source name, id
+        and digests.
+    rules:
+      - TER-SRC-027
+      - TER-SRC-028
+      - TER-SRC-029
+      - TER-SRC-030
+      - TER-SRC-031
+    verification:
+      - 'test: tests/unit/test_ter4_otel_source.py'
+      - 'test: tests/contract/test_session_source.py'
