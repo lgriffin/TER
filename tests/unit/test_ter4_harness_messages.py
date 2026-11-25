@@ -12,8 +12,8 @@ import pytest
 from ter.adapters.driven.claude_code import ClaudeCodeJsonlSource
 from ter.adapters.driven.in_memory import InMemoryPriceBook
 from ter.adapters.driven.tokenizers import RegexTokenizer
-from ter.domain import PriceEntry, Rates
-from ter.domain.costing import price_session
+from ter.domain import Actor, PriceEntry, Rates
+from ter.domain.costing import _class_shares, price_session
 from ter.domain.lean.analysis import explain
 from ter.domain.lean.inventory import context_inventory
 
@@ -79,7 +79,47 @@ class TestHarnessMessages:
     def test_a_synthetic_message_carries_no_usage(self, tmp_path: Path) -> None:
         trace, cost = _cost(_session(tmp_path, "<synthetic>"))
         assert [e.usage is not None for e in trace.events] == [False, True, False]
+        assert [e.actor for e in trace.events] == [
+            Actor.USER,
+            Actor.ASSISTANT,
+            Actor.SYSTEM,
+        ]
         assert cost.unpriced_turns == 0 and cost.unpriced_models == ()
+
+    def test_harness_text_takes_no_share_of_the_turn_before_it(
+        self, tmp_path: Path
+    ) -> None:
+        path = _session(tmp_path, "<synthetic>")
+        trace = ClaudeCodeJsonlSource().read(path)
+        analysis = explain(list(trace.events), RegexTokenizer())
+        _, cost = _cost(path)
+        # The whole turn's cost follows the reply that ran it (step 1) alone.
+        expected = {
+            k: v * cost.usd
+            for k, v in _class_shares(analysis.classifications[1]).items()
+        }
+        assert dict(cost.by_activity_class) == pytest.approx(expected)
+        assert trace.events[2].actor is Actor.SYSTEM
+
+    def test_a_real_reply_merged_with_a_harness_line_keeps_its_usage(
+        self, tmp_path: Path
+    ) -> None:
+        path = _session(tmp_path, "<synthetic>")
+        lines = path.read_text(encoding="utf-8").splitlines()
+        real = json.loads(lines[1])
+        # A harness line of the same response, first in the file.
+        echo = json.loads(lines[1])
+        echo["uuid"] = "m2h"
+        echo["message"]["model"] = "<synthetic>"
+        echo["message"].pop("usage")
+        echo["message"]["content"] = [{"type": "text", "text": "Hello. (echo)"}]
+        path.write_text(
+            "\n".join([lines[0], json.dumps(echo), json.dumps(real)]) + "\n",
+            encoding="utf-8",
+        )
+        trace, cost = _cost(path)
+        assert any(e.usage is not None for e in trace.events)
+        assert cost.usd > 0 and cost.unpriced_turns == 0
 
     def test_negative_an_unknown_model_is_still_counted_unpriced(
         self, tmp_path: Path
