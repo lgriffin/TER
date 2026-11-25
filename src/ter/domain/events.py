@@ -10,8 +10,9 @@ change here.
 from __future__ import annotations
 
 import hashlib
+import re
 from collections import Counter
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import StrEnum
@@ -233,6 +234,16 @@ USAGE_LIMIT_TEXT: Mapping[str, str] = {
 }
 #: Limits that qualify token counts taken from event text, not usage figures.
 TEXT_LIMITS = frozenset({"no-response-text"})
+
+
+#: The text of a tool result that returned only images: the digests of
+#: their bytes, so equal text means the same pixels (TER-SRC-025).
+IMAGE_RESULT = re.compile(r"^\[image sha256:[0-9a-f]+(?:,[0-9a-f]+)*\]$")
+
+
+def image_result_text(digests: Iterable[str]) -> str:
+    """The text a source gives an image-only tool result."""
+    return "[image sha256:" + ",".join(digests) + "]"
 
 
 def describe_limit(limit: str) -> str:

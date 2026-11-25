@@ -8,8 +8,10 @@ an honest count of records it could not map.
 
 from __future__ import annotations
 
+import hashlib
 import json
-from dataclasses import dataclass, replace
+import re
+from dataclasses import dataclass, field, replace
 from collections.abc import Mapping
 from datetime import UTC, datetime
 from pathlib import Path
@@ -31,6 +33,7 @@ from ....domain.events import (
     TokenUsage,
     ToolCall,
     UnrecognisedRecord,
+    image_result_text,
 )
 from ...claude_code_ids import (
     TOOL_KINDS,
@@ -209,7 +212,7 @@ class ClaudeCodeJsonlSource:
                         sequence=len(events),
                         kind=kind,
                         actor=actor,
-                        text=_text(block),
+                        text=_text(block, scan.images),
                         provenance=Provenance(
                             source=source,
                             record_id=line_uuid,
@@ -296,6 +299,45 @@ class _Scan:
     metadata: tuple[MetadataRecord, ...]
     usage: _UsageMeta
     prompts: tuple[_QueuedPrompt, ...]
+    #: Digests of the images a tool result returned, by ``tool_use_id``.
+    images: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
+
+
+#: How a redacted corpus keeps a dropped image (:mod:`.redaction`).
+_DROPPED_IMAGE = re.compile(r"^\[image dropped: sha256:([0-9a-f]{12})\]$")
+
+
+def image_digest(data: str) -> str:
+    """The digest of one image's base64 data, as redaction records it, so a
+    raw transcript and its redacted copy give the same digest."""
+    dropped = _DROPPED_IMAGE.match(data)
+    if dropped:
+        return dropped.group(1)
+    return hashlib.sha256(data.encode("utf-8")).hexdigest()[:12]
+
+
+def _result_images(content: object) -> dict[str, tuple[str, ...]]:
+    """Image digests of each ``tool_result`` block in a record's content."""
+    found: dict[str, tuple[str, ...]] = {}
+    if not isinstance(content, list):
+        return found
+    for block in content:
+        if not isinstance(block, dict) or block.get("type") != "tool_result":
+            continue
+        items = block.get("content")
+        call_id = block.get("tool_use_id")
+        if not isinstance(items, list) or not isinstance(call_id, str):
+            continue
+        digests = tuple(
+            image_digest(str(item["source"].get("data", "")))
+            for item in items
+            if isinstance(item, dict)
+            and item.get("type") == "image"
+            and isinstance(item.get("source"), dict)
+        )
+        if digests:
+            found[call_id] = digests
+    return found
 
 
 def _scan(path: Path) -> _Scan:
@@ -306,6 +348,7 @@ def _scan(path: Path) -> _Scan:
     metadata: list[MetadataRecord] = []
     meta: _UsageMeta = {}
     prompts: list[_QueuedPrompt] = []
+    images: dict[str, tuple[str, ...]] = {}
     with open(path, encoding="utf-8") as handle:
         for line_number, line in enumerate(handle, 1):
             if not line.strip():
@@ -330,13 +373,14 @@ def _scan(path: Path) -> _Scan:
             message = record.get("message")
             if not isinstance(message, dict):
                 continue
+            images.update(_result_images(message.get("content")))
             usage = message.get("usage")
             model = message.get("model")
             meta[line_number] = (
                 model if isinstance(model, str) and model else None,
                 isinstance(usage, dict) and any(k in usage for k in _CACHE_KEYS),
             )
-    return _Scan(tuple(found), tuple(metadata), meta, tuple(prompts))
+    return _Scan(tuple(found), tuple(metadata), meta, tuple(prompts), images)
 
 
 def _queued_prompt(line: int, record: dict[str, object]) -> _QueuedPrompt | None:
@@ -397,10 +441,16 @@ def _classify(role: str, block_type: str) -> tuple[EventKind | None, Actor | Non
     return None, None
 
 
-def _text(block: ContentBlock) -> str:
+def _text(block: ContentBlock, images: Mapping[str, tuple[str, ...]]) -> str:
     if block.block_type == "tool_use":
         return json.dumps(block.tool_input or {}, sort_keys=True, separators=(",", ":"))
-    return block.text or ""
+    text = block.text or ""
+    digests = images.get(block.tool_use_id or "") if not text else None
+    if block.block_type == "tool_result" and digests:
+        # An image result has no text: name its bytes, so a re-read of a
+        # redrawn image differs from one of the same image (TER-SRC-025).
+        return image_result_text(digests)
+    return text
 
 
 def _tool(block: ContentBlock, requests: dict[str, ToolCall]) -> ToolCall | None:
