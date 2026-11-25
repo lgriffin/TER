@@ -410,12 +410,20 @@ def _tool(block: ContentBlock, requests: dict[str, ToolCall]) -> ToolCall | None
     return None
 
 
+#: The model Claude Code names on messages it writes itself (an interrupted
+#: request, an API error). They carry usage blocks, but no model ran.
+HARNESS_MODEL = "<synthetic>"
+
+
 def _usage(
     usage: LegacyUsage | None, meta: tuple[str | None, bool]
 ) -> TokenUsage | None:
     if usage is None:
         return None
     model, cache_reported = meta
+    if model == HARNESS_MODEL:
+        # The harness wrote this message itself: no model ran (TER-ANL-044).
+        return None
     return TokenUsage(
         input_tokens=usage.input_tokens,
         output_tokens=usage.output_tokens,

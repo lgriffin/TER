@@ -218,7 +218,11 @@ class TestJsonPriceBook:
 
 @pytest.mark.req("TER-ANL-000")
 class TestTer3ReadsThePriceBook:
-    """TER 3's hard-coded rates now come from the shipped book, unchanged."""
+    """TER 3's hard-coded rates now come from the shipped book.
+
+    Sonnet is unchanged; haiku and opus were corrected to the published list
+    prices on 25 Nov 2026 (TER 3 carried the earlier generation's rates).
+    """
 
     def test_default_cost_model_is_sonnet(self) -> None:
         assert CostModel() == CostModel(3.00, 15.00, 0.30, 3.75)
@@ -230,9 +234,9 @@ class TestTer3ReadsThePriceBook:
     @pytest.mark.parametrize(
         "tier, name, rates",
         [
-            ("haiku", "claude-haiku-4-5", (0.80, 4.00, 0.08, 1.00)),
+            ("haiku", "claude-haiku-4-5", (1.00, 5.00, 0.10, 1.25)),
             ("sonnet", "claude-sonnet-4-6", (3.00, 15.00, 0.30, 3.75)),
-            ("opus", "claude-opus-4-6", (15.00, 75.00, 1.50, 18.75)),
+            ("opus", "claude-opus-4-6", (5.00, 25.00, 0.50, 6.25)),
         ],
     )
     def test_pricing_tiers_match_ter3(
