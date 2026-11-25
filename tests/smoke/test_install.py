@@ -25,6 +25,7 @@ TER4_COMMANDS = {
     "hooks": "test_ter4_hooks.py::test_hooks_check_correlates_recordings",
     "observe": "test_ter4_hooks.py::test_observe_reads_the_live_event_log",
     "policy": "test_ter4_control_and_policy.py::test_policy_approve_shadow_effectiveness",
+    "record": "test_ter4_analysis.py::test_record_export_then_verify",
     "route": "test_ter4_analysis.py::test_route_json_names_its_format",
 }
 TER3_COMMANDS = {

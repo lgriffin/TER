@@ -9,14 +9,16 @@ from __future__ import annotations
 
 import os
 import sys
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from ..adapters.driving.cli import CliServices
 from ..adapters.driving.cli import main as cli_main
+from ..adapters.driving.record_cli import RecordServices
 from ..adapters.driven.in_memory import SystemClock
 from ..application.explain import ExplainedSession, ExplainSession
+from ..application.export_record import RecordCheck
 from ..application.route import RoutedSession, RouteSession
 from .capabilities import (
     CapabilityRegistry,
@@ -476,7 +478,47 @@ def cli_services() -> CliServices:
             make_ledger,
         )
 
+    def records() -> RecordServices:
+        from ..adapters.driven.calibration import default_calibration
+        from ..application.export_record import (
+            check_record,
+            record_of,
+            ter_mode_of,
+        )
+
+        def export(
+            path: Path, tokenizer: str, ter: str, outcome: Path | None
+        ) -> dict[str, object]:
+            explained = explain_transcript(path, tokenizer, ter, outcome)
+            return record_of(
+                explained,
+                tokenizer=tokenizer,
+                calibration=default_calibration().calibration(),
+            )
+
+        def verify(
+            record: Mapping[str, Any], path: Path, outcome: Path | None
+        ) -> RecordCheck:
+            produced = record.get("produced_by")
+            tokenizer = (
+                str(produced.get("tokenizer"))
+                if isinstance(produced, Mapping)
+                else "regex"
+            )
+            explained = explain_transcript(
+                path, tokenizer, ter_mode_of(record), outcome
+            )
+            return check_record(
+                record,
+                explained,
+                tokenizer=tokenizer,
+                calibration=default_calibration().calibration(),
+            )
+
+        return RecordServices(export, verify, tokenizers)
+
     return CliServices(
+        records=records(),
         policies=policies(),
         control=control(),
         context=context_services(session_source_for, make_tokenizer),

@@ -70,6 +70,8 @@ python -m ter policy shadow policies.json <sessions> --ledger DIR --judge j.csv 
 python -m ter hook --event-log DIR --advise policies.json [--ledger DIR] [--limits limits.json]  # L4 live advice on Stop (systemMessage only); --limits lets policies name control signals
 python -m ter policy effectiveness --ledger DIR [--json FILE]  # L4: did the advice help? flags policies to recalibrate
 ter a3 <session.jsonl> --limits limits.json --html a3.html  # A3 with the session placed against its limits
+python -m ter record export <session.jsonl> --out r.json  # content-free ter.record/0.1 (ADR 0007)
+python -m ter record verify r.json <session.jsonl>        # rebuild it from the session, list differences
 ```
 
 ## Code Style
@@ -93,6 +95,7 @@ Python 3.11+: Follow standard conventions. Dataclasses for models, enums for dom
 - Run TER 4 tools with `PYTHONPATH=src` when the venv's editable install may point at another checkout.
 - Lean model (L2): detectors are plugins in `ter.domain.lean.detectors` (register in `DEFAULT_REGISTRY`, add a countermeasure and a follow-up measure, add unit tests with positive, negative and boundary cases). Every finding cites evidence event ids and a published `confidence_rule`; below 0.70 it is uncertain: labelled, counted as waste until verified (ADR 0006), never a trigger for intervention. Thresholds are structural, never token counts; iteration that converges is never rework. See `docs/ter4/l2-explained.md` and ADR 0004.
 - Control charts (P201): XmR limits and rules in `ter.domain.lean.control`, limits files through the `ControlLimitsSource` port, page in `reports/control.py`. Only unfavourable signals on ratio or count measures fire; token totals never do. See `docs/ter4/control-charts.md`.
+- The TER Record (ADR 0007): `ter.domain.ter_record.build_record` is a pure function of the A3, the events and the judged samples (`src/ter/data/calibration.json`, `CalibrationSource` port). It never carries content: a new field is an identifier, a count or a digest, and its schema stays closed. See `docs/ter4/record.md`.
 - See `docs/ter4/architecture.md` and `docs/decisions/`.
 - Visual reports: renderers in `ter.adapters.driving.reports` (`svg.py`, `html.py`, colours only in `palette.py`) read the `ter.domain.report.SessionReport` view-model; `reports/ter3.py` (`from_ter_result`) is the only piece that reads `TERResult`. `ter_calculator.charts` delegates to these primitives. Rendered output is frozen in `tests/golden/snapshots/report/`. See `docs/ter4/reports.md`.
 
@@ -114,4 +117,4 @@ Python 3.11+: Follow standard conventions. Dataclasses for models, enums for dom
 
 `ter analyze` `ter report [--html FILE]` `ter a3` `ter explain` `ter visualize` `ter present` `ter compare` `ter list` `ter watch` `ter budget` `ter context {store|graph|optimize|delta|check}`
 
-TER 4 (`python -m ter`): `observe` `hook` `explain` `a3` `route` `context {bundle|report}` `control {measure|limits|chart}` `policy {check|approve|shadow}` `corpus`
+TER 4 (`python -m ter`): `observe` `hook` `explain` `a3` `route` `context {bundle|report}` `control {measure|limits|chart}` `policy {check|approve|shadow}` `record {export|verify}` `corpus`
