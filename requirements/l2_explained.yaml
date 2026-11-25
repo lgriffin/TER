@@ -260,6 +260,65 @@ requirements:
       Validation is valuable once per change; repeats add no information.
     status: verified
 
+  - id: TER-DET-012
+    pattern: event-driven
+    text: >-
+      When a session runs a command through a PowerShell tool, TER shall
+      classify the command as exploration, change or validation by the same
+      rules as a POSIX shell line, reading PowerShell cmdlets and their
+      aliases, script blocks, here-strings and Windows paths.
+    level: L2
+    source_points: [25, 103]
+    rationale: >-
+      On the owner's Windows PC (25 Nov 2026) 2,880 of about 8,000 shell
+      calls in 30 of 47 sessions went through Claude Code's PowerShell tool,
+      which TER mapped to no tool kind: their checks were invisible, so edits
+      validated in PowerShell were reported as unvalidated.
+    status: verified
+
+  - id: TER-DET-013
+    pattern: event-driven
+    text: >-
+      When the agent runs a script file it edited, by its name or through an
+      interpreter, TER shall count the run as a check of that edit.
+    level: L2
+    source_points: [25]
+    rationale: >-
+      Running an edited script runs the code that changed. On the owner's
+      sessions (25 Nov 2026) helper scripts written and then run were
+      reported as edits made without running the code.
+    status: verified
+
+  - id: TER-DET-014
+    pattern: unwanted
+    text: >-
+      If the last check before a response is an ad hoc run rather than a
+      named check tool, then TER shall not report its failure as a response
+      after a failing check.
+    level: L2
+    source_points: [25]
+    rationale: >-
+      An ad hoc run (python -c, python - with a heredoc, node script.js)
+      still validates the edits before it, but its failure is often a
+      probe's answer. On the owner's sessions (25 Nov 2026) 9 of 16 such
+      findings came from ad hoc runs: module probes, progress monitors and
+      one-off scripts.
+    status: verified
+
+  - id: TER-DET-015
+    pattern: event-driven
+    text: >-
+      When every edit reported without a check is to a file in a temporary
+      or scratch folder, TER shall label the unvalidated-implementation
+      finding uncertain.
+    level: L2
+    source_points: [25]
+    rationale: >-
+      The agent's helper scripts are often run later by a scheduled or
+      background job, or are not software at all; they count until verified
+      (ADR 0006) but never trigger advice.
+    status: verified
+
   - id: TER-EXP-001
     pattern: ubiquitous
     text: >-
@@ -374,14 +433,64 @@ requirements:
     text: >-
       If a user message was written by the harness (a background task's
       notification, a slash command's wrapper or output, an interruption
-      marker), then TER shall not record it as an intent revision.
+      marker, a compaction summary), then TER shall not record it as an
+      intent revision.
     level: L2
     source_points: [45, 48]
     rationale: >-
       On the owner's second judged sample (judge-l4, 12 Oct 2026) such
       messages were stored as intent revisions, and drift was then scored
       against a notification's words. They state no developer intent; the
-      intent in force stays the last one the developer wrote.
+      intent in force stays the last one the developer wrote. Compaction
+      summaries were added on 25 Nov 2026: 30 of them were read as intent
+      on the owner's sessions.
+    status: verified
+
+  - id: TER-ITN-009
+    pattern: unwanted
+    text: >-
+      If the agent's narration calls work additional, then TER shall treat a
+      change as announced extra work only when an announcing sentence names
+      it: a distinctive name the change defines, plain-word names that are
+      at least two and at least half of the names it defines, or two of its
+      key terms when it defines no names.
+    level: L2
+    source_points: [48]
+    rationale: >-
+      Reviewed on the owner's sessions (25 Nov 2026): an 'also' anywhere in
+      a long reasoning block, matched on any one shared word, made 63 edits
+      confident drift, among them a summary that 'also checked' something
+      and a greenfield build whose plain names (out, fees) every sentence
+      uses. Of the 42 reviewed (by Claude, not yet the owner's judge), none
+      was extra work.
+    status: verified
+
+  - id: TER-ITN-010
+    pattern: unwanted
+    text: >-
+      If a prompt sentence states a rule for doing the work ('don't push',
+      'stop at the first failure') rather than giving a goal up ('forget the
+      cache', 'we no longer need X'), then TER shall not record its words as
+      a dropped goal.
+    level: L2
+    source_points: [48]
+    rationale: >-
+      A bare 'don't' or 'stop' made every word of such a sentence a dropped
+      goal, so later edits sharing one were confident drift.
+    status: verified
+
+  - id: TER-ITN-011
+    pattern: unwanted
+    text: >-
+      If an edit was refused by the tool, or every file it touches is in a
+      temporary or scratch folder, then TER shall not judge it as drift.
+    level: L2
+    source_points: [48]
+    rationale: >-
+      A refused edit changed nothing. Files in the agent's scratchpad or a
+      temporary folder are helper scripts that do the requested work, not
+      changes to the software (27 of 156 drift findings on the owner's
+      sessions, 25 Nov 2026).
     status: verified
 
   - id: TER-LEN-001

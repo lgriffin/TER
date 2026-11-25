@@ -435,9 +435,11 @@ points:
       - >-
         A phase rule flags implementation that exceeds its configured length
         without a test or validation event.
-    rules: [TER-DET-005]
+    rules: [TER-DET-005, TER-DET-012, TER-DET-013, TER-DET-014, TER-DET-015]
     verification:
       - 'test: tests/unit/test_ter4_lean_detectors.py::TestUnvalidatedImplementation'
+      - 'test: tests/unit/test_ter4_lean_owner_pc_review.py::test_an_edit_checked_in_powershell_is_validated'
+      - 'test: tests/unit/test_ter4_lean_owner_pc_review.py::test_running_the_edited_script_validates_it'
 
   - id: P026
     text: >-
@@ -785,9 +787,13 @@ points:
       - >-
         Departures without a recorded intent change are labelled drift;
         departures after one are not, shown by tests.
-    rules: [TER-ITN-003, TER-ITN-006, TER-ITN-007, TER-ITN-008]
+    rules: [TER-ITN-003, TER-ITN-006, TER-ITN-007, TER-ITN-008, TER-ITN-009, TER-ITN-010, TER-ITN-011]
     verification:
       - 'test: tests/unit/test_ter4_lean_intent.py::TestIntentDrift'
+      - 'test: tests/unit/test_ter4_lean_owner_pc_review.py::test_an_also_elsewhere_in_the_block_announces_nothing'
+      - 'test: tests/unit/test_ter4_lean_owner_pc_review.py::test_a_rule_for_the_work_drops_no_goal'
+      - 'test: tests/unit/test_ter4_lean_owner_pc_review.py::test_a_scratch_file_is_not_drift'
+      - 'test: tests/unit/test_ter4_lean_owner_pc_review.py::test_a_compaction_summary_does_not_replace_the_intent'
       - 'test: tests/unit/test_ter4_lean_intent.py::TestDriftInCreatedFiles'
       - 'test: tests/unit/test_ter4_evidence_usage.py::TestExplorationDrift'
       - 'test: tests/unit/test_ter4_lean_judge_l4.py::test_an_injected_message_is_not_an_intent_revision'
@@ -1665,9 +1671,10 @@ points:
     definition_of_done:
       - The event model uses provider-neutral tool kinds.
       - A second harness adapter passes the SessionSource contract suite.
-    rules: [TER-SRC-003, TER-SRC-010, TER-SRC-011, TER-SRC-012, TER-SRC-017, TER-EVT-001]
+    rules: [TER-SRC-003, TER-SRC-010, TER-SRC-011, TER-SRC-012, TER-SRC-017, TER-EVT-001, TER-DET-012]
     verification:
       - 'test: tests/unit/test_ter4_adapters.py::TestToolMap::test_every_kind_except_other_has_a_claude_tool'
+      - 'test: tests/unit/test_ter4_lean_owner_pc_review.py::test_the_powershell_tool_is_a_shell'
       - 'test: tests/contract/test_session_source.py'
       - 'test: tests/unit/test_ter4_gare.py'
       - 'test: tests/unit/test_ter4_gare.py::test_a_real_mission_maps_its_attempts_review_and_outcome'

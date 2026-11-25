@@ -31,6 +31,7 @@ __all__ = [
     "overlap",
     "question_words",
     "runs_check",
+    "scripts_run",
     "shell_intent",
     "source_lines",
     "tool_paths",
@@ -73,6 +74,21 @@ _EXPLORE = re.compile(
     r"(?:ls|cat|head|tail|less|more|find|grep|rg|ag|tree|pwd|wc|file|stat|du"
     r"|which|type|echo|env|printenv|git\s+(?:status|log|diff|show|blame|branch|remote|ls-files|grep))(?:\s|$)"
 )
+# PowerShell, Claude Code's shell tool on Windows: cmdlets and their common
+# aliases. Cmdlet names are case-insensitive and never POSIX command names,
+# so they extend the patterns above without changing what a POSIX line means.
+_PS_CHANGE = re.compile(
+    r"(?:set-content|add-content|clear-content|out-file|new-item|ni|remove-item|ri|del|erase"
+    r"|rmdir|rd|move-item|mi|copy-item|cpi|rename-item|rni|set-itemproperty"
+    r"|expand-archive|compress-archive)(?:\s|$)",
+    re.IGNORECASE,
+)
+_PS_EXPLORE = re.compile(
+    r"(?:get-childitem|gci|dir|get-content|gc|select-string|sls|test-path|get-item|gi"
+    r"|get-itemproperty|resolve-path|get-location|gl|measure-object|get-filehash"
+    r"|write-output|write-host)(?:\s|$)",
+    re.IGNORECASE,
+)
 # Words that run the command after them: ``sudo pytest``, ``uv run pytest``.
 _PREFIXES = frozenset(
     {
@@ -102,7 +118,15 @@ _RUNNERS = frozenset(
         "bundle exec",
     }
 )
-_ASSIGNMENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
+#: ``NAME=value``, and PowerShell's ``$env:NAME=value`` / ``$name=value``.
+_ASSIGNMENT = re.compile(r"^(?:\$(?:env:)?)?[A-Za-z_][A-Za-z0-9_]*=")
+#: Commands that only move to a folder or print the time: they say nothing
+#: about what a line is for (``cd src; pytest``, ``Get-Date; Get-Content x``).
+_NEUTRAL = frozenset(
+    {"cd", "chdir", "pushd", "popd", "set-location", "sl", "get-date", "date"}
+)
+#: PowerShell script-block braces (``if ($?) { pytest }``): not commands.
+_BRACES = frozenset({"{", "}"})
 _HEREDOC = re.compile(r"<<-?\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
 _SHELL_PUNCTUATION = "();<>|&\n"
 
@@ -154,8 +178,14 @@ def normalise_command(command: str) -> str:
     return " ".join(command.split())
 
 
+#: A PowerShell here-string, ``@'`` or ``@"`` ending a line up to ``'@`` or
+#: ``"@`` starting one: data, like a heredoc body.
+_HERE_STRING = re.compile(r"@(['\"])[ \t]*\n.*?\n\1@", re.DOTALL)
+
+
 def _strip_heredocs(command: str) -> str:
-    """Drop heredoc bodies: their lines are data for a command, not commands."""
+    """Drop heredoc and here-string bodies: their lines are data, not commands."""
+    command = _HERE_STRING.sub("''", command)
     out: list[str] = []
     lines = command.split("\n")
     i = 0
@@ -174,11 +204,15 @@ def _strip_heredocs(command: str) -> str:
 #: A Windows path with a drive letter (``D:\\code\\.venv\\python.exe``):
 #: POSIX shell quoting would read its backslashes as escapes.
 _DRIVE_PATH = re.compile(r"(?<![\w])[A-Za-z]:\\[^\s'\"]*")
+#: A relative Windows path (``.\.venv\Scripts\python``, ``..\x``, ``src\a.py``):
+#: a backslash between path characters, which PowerShell never escapes with.
+_WINDOWS_SEPARATOR = re.compile(r"(?<=[\w.])\\(?=[\w.])")
 
 
 def _tokens(command: str) -> list[str]:
     """Shell words and operators; quoted text stays one word."""
     command = _DRIVE_PATH.sub(lambda m: m.group(0).replace("\\", "/"), command)
+    command = _WINDOWS_SEPARATOR.sub("/", command)
     lexer = shlex.shlex(command, posix=True, punctuation_chars=_SHELL_PUNCTUATION)
     lexer.whitespace = " \t\r"
     lexer.whitespace_split = True
@@ -215,7 +249,7 @@ def _command_heads(command: str) -> list[str]:
         segments[-1].append(token)
     heads: list[str] = []
     for words in segments:
-        while words and _ASSIGNMENT.match(words[0]):
+        while words and (_ASSIGNMENT.match(words[0]) or words[0] in _BRACES):
             words = words[1:]
         while words:
             first = words[0].rsplit("/", 1)[-1]
@@ -250,18 +284,20 @@ def shell_intent(command: str) -> ShellIntent:
     Only command words count: a test runner's name printed by ``echo`` or
     searched for by ``grep`` is an argument, not a validation run.
     """
-    heads = [h for h in _command_heads(command) if h.split(" ", 1)[0] != "cd"]
+    heads = [
+        h for h in _command_heads(command) if h.split(" ", 1)[0].lower() not in _NEUTRAL
+    ]
     if not heads:
         return ShellIntent.OTHER
     # ``python -m pip install x`` is a change, ``python -m pytest`` a check.
     unwrapped = [
         h.split(" ", 2)[2] if re.match(r"python3?\s+-m\s+\S", h) else h for h in heads
     ]
-    if any(_CHANGE.match(h) for h in unwrapped):
+    if any(_CHANGE.match(h) or _PS_CHANGE.match(h) for h in unwrapped):
         return ShellIntent.CHANGE
     if any(_VALIDATE.match(h) or _ADHOC_RUN.match(h) for h in [*heads, *unwrapped]):
         return ShellIntent.VALIDATE
-    if _EXPLORE.match(heads[0]):
+    if _EXPLORE.match(heads[0]) or _PS_EXPLORE.match(heads[0]):
         return ShellIntent.EXPLORE
     return ShellIntent.OTHER
 
@@ -281,6 +317,40 @@ def runs_check(command: str) -> bool:
         h.split(" ", 2)[2] if re.match(r"python3?\s+-m\s+\S", h) else h for h in heads
     ]
     return any(_VALIDATE.match(h) for h in [*heads, *unwrapped])
+
+
+#: A script file, by its suffix.
+_SCRIPT_FILE = re.compile(
+    r"\.(?:py|sh|bash|zsh|ps1|js|mjs|cjs|ts|rb|pl|php|bat|cmd)$", re.IGNORECASE
+)
+#: Programs that run the script file they are given.
+_INTERPRETERS = frozenset(
+    "python python3 py node deno bun bash sh zsh pwsh powershell ruby perl php"
+    " tsx ts-node cmd".split()
+)
+
+
+def scripts_run(command: str) -> frozenset[str]:
+    """Base names (lower-cased) of the script files a shell line runs.
+
+    A script runs when it is a command word (``./build.sh``, ``& .\\x.ps1``)
+    or a file given to an interpreter (``python x.py``, ``powershell -File
+    x.ps1``). A script only named, as ``cat x.sh`` or ``Get-Content x.ps1``
+    name it, does not run.
+    """
+    ran: set[str] = set()
+    for head in _command_heads(command):
+        words = head.split(" ")
+        program = words[0].lower()
+        if _SCRIPT_FILE.search(program):
+            ran.add(program)
+        elif program in _INTERPRETERS:
+            ran.update(
+                re.split(r"[/\\]", w)[-1].lower()
+                for w in words[1:]
+                if _SCRIPT_FILE.search(w)
+            )
+    return frozenset(ran)
 
 
 def validation_outcome(output: str) -> Outcome:
@@ -428,7 +498,10 @@ _INJECTED = re.compile(
     r"|system-reminder|bash-input|bash-stdout|bash-stderr)>"
     r"|\[Request interrupted by user"
     r"|Caveat: The messages below were generated by the user while running"
-    r" local commands)"
+    r" local commands"
+    # The summary Claude Code writes when it compacts a conversation: 30 of
+    # them were read as new intent on the owner's sessions (25 Nov 2026).
+    r"|This session is being continued from a previous conversation)"
 )
 
 
