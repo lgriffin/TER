@@ -16,7 +16,8 @@ from ter.adapters.driven.claude_code import ClaudeCodeJsonlSource
 from ter.adapters.driven.gare import GareRunSource
 from ter.adapters.driven.in_memory import InMemorySessionSource
 from ter.adapters.driven.otel_genai import OtelGenAiSource
-from ter.domain import Actor, EventKind, SessionFormatError
+from ter.adapters.driving.conformance import SESSION_SOURCE, Obligation, SessionSubject
+from ter.domain import SessionFormatError
 from ter.ports import SessionSource
 
 from golden.corpus import CORPUS
@@ -78,65 +79,33 @@ def source(request: pytest.FixtureRequest) -> tuple[SessionSource, list[str]]:
     return factory()
 
 
-def test_satisfies_the_port_protocol(source: tuple[SessionSource, list[str]]) -> None:
-    adapter, _ = source
-    assert isinstance(adapter, SessionSource)
-    assert adapter.format_name
+#: The requirement each kit obligation verifies, where one names it.
+_REQS = {
+    "deterministic": "TER-SRC-004",
+    "generated": "TER-ANL-001",
+    "refuses": "TER-TST-007",
+}
 
 
-@pytest.mark.req("TER-SRC-004")
-def test_reading_is_deterministic(source: tuple[SessionSource, list[str]]) -> None:
-    adapter, refs = source
-    for ref in refs:
-        assert adapter.read(ref) == adapter.read(ref)
-
-
-def test_event_ids_are_unique_and_sequences_contiguous(
-    source: tuple[SessionSource, list[str]],
+@pytest.mark.req("TER-CNF-001")
+@pytest.mark.parametrize(
+    "obligation",
+    [
+        pytest.param(
+            o, id=o.id, marks=[pytest.mark.req(_REQS[o.id])] if o.id in _REQS else []
+        )
+        for o in SESSION_SOURCE
+    ],
+)
+def test_meets_the_conformance_kit_obligation(
+    source: tuple[SessionSource, list[str]], obligation: Obligation[SessionSubject]
 ) -> None:
+    """The kit adapter authors run (``python -m ter conformance``) is this
+    suite, unchanged (ADR 0008 decision 7)."""
     adapter, refs = source
-    for ref in refs:
-        trace = adapter.read(ref)
-        ids = [e.id for e in trace.events]
-        assert len(ids) == len(set(ids)), ref
-        assert [e.sequence for e in trace.events] == list(range(len(trace.events)))
-        assert trace.source_format == adapter.format_name
-
-
-def test_events_belong_to_their_session_and_chain_in_order(
-    source: tuple[SessionSource, list[str]],
-) -> None:
-    adapter, refs = source
-    for ref in refs:
-        trace = adapter.read(ref)
-        assert trace.events, ref
-        assert {e.session_id for e in trace.events} == {trace.session_id}
-        assert trace.events[0].parent_id is None
-        for earlier, later in zip(trace.events, trace.events[1:]):
-            assert later.parent_id == earlier.id
-
-
-@pytest.mark.req("TER-ANL-001")
-def test_generated_events_exclude_user_input_and_tool_output(
-    source: tuple[SessionSource, list[str]],
-) -> None:
-    adapter, refs = source
-    for ref in refs:
-        generated = adapter.read(ref).generated()
-        assert generated
-        assert all(e.actor is Actor.ASSISTANT for e in generated)
-        assert not {e.kind for e in generated} & {
-            EventKind.PROMPT,
-            EventKind.TOOL_COMPLETED,
-        }
-
-
-def test_unknown_reference_raises_file_not_found(
-    source: tuple[SessionSource, list[str]], tmp_path: Path
-) -> None:
-    adapter, _ = source
-    with pytest.raises(FileNotFoundError):
-        adapter.read(str(tmp_path / "missing.jsonl"))
+    if obligation.id == "refuses" and isinstance(adapter, InMemorySessionSource):
+        pytest.skip("the in-memory fake reads no files")
+    obligation(SessionSubject(adapter, tuple(refs)))
 
 
 @pytest.mark.req("TER-TST-007")

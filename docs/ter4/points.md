@@ -10,7 +10,7 @@ rules that enforce it and how it is verified. Rules live in
 contributed from another source (an external capability, ADR 0005) and the
 Origin column names that source, its reference and author.
 
-**209 points** · ● done **129** · ◐ partial **47** · ○ not started **33**
+**211 points** · ● done **131** · ◐ partial **47** · ○ not started **33**
 
 `█████████████████████████▓▓▓▓▓▓▓▓▓░░░░░░`
 
@@ -20,17 +20,17 @@ Legend: `█` done · `▓` partial · `░` not started
 
 | Level | Progress | Done | Partial | Not started | Total |
 |---|---|---:|---:|---:|---:|
-| L0 Measured | `██████████████████▓▓` | 12 | 1 | 0 | 13 |
+| L0 Measured | `███████████████████▓` | 13 | 1 | 0 | 14 |
 | L1 Observed | `███████████████████▓` | 16 | 1 | 0 | 17 |
 | L2 Explained | `██████████████████▓▓` | 55 | 5 | 0 | 60 |
 | L3 Grounded | `██████████▓▓▓▓▓▓▓▓▓▓` | 25 | 23 | 0 | 48 |
-| L4 Advisory | `████████████▓▓▓▓▓░░░` | 19 | 8 | 4 | 31 |
+| L4 Advisory | `████████████▓▓▓▓▓▓░░` | 20 | 8 | 4 | 32 |
 | L5 Corrective | `█▓▓▓▓▓░░░░░░░░░░░░░░` | 1 | 5 | 15 | 21 |
 | L6 Learning | `█▓▓▓▓░░░░░░░░░░░░░░░` | 1 | 4 | 14 | 19 |
 
-Kinds: capability 145 · principle 37 · research 27
+Kinds: capability 147 · principle 37 · research 27
 
-Origins: Leigh's vision 200 · TER project 9
+Origins: Leigh's vision 200 · TER project 11
 
 Real session data: **47 points** need it (3 verified) and cannot be done on synthetic tests alone. Tracked in [#34](https://github.com/lgriffin/TER/issues/34), [#35](https://github.com/lgriffin/TER/issues/35), [#36](https://github.com/lgriffin/TER/issues/36), [#37](https://github.com/lgriffin/TER/issues/37), [#38](https://github.com/lgriffin/TER/issues/38), [#39](https://github.com/lgriffin/TER/issues/39), [#40](https://github.com/lgriffin/TER/issues/40), [#41](https://github.com/lgriffin/TER/issues/41), [#42](https://github.com/lgriffin/TER/issues/42), [#43](https://github.com/lgriffin/TER/issues/43), [#44](https://github.com/lgriffin/TER/issues/44), [#45](https://github.com/lgriffin/TER/issues/45), [#46](https://github.com/lgriffin/TER/issues/46), [#55](https://github.com/lgriffin/TER/issues/55).
 
@@ -49,7 +49,7 @@ P121 ● ● ● ● ◐ ○ ○ ○ ○ ◐ ○ ○ ○ ○ ○ ○ ○ ◐ ●
 P141 ● ● ● ● ● ◐ ◐ ● ◐ ◐ ● ● ◐ ● ◐ ◐ ● ● ● ●
 P161 ● ● ● ● ● ● ◐ ◐ ◐ ◐ ● ● ● ● ● ● ● ● ◐ ◐
 P181 ◐ ◐ ○ ○ ◐ ○ ○ ○ ○ ○ ○ ○ ○ ○ ● ● ● ◐ ○ ○
-P201 ◐ ● ● ● ● ● ● ● ●
+P201 ◐ ● ● ● ● ● ● ● ● ● ●
 ```
 
 ## Points
@@ -98,7 +98,7 @@ P201 ◐ ● ● ● ● ● ● ● ●
 | P040 | Make every waste classification traceable to observable evidence. | vision | L2 | ● done |  | • Every waste finding cites at least one event id.<br>• A lint or test fails for any detector that emits a finding without evidence. | `TER-ANL-020` ✓<br>`TER-DET-001` ✓ | test: tests/unit/test_ter4_lean_properties.py::test_findings_are_traceable_and_bounded |
 | P041 | Retain TER's span-level provenance and stable identities as core architectural primitives. | vision | L0 | ● done |  | • Event ids are content-derived and stable across runs and versions. | `TER-SRC-004` ✓ | test: tests/unit/test_ter4_domain.py::TestEventIds::test_ids_are_frozen_across_versions |
 | P042 | Preserve deterministic reconstruction of Claude Code JSONL sessions. | vision | L0 | ● done |  | • The same JSONL yields an identical event stream, frozen by a golden snapshot. | `TER-SRC-004` ✓<br>`TER-SRC-002` ✓ | test: tests/golden/test_event_stream_snapshot.py |
-| P043 | Continue scoring assistant activity separately from user input. | vision | L0 | ● done |  | • User-authored tokens never enter the scored total, on the golden corpus and the port contract. | `TER-ANL-001` ✓ | test: tests/contract/test_session_source.py::test_generated_events_exclude_user_input_and_tool_output |
+| P043 | Continue scoring assistant activity separately from user input. | vision | L0 | ● done |  | • User-authored tokens never enter the scored total, on the golden corpus and the port contract. | `TER-ANL-001` ✓ | test: tests/contract/test_session_source.py::test_meets_the_conformance_kit_obligation |
 | P044 | Use user input as evidence for intent without incorrectly counting it as generated work. | vision | L0 | ● done |  | • User prompts become intent.stated events with the user as actor, and are not scored. | `TER-ANL-001` ✓<br>`TER-SRC-007` ✓ | test: tests/unit/test_ter4_adapters.py::TestClaudeCodeJsonlSource::test_user_prompts_are_intent_not_generated_work |
 | P045 | Construct a persistent representation of developer intent. | vision | L2 | ● done |  | • Each session has one intent record in ter.domain, persisted with the session state. | `TER-ITN-001` ✓<br>`TER-ITN-008` ✓ | test: tests/unit/test_ter4_lean_intent.py::test_every_prompt_updates_the_one_intent_record<br>test: tests/unit/test_ter4_lean_judge_l4.py::test_an_injected_message_is_not_an_intent_revision<br>test: tests/unit/test_ter4_lean_intent.py::test_the_intent_record_is_kept_with_the_session_state_and_redelivery_is_idempotent |
 | P046 | Allow intent to evolve during a session. | vision | L2 | ● done |  | • Every intent.stated event updates the intent record, keeping its history. | `TER-ITN-001` ✓ | test: tests/unit/test_ter4_lean_intent.py::test_every_prompt_updates_the_one_intent_record |
@@ -265,3 +265,5 @@ P201 ◐ ● ● ● ● ● ● ● ●
 | P207 | Read any agent that emits OpenTelemetry GenAI spans as a TER session source, by… | **TER project** Upstream of the Bill direction document, Stage U2, 25 Nov 2026 (ADR 0008) (Leigh Griffin) | L1 | ● done |  | • `python -m ter record export` and every other command read an OTLP JSON span export: inference spans become model turns with their usage, tool spans tool requests and completions, and every span TER cannot map counts against coverage.<br>• An export naming a convention version TER does not know is refused with that version named.<br>• Every golden session, exported as spans, gives the same events and the same Record as its transcript, apart from the source name, id and digests. | `TER-SRC-027` ✓<br>`TER-SRC-028` ✓<br>`TER-SRC-029` ✓<br>`TER-SRC-030` ✓<br>`TER-SRC-031` ✓ | test: tests/unit/test_ter4_otel_source.py<br>test: tests/contract/test_session_source.py |
 | P208 | Price sessions from a provider's own published rates in a FOCUS SKU Price file, so the… | **TER project** Upstream of the Bill direction document, Stage U2, 25 Nov 2026 (ADR 0008) (Leigh Griffin) | L2 | ● done |  | • `python -m ter record export --prices FILE.csv` prices a session from a FOCUS 1.5 SKU Price file, reading the public USD list token prices by their token direction and cache action, and `record verify` with the same file rebuilds the Record exactly.<br>• A file missing a 1.5 column is refused naming it, and a model missing a rate on a date is left unpriced on that date. | `TER-ANL-045` ✓<br>`TER-ANL-046` ✓<br>`TER-ANL-047` ✓ | test: tests/unit/test_ter4_focus_price_book.py<br>test: tests/contract/test_price_book.py |
 | P209 | Join TER Records to FOCUS billing rows by model and charge period, so a FinOps team… | **TER project** Upstream of the Bill direction document, Stage U2, 25 Nov 2026 (ADR 0008) (Leigh Griffin) | L2 | ● done |  | • `python -m ter record focus RECORD... --billing FILE.csv` writes the FOCUS Cost and Usage file back with x_ efficiency columns only, every billing value unchanged.<br>• Each Record joins the rows of its models and charge period, giving its tokens of the row's kind as its share; rows differing only by principal share a Record by their tokens; Records that join nothing are counted with their reason. | `TER-EXP-011` ✓<br>`TER-EXP-012` ✓<br>`TER-EXP-013` ✓ | test: tests/unit/test_ter4_focus_export.py |
+| P210 | Serve TER's analysis of ended sessions to any MCP client, so an agent harness or IDE can… | **TER project** Upstream of the Bill direction document, Stage U3, 25 Nov 2026 (ADR 0008) (Leigh Griffin) | L4 | ● done |  | • `python -m ter mcp --root DIR` speaks MCP over stdio by pinned protocol version and offers read-only tools listing ended sessions and returning their findings, A3 and TER Record, the documents the matching commands write.<br>• A session changed within the quiet period, or a path outside the roots, is refused with a tool error; a malformed message gets a JSON-RPC error and the server keeps serving. | `TER-INT-022` ✓<br>`TER-INT-023` ✓<br>`TER-INT-024` ✓<br>`TER-INT-025` ✓<br>`TER-INT-026` ✓ | test: tests/unit/test_ter4_mcp_server.py<br>test: tests/smoke/test_ter4_analysis.py |
+| P211 | Give adapter authors a conformance kit, so a harness or price source outside TER can… | **TER project** Upstream of the Bill direction document, Stage U3, 25 Nov 2026 (ADR 0008) (Leigh Griffin) | L0 | ● done |  | • `python -m ter conformance SessionSource\|PriceBook --adapter SPEC` loads an entry point or capability name and checks it against the same obligations TER's contract suites run on its own adapters, naming each one that fails.<br>• TER's contract suites for those ports run the kit's obligations, so the kit and the suites are one list. | `TER-CNF-001` ✓<br>`TER-CNF-002` ✓<br>`TER-CNF-003` ✓<br>`TER-CNF-004` ✓ | test: tests/unit/test_ter4_conformance.py<br>test: tests/contract/test_session_source.py<br>test: tests/contract/test_price_book.py |

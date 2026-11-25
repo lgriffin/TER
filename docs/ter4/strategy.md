@@ -47,14 +47,14 @@ owner's own ledger shows them (issue #43). Counts from `requirements/l*.yaml` on
 
 | Level | Requirements verified | Planned | Vision points done / partial / not started |
 |---|---:|---:|---:|
-| L0 Measured | 45 of 45 | 0 | 12 / 1 / 0 |
-| L1 Observed | 32 of 32 | 0 | 16 / 1 / 0 |
-| L2 Explained | 96 of 96 | 0 | 55 / 5 / 0 |
+| L0 Measured | 49 of 49 | 0 | 13 / 1 / 0 |
+| L1 Observed | 33 of 33 | 0 | 16 / 1 / 0 |
+| L2 Explained | 97 of 97 | 0 | 55 / 5 / 0 |
 | L3 Grounded | 35 of 35 | 0 | 25 / 23 / 0 |
-| L4 Advisory | 17 of 17 | 0 | 19 / 8 / 4 |
+| L4 Advisory | 22 of 22 | 0 | 20 / 8 / 4 |
 | L5 Corrective | 0 of 12 | 12 | 1 / 5 / 15 |
 | L6 Learning | 11 of 19 | 8 | 1 / 4 / 14 |
-| **All** | **236 of 256** | **20** | **129 / 47 / 33** of 209 |
+| **All** | **247 of 267** | **20** | **131 / 47 / 33** of 211 |
 
 L2 includes the TER Record (TER-REC-001 to TER-REC-006), cost by activity
 class (TER-ANL-042, TER-ANL-043) and the observed shape (TER-SHP-001,

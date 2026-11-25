@@ -86,8 +86,9 @@ change.
   with each stage's change, verified by the tests in that change, so levels
   L0 to L4 stay met.
 - `docs/ter4/otel-genai.md` documents the span mapping and
-  `docs/ter4/focus.md` the FOCUS price book; the MCP and conformance pages
-  follow their stages.
+  `docs/ter4/focus.md` the FOCUS price book and billing join,
+  `docs/ter4/mcp.md` the MCP server and `docs/ter4/conformance.md` the
+  conformance kit.
 - What not to claim: that TER reads every OpenTelemetry export (it reads the
   versions it lists), that the FOCUS columns are final (the SKU Price
   dataset is a preview), or that the span reader has met a real agent's

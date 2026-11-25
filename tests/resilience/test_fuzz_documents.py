@@ -263,3 +263,54 @@ def test_a_focus_billing_file_is_joined_or_refused_with_an_export_error(
         )
         lines[index] = ",".join(cells)
     _join_billing("\n".join(lines) + "\n")
+
+
+def _mcp_server(root: Path) -> Any:
+    from ter.adapters.driving.mcp_server import McpServer, McpServices
+
+    def tool(path: Path) -> dict[str, Any]:
+        return {"session": path.name}
+
+    return McpServer(McpServices(tool, tool, tool), [root], quiet_seconds=0)
+
+
+MCP_MESSAGES = [
+    {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "initialize",
+        "params": {"protocolVersion": "2025-06-18"},
+    },
+    {"jsonrpc": "2.0", "method": "notifications/initialized"},
+    {"jsonrpc": "2.0", "id": 2, "method": "tools/list"},
+    {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "method": "tools/call",
+        "params": {"name": "session_record", "arguments": {"path": "s.jsonl"}},
+    },
+]
+
+
+@pytest.mark.req("TER-INT-026")
+@FUZZ
+@given(
+    message=st.one_of(*(mutated(m, max_mutations=3) for m in MCP_MESSAGES), json_values)
+)
+def test_an_mcp_message_is_answered_or_refused_with_a_json_rpc_error(
+    message: Any,
+) -> None:
+    with tempfile.TemporaryDirectory() as folder:
+        (Path(folder) / "s.jsonl").write_text("{}\n", encoding="utf-8")
+        response = _mcp_server(Path(folder)).handle(message)
+    if response is None:
+        event("no answer")
+        return
+    assert response["jsonrpc"] == "2.0"
+    assert ("result" in response) != ("error" in response)
+    if "error" in response:
+        event(f"error {response['error']['code']}")
+        assert response["error"]["code"] != -32603, response
+    else:
+        event("answered")
+    json.dumps(response)

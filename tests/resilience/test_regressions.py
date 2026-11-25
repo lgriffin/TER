@@ -202,3 +202,34 @@ def test_a_gare_list_of_the_wrong_type_is_read_around(
     usage = (GARE_RUN / "gare-ter-usage.jsonl").read_text(encoding="utf-8")
     (tmp_path / "gare-ter-usage.jsonl").write_text(usage, encoding="utf-8")
     assert GareRunSource().read(tmp_path).events
+
+
+@pytest.mark.req("TER-TST-007")
+def test_a_gare_usage_file_that_is_not_utf8_is_a_format_error(tmp_path: Path) -> None:
+    """Found by the conformance kit: a .jsonl file of bytes that are not UTF-8
+    raised UnicodeDecodeError instead of SessionFormatError."""
+    from ter.domain import SessionFormatError
+
+    path = tmp_path / "not-utf8.jsonl"
+    path.write_bytes(b"\xff\xfe\x00\x00{}\n")
+    with pytest.raises(SessionFormatError, match="is not UTF-8"):
+        GareRunSource().read(path)
+
+
+@pytest.mark.req("TER-TST-009")
+def test_a_gare_usage_row_holding_a_line_separator_is_one_row(tmp_path: Path) -> None:
+    """Rows split at newlines only: U+2028 inside a JSON string is data."""
+    rows = (GARE_RUN / "gare-ter-usage.jsonl").read_text(encoding="utf-8")
+    first, rest = rows.split("\n", 1)
+    path = tmp_path / "gare-ter-usage.jsonl"
+
+    def read(note: str) -> Any:
+        row = json.loads(first)
+        row["note"] = note
+        text = json.dumps(row, ensure_ascii=False) + "\n" + rest
+        path.write_text(text, encoding="utf-8")
+        return GareRunSource().read(path)
+
+    plain = read("ab")
+    assert plain.coverage == read("a\u2028b").coverage
+    assert len(plain.events) == len(read("a\u2028b").events)

@@ -216,3 +216,66 @@ requirements:
       Tunable control limits become firing rules at L4 without a second
       signal format.
     status: verified
+
+  - id: TER-INT-022
+    pattern: state-driven
+    text: >-
+      While the maturity ceiling is below L5 Corrective, the MCP server shall
+      refuse every tool call for a session whose file changed within its
+      quiet period.
+    level: L4
+    source_points: [210]
+    rationale: >-
+      An agent that asks TER about its own running session would take TER's
+      analysis as input, which TER-INT-002 forbids below L5 (ADR 0008
+      decision 6).
+    status: verified
+
+  - id: TER-INT-023
+    pattern: event-driven
+    text: >-
+      When an MCP client names a path outside the server's roots, the MCP
+      server shall refuse the call without reading the path.
+    level: L4
+    source_points: [210]
+    rationale: >-
+      The person who starts the server chooses which sessions a client may
+      read; a client cannot widen that to any file the user can read.
+    status: verified
+
+  - id: TER-INT-024
+    pattern: ubiquitous
+    text: >-
+      The MCP server shall offer only tools that read sessions and change no
+      file.
+    level: L4
+    source_points: [210]
+    rationale: >-
+      The server is a reading surface over the existing use cases; every
+      tool is annotated read-only, idempotent and closed-world.
+    status: verified
+
+  - id: TER-INT-025
+    pattern: event-driven
+    text: >-
+      When an MCP client asks for a protocol version the server does not
+      list, the MCP server shall answer with the newest version it lists.
+    level: L4
+    source_points: [210]
+    rationale: >-
+      The protocol is spoken by pinned version, never by guess (ADR 0008
+      decision 1); the client then decides whether to carry on.
+    status: verified
+
+  - id: TER-INT-026
+    pattern: unwanted
+    text: >-
+      If an MCP message is not a valid JSON-RPC 2.0 request or notification,
+      then the MCP server shall answer with a JSON-RPC error and keep
+      serving.
+    level: L4
+    source_points: [210]
+    rationale: >-
+      One bad line from a client must not end the server or reach the client
+      as a stack trace.
+    status: verified

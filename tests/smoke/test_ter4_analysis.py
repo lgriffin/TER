@@ -109,6 +109,96 @@ def test_record_from_spans_priced_by_focus_and_joined_to_billing(
     assert header.endswith("x_TerVerifiedOutcomes")
 
 
+@pytest.mark.req("TER-INT-024")
+def test_mcp_server_answers_a_client_over_stdio(cli: Cli, workdir: Path) -> None:
+    session = workdir / "ended.jsonl"
+    session.write_bytes(FIXTURE.read_bytes())
+    (workdir / "live.jsonl").write_bytes(FIXTURE.read_bytes())
+    messages = [
+        {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "initialize",
+            "params": {"protocolVersion": "2025-06-18", "capabilities": {}},
+        },
+        {"jsonrpc": "2.0", "method": "notifications/initialized"},
+        {"jsonrpc": "2.0", "id": 2, "method": "tools/list"},
+        {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "method": "tools/call",
+            "params": {"name": "session_record", "arguments": {"path": "ended.jsonl"}},
+        },
+    ]
+    stdin = "".join(json.dumps(m) + "\n" for m in messages)
+    # Quiet period 0: every file counts as ended.
+    result = cli.ter4(
+        "mcp", "--root", str(workdir), "--quiet-seconds", "0", stdin=stdin
+    ).ok()
+    answers = [json.loads(line) for line in result.out.splitlines()]
+    assert [a["id"] for a in answers] == [1, 2, 3]
+    assert answers[0]["result"]["protocolVersion"] == "2025-06-18"
+    assert len(answers[1]["result"]["tools"]) == 4
+    record = answers[2]["result"]["structuredContent"]
+    assert record["schema"] == "ter.record/0.1"
+    # The default quiet period refuses a session written a moment ago.
+    live = cli.ter4(
+        "mcp",
+        "--root",
+        str(workdir),
+        stdin=json.dumps(
+            {
+                "jsonrpc": "2.0",
+                "id": 4,
+                "method": "tools/call",
+                "params": {
+                    "name": "explain_session",
+                    "arguments": {"path": "live.jsonl"},
+                },
+            }
+        )
+        + "\n",
+    ).ok()
+    refused = json.loads(live.out)["result"]
+    assert refused["isError"] is True
+    assert "may still be running" in refused["content"][0]["text"]
+
+
+@pytest.mark.req("TER-CNF-001")
+def test_conformance_kit_checks_an_adapter_by_entry_point(cli: Cli) -> None:
+    fixtures = FIXTURE.parent
+    passed = cli.ter4(
+        "conformance",
+        "SessionSource",
+        "--adapter",
+        "ter.adapters.driven.otel_genai:OtelGenAiSource",
+        "--sample",
+        str(fixtures / "otel" / "lean_mix.json"),
+    ).ok()
+    assert passed.out.endswith("7 of 7 obligations met\n")
+    priced = cli.ter4(
+        "conformance",
+        "PriceBook",
+        "--adapter",
+        "focus-sku-price",
+        "--arg",
+        str(fixtures / "focus" / "sku_price.csv"),
+    ).ok()
+    assert priced.out.endswith("6 of 6 obligations met\n")
+    # A session source given a price file to read meets none of its reading
+    # obligations: exit 1, each named.
+    wrong = cli.ter4(
+        "conformance",
+        "SessionSource",
+        "--adapter",
+        "otel-genai",
+        "--sample",
+        str(fixtures / "focus" / "sku_price.csv"),
+    )
+    assert wrong.code == 1
+    assert "  FAIL  deterministic" in wrong.out
+
+
 # --- failures are reported, never a traceback (TER-TST-007) ---------------
 
 
