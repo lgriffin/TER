@@ -317,17 +317,20 @@ def test_every_known_version_is_read(tmp_path: Path, version: str) -> None:
 
 
 @pytest.mark.req("TER-SRC-028")
-def test_the_resource_schema_url_names_the_version_when_the_scope_does_not(
-    tmp_path: Path,
+@pytest.mark.parametrize("resource", ["1.20.0", "1.45.0"])
+def test_a_resource_schema_url_does_not_version_the_spans(
+    tmp_path: Path, resource: str
 ) -> None:
+    """A resource's schemaUrl versions its resource attributes only; spans
+    take their version from their scope (Qodo #114 finding 7)."""
     path = _export(tmp_path, [_chat("s1", 1)], url=None)
     document = json.loads(path.read_text(encoding="utf-8"))
     document["resourceSpans"][0]["schemaUrl"] = (
-        "https://opentelemetry.io/schemas/1.20.0"
+        f"https://opentelemetry.io/schemas/{resource}"
     )
     path.write_text(json.dumps(document), encoding="utf-8")
-    with pytest.raises(SessionFormatError, match=r"1\.20\.0"):
-        SOURCE.read(path)
+    trace = SOURCE.read(path)
+    assert CONVENTION_UNSTATED in trace.usage_limits
 
 
 @pytest.mark.req("TER-SRC-028")
@@ -449,3 +452,235 @@ def test_the_committed_fixtures_are_what_the_exporter_writes() -> None:
         (FIXTURES / "lean_mix.no-content.json").read_text(encoding="utf-8")
     )
     assert written == otlp_export(lean, content=False)
+
+
+# -- review findings (Qodo, PR #114) -------------------------------------------------
+
+
+def _prompt(text: str) -> str:
+    return json.dumps([{"role": "user", "parts": [{"type": "text", "content": text}]}])
+
+
+@pytest.mark.req("TER-SRC-030")
+def test_a_trace_without_captured_input_keeps_its_own_intent(tmp_path: Path) -> None:
+    """Finding 1: capture is judged per trace, so a partly captured
+    conversation loses no intent and says where intents came from traces."""
+    other = "1" * 32
+    path = _export(
+        tmp_path,
+        [
+            _chat("s1", 1, gen_ai__input__messages=_prompt("first")),
+            _span("s2", "chat", 5, trace=other, gen_ai__conversation__id="conv-1"),
+        ],
+    )
+    trace = SOURCE.read(path)
+    prompts = [e for e in trace.events if e.kind is EventKind.PROMPT]
+    assert [p.text for p in prompts] == ["first", ""]
+    assert INTENTS_FROM_TRACES in trace.usage_limits
+    whole = SOURCE.read(
+        _export(tmp_path, [_chat("s1", 1, gen_ai__input__messages=_prompt("x"))])
+    )
+    assert INTENTS_FROM_TRACES not in whole.usage_limits
+
+
+@pytest.mark.req("TER-SRC-029")
+def test_a_trace_naming_no_conversation_beside_one_that_does_is_refused(
+    tmp_path: Path,
+) -> None:
+    """Finding 2: an unrelated trace is not folded into the named session."""
+    stray = _span("s9", "chat", 3, trace="2" * 32)
+    path = _export(tmp_path, [_chat("s1", 1), stray])
+    with pytest.raises(SessionFormatError, match="1 trace.*name no conversation"):
+        SOURCE.read(path)
+    # A tool span of a named trace that does not repeat the id is fine.
+    tool = _span("s2", "execute_tool", 2, gen_ai__tool__name="Read")
+    assert SOURCE.read(_export(tmp_path, [_chat("s1", 1), tool])).session_id == "conv-1"
+
+
+@pytest.mark.req("TER-SRC-027")
+def test_a_call_id_reused_in_another_trace_keeps_its_own_request(
+    tmp_path: Path,
+) -> None:
+    """Finding 3: a call named by one trace's inference does not hide the
+    request of another trace's tool span with the same id."""
+    calls = json.dumps(
+        [
+            {
+                "role": "assistant",
+                "parts": [{"type": "tool_call", "id": "c1", "name": "Read"}],
+            }
+        ]
+    )
+    other = "3" * 32
+    spans = [
+        _chat("s1", 1, gen_ai__output__messages=calls),
+        _span(
+            "s2",
+            "execute_tool",
+            2,
+            gen_ai__tool__name="Read",
+            gen_ai__tool__call__id="c1",
+        ),
+        _chat("s3", 3, trace=other),
+        _span(
+            "s4",
+            "execute_tool",
+            4,
+            trace=other,
+            gen_ai__tool__name="Read",
+            gen_ai__tool__call__id="c1",
+            gen_ai__conversation__id="conv-1",
+        ),
+    ]
+    trace = SOURCE.read(_export(tmp_path, spans))
+    requests = [e for e in trace.events if e.kind is EventKind.TOOL_REQUESTED]
+    assert len(requests) == 2  # one from trace 1's output, one from trace 2's span
+
+
+@pytest.mark.req("TER-SRC-027")
+def test_a_span_id_reused_in_another_trace_is_not_its_parent(tmp_path: Path) -> None:
+    """Finding 4: parents are looked up within the span's own trace."""
+    other = "4" * 32
+    spans = [
+        _span("a1", "invoke_agent", 1, gen_ai__conversation__id="conv-1"),
+        _chat("s1", 2, parent="a1"),
+        _span("p1", "chat", 3, trace=other, gen_ai__conversation__id="conv-1"),
+        # Its parent id "a1" names an agent span only in trace 1, so within
+        # its own trace it has no parent: not a nested agent.
+        _span("x1", "invoke_agent", 4, trace=other, parent="a1"),
+    ]
+    trace = SOURCE.read(_export(tmp_path, spans))
+    assert not [e for e in trace.events if e.kind is EventKind.SUBAGENT_COMPLETED]
+
+
+@pytest.mark.req("TER-SRC-027")
+def test_only_an_export_whose_top_level_key_is_resource_spans_is_accepted(
+    tmp_path: Path,
+) -> None:
+    """Finding 5: a transcript that mentions resourceSpans is not an export."""
+    transcript = tmp_path / "t.jsonl"
+    transcript.write_text(
+        json.dumps({"type": "user", "message": {"content": '{"resourceSpans": []}'}})
+        + "\n",
+        encoding="utf-8",
+    )
+    assert not OtelGenAiSource.accepts(transcript)
+    export = _export(tmp_path, [_chat("s1", 1)])
+    assert OtelGenAiSource.accepts(export)
+    spaced = tmp_path / "spaced.json"
+    spaced.write_text('\ufeff \n { "resourceSpans" : []}', encoding="utf-8")
+    assert OtelGenAiSource.accepts(spaced)
+
+
+@pytest.mark.req("TER-SRC-029")
+def test_identifiers_from_the_file_cannot_drive_the_terminal(tmp_path: Path) -> None:
+    """Finding 6: control characters in a conversation id or version are
+    escaped before they reach a report or an error."""
+    path = _export(tmp_path, [_chat("s1", 1, gen_ai__conversation__id="c\x1b[2Jx")])
+    trace = SOURCE.read(path)
+    assert trace.session_id == "c\\x1b[2Jx"
+    assert all(e.session_id == trace.session_id for e in trace.events)
+    path = _export(tmp_path, [_chat("s1", 1)], url=None)
+    document = json.loads(path.read_text(encoding="utf-8"))
+    document["resourceSpans"][0]["scopeSpans"][0]["schemaUrl"] = "x\x07y"
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(SessionFormatError) as refused:
+        SOURCE.read(path)
+    assert "\x07" not in str(refused.value) and "x\\x07y" in str(refused.value)
+
+
+# -- second review (#117) ------------------------------------------------------
+
+
+@pytest.mark.req("TER-SRC-029")
+def test_an_escaped_id_and_its_literal_spelling_stay_different_sessions(
+    tmp_path: Path,
+) -> None:
+    """A control character and the text of its escape never share a session."""
+    raw = SOURCE.read(
+        _export(tmp_path, [_chat("s1", 1, gen_ai__conversation__id="a\nb")])
+    )
+    literal = SOURCE.read(
+        _export(tmp_path, [_chat("s1", 1, gen_ai__conversation__id="a\\nb")])
+    )
+    assert raw.session_id != literal.session_id
+    assert "\n" not in raw.session_id
+
+
+@pytest.mark.req("TER-SRC-029")
+def test_a_trace_whose_conversation_id_is_not_text_is_a_stray_trace(
+    tmp_path: Path,
+) -> None:
+    """Only a non-empty string names a conversation, for every trace alike."""
+    odd = _span("s9", "chat", 3, trace="5" * 32, gen_ai__conversation__id=42)
+    with pytest.raises(SessionFormatError, match="name no conversation"):
+        SOURCE.read(_export(tmp_path, [_chat("s1", 1), odd]))
+
+
+@pytest.mark.req("TER-SRC-029")
+def test_an_agent_start_up_trace_beside_a_conversation_is_read(tmp_path: Path) -> None:
+    """A create_agent trace comes before any conversation and yields no events."""
+    start_up = _span("c1", "create_agent", 0, trace="6" * 32)
+    trace = SOURCE.read(_export(tmp_path, [start_up, _chat("s1", 1)]))
+    assert trace.session_id == "conv-1"
+    assert trace.metadata
+
+
+@pytest.mark.req("TER-SRC-027")
+def test_an_export_with_another_top_level_key_first_is_still_accepted(
+    tmp_path: Path,
+) -> None:
+    """resourceSpans need not be the first key, only a key of the top object."""
+    first = tmp_path / "first.json"
+    first.write_text(
+        json.dumps({"exportedBy": {"resourceSpans": 1}, "resourceSpans": []}),
+        encoding="utf-8",
+    )
+    assert OtelGenAiSource.accepts(first)
+    nested = tmp_path / "nested.json"
+    nested.write_text(json.dumps({"data": {"resourceSpans": []}}), encoding="utf-8")
+    assert not OtelGenAiSource.accepts(nested)
+    quoted = tmp_path / "quoted.json"
+    quoted.write_text(json.dumps({"note": 'say "resourceSpans"'}), encoding="utf-8")
+    assert not OtelGenAiSource.accepts(quoted)
+    listed = tmp_path / "listed.json"
+    listed.write_text(json.dumps(["resourceSpans"]), encoding="utf-8")
+    assert not OtelGenAiSource.accepts(listed)
+
+
+@pytest.mark.req("TER-SRC-030")
+def test_the_trace_intent_limit_reads_true_when_some_prompts_were_captured(
+    tmp_path: Path,
+) -> None:
+    """The limit text does not claim that no prompt text was captured."""
+    other = "7" * 32
+    path = _export(
+        tmp_path,
+        [
+            _chat("s1", 1, gen_ai__input__messages=_prompt("first")),
+            _span("s2", "chat", 5, trace=other, gen_ai__conversation__id="conv-1"),
+        ],
+    )
+    assert INTENTS_FROM_TRACES in SOURCE.read(path).usage_limits
+    assert "some or all traces" in describe_limit(INTENTS_FROM_TRACES)
+
+
+@pytest.mark.req("TER-SRC-030")
+def test_a_trace_without_captured_output_carries_the_response_text_limit(
+    tmp_path: Path,
+) -> None:
+    """Output capture is judged per trace, like input capture."""
+    said = json.dumps(
+        [{"role": "assistant", "parts": [{"type": "text", "content": "ok"}]}]
+    )
+    other = "8" * 32
+    partly = _export(
+        tmp_path,
+        [
+            _chat("s1", 1, gen_ai__output__messages=said),
+            _span("s2", "chat", 5, trace=other, gen_ai__conversation__id="conv-1"),
+        ],
+    )
+    assert NO_RESPONSE_TEXT in SOURCE.read(partly).usage_limits
+    whole = _export(tmp_path, [_chat("s1", 1, gen_ai__output__messages=said)])
+    assert NO_RESPONSE_TEXT not in SOURCE.read(whole).usage_limits

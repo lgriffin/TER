@@ -34,7 +34,8 @@ change.
    (ADR 0005).
 2. **OpenTelemetry spans are read by convention version** (TER-SRC-027 to
    TER-SRC-031). A span names its version through the `schemaUrl` of its
-   scope or resource. The adapter reads the versions it lists and refuses
+   instrumentation scope (a resource's `schemaUrl` versions the resource,
+   not the spans). The adapter reads the versions it lists and refuses
    any other, naming it. A file that names none is read under the latest
    known version and says so (`convention-unstated`). Cached tokens, which
    the conventions count inside `gen_ai.usage.input_tokens`, are taken out
