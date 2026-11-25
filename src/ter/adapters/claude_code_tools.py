@@ -26,6 +26,10 @@ CLAUDE_CODE_TOOL_KINDS: Mapping[str, ToolKind] = {
     "NotebookEdit": ToolKind.FS_EDIT,
     "Write": ToolKind.FS_WRITE,
     "Bash": ToolKind.EXEC_SHELL,
+    # Claude Code's shell tool on Windows. Real sessions on a Windows PC ran
+    # 2,880 PowerShell calls in 30 of 47 sessions (25 Nov 2026), checks
+    # included; left unmapped they were invisible to every shell rule.
+    "PowerShell": ToolKind.EXEC_SHELL,
     "BashOutput": ToolKind.EXEC_SHELL,
     "KillShell": ToolKind.EXEC_SHELL,
     "WebFetch": ToolKind.NET_FETCH,

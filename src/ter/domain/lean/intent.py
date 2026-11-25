@@ -93,8 +93,18 @@ _REDIRECT = re.compile(
     r"|new\s+task|different\s+task|stop|drop|let'?s\s+switch|switch\s+to|rather)\b",
     re.IGNORECASE,
 )
+#: A sentence that gives a goal up: 'forget the cache', 'never mind the
+#: docs', 'we no longer need X', 'stop working on Y'. A bare 'don't', 'do
+#: not' or 'stop' is a rule for doing the work ('don't push', 'stop at the
+#: first failure'), not a dropped goal: read that way on the owner's
+#: sessions (25 Nov 2026) its words became 'dropped goals', and two later
+#: test edits that shared one were confident drift.
 _ABANDON = re.compile(
-    r"\b(?:forget|drop|never\s*mind|scratch|no\s+longer|don'?t|do\s+not|stop)\b",
+    r"\b(?:forget(?:\s+about)?|never\s*mind|scratch\s+that"
+    r"|drop\s+(?:it|that|this|the\s+idea)"
+    r"|no\s+longer\s+(?:need|want|needed|wanted|necessary|required)"
+    r"|(?:don'?t|do\s+not)\s+(?:bother|need\s+to|worry\s+about)"
+    r"|stop\s+(?:working\s+on|doing|trying|with))\b",
     re.IGNORECASE,
 )
 _EXTRA = re.compile(
@@ -303,6 +313,33 @@ class Alignment:
     subject: frozenset[str]
     names: tuple[str, ...]
     extra: bool = False
+    #: Key terms and written words of the sentences announcing extra work.
+    extra_terms: frozenset[str] = frozenset()
+    extra_words: frozenset[str] = frozenset()
+
+    def announces(self, change: Alignment) -> bool:
+        """Whether this narration announced ``change`` as extra work.
+
+        The announcing sentence must name it: spell out a distinctive name
+        the change defines (:func:`distinctive`) or at least two of its
+        plain-word names that are at least half of its names ('also add mean
+        and variance'), or, for a change that defines
+        none, share at least two of its key terms. Reviewed on the owner's sessions (25 Nov 2026,
+        by Claude; not yet the owner's judge): 14 of 14 findings matched on
+        any word of the whole block were not waste (a summary that 'also
+        checked' something, one shared word such as 'send').
+        """
+        if not self.extra:
+            return False
+        if change.names:
+            named = [n for n in change.names if n in self.extra_words]
+            if any(distinctive(n) for n in named):
+                return True
+            # Plain words name the change only when they are most of it: a
+            # new module defining dozens of plain names ('out', 'fees')
+            # shares two with almost any sentence.
+            return len(named) >= 2 and 2 * len(named) >= len(change.names)
+        return len(self.extra_terms & change.subject) >= 2
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -401,6 +438,46 @@ class _Read:
     abandoned: frozenset[str] = frozenset()
     redirect: str | None = None
     extra: bool = False
+    #: Key terms of the sentences that announce extra work.
+    extra_terms: frozenset[str] = frozenset()
+    #: Their words as written, to find a name they spell out.
+    extra_words: frozenset[str] = frozenset()
+
+
+_IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+#: A name no sentence uses as a plain word: snake_case, an inner capital
+#: (camelCase, PascalCase), a digit, or a CONSTANT.
+_DISTINCTIVE = re.compile(r"^_*[A-Za-z]\w*(?:_|\d|[a-z][A-Z])|^[A-Z][A-Z0-9_]{2,}$")
+
+
+def distinctive(name: str) -> bool:
+    """Whether a defined name can only mean the code it names.
+
+    ``out``, ``item`` or ``fees`` are words any sentence uses; ``FeeModel``,
+    ``parse_auctions`` or ``MAX_QTY`` are not, and neither is a dunder such
+    as ``__init__``. Reviewed 25 Nov 2026 on the owner's sessions: a
+    greenfield build matched announcements on plain-word names (an agent
+    'also checking the fees' while writing ``fees``), none of it extra work.
+    """
+    if name.startswith("__") and name.endswith("__"):
+        return False
+    return len(name) >= 4 and bool(_DISTINCTIVE.search(name))
+
+
+def _read_narration(text: str) -> _Read:
+    """Key terms of a reasoning or response block, and of the sentences in it
+    that announce extra work ('also', 'while I'm at it').
+
+    Only those sentences say what the extra work is: a long block that uses
+    'also' once is not about everything it mentions (judged 25 Nov 2026).
+    """
+    cues = [s for s in _SENTENCE.split(text) if _EXTRA.search(s)]
+    return _Read(
+        key_terms(text),
+        extra=bool(cues),
+        extra_terms=key_terms(" ".join(cues)),
+        extra_words=frozenset(w for s in cues for w in _IDENTIFIER.findall(s)),
+    )
 
 
 def _text_values(arguments: Mapping[str, object]) -> Iterable[str]:
@@ -495,7 +572,7 @@ class IntentLog:
             if event.tool is None:
                 return _Read(key_terms(event.text))
             return _read_request(event.tool.kind, event.tool.arguments)
-        return _Read(key_terms(event.text), extra=bool(_EXTRA.search(event.text)))
+        return _read_narration(event.text)
 
     def reads(self) -> tuple[_Read | None, ...]:
         return tuple(self._reads)
@@ -636,6 +713,8 @@ def build_intent(
                 subject=read.terms,
                 names=read.names,
                 extra=read.extra,
+                extra_terms=read.extra_terms,
+                extra_words=read.extra_words,
             )
         )
     return IntentTimeline(

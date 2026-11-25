@@ -27,6 +27,7 @@ from .facts import (
     harness_output_path,
     looks_like_file_name,
     output_fingerprint,
+    scripts_run,
 )
 from .grounding import RepositoryGrounding
 from .intent import IntentRelation, IntentTimeline, SubjectBasis
@@ -239,6 +240,29 @@ def _edits_between(view: SessionView, start: int, end: int) -> list[Step]:
 
 def _basename(path: str) -> str:
     return PurePosixPath(path.replace("\\", "/")).name
+
+
+#: A temporary or scratch folder: the agent's own working files live there,
+#: outside the software it changes (``/tmp``, ``%TEMP%``, a ``scratchpad``).
+_SCRATCH = re.compile(
+    r"(?:^|/)(?:tmp|temp|scratchpad)(?:/|$)|^/var/folders/", re.IGNORECASE
+)
+
+
+def _runs_scripts(step: Step) -> frozenset[str]:
+    """Script files (lower-cased base names) a shell request runs."""
+    if (
+        not step.is_request
+        or step.tool_kind is not ToolKind.EXEC_SHELL
+        or not step.command
+    ):
+        return frozenset()
+    return scripts_run(step.command)
+
+
+def _scratch(path: str) -> bool:
+    """Whether a path is in a temporary or scratch folder."""
+    return bool(_SCRATCH.search(path.replace("\\", "/")))
 
 
 def _named(path: str, words: frozenset[str] | set[str]) -> bool:
@@ -552,8 +576,12 @@ class UnvalidatedImplementation:
         "ran in the whole session; 0.75 when checks ran earlier but not after "
         "these edits; 0.50 (uncertain) when every unvalidated edit is "
         "documentation and there are at least 3 of them; fewer than 3 "
-        "documentation edits: no finding. 0.85 when the last validation before the response "
-        "failed."
+        "documentation edits: no finding. 0.50 (uncertain) when every "
+        "unvalidated edit is to a file in a temporary or scratch folder. "
+        "Running an edited script (by name or through an interpreter) checks "
+        "that edit. 0.85 when the last validation before the response "
+        "failed and it ran a named check tool (an ad hoc run such as python "
+        "-c is often a probe, so its failure is not reported)."
     )
 
     def detect(self, view: SessionView) -> Iterable[Finding]:
@@ -578,6 +606,15 @@ class UnvalidatedImplementation:
                 # failing chained check is reported below.
                 pending = []
                 last_run = step
+            elif pending and _runs_scripts(step):
+                # Running an edited script runs the code it changed.
+                ran = _runs_scripts(step)
+                pending = [
+                    e
+                    for e in pending
+                    if not e.paths
+                    or not all(_basename(p).lower() in ran for p in e.paths)
+                ]
         responses = [s for s in steps if s.kind is EventKind.RESPONSE]
         final = responses[-1] if responses else None
         if final is None:
@@ -595,6 +632,17 @@ class UnvalidatedImplementation:
                 confidence, why = (
                     0.5,
                     "Only documentation changed, which may not need a check.",
+                )
+            elif all(_scratch(p) for e in pending for p in e.paths) and any(
+                e.paths for e in pending
+            ):
+                # Reviewed 25 Nov 2026 on the owner's sessions: helper scripts
+                # in the agent's scratchpad are often run later, by a
+                # scheduled or background job, or are not software at all.
+                confidence, why = (
+                    0.5,
+                    "Only the agent's own scratch files changed, which may run "
+                    "later or need no check.",
                 )
             elif any_validation:
                 confidence, why = (
@@ -616,7 +664,16 @@ class UnvalidatedImplementation:
                     evidence=(*(s for e in pending for s in view.pair(e)), final),
                     subject=_files(pending),
                 )
-        if last_run is not None and final.index > last_run.index:
+        # Only a named check tool's failure is a failing check. An ad hoc run
+        # (``python -c "import duckdb"``, ``python - <<EOF``) validates edits
+        # it follows, but its failure is as often a probe's answer: 9 of 16
+        # such findings on the owner's sessions (25 Nov 2026) came from ad
+        # hoc runs, all probes, progress monitors and one-off scripts.
+        if (
+            last_run is not None
+            and last_run.runs_check
+            and final.index > last_run.index
+        ):
             result = view.completion_of.get(last_run.index)
             if result is not None and result.outcome is Outcome.FAILED:
                 later_edits = [e for e in pending if e.index > last_run.index]
@@ -1229,8 +1286,13 @@ class IntentDrift:
         "An edit or write whose alignment to the intent in force is below the "
         "drift band (default 0.25), against an intent of at least 3 key terms: "
         "0.85 when the names it defines continue a goal the developer dropped, "
-        "or the agent's own reasoning or narration since the prompt called it "
-        "additional ('also', 'while I'm at it') and names it; 0.55 (uncertain) "
+        "or a sentence of the agent's own reasoning or narration since the "
+        "prompt called it additional ('also', 'while I'm at it') and names it "
+        "(spells out a distinctive name it defines, such as FeeModel or "
+        "parse_items, or at least two plain-word names such as mean and "
+        "variance that are half or more of the names it defines; or shares "
+        "two of its key terms when it defines no names); "
+        "0.55 (uncertain) "
         "when it only defines new names the intent does not mention, or defines "
         "no names and only its added words (at least 3) depart. "
         "In a file the session created (first touched by a write whose "
@@ -1238,6 +1300,8 @@ class IntentDrift:
         "error, and not a repository file at the start when grounded), an "
         "edit is a finding only when it continues a dropped goal or the agent "
         "called it additional. "
+        "Not judged: an edit the tool refused (it changed nothing) and files "
+        "in a temporary or scratch folder (the agent's helper scripts). "
         "Before any prompt, or against a shorter intent: no finding."
     )
 
@@ -1249,6 +1313,15 @@ class IntentDrift:
         for step in view.requests():
             if not step.is_edit:
                 continue
+            if step.paths and all(_scratch(p) for p in step.paths):
+                # The agent's own working files (scratchpad, temp folders):
+                # helper scripts that do the requested work, not changes to
+                # the software (27 of 156 findings on the owner's sessions
+                # were such files, 25 Nov 2026).
+                continue
+            done = view.completion_of.get(step.index)
+            if done is not None and done.tool_failed:
+                continue  # a refused edit changed nothing
             a = timeline.alignment_of(step.event_id)
             if a is None or a.score is None or a.revision is None:
                 continue
@@ -1268,9 +1341,8 @@ class IntentDrift:
                 s
                 for s in view.steps[view.by_id[opened].index + 1 : step.index]
                 if (x := timeline.alignment_of(s.event_id)) is not None
-                and x.extra
                 and not s.is_request
-                and x.subject & a.subject
+                and x.announces(a)
             ]
             evidence: list[Step] = [view.by_id[opened], *announced, *view.pair(step)]
             # Judged on a real greenfield session (10 Oct 2026): building a
