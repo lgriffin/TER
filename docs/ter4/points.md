@@ -10,7 +10,7 @@ rules that enforce it and how it is verified. Rules live in
 contributed from another source (an external capability, ADR 0005) and the
 Origin column names that source, its reference and author.
 
-**206 points** · ● done **124** · ◐ partial **47** · ○ not started **35**
+**206 points** · ● done **125** · ◐ partial **47** · ○ not started **34**
 
 `████████████████████████▓▓▓▓▓▓▓▓▓░░░░░░░`
 
@@ -22,7 +22,7 @@ Legend: `█` done · `▓` partial · `░` not started
 |---|---|---:|---:|---:|---:|
 | L0 Measured | `██████████████████▓▓` | 12 | 1 | 0 | 13 |
 | L1 Observed | `███████████████████▓` | 15 | 1 | 0 | 16 |
-| L2 Explained | `██████████████████▓░` | 51 | 5 | 2 | 58 |
+| L2 Explained | `██████████████████▓▓` | 52 | 5 | 1 | 58 |
 | L3 Grounded | `██████████▓▓▓▓▓▓▓▓▓▓` | 25 | 23 | 0 | 48 |
 | L4 Advisory | `████████████▓▓▓▓▓░░░` | 19 | 8 | 4 | 31 |
 | L5 Corrective | `█▓▓▓▓▓░░░░░░░░░░░░░░` | 1 | 5 | 15 | 21 |
@@ -49,7 +49,7 @@ P121 ● ● ● ● ◐ ○ ○ ○ ○ ◐ ○ ○ ○ ○ ○ ○ ○ ◐ ●
 P141 ● ● ● ● ● ◐ ◐ ● ◐ ◐ ● ● ◐ ● ◐ ◐ ● ● ● ●
 P161 ● ● ● ● ● ● ◐ ◐ ◐ ◐ ● ● ● ● ● ● ● ● ◐ ◐
 P181 ◐ ◐ ○ ○ ◐ ○ ○ ○ ○ ○ ○ ○ ○ ○ ● ● ● ◐ ○ ○
-P201 ◐ ● ● ○ ● ○
+P201 ◐ ● ● ○ ● ●
 ```
 
 ## Points
@@ -261,4 +261,4 @@ P201 ◐ ● ● ○ ● ○
 | P203 | Publish a software bill of materials for TER, so anyone can inspect what installing it… | **TER project** Testing harness thread, 14 Oct 2026 (Leigh Griffin) | L0 | ● done |  | • Every CI run writes a CycloneDX SBOM of the wheel it built, listing each installed distribution with its exact version, package URL and licence, and publishes it as the run's sbom artifact.<br>• The SBOM is checked against the install CI smoke-tested: a missing, extra or mis-versioned distribution, a missing or undeclared licence not on the reviewed list, or a dependency outside its range fails. | `TER-SBM-001` ✓<br>`TER-SBM-002` ✓ | test: tests/sbom/test_sbom.py<br>ci: Check the SBOM |
 | P204 | Export a TER Record for every session: one portable, content-free JSON object holding… | **TER project** Upstream of the Bill direction document and prototype, 25 Nov 2026 (ADR 0007) (Leigh Griffin) | L2 | ○ not started |  | • `python -m ter record export` writes one `ter.record/0.1` object per session that conforms to its JSON Schema, with golden Records frozen for the synthetic sessions.<br>• No Record built from any test session contains a prompt, path, file content, tool input or tool output, checked by the schema and by a scan of every string the session holds.<br>• `python -m ter record verify` recomputes every figure from the session the Record names by digest and lists each one that differs. | `TER-REC-001` ·<br>`TER-REC-002` ·<br>`TER-REC-003` ·<br>`TER-REC-004` ·<br>`TER-REC-005` ·<br>`TER-REC-006` · | planned: passing tests tagged req for TER-REC-001 to TER-REC-006 |
 | P205 | Price a session's waste by the whole model turns it consumed, not only by its output… | **TER project** Upstream of the Bill direction document and prototype, 25 Nov 2026 (ADR 0007) (Leigh Griffin) | L2 | ● done |  | • Session cost is reported by activity class, each priced turn shared among its generated events by generated tokens, and the class costs sum to the session cost.<br>• The golden snapshots show the change on purpose, and the output-only price is reported beside the whole-turn one so the two can be compared on real sessions. | `TER-ANL-042` ✓<br>`TER-ANL-043` ✓ | test: tests/unit/test_ter4_cost_by_class.py<br>test: tests/golden/test_cost_snapshots.py |
-| P206 | Observe a session's consumption shape (intents, model turns per intent and agent depth)… | **TER project** Upstream of the Bill direction document and prototype, 25 Nov 2026 (ADR 0007) (Leigh Griffin) | L2 | ○ not started |  | • Every analysed session reports intents, model turns per intent, agent depth and the consumption class they imply, each counted from events.<br>• Agent depth is marked a lower bound where the source does not record subagent nesting. | `TER-SHP-001` ·<br>`TER-SHP-002` · | planned: passing tests tagged req for TER-SHP-001, TER-SHP-002 |
+| P206 | Observe a session's consumption shape (intents, model turns per intent and agent depth)… | **TER project** Upstream of the Bill direction document and prototype, 25 Nov 2026 (ADR 0007) (Leigh Griffin) | L2 | ● done |  | • Every analysed session reports intents, model turns per intent, agent depth and the consumption class they imply, each counted from events.<br>• Agent depth is marked a lower bound where the source does not record subagent nesting. | `TER-SHP-001` ✓<br>`TER-SHP-002` ✓ | test: tests/unit/test_ter4_shape.py<br>test: tests/golden/test_lean_snapshots.py |

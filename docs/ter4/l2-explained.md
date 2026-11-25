@@ -372,6 +372,19 @@ Definitions of the headline measures:
   work is 4.2% of its cost by output tokens and 19.3% by whole turn; the
   gap is a hypothesis to test on real sessions.
 
+### Observed shape
+
+`ter.domain.lean.shape.observed_shape` counts a session's consumption shape
+from its events (TER-SHP-001, [ADR 0007](../decisions/0007-the-ter-record.md)),
+and the A3 JSON carries it as `shape`: `intents` (prompts), `model_turns`
+(events carrying provider usage), `turns_per_intent`, `handoffs`,
+`agent_depth` and the Big-T class they imply (`T(n)`, `T(n·k)` when an
+intent took more than one model turn, `T(n·k·a)` with any handoff; none with
+no model turn). No shipped source records subagent nesting, so after a
+handoff `depth_lower_bound` is true (TER-SHP-002). Every prompt counts as an
+intent: whether a later prompt corrects the task or starts a new one is not
+decided here.
+
 ### Software Value Efficiency
 
 SVE (point 81, TER-SCR-003) is value delivered toward a *verified* outcome per

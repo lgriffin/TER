@@ -28,6 +28,7 @@ from .inventory import ContextInventory, context_inventory
 from .concepts import LEAN_MEASURES
 from .control import ControlLimits, SessionControl, session_control
 from .model import ActivityClass, Finding, FindingKind, LeanWaste
+from .shape import ObservedShape, observed_shape
 from .scorecard import (
     ScorecardDimension,
     SoftwareValueEfficiency,
@@ -88,6 +89,11 @@ class A3Report:
         return per_verified_outcome(generated, (self.outcome,))
 
     @property
+    def shape(self) -> ObservedShape:
+        """The session's observed consumption shape (TER-SHP-001)."""
+        return observed_shape(self.analysis.steps)
+
+    @property
     def value_efficiency(self) -> SoftwareValueEfficiency:
         """Software Value Efficiency, reported next to TER (TER-SCR-003)."""
         return software_value_efficiency(self.analysis.scorecard, self.outcome)
@@ -136,6 +142,8 @@ class A3Report:
                 ),
             },
             "problem": self.problem,
+            # Intents, model turns per intent and agent depth (TER-SHP-001).
+            "shape": self.shape.as_dict(),
             "current_state": {"value_stream": [s.as_dict() for s in a.value_stream]},
             "analysis": {
                 "scorecard": self.scorecard_dict(),

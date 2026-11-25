@@ -471,6 +471,7 @@ def test_a3_structure() -> None:
         "session_id",
         "background",
         "problem",
+        "shape",
         "current_state",
         "analysis",
         "root_causes",
