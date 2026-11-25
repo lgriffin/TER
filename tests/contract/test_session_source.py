@@ -69,7 +69,7 @@ def _memory() -> tuple[SessionSource, list[str]]:
         pytest.param(
             _gare_real, id="gare-run-real", marks=pytest.mark.req("TER-SRC-010")
         ),
-        pytest.param(_otel, id="otel-genai", marks=pytest.mark.req("TER-SRC-025")),
+        pytest.param(_otel, id="otel-genai", marks=pytest.mark.req("TER-SRC-027")),
         pytest.param(_memory, id="in-memory"),
     ]
 )

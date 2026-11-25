@@ -1,5 +1,5 @@
 """OpenTelemetry GenAI spans as a :class:`~ter.ports.driven.SessionSource`
-(Stage U2, ADR 0008, TER-SRC-025 to TER-SRC-027).
+(Stage U2, ADR 0008, TER-SRC-027 to TER-SRC-029).
 
 Any agent instrumented with the OpenTelemetry GenAI semantic conventions can
 export its spans as OTLP JSON: one ``ExportTraceServiceRequest`` object per
@@ -50,7 +50,7 @@ trace carries the ``intents-from-traces`` limit.
 Versions. A span names its convention through the ``schemaUrl`` of its scope
 or resource (``https://opentelemetry.io/schemas/<version>``). The adapter
 reads the versions in :data:`KNOWN_CONVENTIONS` and refuses any other,
-naming it (TER-SRC-026). The GenAI conventions moved to their own repository
+naming it (TER-SRC-028). The GenAI conventions moved to their own repository
 in 1.42.0, which publishes no schema URL yet; a file that names no version is
 read under the latest known one and carries the ``convention-unstated`` limit.
 """
@@ -96,7 +96,7 @@ SCHEMA_URL_PREFIX = "https://opentelemetry.io/schemas/"
 #: ``gen_ai.usage.input_tokens`` / ``output_tokens``, up to the newest
 #: checked (25 Nov 2026). An older version (``gen_ai.system``,
 #: ``prompt_tokens``) or a newer one is refused until it is added here with
-#: fixtures (TER-SRC-026).
+#: fixtures (TER-SRC-028).
 KNOWN_CONVENTIONS: tuple[str, ...] = (
     "1.37.0",
     "1.38.0",

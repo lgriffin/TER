@@ -32,8 +32,8 @@ change.
    reader-facing text of new usage limits. Each reads or writes files by a
    pinned version and never imports an OpenTelemetry, FOCUS or MCP SDK
    (ADR 0005).
-2. **OpenTelemetry spans are read by convention version** (TER-SRC-025 to
-   TER-SRC-029). A span names its version through the `schemaUrl` of its
+2. **OpenTelemetry spans are read by convention version** (TER-SRC-027 to
+   TER-SRC-031). A span names its version through the `schemaUrl` of its
    scope or resource. The adapter reads the versions it lists and refuses
    any other, naming it. A file that names none is read under the latest
    known version and says so (`convention-unstated`). Cached tokens, which
@@ -47,7 +47,7 @@ change.
    session is committed as the span export an instrumented agent would
    have written. Read that way, it gives the same events and the same
    Record as its transcript, apart from the source name, session id and
-   digests (TER-SRC-029). This is the document's second falsification test,
+   digests (TER-SRC-031). This is the document's second falsification test,
    run on synthetic sessions; a real agent's export is the next check.
 4. **The FOCUS price book reads the SKU Price preview by pinned version.**
    Token prices are the rows whose SKU Price Details carry `TokenDirection`

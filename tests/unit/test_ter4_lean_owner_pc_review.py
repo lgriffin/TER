@@ -625,3 +625,38 @@ def test_folders_that_only_look_like_scratch(path: str) -> None:
     s.say("Queued.")
     [f] = found(s, "unvalidated_implementation")
     assert f.confidence == 0.85
+
+
+# --- TER-SRC-026: Monitor and TaskStop are shell tools -------------------------
+
+
+@pytest.mark.req("TER-SRC-026", "TER-SRC-003")
+@pytest.mark.parametrize(
+    ("name", "kind"),
+    [
+        ("Monitor", ToolKind.EXEC_SHELL),
+        ("TaskStop", ToolKind.EXEC_SHELL),
+        ("KillShell", ToolKind.EXEC_SHELL),
+        ("CronCreate", ToolKind.OTHER),
+        ("CronDelete", ToolKind.OTHER),
+        ("ScheduleWakeup", ToolKind.OTHER),
+        ("PushNotification", ToolKind.OTHER),
+    ],
+)
+def test_shell_and_scheduling_tools(name: str, kind: ToolKind) -> None:
+    assert tool_kind(name) is kind
+
+
+@pytest.mark.req("TER-SRC-026", "TER-DET-013")
+def test_a_monitor_running_the_edited_script_checks_it() -> None:
+    s = Script()
+    s.prompt("Make the nightly script skip empty folders")
+    s.edit("scripts/nightly.sh")
+    s.call(
+        "Monitor",
+        ToolKind.EXEC_SHELL,
+        {"command": "bash scripts/nightly.sh --dry-run", "timeout_ms": 60000},
+        "skipped 2 empty folders",
+    )
+    s.say("The nightly script now skips empty folders.")
+    assert found(s, "unvalidated_implementation") == []

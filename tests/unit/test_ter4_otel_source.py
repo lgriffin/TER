@@ -82,10 +82,10 @@ def _chat(span_id: str, start: int, **attrs: object) -> dict[str, Any]:
     return _span(span_id, "chat", start, **base)
 
 
-# -- mapping (TER-SRC-025) ---------------------------------------------------------
+# -- mapping (TER-SRC-027) ---------------------------------------------------------
 
 
-@pytest.mark.req("TER-SRC-025")
+@pytest.mark.req("TER-SRC-027")
 def test_inference_and_tool_spans_become_turns_and_tool_events(tmp_path: Path) -> None:
     calls = json.dumps(
         [
@@ -146,7 +146,7 @@ def test_inference_and_tool_spans_become_turns_and_tool_events(tmp_path: Path) -
     assert trace.usage_limits == ()
 
 
-@pytest.mark.req("TER-SRC-025")
+@pytest.mark.req("TER-SRC-027")
 def test_every_span_it_cannot_map_counts_against_coverage(tmp_path: Path) -> None:
     path = _export(
         tmp_path,
@@ -166,7 +166,7 @@ def test_every_span_it_cannot_map_counts_against_coverage(tmp_path: Path) -> Non
     assert trace.coverage == pytest.approx(1 / 4)
 
 
-@pytest.mark.req("TER-SRC-025")
+@pytest.mark.req("TER-SRC-027")
 def test_an_agent_under_an_agent_is_a_handoff_and_a_top_agent_is_metadata(
     tmp_path: Path,
 ) -> None:
@@ -192,7 +192,7 @@ def test_an_agent_under_an_agent_is_a_handoff_and_a_top_agent_is_metadata(
 # -- usage ------------------------------------------------------------------------
 
 
-@pytest.mark.req("TER-SRC-027")
+@pytest.mark.req("TER-SRC-029")
 def test_cached_tokens_are_taken_out_of_the_conventions_input_count(
     tmp_path: Path,
 ) -> None:
@@ -225,7 +225,7 @@ def test_cached_tokens_are_taken_out_of_the_conventions_input_count(
     assert usage.cache_reported
 
 
-@pytest.mark.req("TER-SRC-027")
+@pytest.mark.req("TER-SRC-029")
 def test_the_cache_write_count_is_read_under_either_name(tmp_path: Path) -> None:
     path = _export(
         tmp_path,
@@ -236,7 +236,7 @@ def test_the_cache_write_count_is_read_under_either_name(tmp_path: Path) -> None
     assert (usage.input_tokens, usage.cache_creation_tokens) == (600, 400)
 
 
-@pytest.mark.req("TER-SRC-027")
+@pytest.mark.req("TER-SRC-029")
 def test_a_turn_with_no_cache_attribute_is_not_read_as_zero_cache(
     tmp_path: Path,
 ) -> None:
@@ -246,7 +246,7 @@ def test_a_turn_with_no_cache_attribute_is_not_read_as_zero_cache(
     assert not usage.cache_reported  # "when available and non-zero": unknown
 
 
-@pytest.mark.req("TER-SRC-027")
+@pytest.mark.req("TER-SRC-029")
 def test_cached_counts_larger_than_the_input_never_go_negative(tmp_path: Path) -> None:
     path = _export(
         tmp_path,
@@ -256,10 +256,10 @@ def test_cached_counts_larger_than_the_input_never_go_negative(tmp_path: Path) -
     assert usage is not None and usage.input_tokens == 0
 
 
-# -- content capture off (TER-SRC-028) ---------------------------------------------
+# -- content capture off (TER-SRC-030) ---------------------------------------------
 
 
-@pytest.mark.req("TER-SRC-028")
+@pytest.mark.req("TER-SRC-030")
 def test_without_content_each_trace_is_one_intent_and_the_limits_say_so(
     tmp_path: Path,
 ) -> None:
@@ -290,10 +290,10 @@ def test_without_content_each_trace_is_one_intent_and_the_limits_say_so(
         assert describe_limit(limit) != limit  # each reads as a sentence
 
 
-# -- versions (TER-SRC-026) ----------------------------------------------------------
+# -- versions (TER-SRC-028) ----------------------------------------------------------
 
 
-@pytest.mark.req("TER-SRC-026")
+@pytest.mark.req("TER-SRC-028")
 @pytest.mark.parametrize("version", ["1.26.0", "1.46.0", "https://example.com/x"])
 def test_an_unknown_convention_version_is_refused_by_name(
     tmp_path: Path, version: str
@@ -310,13 +310,13 @@ def test_an_unknown_convention_version_is_refused_by_name(
         SOURCE.read(path)
 
 
-@pytest.mark.req("TER-SRC-026")
+@pytest.mark.req("TER-SRC-028")
 @pytest.mark.parametrize("version", KNOWN_CONVENTIONS)
 def test_every_known_version_is_read(tmp_path: Path, version: str) -> None:
     assert SOURCE.read(_export(tmp_path, [_chat("s1", 1)], url=version)).events
 
 
-@pytest.mark.req("TER-SRC-026")
+@pytest.mark.req("TER-SRC-028")
 def test_the_resource_schema_url_names_the_version_when_the_scope_does_not(
     tmp_path: Path,
 ) -> None:
@@ -330,7 +330,7 @@ def test_the_resource_schema_url_names_the_version_when_the_scope_does_not(
         SOURCE.read(path)
 
 
-@pytest.mark.req("TER-SRC-026")
+@pytest.mark.req("TER-SRC-028")
 def test_a_file_naming_no_version_is_read_under_the_latest_and_says_so(
     tmp_path: Path,
 ) -> None:
@@ -394,10 +394,10 @@ def test_accepts_span_exports_and_nothing_else(tmp_path: Path) -> None:
     )
 
 
-# -- harness neutral (TER-SRC-029) -------------------------------------------------------
+# -- harness neutral (TER-SRC-031) -------------------------------------------------------
 
 
-@pytest.mark.req("TER-SRC-029")
+@pytest.mark.req("TER-SRC-031")
 @pytest.mark.parametrize("name", sorted(CORPUS))
 def test_a_session_read_from_its_transcript_and_its_spans_gives_the_same_events(
     name: str,
@@ -425,7 +425,7 @@ def _record(path: Path) -> dict[str, Any]:
     return record
 
 
-@pytest.mark.req("TER-SRC-029")
+@pytest.mark.req("TER-SRC-031")
 def test_the_record_of_a_session_is_the_same_whichever_way_it_was_read() -> None:
     """The document's falsification test: Records of one session read from
     its transcript and from OpenTelemetry differ only where the source is

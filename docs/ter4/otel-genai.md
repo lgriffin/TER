@@ -84,7 +84,7 @@ resource, such as `https://opentelemetry.io/schemas/1.45.0`. TER reads 1.37.0
 to 1.45.0, the versions that name the provider `gen_ai.provider.name` and the
 token counts `input_tokens` and `output_tokens`. It refuses any other version,
 naming it, so an export of an older convention (`gen_ai.system`,
-`prompt_tokens`) or a newer one is never read by guess (TER-SRC-026).
+`prompt_tokens`) or a newer one is never read by guess (TER-SRC-028).
 
 The GenAI conventions moved to their own repository in 1.42.0, and that
 repository publishes no schema URL yet. A file that names no version is read
@@ -96,10 +96,10 @@ Every golden session is committed as the span export an instrumented agent
 would have written (`tests/fixtures/otel/`, written by
 `tests/golden/otel_export.py`). Read that way it gives the same events, and
 the same TER Record apart from its source name, session id and digests, as
-its Claude Code transcript (TER-SRC-029). That is the direction document's
+its Claude Code transcript (TER-SRC-031). That is the direction document's
 harness-neutral test, run on synthetic sessions. A real agent's export is the
 next check.
 
 ## Requirements
 
-TER-SRC-025 to TER-SRC-029, vision point P207.
+TER-SRC-027 to TER-SRC-031, vision point P207.

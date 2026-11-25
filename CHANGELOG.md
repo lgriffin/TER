@@ -6,6 +6,7 @@ All notable public changes to TER are documented in this file. The project follo
 
 ### Added
 
+- OpenTelemetry GenAI span exports as a TER session source (`SessionSource.otel-genai`, ADR 0008, P207): inference and tool spans to `ter.event`, read by pinned convention version, cached tokens taken out of the input count, unmapped spans counted against coverage. Every golden session read from its span export gives the same events as its transcript.
 - TER 4 foundation (maturity level L0): a new `ter` package laid out as a hexagon of domain, ports, application, adapters and bootstrap, with import-linter contracts enforcing inward-only dependencies.
 - Provider-neutral `ter.event/0.1` event model with stable event ids, provenance, tool kinds and coverage of unmapped records, plus a Claude Code JSONL adapter.
 - Deterministic offline tokenizer and embedder adapters.
@@ -37,6 +38,7 @@ All notable public changes to TER are documented in this file. The project follo
 - `ter visualize` and `ter present` charts now draw through the TER 4 report primitives: each SVG gains a `<title>` and `<desc>` (via `aria-labelledby`), legends wrap, and in-bar labels use a contrast-checked text colour. Chart names and the `ter_calculator.charts` API are unchanged.
 - The A3 page leads with *At a glance*: the problem, four headline measures with bars and the three countermeasures to act on first. Countermeasures are numbered in the order to act on them; root causes are cards that link to the action answering them and back. With `--repo` a Repository evidence section shows reads later used, unused reads with their context tokens, files explored against changed and outcome value (TER-RPT-006, TER-RPT-007). A sticky section bar, header chips (maturity, cost, verdict), labelled snippet targets and a phone layout with no sideways scroll. The A3 JSON is unchanged.
 - Detectors honed on the owner's 47 Claude Code sessions (P025, P048, P103). PowerShell commands are classified like POSIX shell commands; running an edited script counts as checking it; an announcement must name the change it covers; a rule for the work ("don't commit yet") is not a dropped goal; refused edits, the agent's scratch files and compaction summaries are not drift; a failing ad hoc probe is not a failing check. On those sessions intent drift falls from 156 findings (67 confident) to 72 (1 confident) and unvalidated implementation from 126 (119 confident) to 38 (12 confident). The detector fingerprint changes, so control limits computed before this change are stale.
+- Claude Code's `Monitor` and `TaskStop` tools map to `exec.shell` (P103, TER-SRC-026): a Monitor running an edited script now checks it. Scheduling and messaging tools (`CronCreate`, `ScheduleWakeup`, `PushNotification`) stay `other`.
 
 ## [3.0.0] - 2026-07-22
 

@@ -332,7 +332,7 @@ requirements:
       harness context, not intent.
     status: verified
 
-  - id: TER-SRC-025
+  - id: TER-SRC-027
     pattern: event-driven
     text: >-
       When reading an OpenTelemetry GenAI export, the session source shall
@@ -348,7 +348,7 @@ requirements:
       TER did not read (ADR 0008).
     status: verified
 
-  - id: TER-SRC-026
+  - id: TER-SRC-028
     pattern: unwanted
     text: >-
       If an export names a convention version the session source does not
@@ -362,7 +362,7 @@ requirements:
       or miscount turns silently (ADR 0005, ADR 0008).
     status: verified
 
-  - id: TER-SRC-027
+  - id: TER-SRC-029
     pattern: ubiquitous
     text: >-
       The OpenTelemetry session source shall report a turn's input tokens
@@ -379,7 +379,7 @@ requirements:
       not zero.
     status: verified
 
-  - id: TER-SRC-028
+  - id: TER-SRC-030
     pattern: unwanted
     text: >-
       If an OpenTelemetry export carries no message content, then the
@@ -394,7 +394,7 @@ requirements:
       figures that limits.
     status: verified
 
-  - id: TER-SRC-029
+  - id: TER-SRC-031
     pattern: ubiquitous
     text: >-
       The session sources shall produce the same events, and so the same
@@ -408,6 +408,21 @@ requirements:
       The document's harness-neutral test: Records that differ by more than
       coverage explains would mean the event contract, not the source, is
       wrong.
+    status: verified
+
+  - id: TER-SRC-026
+    pattern: ubiquitous
+    text: >-
+      The Claude Code tool map shall label each tool that runs or stops a
+      shell command (Bash, PowerShell, Monitor, TaskStop) exec.shell.
+    level: L1
+    port: SessionSource
+    source_points: [103]
+    rationale: >-
+      On the owner's sessions (25 Nov 2026) Monitor ran 189 shell commands
+      and TaskStop stopped 60 background tasks, all unmapped. CronCreate,
+      CronDelete and ScheduleWakeup (478 calls) stay other: as plan.todo
+      they would read as excessive planning.
     status: verified
 
   - id: TER-TST-008
