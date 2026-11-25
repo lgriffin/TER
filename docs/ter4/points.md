@@ -10,7 +10,7 @@ rules that enforce it and how it is verified. Rules live in
 contributed from another source (an external capability, ADR 0005) and the
 Origin column names that source, its reference and author.
 
-**207 points** · ● done **127** · ◐ partial **47** · ○ not started **33**
+**209 points** · ● done **129** · ◐ partial **47** · ○ not started **33**
 
 `█████████████████████████▓▓▓▓▓▓▓▓▓░░░░░░`
 
@@ -22,15 +22,15 @@ Legend: `█` done · `▓` partial · `░` not started
 |---|---|---:|---:|---:|---:|
 | L0 Measured | `██████████████████▓▓` | 12 | 1 | 0 | 13 |
 | L1 Observed | `███████████████████▓` | 16 | 1 | 0 | 17 |
-| L2 Explained | `██████████████████▓▓` | 53 | 5 | 0 | 58 |
+| L2 Explained | `██████████████████▓▓` | 55 | 5 | 0 | 60 |
 | L3 Grounded | `██████████▓▓▓▓▓▓▓▓▓▓` | 25 | 23 | 0 | 48 |
 | L4 Advisory | `████████████▓▓▓▓▓░░░` | 19 | 8 | 4 | 31 |
 | L5 Corrective | `█▓▓▓▓▓░░░░░░░░░░░░░░` | 1 | 5 | 15 | 21 |
 | L6 Learning | `█▓▓▓▓░░░░░░░░░░░░░░░` | 1 | 4 | 14 | 19 |
 
-Kinds: capability 143 · principle 37 · research 27
+Kinds: capability 145 · principle 37 · research 27
 
-Origins: Leigh's vision 200 · TER project 7
+Origins: Leigh's vision 200 · TER project 9
 
 Real session data: **47 points** need it (3 verified) and cannot be done on synthetic tests alone. Tracked in [#34](https://github.com/lgriffin/TER/issues/34), [#35](https://github.com/lgriffin/TER/issues/35), [#36](https://github.com/lgriffin/TER/issues/36), [#37](https://github.com/lgriffin/TER/issues/37), [#38](https://github.com/lgriffin/TER/issues/38), [#39](https://github.com/lgriffin/TER/issues/39), [#40](https://github.com/lgriffin/TER/issues/40), [#41](https://github.com/lgriffin/TER/issues/41), [#42](https://github.com/lgriffin/TER/issues/42), [#43](https://github.com/lgriffin/TER/issues/43), [#44](https://github.com/lgriffin/TER/issues/44), [#45](https://github.com/lgriffin/TER/issues/45), [#46](https://github.com/lgriffin/TER/issues/46), [#55](https://github.com/lgriffin/TER/issues/55).
 
@@ -49,7 +49,7 @@ P121 ● ● ● ● ◐ ○ ○ ○ ○ ◐ ○ ○ ○ ○ ○ ○ ○ ◐ ●
 P141 ● ● ● ● ● ◐ ◐ ● ◐ ◐ ● ● ◐ ● ◐ ◐ ● ● ● ●
 P161 ● ● ● ● ● ● ◐ ◐ ◐ ◐ ● ● ● ● ● ● ● ● ◐ ◐
 P181 ◐ ◐ ○ ○ ◐ ○ ○ ○ ○ ○ ○ ○ ○ ○ ● ● ● ◐ ○ ○
-P201 ◐ ● ● ● ● ● ●
+P201 ◐ ● ● ● ● ● ● ● ●
 ```
 
 ## Points
@@ -263,3 +263,5 @@ P201 ◐ ● ● ● ● ● ●
 | P205 | Price a session's waste by the whole model turns it consumed, not only by its output… | **TER project** Upstream of the Bill direction document and prototype, 25 Nov 2026 (ADR 0007) (Leigh Griffin) | L2 | ● done |  | • Session cost is reported by activity class, each priced turn shared among its generated events by generated tokens, and the class costs sum to the session cost.<br>• The golden snapshots show the change on purpose, and the output-only price is reported beside the whole-turn one so the two can be compared on real sessions. | `TER-ANL-042` ✓<br>`TER-ANL-043` ✓<br>`TER-ANL-044` ✓ | test: tests/unit/test_ter4_cost_by_class.py<br>test: tests/golden/test_cost_snapshots.py<br>test: tests/unit/test_ter4_harness_messages.py |
 | P206 | Observe a session's consumption shape (intents, model turns per intent and agent depth)… | **TER project** Upstream of the Bill direction document and prototype, 25 Nov 2026 (ADR 0007) (Leigh Griffin) | L2 | ● done |  | • Every analysed session reports intents, model turns per intent, agent depth and the consumption class they imply, each counted from events.<br>• Agent depth is marked a lower bound where the source does not record subagent nesting. | `TER-SHP-001` ✓<br>`TER-SHP-002` ✓ | test: tests/unit/test_ter4_shape.py<br>test: tests/golden/test_lean_snapshots.py |
 | P207 | Read any agent that emits OpenTelemetry GenAI spans as a TER session source, by… | **TER project** Upstream of the Bill direction document, Stage U2, 25 Nov 2026 (ADR 0008) (Leigh Griffin) | L1 | ● done |  | • `python -m ter record export` and every other command read an OTLP JSON span export: inference spans become model turns with their usage, tool spans tool requests and completions, and every span TER cannot map counts against coverage.<br>• An export naming a convention version TER does not know is refused with that version named.<br>• Every golden session, exported as spans, gives the same events and the same Record as its transcript, apart from the source name, id and digests. | `TER-SRC-027` ✓<br>`TER-SRC-028` ✓<br>`TER-SRC-029` ✓<br>`TER-SRC-030` ✓<br>`TER-SRC-031` ✓ | test: tests/unit/test_ter4_otel_source.py<br>test: tests/contract/test_session_source.py |
+| P208 | Price sessions from a provider's own published rates in a FOCUS SKU Price file, so the… | **TER project** Upstream of the Bill direction document, Stage U2, 25 Nov 2026 (ADR 0008) (Leigh Griffin) | L2 | ● done |  | • `python -m ter record export --prices FILE.csv` prices a session from a FOCUS 1.5 SKU Price file, reading the public USD list token prices by their token direction and cache action, and `record verify` with the same file rebuilds the Record exactly.<br>• A file missing a 1.5 column is refused naming it, and a model missing a rate on a date is left unpriced on that date. | `TER-ANL-045` ✓<br>`TER-ANL-046` ✓<br>`TER-ANL-047` ✓ | test: tests/unit/test_ter4_focus_price_book.py<br>test: tests/contract/test_price_book.py |
+| P209 | Join TER Records to FOCUS billing rows by model and charge period, so a FinOps team… | **TER project** Upstream of the Bill direction document, Stage U2, 25 Nov 2026 (ADR 0008) (Leigh Griffin) | L2 | ● done |  | • `python -m ter record focus RECORD... --billing FILE.csv` writes the FOCUS Cost and Usage file back with x_ efficiency columns only, every billing value unchanged.<br>• Each Record joins the rows of its models and charge period, giving its tokens of the row's kind as its share; rows differing only by principal share a Record by their tokens; Records that join nothing are counted with their reason. | `TER-EXP-011` ✓<br>`TER-EXP-012` ✓<br>`TER-EXP-013` ✓ | test: tests/unit/test_ter4_focus_export.py |

@@ -39,6 +39,7 @@ from ..ports.driven import (
     InterventionLedger,
     InterventionPolicies,
     OutcomeSource,
+    PriceBook,
     SessionSource,
     TerScorer,
     Tokenizer,
@@ -164,6 +165,33 @@ def make_ter_scorer(mode: str) -> TerScorer | None:
         raise ValueError(f"Unknown TER mode {mode!r}")
     assert isinstance(scorer, TerScorer)  # checked by the registry
     return scorer
+
+
+def make_price_book(path: Path | None = None, details: Path | None = None) -> PriceBook:
+    """The price book costs are read from (ADR 0003, ADR 0008).
+
+    None is the book shipped with TER. A ``.csv`` file is a FOCUS SKU Price
+    file (``PriceBook.focus-sku-price``), whose token labels come from the
+    file or from the FOCUS Cost and Usage file ``details``; any other file is
+    a ``ter.price_book/1`` JSON book (``PriceBook.json``).
+    """
+    from ..adapters.driven.pricing import default_price_book
+
+    if path is None:
+        if details is not None:
+            raise ValueError("--price-details needs a FOCUS SKU Price file (--prices)")
+        return default_price_book()
+    registry = default_registry()
+    if path.suffix.lower() == ".csv":
+        book = registry.create("PriceBook", "focus-sku-price", path, details=details)
+    else:
+        if details is not None:
+            raise ValueError(
+                "--price-details is read only beside a FOCUS SKU Price file"
+            )
+        book = registry.create("PriceBook", "json", path)
+    assert isinstance(book, PriceBook)  # checked by the registry
+    return book
 
 
 def session_source_for(path: Path) -> SessionSource:
@@ -329,6 +357,7 @@ def cli_services() -> CliServices:
         outcome: Path | None = None,
         repo: Path | None = None,
         repo_engine: str = "syntax",
+        prices: PriceBook | None = None,
     ) -> ExplainedSession:
         from ..adapters.driven.claude_code import ClaudeCodeJsonlSource
         from ..adapters.driven.pricing import default_price_book
@@ -342,7 +371,7 @@ def cli_services() -> CliServices:
             make_tokenizer(tokenizer),
             make_ter_scorer(ter if scores else "off"),
             make_outcome_source() if outcome is not None else None,
-            default_price_book(),
+            prices if prices is not None else default_price_book(),
             lambda: make_ingest(tokenizer),
             # L3: the repository as it was when the session started.
             repository_evidence(repo, repo_engine) if repo is not None else None,
@@ -487,9 +516,16 @@ def cli_services() -> CliServices:
         )
 
         def export(
-            path: Path, tokenizer: str, ter: str, outcome: Path | None
+            path: Path,
+            tokenizer: str,
+            ter: str,
+            outcome: Path | None,
+            prices: Path | None = None,
+            details: Path | None = None,
         ) -> dict[str, object]:
-            explained = explain_transcript(path, tokenizer, ter, outcome)
+            explained = explain_transcript(
+                path, tokenizer, ter, outcome, prices=make_price_book(prices, details)
+            )
             return record_of(
                 explained,
                 tokenizer=tokenizer,
@@ -497,7 +533,11 @@ def cli_services() -> CliServices:
             )
 
         def verify(
-            record: Mapping[str, Any], path: Path, outcome: Path | None
+            record: Mapping[str, Any],
+            path: Path,
+            outcome: Path | None,
+            prices: Path | None = None,
+            details: Path | None = None,
         ) -> RecordCheck:
             produced = record.get("produced_by")
             tokenizer = (
@@ -506,7 +546,11 @@ def cli_services() -> CliServices:
                 else "regex"
             )
             explained = explain_transcript(
-                path, tokenizer, ter_mode_of(record), outcome
+                path,
+                tokenizer,
+                ter_mode_of(record),
+                outcome,
+                prices=make_price_book(prices, details),
             )
             return check_record(
                 record,

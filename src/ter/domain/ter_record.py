@@ -36,7 +36,7 @@ from typing import Any
 
 from .calibration import Calibration
 from .costing import COST_CLASSES, SessionCost, session_date
-from .events import Event
+from .events import Event, TokenUsage
 from .lean.a3 import A3Report
 from .lean.model import FindingKind
 from .outcome import CheckStatus
@@ -109,14 +109,29 @@ def _ratio(value: float | None) -> float | None:
     return None if value is None else round(value, 4)
 
 
-def _usage(a3: A3Report) -> dict[str, int]:
-    turns = [s.usage for s in a3.analysis.steps if s.usage is not None]
+def _tokens(turns: Sequence[TokenUsage]) -> dict[str, int]:
     return {
         "model_turns": len(turns),
         "input": sum(u.input_tokens for u in turns),
         "cache_read": sum(u.cache_read_tokens for u in turns),
         "cache_write": sum(u.cache_creation_tokens for u in turns),
         "output": sum(u.output_tokens for u in turns),
+    }
+
+
+def _usage(a3: A3Report) -> dict[str, object]:
+    """Provider-reported usage, in all and by the model that served each turn
+    (``by_model``), so a FOCUS exporter can join each model's share to that
+    model's billing rows (ADR 0008). A turn whose source names no model is
+    under ``model: null``."""
+    turns = [s.usage for s in a3.analysis.steps if s.usage is not None]
+    models = sorted({u.model for u in turns}, key=lambda m: (m is None, m or ""))
+    return {
+        **_tokens(turns),
+        "by_model": [
+            {"model": model, **_tokens([u for u in turns if u.model == model])}
+            for model in models
+        ],
     }
 
 

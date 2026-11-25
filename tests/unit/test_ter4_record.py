@@ -113,6 +113,16 @@ class TestRecordContents:
             "cache_read": 0,
             "cache_write": 0,
             "output": 30_000,
+            "by_model": [
+                {
+                    "model": "m",
+                    "model_turns": 3,
+                    "input": 3_000_000,
+                    "cache_read": 0,
+                    "cache_write": 0,
+                    "output": 30_000,
+                }
+            ],
         }
         assert doc["cost"]["usd"] == pytest.approx(3.3)
         assert sum(doc["cost"]["by_activity_class"].values()) == pytest.approx(3.3)
@@ -340,3 +350,55 @@ class TestDifferences:
         assert "findings[0].findings" in paths
         assert f"findings[{len(doc['findings'])}]" in paths
         assert "shape" in paths
+
+
+@pytest.mark.req("TER-EXP-012")
+def test_usage_is_split_by_the_model_that_served_each_turn() -> None:
+    """Each model's tokens, so a billing join can give each model its share;
+    turns of no named model sort last under null (ADR 0008)."""
+    from ter.domain.ter_record import _usage
+
+    class Step:
+        def __init__(self, usage: TokenUsage | None) -> None:
+            self.usage = usage
+
+    class Analysis:
+        steps = [
+            Step(TokenUsage(input_tokens=10, output_tokens=1, model="b")),
+            Step(None),
+            Step(TokenUsage(input_tokens=5, cache_read_tokens=7, model=None)),
+            Step(TokenUsage(input_tokens=20, cache_creation_tokens=3, model="a")),
+            Step(TokenUsage(input_tokens=1, output_tokens=2, model="b")),
+        ]
+
+    class A3:
+        analysis = Analysis()
+
+    usage = _usage(A3())  # type: ignore[arg-type]
+    assert usage["model_turns"] == 4 and usage["input"] == 36
+    assert usage["by_model"] == [
+        {
+            "model": "a",
+            "model_turns": 1,
+            "input": 20,
+            "cache_read": 0,
+            "cache_write": 3,
+            "output": 0,
+        },
+        {
+            "model": "b",
+            "model_turns": 2,
+            "input": 11,
+            "cache_read": 0,
+            "cache_write": 0,
+            "output": 3,
+        },
+        {
+            "model": None,
+            "model_turns": 1,
+            "input": 5,
+            "cache_read": 7,
+            "cache_write": 0,
+            "output": 0,
+        },
+    ]

@@ -97,7 +97,7 @@ Every driven adapter is a capability named `<Port>.<adapter>`, declared in
 | `SessionSource` | `claude-code` (Claude Code JSONL), `gare` (GARE run export, [gare.md](gare.md)), `otel-genai` (OpenTelemetry GenAI span export, [otel-genai.md](otel-genai.md)) | `InMemorySessionSource` | L0, L6 |
 | `Tokenizer` | `regex`, `tiktoken` | regex | L0 |
 | `Embedder` | `hashing` | same | L0 |
-| `PriceBook` | `json` (`ter/data/price_book.json`) | `InMemoryPriceBook` | L0 |
+| `PriceBook` | `json` (`ter/data/price_book.json`), `focus-sku-price` (FOCUS 1.5 SKU Price CSV, [focus.md](focus.md)) | `InMemoryPriceBook` | L0 |
 | `TerScorer` | `ter3` | `FixedTerScorer` | L0 |
 | `EventLog` | `jsonl` | `InMemoryEventLog` | L1 |
 | `OutcomeSource` | `junit` | `InMemoryOutcomeSource` | L2 |

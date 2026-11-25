@@ -49,12 +49,12 @@ owner's own ledger shows them (issue #43). Counts from `requirements/l*.yaml` on
 |---|---:|---:|---:|
 | L0 Measured | 45 of 45 | 0 | 12 / 1 / 0 |
 | L1 Observed | 32 of 32 | 0 | 16 / 1 / 0 |
-| L2 Explained | 90 of 90 | 0 | 53 / 5 / 0 |
+| L2 Explained | 96 of 96 | 0 | 55 / 5 / 0 |
 | L3 Grounded | 35 of 35 | 0 | 25 / 23 / 0 |
 | L4 Advisory | 17 of 17 | 0 | 19 / 8 / 4 |
 | L5 Corrective | 0 of 12 | 12 | 1 / 5 / 15 |
 | L6 Learning | 11 of 19 | 8 | 1 / 4 / 14 |
-| **All** | **230 of 250** | **20** | **127 / 47 / 33** of 207 |
+| **All** | **236 of 256** | **20** | **129 / 47 / 33** of 209 |
 
 L2 includes the TER Record (TER-REC-001 to TER-REC-006), cost by activity
 class (TER-ANL-042, TER-ANL-043) and the observed shape (TER-SHP-001,
@@ -63,7 +63,9 @@ TER-SHP-002), added on 25 Nov 2026 by
 L1 includes the OpenTelemetry GenAI session source (TER-SRC-027 to
 TER-SRC-031), Stage U2 of the same direction, added by
 [ADR 0008](../decisions/0008-upstream-adapters.md); see
-[otel-genai.md](otel-genai.md).
+[otel-genai.md](otel-genai.md). L2 also includes the FOCUS SKU Price book
+(TER-ANL-045 to TER-ANL-047) and the FOCUS exporter (TER-EXP-011 to
+TER-EXP-013); see [focus.md](focus.md).
 
 The L6 requirements already verified are the ones that did not have to wait:
 a second harness (the GARE session source, TER-SRC-010 to TER-SRC-017) and

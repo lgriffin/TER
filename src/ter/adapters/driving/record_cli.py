@@ -46,10 +46,16 @@ SHOWN = 40
 class RecordServices:
     """What ``python -m ter record`` needs, wired by the composition root."""
 
-    #: ``export(session, tokenizer, ter_mode, outcome)``: the session's record.
-    export: Callable[[Path, str, str, Path | None], dict[str, object]]
-    #: ``verify(record, session, outcome)``: the record against its session.
-    verify: Callable[[Mapping[str, Any], Path, Path | None], RecordCheck]
+    #: ``export(session, tokenizer, ter_mode, outcome, prices, price_details)``:
+    #: the session's record, priced from the shipped book or ``prices``.
+    export: Callable[
+        [Path, str, str, Path | None, Path | None, Path | None], dict[str, object]
+    ]
+    #: ``verify(record, session, outcome, prices, price_details)``: the record
+    #: against its session, priced from the same book it was exported with.
+    verify: Callable[
+        [Mapping[str, Any], Path, Path | None, Path | None, Path | None], RecordCheck
+    ]
     #: Names of the usable tokenizers, to check a record's ``tokenizer``.
     tokenizers: Callable[[], tuple[str, ...]]
 
@@ -80,12 +86,53 @@ def add_record_parser(
         help="how to compute TER: offline (default), model or off",
     )
     export.add_argument("--outcome", type=Path, metavar="FILE", help=outcome_help)
+    _price_arguments(export)
     verify = sub.add_parser(
         "verify", help="recompute a record from its session and list differences"
     )
     verify.add_argument("record", type=Path, help="a ter.record/0.1 JSON file")
     verify.add_argument("path", type=Path, help="the session the record names")
     verify.add_argument("--outcome", type=Path, metavar="FILE", help=outcome_help)
+    _price_arguments(verify)
+    focus = sub.add_parser(
+        "focus",
+        help=(
+            "join records to FOCUS billing rows by model and charge period, "
+            "adding x_ efficiency columns (ADR 0008)"
+        ),
+    )
+    focus.add_argument("records", type=Path, nargs="+", help="ter.record/0.1 files")
+    focus.add_argument(
+        "--billing",
+        type=Path,
+        required=True,
+        metavar="FILE",
+        help="the provider's FOCUS Cost and Usage .csv",
+    )
+    focus.add_argument(
+        "--out", type=Path, metavar="FILE", help="write to FILE (default: stdout)"
+    )
+
+
+def _price_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--prices",
+        type=Path,
+        metavar="FILE",
+        help=(
+            "price from FILE instead of the shipped book: a FOCUS 1.5 SKU Price "
+            ".csv or a ter.price_book/1 .json (ADR 0008)"
+        ),
+    )
+    parser.add_argument(
+        "--price-details",
+        type=Path,
+        metavar="FILE",
+        help=(
+            "a FOCUS Cost and Usage .csv giving each SKU price's token labels, "
+            "when the SKU Price file carries none"
+        ),
+    )
 
 
 def format_check(check: RecordCheck) -> str:
@@ -132,6 +179,8 @@ def run_record(
     out: IO[str],
     err: IO[str],
 ) -> int:
+    if args.record_command == "focus":
+        return _run_focus(args, out, err)
     if services is None:
         err.write("records are not available in this installation\n")
         return 2
@@ -143,9 +192,17 @@ def run_record(
     if outcome is not None and not outcome.is_file():
         err.write(f"No such outcome file: {outcome}\n")
         return 2
+    prices: Path | None = args.prices
+    details: Path | None = args.price_details
+    for kind, given in (("price", prices), ("price details", details)):
+        if given is not None and not given.is_file():
+            err.write(f"No such {kind} file: {given}\n")
+            return 2
     try:
         if args.record_command == "export":
-            doc = services.export(path, args.tokenizer, args.ter, outcome)
+            doc = services.export(
+                path, args.tokenizer, args.ter, outcome, prices, details
+            )
             text = json.dumps(doc, indent=2, ensure_ascii=False) + "\n"
             if args.out is None:
                 out.write(text)
@@ -167,12 +224,46 @@ def run_record(
                 "installed here, so it cannot be rebuilt\n"
             )
             return 2
-        check = services.verify(claimed, path, outcome)
+        check = services.verify(claimed, path, outcome, prices, details)
     except OutcomeFormatError as exc:
         err.write(f"Cannot read outcome: {exc}\n")
         return 2
     except (SessionFormatError, CapabilityError) as exc:
         err.write(f"Cannot read session {path}: {exc}\n")
         return 2
+    except ValueError as exc:  # a price file that cannot be read
+        err.write(f"Cannot read prices: {exc}\n")
+        return 2
     out.write(format_check(check))
     return 0 if check.ok else 1
+
+
+def _run_focus(args: argparse.Namespace, out: IO[str], err: IO[str]) -> int:
+    from .focus_export import FocusExportError, export_focus
+
+    for given in (args.billing, *args.records):
+        if not given.is_file():
+            err.write(f"No such file: {given}\n")
+            return 2
+    try:
+        joined = export_focus(args.billing, args.records)
+    except FocusExportError as exc:
+        err.write(f"Cannot join: {exc}\n")
+        return 2
+    if args.out is None:
+        out.write(joined.text)
+    else:
+        if args.out.parent != Path():
+            args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(joined.text, encoding="utf-8")
+        err.write(f"Wrote {args.out}\n")
+    unjoined = ", ".join(
+        f"{n} {why}" for why, n in sorted(joined.result.unjoined.items())
+    )
+    err.write(
+        f"Joined {joined.result.joined} of {joined.records} record(s) to "
+        f"{joined.rows_joined} of {joined.rows} billing row(s)"
+        + (f"; not joined: {unjoined}" if unjoined else "")
+        + "\n"
+    )
+    return 0

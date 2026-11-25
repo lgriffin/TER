@@ -59,7 +59,9 @@ class SessionResult:
         return statistics.pstdev(self.waste_ratios)
 
 
-def waste_ratio_for(session_path: str, similarity_threshold: float, confidence_threshold: float) -> tuple[float, int]:
+def waste_ratio_for(
+    session_path: str, similarity_threshold: float, confidence_threshold: float
+) -> tuple[float, int]:
     args = default_analyze_args(session_path)
     args.similarity_threshold = similarity_threshold
     args.confidence_threshold = confidence_threshold
@@ -79,15 +81,23 @@ def evaluate_session(path: Path) -> SessionResult:
                 ratio, n_spans = waste_ratio_for(str(path), sim_t, conf_t)
                 ratios.append(ratio)
     except Exception as exc:  # noqa: BLE001 - we want to keep going and report the failure
-        return SessionResult(path=path, n_spans=0, waste_ratios=[], error=f"{type(exc).__name__}: {exc}")
+        return SessionResult(
+            path=path, n_spans=0, waste_ratios=[], error=f"{type(exc).__name__}: {exc}"
+        )
     return SessionResult(path=path, n_spans=n_spans, waste_ratios=ratios)
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("sessions_dir", help="Directory containing .jsonl session files")
-    parser.add_argument("--top", type=int, default=20, help="How many sessions to print (default 20)")
-    parser.add_argument("--out", type=str, default=None, help="Optional CSV path for full results")
+    parser.add_argument(
+        "sessions_dir", help="Directory containing .jsonl session files"
+    )
+    parser.add_argument(
+        "--top", type=int, default=20, help="How many sessions to print (default 20)"
+    )
+    parser.add_argument(
+        "--out", type=str, default=None, help="Optional CSV path for full results"
+    )
     args = parser.parse_args(argv)
 
     sessions_dir = Path(args.sessions_dir)
@@ -96,8 +106,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"No .jsonl files found in {sessions_dir}", file=sys.stderr)
         return 1
 
-    print(f"Found {len(files)} session file(s). Probing {len(SIMILARITY_GRID) * len(CONFIDENCE_GRID)} "
-          f"threshold combinations each...\n")
+    print(
+        f"Found {len(files)} session file(s). Probing {len(SIMILARITY_GRID) * len(CONFIDENCE_GRID)} "
+        f"threshold combinations each...\n"
+    )
 
     results: list[SessionResult] = []
     for i, f in enumerate(files, 1):
@@ -112,12 +124,18 @@ def main(argv: list[str] | None = None) -> int:
     ok_results.sort(key=lambda r: r.spread, reverse=True)
 
     print("\n=== Top sessions to hand-label first (highest threshold-sensitivity) ===")
-    print(f"{'session':45s}  {'spans':>6s}  {'mean_waste':>11s}  {'spread':>8s}  {'stdev':>7s}")
+    print(
+        f"{'session':45s}  {'spans':>6s}  {'mean_waste':>11s}  {'spread':>8s}  {'stdev':>7s}"
+    )
     for r in ok_results[: args.top]:
-        print(f"{r.path.name:45s}  {r.n_spans:6d}  {r.mean_waste_ratio:11.3f}  {r.spread:8.3f}  {r.stdev:7.3f}")
+        print(
+            f"{r.path.name:45s}  {r.n_spans:6d}  {r.mean_waste_ratio:11.3f}  {r.spread:8.3f}  {r.stdev:7.3f}"
+        )
 
     if error_results:
-        print(f"\n=== {len(error_results)} session(s) failed to parse/classify (fix or exclude before labeling) ===")
+        print(
+            f"\n=== {len(error_results)} session(s) failed to parse/classify (fix or exclude before labeling) ==="
+        )
         for r in error_results:
             print(f"{r.path.name}: {r.error}")
 
@@ -125,10 +143,20 @@ def main(argv: list[str] | None = None) -> int:
         out_path = Path(args.out)
         with out_path.open("w", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow(["session", "n_spans", "mean_waste_ratio", "spread", "stdev", "error"])
+            writer.writerow(
+                ["session", "n_spans", "mean_waste_ratio", "spread", "stdev", "error"]
+            )
             for r in results:
-                writer.writerow([r.path.name, r.n_spans, f"{r.mean_waste_ratio:.4f}",
-                                  f"{r.spread:.4f}", f"{r.stdev:.4f}", r.error or ""])
+                writer.writerow(
+                    [
+                        r.path.name,
+                        r.n_spans,
+                        f"{r.mean_waste_ratio:.4f}",
+                        f"{r.spread:.4f}",
+                        f"{r.stdev:.4f}",
+                        r.error or "",
+                    ]
+                )
         print(f"\nFull results written to {out_path}")
 
     return 0

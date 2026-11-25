@@ -265,6 +265,7 @@ All guides: [docs/guides](docs/guides/README.md). Reference:
 [real session corpus](docs/ter4/corpus.md) ·
 [GARE runs](docs/ter4/gare.md) ·
 [OpenTelemetry spans](docs/ter4/otel-genai.md) ·
+[FOCUS prices and billing](docs/ter4/focus.md) ·
 [dataset card](docs/ter4/dataset-card.md) ·
 [requirements control](docs/ter4/requirements.md) ·
 [vision points](docs/ter4/points.md) ·

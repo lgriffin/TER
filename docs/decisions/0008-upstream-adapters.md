@@ -49,15 +49,25 @@ change.
    Record as its transcript, apart from the source name, session id and
    digests (TER-SRC-031). This is the document's second falsification test,
    run on synthetic sessions; a real agent's export is the next check.
-4. **The FOCUS price book reads the SKU Price preview by pinned version.**
-   Token prices are the rows whose SKU Price Details carry `TokenDirection`
-   and `TokenCacheAction`; the model is `ModelId`. A file of a FOCUS
-   version the adapter does not know is refused.
+4. **The FOCUS price book reads the SKU Price preview by pinned version**
+   (TER-ANL-045 to TER-ANL-047). Only public USD list prices are read. A
+   row's rate comes from its SKU Price Details (`TokenDirection`,
+   `TokenCacheAction`, `ModelId`). The 1.5 dataset defers its own SKU Price
+   Details column, so the details come from the price row when it carries
+   one, else from the provider's Cost and Usage rows matched by
+   `SkuPriceId`. A file missing a 1.5 column is refused naming it, and a
+   model missing one of its four rates on a date is not priced on that
+   date. The book's name carries no file name, because it travels into
+   Records.
 5. **The FOCUS exporter joins many to one and writes only `x_` columns of
-   its own.** FOCUS keeps the session out of billing, so Records roll up to
-   a billing row by model, principal (when supplied) and charge period, and
-   each Record's usage gives its share of that row. Efficiency figures go
-   only into columns with the `x_` prefix FOCUS reserves for custom columns.
+   its own** (TER-EXP-011 to TER-EXP-013). FOCUS keeps the session out of
+   billing, so Records roll up to a billing row by model and charge period,
+   and each Record's usage of that model (`usage.by_model`, added to the
+   Record for this) gives its share of the row's tokens of the row's kind.
+   Records carry no principal, so rows that differ only by principal share a
+   Record's tokens by their consumed tokens rather than each counting them.
+   Efficiency figures go only into columns with the `x_` prefix FOCUS
+   reserves for custom columns, and no billing value changes.
 6. **The MCP server answers only for sessions that have ended.** An agent
    that asks TER about the session it is running in would receive TER's
    analysis as input, which changes what the agent reads. At the L4 ceiling
@@ -74,8 +84,9 @@ change.
 - The vision points P207 to P211 and their requirements enter the catalogue
   with each stage's change, verified by the tests in that change, so levels
   L0 to L4 stay met.
-- `docs/ter4/otel-genai.md` documents the span mapping; the FOCUS, MCP and
-  conformance pages follow their stages.
+- `docs/ter4/otel-genai.md` documents the span mapping and
+  `docs/ter4/focus.md` the FOCUS price book; the MCP and conformance pages
+  follow their stages.
 - What not to claim: that TER reads every OpenTelemetry export (it reads the
   versions it lists), that the FOCUS columns are final (the SKU Price
   dataset is a preview), or that the span reader has met a real agent's

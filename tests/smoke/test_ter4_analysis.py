@@ -81,6 +81,34 @@ def test_record_export_then_verify(cli: Cli, workdir: Path) -> None:
     assert other.code == 1 and "Not the same session" in other.out
 
 
+@pytest.mark.req("TER-TST-006", "TER-SRC-027", "TER-ANL-045", "TER-EXP-011")
+def test_record_from_spans_priced_by_focus_and_joined_to_billing(
+    cli: Cli, workdir: Path
+) -> None:
+    fixtures = FIXTURE.parent
+    spans = fixtures / "otel" / "lean_mix.json"
+    prices = fixtures / "focus" / "sku_price.csv"
+    cli.ter4(
+        "record", "export", str(spans), "--prices", str(prices), "--out", "o.json"
+    ).ok()
+    record = json.loads((workdir / "o.json").read_text(encoding="utf-8"))
+    assert record["session"]["source"] == "otel-genai"
+    assert record["cost"]["price_book"] == "focus-sku-price-1.5"
+    cli.ter4("record", "export", str(FIXTURE), "--out", "s.json").ok()
+    joined = cli.ter4(
+        "record",
+        "focus",
+        "s.json",
+        "--billing",
+        str(fixtures / "focus" / "billing.csv"),
+        "--out",
+        "joined.csv",
+    ).ok()
+    assert "Joined 1 of 1 record(s) to 4 of 5 billing row(s)" in joined.err
+    header = (workdir / "joined.csv").read_text(encoding="utf-8").splitlines()[0]
+    assert header.endswith("x_TerVerifiedOutcomes")
+
+
 # --- failures are reported, never a traceback (TER-TST-007) ---------------
 
 

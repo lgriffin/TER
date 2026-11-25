@@ -3486,3 +3486,61 @@ points:
     verification:
       - 'test: tests/unit/test_ter4_otel_source.py'
       - 'test: tests/contract/test_session_source.py'
+
+  - id: P208
+    text: >-
+      Price sessions from a provider's own published rates in a FOCUS SKU
+      Price file, so the cost TER reports and the bill it joins use the same
+      prices.
+    level: L2
+    kind: capability
+    status: done
+    origin:
+      source: TER project
+      ref: "Upstream of the Bill direction document, Stage U2, 25 Nov 2026 (ADR 0008)"
+      author: Leigh Griffin
+    definition_of_done:
+      - >-
+        `python -m ter record export --prices FILE.csv` prices a session from
+        a FOCUS 1.5 SKU Price file, reading the public USD list token prices
+        by their token direction and cache action, and `record verify` with
+        the same file rebuilds the Record exactly.
+      - >-
+        A file missing a 1.5 column is refused naming it, and a model missing
+        a rate on a date is left unpriced on that date.
+    rules:
+      - TER-ANL-045
+      - TER-ANL-046
+      - TER-ANL-047
+    verification:
+      - 'test: tests/unit/test_ter4_focus_price_book.py'
+      - 'test: tests/contract/test_price_book.py'
+
+  - id: P209
+    text: >-
+      Join TER Records to FOCUS billing rows by model and charge period, so a
+      FinOps team sees, beside each billed row, what share of those tokens
+      TER measured and what they did.
+    level: L2
+    kind: capability
+    status: done
+    origin:
+      source: TER project
+      ref: "Upstream of the Bill direction document, Stage U2, 25 Nov 2026 (ADR 0008)"
+      author: Leigh Griffin
+    definition_of_done:
+      - >-
+        `python -m ter record focus RECORD... --billing FILE.csv` writes the
+        FOCUS Cost and Usage file back with x_ efficiency columns only, every
+        billing value unchanged.
+      - >-
+        Each Record joins the rows of its models and charge period, giving
+        its tokens of the row's kind as its share; rows differing only by
+        principal share a Record by their tokens; Records that join nothing
+        are counted with their reason.
+    rules:
+      - TER-EXP-011
+      - TER-EXP-012
+      - TER-EXP-013
+    verification:
+      - 'test: tests/unit/test_ter4_focus_export.py'

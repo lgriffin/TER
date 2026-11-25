@@ -27,7 +27,7 @@ names and every figure matches, 1 when not, 2 when either cannot be read.
 | `produced_by` | event schema, tokenizer, detector fingerprint, TER 3 method | the run |
 | `session` | hashed id, source format, event count, record coverage, usage limits | `SessionTrace` |
 | `join` | models, charge period (the session date); principal, credential and conversation stay null | the source |
-| `usage` | model turns and provider tokens: input, cache read, cache write, output | `TokenUsage` on each turn |
+| `usage` | model turns and provider tokens: input, cache read, cache write, output, in all and by model (`by_model`, for the FOCUS join) | `TokenUsage` on each turn |
 | `work` | generated and context tokens, tokens by activity class, waste tokens, flow efficiency by tokens and by time, TER | the L2 scorecard |
 | `findings` | per detector: waste, kind, counts, confidence range, avoidable and uncertain tokens, evidence events, judged samples | findings and `ter/data/calibration.json` |
 | `outcome` | verdict and check counts, generated tokens per verified outcome; `unknown` with no evidence | `ter.domain.outcome` |

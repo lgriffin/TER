@@ -1084,6 +1084,87 @@ requirements:
       counted unpriced.
     status: verified
 
+  - id: TER-ANL-045
+    pattern: event-driven
+    text: >-
+      When given a FOCUS SKU Price file, the price book shall price each model
+      from its public US dollar list prices of tokens, taking each row's rate
+      from its token direction and cache action.
+    level: L2
+    port: PriceBook
+    source_points: [208]
+    rationale: >-
+      Prices can then arrive from the provider's own published rates, in the
+      format billing already uses, instead of being copied by hand (ADR 0008).
+    status: verified
+
+  - id: TER-ANL-046
+    pattern: unwanted
+    text: >-
+      If a SKU Price file lacks a column of the FOCUS version the price book
+      reads, then the price book shall refuse it and name the missing columns.
+    level: L2
+    port: PriceBook
+    source_points: [208]
+    rationale: >-
+      The SKU Price dataset is a preview whose columns may change; a file of
+      another shape must be refused, not read by guess.
+    status: verified
+
+  - id: TER-ANL-047
+    pattern: unwanted
+    text: >-
+      If a model's rows lack one of the four token rates on a date, then the
+      price book shall leave that model unpriced on that date.
+    level: L2
+    port: PriceBook
+    source_points: [208]
+    rationale: >-
+      A missing cache rate cannot be inferred; an unpriced turn is counted
+      and shown, a guessed one is not.
+    status: verified
+
+  - id: TER-EXP-011
+    pattern: ubiquitous
+    text: >-
+      The FOCUS exporter shall write efficiency figures only into columns that
+      carry the x_ prefix, leaving every billing row and FOCUS column as it
+      was read.
+    level: L2
+    source_points: [209]
+    rationale: >-
+      FOCUS reserves the x_ prefix for custom columns; a billing file TER
+      changed in any other way could no longer be reconciled with the bill.
+    status: verified
+
+  - id: TER-EXP-012
+    pattern: event-driven
+    text: >-
+      When given TER Records and FOCUS billing rows, the FOCUS exporter shall
+      join each Record to the rows of its models whose charge period holds
+      its day, giving each row the Records' tokens of the row's kind as their
+      share of it.
+    level: L2
+    source_points: [209]
+    rationale: >-
+      FOCUS keeps the session out of billing, so the join is many to one;
+      each Record's usage by model is what ties its efficiency to the money
+      on a row (ADR 0008).
+    status: verified
+
+  - id: TER-EXP-013
+    pattern: unwanted
+    text: >-
+      If a Record matches no billing row, then the FOCUS exporter shall count
+      it as not joined with its reason and add it to no row.
+    level: L2
+    source_points: [209]
+    rationale: >-
+      A FinOps reader must see how much of the efficiency evidence reached
+      the bill; the falsification test asks whether the join is too coarse to
+      use.
+    status: verified
+
   - id: TER-SHP-001
     pattern: event-driven
     text: >-

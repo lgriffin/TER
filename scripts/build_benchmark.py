@@ -32,15 +32,13 @@ def load_reviewed_csv(path: Path) -> list[dict[str, object]]:
 
             if gold_label not in VALID_LABELS:
                 raise ValueError(
-                    f"{path}:{line_number}: invalid gold_label "
-                    f"{gold_label!r}"
+                    f"{path}:{line_number}: invalid gold_label {gold_label!r}"
                 )
 
             predicted_label = (row.get("predicted_label") or "").strip()
             if predicted_label not in VALID_LABELS:
                 raise ValueError(
-                    f"{path}:{line_number}: invalid predicted_label "
-                    f"{predicted_label!r}"
+                    f"{path}:{line_number}: invalid predicted_label {predicted_label!r}"
                 )
 
             record: dict[str, object] = {
