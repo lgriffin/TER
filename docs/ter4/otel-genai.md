@@ -19,8 +19,12 @@ TER reads two layouts:
 
 A file is one session. Export one conversation per file: TER keys the session
 by the `gen_ai.conversation.id` its spans carry, and refuses a file holding
-several, naming them. Spans with no conversation id are one session only when
-they belong to one trace.
+several, naming them. A file that names one conversation and also holds a
+trace of inference, tool or agent spans that names none is refused too; an
+agent's start-up trace (`create_agent` only) is read as metadata. Spans with
+no conversation id are one session only when they belong to one trace. Control
+characters and backslashes in the id are escaped, so it prints safely and two
+ids never collide.
 
 ```bash
 python -m ter observe spans.json --timeline
@@ -66,7 +70,9 @@ GARE turn's is. The model is `gen_ai.response.model`, else
 
 Message content is opt-in and off by default: `gen_ai.input.messages`,
 `gen_ai.output.messages`, `gen_ai.tool.call.arguments` and
-`gen_ai.tool.call.result`. Without it:
+`gen_ai.tool.call.result`. Capture is judged per trace, so a conversation
+captured in some traces and not others keeps what it has. For each trace
+without it:
 
 - response text is empty, and the trace carries the `no-response-text`
   limit, as a GARE run does;

@@ -587,3 +587,100 @@ def test_identifiers_from_the_file_cannot_drive_the_terminal(tmp_path: Path) -> 
     with pytest.raises(SessionFormatError) as refused:
         SOURCE.read(path)
     assert "\x07" not in str(refused.value) and "x\\x07y" in str(refused.value)
+
+
+# -- second review (#117) ------------------------------------------------------
+
+
+@pytest.mark.req("TER-SRC-029")
+def test_an_escaped_id_and_its_literal_spelling_stay_different_sessions(
+    tmp_path: Path,
+) -> None:
+    """A control character and the text of its escape never share a session."""
+    raw = SOURCE.read(
+        _export(tmp_path, [_chat("s1", 1, gen_ai__conversation__id="a\nb")])
+    )
+    literal = SOURCE.read(
+        _export(tmp_path, [_chat("s1", 1, gen_ai__conversation__id="a\\nb")])
+    )
+    assert raw.session_id != literal.session_id
+    assert "\n" not in raw.session_id
+
+
+@pytest.mark.req("TER-SRC-029")
+def test_a_trace_whose_conversation_id_is_not_text_is_a_stray_trace(
+    tmp_path: Path,
+) -> None:
+    """Only a non-empty string names a conversation, for every trace alike."""
+    odd = _span("s9", "chat", 3, trace="5" * 32, gen_ai__conversation__id=42)
+    with pytest.raises(SessionFormatError, match="name no conversation"):
+        SOURCE.read(_export(tmp_path, [_chat("s1", 1), odd]))
+
+
+@pytest.mark.req("TER-SRC-029")
+def test_an_agent_start_up_trace_beside_a_conversation_is_read(tmp_path: Path) -> None:
+    """A create_agent trace comes before any conversation and yields no events."""
+    start_up = _span("c1", "create_agent", 0, trace="6" * 32)
+    trace = SOURCE.read(_export(tmp_path, [start_up, _chat("s1", 1)]))
+    assert trace.session_id == "conv-1"
+    assert trace.metadata
+
+
+@pytest.mark.req("TER-SRC-027")
+def test_an_export_with_another_top_level_key_first_is_still_accepted(
+    tmp_path: Path,
+) -> None:
+    """resourceSpans need not be the first key, only a key of the top object."""
+    first = tmp_path / "first.json"
+    first.write_text(
+        json.dumps({"exportedBy": {"resourceSpans": 1}, "resourceSpans": []}),
+        encoding="utf-8",
+    )
+    assert OtelGenAiSource.accepts(first)
+    nested = tmp_path / "nested.json"
+    nested.write_text(json.dumps({"data": {"resourceSpans": []}}), encoding="utf-8")
+    assert not OtelGenAiSource.accepts(nested)
+    quoted = tmp_path / "quoted.json"
+    quoted.write_text(json.dumps({"note": 'say "resourceSpans"'}), encoding="utf-8")
+    assert not OtelGenAiSource.accepts(quoted)
+    listed = tmp_path / "listed.json"
+    listed.write_text(json.dumps(["resourceSpans"]), encoding="utf-8")
+    assert not OtelGenAiSource.accepts(listed)
+
+
+@pytest.mark.req("TER-SRC-030")
+def test_the_trace_intent_limit_reads_true_when_some_prompts_were_captured(
+    tmp_path: Path,
+) -> None:
+    """The limit text does not claim that no prompt text was captured."""
+    other = "7" * 32
+    path = _export(
+        tmp_path,
+        [
+            _chat("s1", 1, gen_ai__input__messages=_prompt("first")),
+            _span("s2", "chat", 5, trace=other, gen_ai__conversation__id="conv-1"),
+        ],
+    )
+    assert INTENTS_FROM_TRACES in SOURCE.read(path).usage_limits
+    assert "some or all traces" in describe_limit(INTENTS_FROM_TRACES)
+
+
+@pytest.mark.req("TER-SRC-030")
+def test_a_trace_without_captured_output_carries_the_response_text_limit(
+    tmp_path: Path,
+) -> None:
+    """Output capture is judged per trace, like input capture."""
+    said = json.dumps(
+        [{"role": "assistant", "parts": [{"type": "text", "content": "ok"}]}]
+    )
+    other = "8" * 32
+    partly = _export(
+        tmp_path,
+        [
+            _chat("s1", 1, gen_ai__output__messages=said),
+            _span("s2", "chat", 5, trace=other, gen_ai__conversation__id="conv-1"),
+        ],
+    )
+    assert NO_RESPONSE_TEXT in SOURCE.read(partly).usage_limits
+    whole = _export(tmp_path, [_chat("s1", 1, gen_ai__output__messages=said)])
+    assert NO_RESPONSE_TEXT not in SOURCE.read(whole).usage_limits

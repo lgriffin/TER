@@ -225,7 +225,8 @@ USAGE_LIMIT_TEXT: Mapping[str, str] = {
         "not what the model wrote"
     ),
     "intents-from-traces": (
-        "the source captured no prompt text; each trace counts as one intent"
+        "the source captured no prompt text for some or all traces; each such "
+        "trace counts as one intent"
     ),
     "convention-unstated": (
         "the source names no telemetry convention version; read under the "

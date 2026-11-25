@@ -59,7 +59,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -114,7 +113,6 @@ INTENTS_FROM_TRACES = "intents-from-traces"
 CONVENTION_UNSTATED = "convention-unstated"
 
 _INFERENCE = frozenset({"chat", "text_completion", "generate_content"})
-_EXPORT_START = re.compile(r'\A\ufeff?\s*\{\s*"resourceSpans"\s*:')
 _TOOL = "execute_tool"
 _AGENT = "invoke_agent"
 _METADATA = frozenset({"create_agent"})
@@ -188,9 +186,9 @@ class OtelGenAiSource:
                 head = handle.read(4096)
         except (OSError, UnicodeDecodeError):
             return False
-        # The export request's only top-level key; a transcript that merely
+        # A top-level key of the first JSON object; a transcript that merely
         # mentions it in a tool input is not an export.
-        return _EXPORT_START.match(head) is not None
+        return _top_level_key(head, "resourceSpans")
 
     def read(self, ref: str | Path) -> SessionTrace:
         path = Path(ref)
@@ -220,11 +218,18 @@ class OtelGenAiSource:
             for s in state.spans
             if s.operation in _INFERENCE and s.trace_id not in captured
         }
-        output_text = any(
-            "gen_ai.output.messages" in s.attributes
+        # Output capture is judged per trace too: a trace whose inference
+        # spans carry no output messages has no response text.
+        answered = {
+            s.trace_id
             for s in state.spans
-            if s.operation in _INFERENCE
-        )
+            if s.operation in _INFERENCE and "gen_ai.output.messages" in s.attributes
+        }
+        unanswered = {
+            s.trace_id
+            for s in state.spans
+            if s.operation in _INFERENCE and s.trace_id not in answered
+        }
         drafts: list[_Draft] = []
         metadata: list[MetadataRecord] = []
         requested: set[tuple[str, str]] = set()
@@ -281,7 +286,7 @@ class OtelGenAiSource:
                 )
             )
         limits: list[str] = []
-        if not output_text:
+        if unanswered:
             limits.append(NO_RESPONSE_TEXT)
         if uncaptured:
             limits.append(INTENTS_FROM_TRACES)
@@ -363,11 +368,51 @@ def _parse(path: Path) -> _Read:
 
 def _printable(text: str) -> str:
     """``text`` with control characters escaped (``\\x1b``), so an identifier
-    from the file cannot drive the terminal it is printed on."""
+    from the file cannot drive the terminal it is printed on. A backslash is
+    escaped too, so two different identifiers never print the same."""
     return "".join(
-        c if c.isprintable() else c.encode("unicode_escape").decode("ascii")
+        c
+        if c.isprintable() and c != "\\"
+        else c.encode("unicode_escape").decode("ascii")
         for c in text
     )
+
+
+def _top_level_key(head: str, key: str) -> bool:
+    """True when the first JSON object in ``head`` has ``key`` as a key of
+    its own (not of a nested object, and not inside a string value)."""
+    depth = 0
+    i = 0
+    n = len(head)
+    expecting_key = False
+    while i < n:
+        c = head[i]
+        if c == '"':
+            end = i + 1
+            while end < n and head[end] != '"':
+                end += 2 if head[end] == "\\" else 1
+            if end >= n:
+                return False
+            if depth == 1 and expecting_key and head[i + 1 : end] == key:
+                return True
+            expecting_key = False
+            i = end + 1
+            continue
+        if c in "{[":
+            if depth == 0 and c != "{":
+                return False
+            depth += 1
+            expecting_key = c == "{" and depth == 1
+        elif c in "}]":
+            depth -= 1
+            if depth <= 0:
+                return False
+        elif c == "," and depth == 1:
+            expecting_key = True
+        elif depth == 0 and not (c.isspace() or c == "\ufeff"):
+            return False
+        i += 1
+    return False
 
 
 def _version(url: object) -> str | None:
@@ -453,9 +498,19 @@ def _session_id(spans: list[_Span], path: Path) -> str:
     )
     if len(conversations) == 1:
         named = {
-            s.trace_id for s in spans if s.attributes.get("gen_ai.conversation.id")
+            s.trace_id
+            for s in spans
+            if isinstance(s.attributes.get("gen_ai.conversation.id"), str)
+            and s.attributes["gen_ai.conversation.id"]
         }
-        stray = sorted({s.trace_id for s in spans if s.operation} - named)
+        # Only a trace that yields events must name the conversation: an
+        # agent's start-up trace (create_agent) comes before any conversation.
+        working = {
+            s.trace_id
+            for s in spans
+            if s.operation in _INFERENCE or s.operation in (_TOOL, _AGENT)
+        }
+        stray = sorted(working - named)
         if stray:
             raise SessionFormatError(
                 f"{path} holds conversation {_printable(conversations[0])} and "
