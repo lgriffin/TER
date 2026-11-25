@@ -193,7 +193,11 @@ def test_names_that_are_not_session_or_agent_ids_are_hashed_whole(
 ) -> None:
     src = tmp_path / "src"
     write_session(src / PROJECT / "acme-2024", name)
-    result = import_corpus([src], tmp_path / "corpus")
+    # A fixed salt: with a random one a hex digest sometimes contains "2024"
+    # by chance, and the test failed now and then (CI, 25 Nov 2026).
+    result = import_corpus(
+        [src], tmp_path / "corpus", policy=RedactionPolicy(salt="fixed-test-salt")
+    )
     file = result.sessions[0].file
     for part in ("leigh", "alice", "acme", "2024", "notes", "zz"):
         assert part not in file.removeprefix("sessions/")
