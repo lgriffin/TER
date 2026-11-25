@@ -15,6 +15,7 @@ from __future__ import annotations
 from .driven import (
     AlignmentScorer,
     ArchitectureContracts,
+    CalibrationSource,
     Clock,
     ControlLimitsSource,
     Embedder,
@@ -38,6 +39,7 @@ from .plugins import WasteDetectorPlugin
 DRIVEN_PORTS: dict[str, type[object]] = {
     "AlignmentScorer": AlignmentScorer,
     "ArchitectureContracts": ArchitectureContracts,
+    "CalibrationSource": CalibrationSource,
     "Clock": Clock,
     "ControlLimitsSource": ControlLimitsSource,
     "Embedder": Embedder,
@@ -66,6 +68,7 @@ __all__ = [
     "DRIVEN_PORTS",
     "AlignmentScorer",
     "ArchitectureContracts",
+    "CalibrationSource",
     "Clock",
     "ControlLimitsSource",
     "Embedder",

@@ -7,6 +7,7 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
+from ..domain.calibration import Calibration
 from ..domain.events import Event, SessionTrace
 
 # Declared beside the intent model it serves (the analysis takes it as an
@@ -103,6 +104,23 @@ class PriceBook(Protocol):
     def models(self) -> tuple[str, ...]: ...
 
     def rate(self, model: str, at: date | None = None) -> Rates: ...
+
+
+@runtime_checkable
+class CalibrationSource(Protocol):
+    """Supplies the judged samples behind the detectors (TER-REC-004).
+
+    Obligations, verified by ``tests/contract/test_calibration_source.py``:
+
+    * ``calibration()`` returns the same samples on every call;
+    * a detector no sample judged reports zero judged findings;
+    * a document that is not ``ter.calibration/1`` is refused with
+      ``ter.domain.calibration.CalibrationError``, never another error.
+    """
+
+    name: str
+
+    def calibration(self) -> Calibration: ...
 
 
 @runtime_checkable

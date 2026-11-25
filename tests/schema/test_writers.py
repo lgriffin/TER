@@ -40,6 +40,10 @@ SNAPSHOTS = GOLDEN_DIR / "snapshots" / "control"
 POLICIES = REPO_ROOT / "docs" / "examples" / "policies" / "l4-advisory.json"
 GARE = REPO_ROOT / "tests" / "fixtures" / "gare"
 AT = datetime(2026, 10, 14, 12, 0, tzinfo=UTC)
+RECORDS = GOLDEN_DIR / "snapshots" / "record"
+RECORD = "ter.record/0.1"
+CALIBRATION = "ter.calibration/1"
+SHIPPED_CALIBRATION = REPO_ROOT / "src" / "ter" / "data" / "calibration.json"
 
 
 def _json(path: Path) -> Any:
@@ -105,6 +109,9 @@ def _written(ledger_lines: list[dict[str, Any]]) -> Iterator[tuple[str, Any]]:
         yield str(doc["schema"]), doc
     for line in ledger_lines:
         yield line["schema"], line
+    for path in sorted(RECORDS.glob("*.record.json")):
+        yield RECORD, _json(path)
+    yield CALIBRATION, _json(SHIPPED_CALIBRATION)
 
 
 @pytest.mark.req("TER-TST-002")
@@ -133,6 +140,19 @@ def test_policy_files_conform_draft_and_approved() -> None:
     approved = _approved().as_dict()
     assert "approval" in approved
     assert_conforms("ter.intervention-policies/1", approved)
+
+
+@pytest.mark.req("TER-TST-002", "TER-REC-001")
+def test_every_golden_record_conforms() -> None:
+    records = sorted(RECORDS.glob("*.record.json"))
+    assert len(records) == len(CORPUS)
+    for path in records:
+        assert_conforms(RECORD, _json(path))
+
+
+@pytest.mark.req("TER-TST-002", "TER-REC-004")
+def test_shipped_calibration_conforms() -> None:
+    assert_conforms(CALIBRATION, _json(SHIPPED_CALIBRATION))
 
 
 @pytest.mark.req("TER-TST-002")
@@ -176,7 +196,7 @@ def _samples(ledger_lines: list[dict[str, Any]]) -> list[tuple[str, Any]]:
 
 #: Objects whose keys are data (a measure, a rule, a tool argument), not
 #: fields: dropping one is allowed and an extra one may be fine.
-_MAPS = {"arguments", "measures", "rules", "values", "before", "after"}
+_MAPS = {"arguments", "measures", "rules", "values", "before", "after", "detectors"}
 #: Fields a writer leaves out when they do not apply.
 _OPTIONAL = {"approval", "note", "delivered_at"}
 

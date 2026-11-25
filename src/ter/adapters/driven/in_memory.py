@@ -12,6 +12,7 @@ from dataclasses import replace
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
+from ...domain.calibration import Calibration, JudgedSample
 from ...domain.events import Event, SessionTrace
 from ...domain.intervention import PolicyError
 from ...domain.ledger import Intervention, LedgerError, LedgerRecord, Observation
@@ -66,6 +67,18 @@ class InMemoryPriceBook:
 
     def rate(self, model: str, at: date | None = None) -> Rates:
         return self._schedule.rate(model, at)
+
+
+class InMemoryCalibration:
+    """Serves judged samples built in code."""
+
+    name = "in-memory"
+
+    def __init__(self, samples: Iterable[JudgedSample] = ()) -> None:
+        self._calibration = Calibration(samples)
+
+    def calibration(self) -> Calibration:
+        return self._calibration
 
 
 class FixedClock:

@@ -355,6 +355,46 @@ Definitions of the headline measures:
   GARE exports, or Claude Code records without them), when the session has no
   usage, no timestamp (the latest prices are used), or unpriced turns.
   Reconciling these figures with real billing is issue #40.
+- **Cost by token type and by activity class** (TER-ANL-042, TER-ANL-043,
+  [ADR 0007](../decisions/0007-the-ter-record.md)). `cost.by_token_type`
+  splits the priced turns into input, cache read, cache write and output.
+  `cost.by_activity_class` splits the session cost into `value_adding`,
+  `necessary_non_value_adding`, `avoidable` and `uncertain`: a model turn
+  opens at the event carrying its usage and runs to the next one, its whole
+  cost is shared among the turn's generated events by generated tokens
+  (equally when none has any), and each part follows the event's
+  classification (the confident waste share to avoidable, the uncertain
+  share to uncertain, never avoidable, and the rest to the base class).
+  The classes sum to `cost.usd`. `cost.output_by_activity_class` is the same
+  split of output cost alone, so waste priced by whole turn can be compared
+  with waste priced by its output tokens. On the synthetic corpus, priced
+  at sonnet rates (`tests/golden/snapshots/cost/`), `lean_mix`'s avoidable
+  work is 4.2% of its cost by output tokens and 19.3% by whole turn; the
+  gap is a hypothesis to test on real sessions.
+
+### Observed shape
+
+`ter.domain.lean.shape.observed_shape` counts a session's consumption shape
+from its events (TER-SHP-001, [ADR 0007](../decisions/0007-the-ter-record.md)),
+and the A3 JSON carries it as `shape`: `intents` (prompts), `model_turns`
+(events carrying provider usage), `turns_per_intent`, `handoffs`,
+`agent_depth` and the Big-T class they imply (`T(n)`, `T(n·k)` when an
+intent took more than one model turn, `T(n·k·a)` with any handoff; none with
+no model turn). No shipped source records subagent nesting, so after a
+handoff `depth_lower_bound` is true (TER-SHP-002). Every prompt counts as an
+intent: whether a later prompt corrects the task or starts a new one is not
+decided here.
+
+### The TER Record
+
+`ter.domain.ter_record.build_record` turns an A3 into a content-free
+`ter.record/0.1` object (TER-REC-001 to TER-REC-006,
+[ADR 0007](../decisions/0007-the-ter-record.md)): usage, tokens by activity
+class, flow efficiency, findings per detector with the judged samples
+behind each (`src/ter/data/calibration.json`, read through the
+`CalibrationSource` port), the outcome verdict, the observed shape, cost by
+class and digests of the events and the evidence graph. Golden Records for
+the corpus are in `tests/golden/snapshots/record/`.
 
 ### Software Value Efficiency
 

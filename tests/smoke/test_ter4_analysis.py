@@ -68,6 +68,19 @@ def test_corpus_import_redacts_into_a_manifest(cli: Cli, workdir: Path) -> None:
     cli.ter4("explain", str(session), "--json").ok()
 
 
+@pytest.mark.req("TER-TST-006", "TER-REC-001", "TER-REC-005")
+def test_record_export_then_verify(cli: Cli, workdir: Path) -> None:
+    cli.ter4("record", "export", str(SAMPLE), "--out", "s.record.json").ok()
+    record = json.loads((workdir / "s.record.json").read_text(encoding="utf-8"))
+    assert record["schema"] == "ter.record/0.1"
+    assert (
+        "Verified"
+        in cli.ter4("record", "verify", "s.record.json", str(SAMPLE)).ok().out
+    )
+    other = cli.ter4("record", "verify", "s.record.json", str(FIXTURE))
+    assert other.code == 1 and "Not the same session" in other.out
+
+
 # --- failures are reported, never a traceback (TER-TST-007) ---------------
 
 

@@ -61,6 +61,7 @@ from .claude_hooks import AdviseHook, HookResult, HookStatus, run_hook
 from .context_cli import ContextServices, add_context_parser, run_context
 from .control_cli import ControlServices, add_control_parser, run_control
 from .policy_cli import PolicyServices, add_policy_parser, run_policy
+from .record_cli import RecordServices, add_record_parser, run_record
 
 if TYPE_CHECKING:
     from ..driven.claude_code.corpus import CorpusImport
@@ -188,6 +189,8 @@ class CliServices:
         ]
         | None
     ) = None
+    #: The TER Record (``python -m ter record``, ADR 0007).
+    records: RecordServices | None = None
 
 
 def main(
@@ -222,6 +225,7 @@ def main(
         return 0
     if (
         args.command in ("observe", "explain", "a3", "context", "route")
+        or (args.command == "record" and args.record_command == "export")
         or (args.command == "control" and args.control_command == "measure")
         or (args.command == "policy" and args.policy_command == "shadow")
     ):
@@ -249,6 +253,8 @@ def main(
         return run_control(args, services.control, out, err)
     if args.command == "policy":
         return run_policy(args, services.policies, out, err)
+    if args.command == "record":
+        return run_record(args, services.records, out, err)
     return _observe(args, services, out, err)
 
 
@@ -727,6 +733,7 @@ def _parser(default_log_dir: Path, out: IO[str]) -> argparse.ArgumentParser:
     add_context_parser(commands, default_log_dir, TOKENIZER_HELP, REPO_ENGINE_HELP)
     add_control_parser(commands, TOKENIZER_HELP)
     add_policy_parser(commands)
+    add_record_parser(commands, TOKENIZER_HELP, TER_MODES, OUTCOME_HELP)
     route = commands.add_parser(
         "route",
         help="L3: classify each task and choose a model role for it (advisory)",

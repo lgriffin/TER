@@ -933,3 +933,129 @@ requirements:
       The A3 is where a developer acts; a session outside its process's
       limits is a reason to read its root causes first.
     status: verified
+
+  # The TER Record (ADR 0007): a content-free efficiency record of one
+  # session, and the two measures it adds (cost by activity class, observed
+  # shape).
+  - id: TER-ANL-042
+    pattern: event-driven
+    text: >-
+      When TER prices a session, TER shall report the session cost by
+      activity class, sharing each priced model turn's cost among the
+      generated events of that turn in proportion to their generated tokens.
+    level: L2
+    source_points: [205]
+    rationale: >-
+      Provider usage is reported once per turn, and an avoidable step reads
+      the whole context before it writes a word; pricing only its output
+      tokens understates what the waste cost.
+    status: verified
+
+  - id: TER-ANL-043
+    pattern: ubiquitous
+    text: >-
+      TER shall report activity-class costs that sum to the session cost.
+    level: L2
+    source_points: [205]
+    rationale: >-
+      A split that loses or invents money cannot be joined to a bill.
+    status: verified
+
+  - id: TER-SHP-001
+    pattern: event-driven
+    text: >-
+      When TER analyses a session, TER shall report its observed shape as
+      intents, model turns per intent and agent depth, each counted from
+      events.
+    level: L2
+    source_points: [206]
+    rationale: >-
+      A consumption class read from what ran can be checked; one read from
+      the architecture cannot.
+    status: verified
+
+  - id: TER-SHP-002
+    pattern: unwanted
+    text: >-
+      If the source does not record subagent nesting, then TER shall report
+      agent depth as a lower bound.
+    level: L2
+    source_points: [206]
+    rationale: >-
+      A handoff shows that one level of agents ran; nesting below it is not
+      in the parent's events.
+    status: verified
+
+  - id: TER-REC-001
+    pattern: event-driven
+    text: >-
+      When a session has been analysed, the record exporter shall write one
+      ter.record object holding the session's usage, activity-class tokens,
+      flow efficiency, findings by detector, outcome verdict and cost.
+    level: L2
+    source_points: [204]
+    rationale: >-
+      One joinable object per session is what a billing or telemetry
+      pipeline can consume without reading a session.
+    status: verified
+
+  - id: TER-REC-002
+    pattern: ubiquitous
+    text: >-
+      The record exporter shall write no prompt text, file path, file
+      content, tool input or tool output into a record.
+    level: L2
+    source_points: [204]
+    rationale: >-
+      A record with no content can cross a company boundary, so efficiency
+      can be pooled where sessions cannot.
+    status: verified
+
+  - id: TER-REC-003
+    pattern: unwanted
+    text: >-
+      If a finding's confidence is below 0.70, then the record exporter shall
+      report its tokens and cost as uncertain and never as avoidable.
+    level: L2
+    source_points: [204]
+    rationale: >-
+      Uncertain waste counts until verified (ADR 0006), and the number must
+      carry its uncertainty with it when it leaves TER.
+    status: verified
+
+  - id: TER-REC-004
+    pattern: ubiquitous
+    text: >-
+      The record exporter shall state, for each detector the record reports,
+      how many of its findings were judged on real sessions and with what
+      result.
+    level: L2
+    source_points: [204]
+    rationale: >-
+      Most detectors are not yet calibrated; a reader of the record must see
+      which figures rest on judged rules.
+    status: verified
+
+  - id: TER-REC-005
+    pattern: event-driven
+    text: >-
+      When given a record and the session it names by digest, the record
+      verifier shall recompute every figure and report each one that
+      differs.
+    level: L2
+    source_points: [204]
+    rationale: >-
+      A record is a claim; the session that produced it is its proof.
+    status: verified
+
+  - id: TER-REC-006
+    pattern: unwanted
+    text: >-
+      If no outcome evidence was supplied, then the record exporter shall
+      report the outcome as unknown and no per-outcome figure.
+    level: L2
+    source_points: [204]
+    rationale: >-
+      Tokens per verified outcome needs a verdict; without one, any figure
+      would be invented.
+    status: verified
