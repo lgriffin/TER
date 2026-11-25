@@ -20,6 +20,7 @@ from hypothesis import strategies as st
 from golden.corpus import CORPUS
 from ter.adapters.driven.claude_code import ClaudeCodeJsonlSource
 from ter.adapters.driven.gare import GareRunSource
+from ter.adapters.driven.otel_genai import OtelGenAiSource
 from ter.domain import SessionFormatError, SessionTrace
 
 from .strategies import fuzz, json_values, jsonl_lines, mutated
@@ -85,3 +86,30 @@ def test_gare_source_reads_or_refuses(explain: Any, usage: list[str]) -> None:
         (run / "explain.json").write_text(json.dumps(explain), encoding="utf-8")
         (run / "gare-ter-usage.jsonl").write_text("\n".join(usage), encoding="utf-8")
         _read_or_refuse(GareRunSource().read, run)
+
+
+OTEL_EXPORT = json.loads(
+    (
+        Path(__file__).resolve().parents[1] / "fixtures" / "otel" / "lean_mix.json"
+    ).read_text(encoding="utf-8")
+)
+
+
+@pytest.mark.req("TER-TST-009")
+@FUZZ
+@given(document=st.one_of(mutated(OTEL_EXPORT, max_mutations=4), json_values))
+def test_otel_genai_source_reads_or_refuses(document: Any) -> None:
+    with tempfile.TemporaryDirectory() as folder:
+        path = Path(folder) / "spans.json"
+        path.write_text(json.dumps(document), encoding="utf-8")
+        _read_or_refuse(OtelGenAiSource().read, path)
+
+
+@pytest.mark.req("TER-TST-009")
+@FUZZ
+@given(data=st.binary(max_size=200))
+def test_otel_genai_source_reads_or_refuses_any_bytes(data: bytes) -> None:
+    with tempfile.TemporaryDirectory() as folder:
+        path = Path(folder) / "spans.json"
+        path.write_bytes(data)
+        _read_or_refuse(OtelGenAiSource().read, path)

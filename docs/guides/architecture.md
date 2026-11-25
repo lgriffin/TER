@@ -103,7 +103,7 @@ add an exemption.
 
 | Port | Kind | Real adapters | Fake | Contract suite |
 |---|---|---|---|---|
-| `SessionSource` | driven | `ClaudeCodeJsonlSource`, `GareRunSource` ([gare.md](../ter4/gare.md)) | `InMemorySessionSource` | `tests/contract/test_session_source.py` |
+| `SessionSource` | driven | `ClaudeCodeJsonlSource`, `GareRunSource` ([gare.md](../ter4/gare.md)), `OtelGenAiSource` ([otel-genai.md](../ter4/otel-genai.md)) | `InMemorySessionSource` | `tests/contract/test_session_source.py` |
 | `Tokenizer` | driven | `RegexTokenizer` (offline, deterministic), `TiktokenTokenizer` | the regex one doubles as the fake | covered by golden and unit tests |
 | `Embedder` | driven | `HashingEmbedder` (offline, deterministic) | same | covered by golden tests |
 | `Clock` | driven | `SystemClock` | `FixedClock` | unit tests |

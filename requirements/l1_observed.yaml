@@ -332,6 +332,84 @@ requirements:
       harness context, not intent.
     status: verified
 
+  - id: TER-SRC-025
+    pattern: event-driven
+    text: >-
+      When reading an OpenTelemetry GenAI export, the session source shall
+      map each inference span to a model turn with its usage, each tool span
+      to a tool request and its completion, and every span it cannot map to
+      a record counted against coverage.
+    level: L1
+    port: SessionSource
+    source_points: [207]
+    rationale: >-
+      Any agent that already emits GenAI spans becomes a TER source without
+      a harness-specific adapter, and coverage stays honest about the spans
+      TER did not read (ADR 0008).
+    status: verified
+
+  - id: TER-SRC-026
+    pattern: unwanted
+    text: >-
+      If an export names a convention version the session source does not
+      know, then the session source shall refuse it and name the version.
+    level: L1
+    port: SessionSource
+    source_points: [207]
+    rationale: >-
+      The GenAI conventions are at Development status and rename attributes
+      between versions; reading an unknown version by guess would misprice
+      or miscount turns silently (ADR 0005, ADR 0008).
+    status: verified
+
+  - id: TER-SRC-027
+    pattern: ubiquitous
+    text: >-
+      The OpenTelemetry session source shall report a turn's input tokens
+      without the cache read and cache write tokens the conventions count
+      inside them, and a turn with no cache attribute as one with no cache
+      figures reported.
+    level: L1
+    port: SessionSource
+    source_points: [207]
+    rationale: >-
+      TER prices uncached input, cache reads and cache writes at different
+      rates; counting cached tokens twice would overprice every turn, and
+      the conventions record cache counts only when non-zero, so absence is
+      not zero.
+    status: verified
+
+  - id: TER-SRC-028
+    pattern: unwanted
+    text: >-
+      If an OpenTelemetry export carries no message content, then the
+      session source shall count each trace as one intent and report the
+      no-response-text and intents-from-traces limits.
+    level: L1
+    port: SessionSource
+    source_points: [207]
+    rationale: >-
+      Content capture is opt-in and off by default; without it TER cannot
+      tell a new prompt from a tool result, and a reader must see which
+      figures that limits.
+    status: verified
+
+  - id: TER-SRC-029
+    pattern: ubiquitous
+    text: >-
+      The session sources shall produce the same events, and so the same
+      TER Record apart from its source name, session id and digests, for
+      one session read from its Claude Code session file and from its
+      OpenTelemetry GenAI export.
+    level: L1
+    port: SessionSource
+    source_points: [207]
+    rationale: >-
+      The document's harness-neutral test: Records that differ by more than
+      coverage explains would mean the event contract, not the source, is
+      wrong.
+    status: verified
+
   - id: TER-TST-008
     pattern: unwanted
     text: >-

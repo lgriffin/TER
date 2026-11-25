@@ -10,9 +10,9 @@ rules that enforce it and how it is verified. Rules live in
 contributed from another source (an external capability, ADR 0005) and the
 Origin column names that source, its reference and author.
 
-**206 points** · ● done **126** · ◐ partial **47** · ○ not started **33**
+**207 points** · ● done **127** · ◐ partial **47** · ○ not started **33**
 
-`████████████████████████▓▓▓▓▓▓▓▓▓▓░░░░░░`
+`█████████████████████████▓▓▓▓▓▓▓▓▓░░░░░░`
 
 Legend: `█` done · `▓` partial · `░` not started
 
@@ -21,16 +21,16 @@ Legend: `█` done · `▓` partial · `░` not started
 | Level | Progress | Done | Partial | Not started | Total |
 |---|---|---:|---:|---:|---:|
 | L0 Measured | `██████████████████▓▓` | 12 | 1 | 0 | 13 |
-| L1 Observed | `███████████████████▓` | 15 | 1 | 0 | 16 |
+| L1 Observed | `███████████████████▓` | 16 | 1 | 0 | 17 |
 | L2 Explained | `██████████████████▓▓` | 53 | 5 | 0 | 58 |
 | L3 Grounded | `██████████▓▓▓▓▓▓▓▓▓▓` | 25 | 23 | 0 | 48 |
 | L4 Advisory | `████████████▓▓▓▓▓░░░` | 19 | 8 | 4 | 31 |
 | L5 Corrective | `█▓▓▓▓▓░░░░░░░░░░░░░░` | 1 | 5 | 15 | 21 |
 | L6 Learning | `█▓▓▓▓░░░░░░░░░░░░░░░` | 1 | 4 | 14 | 19 |
 
-Kinds: capability 142 · principle 37 · research 27
+Kinds: capability 143 · principle 37 · research 27
 
-Origins: Leigh's vision 200 · TER project 6
+Origins: Leigh's vision 200 · TER project 7
 
 Real session data: **47 points** need it (3 verified) and cannot be done on synthetic tests alone. Tracked in [#34](https://github.com/lgriffin/TER/issues/34), [#35](https://github.com/lgriffin/TER/issues/35), [#36](https://github.com/lgriffin/TER/issues/36), [#37](https://github.com/lgriffin/TER/issues/37), [#38](https://github.com/lgriffin/TER/issues/38), [#39](https://github.com/lgriffin/TER/issues/39), [#40](https://github.com/lgriffin/TER/issues/40), [#41](https://github.com/lgriffin/TER/issues/41), [#42](https://github.com/lgriffin/TER/issues/42), [#43](https://github.com/lgriffin/TER/issues/43), [#44](https://github.com/lgriffin/TER/issues/44), [#45](https://github.com/lgriffin/TER/issues/45), [#46](https://github.com/lgriffin/TER/issues/46), [#55](https://github.com/lgriffin/TER/issues/55).
 
@@ -49,7 +49,7 @@ P121 ● ● ● ● ◐ ○ ○ ○ ○ ◐ ○ ○ ○ ○ ○ ○ ○ ◐ ●
 P141 ● ● ● ● ● ◐ ◐ ● ◐ ◐ ● ● ◐ ● ◐ ◐ ● ● ● ●
 P161 ● ● ● ● ● ● ◐ ◐ ◐ ◐ ● ● ● ● ● ● ● ● ◐ ◐
 P181 ◐ ◐ ○ ○ ◐ ○ ○ ○ ○ ○ ○ ○ ○ ○ ● ● ● ◐ ○ ○
-P201 ◐ ● ● ● ● ●
+P201 ◐ ● ● ● ● ● ●
 ```
 
 ## Points
@@ -262,3 +262,4 @@ P201 ◐ ● ● ● ● ●
 | P204 | Export a TER Record for every session: one portable, content-free JSON object holding… | **TER project** Upstream of the Bill direction document and prototype, 25 Nov 2026 (ADR 0007) (Leigh Griffin) | L2 | ● done |  | • `python -m ter record export` writes one `ter.record/0.1` object per session that conforms to its JSON Schema, with golden Records frozen for the synthetic sessions.<br>• No Record built from any test session contains a prompt, path, file content, tool input or tool output, checked by the schema and by a scan of every string the session holds.<br>• `python -m ter record verify` recomputes every figure from the session the Record names by digest and lists each one that differs. | `TER-REC-001` ✓<br>`TER-REC-002` ✓<br>`TER-REC-003` ✓<br>`TER-REC-004` ✓<br>`TER-REC-005` ✓<br>`TER-REC-006` ✓ | test: tests/unit/test_ter4_record.py<br>test: tests/unit/test_ter4_record_cli.py<br>test: tests/golden/test_record_snapshots.py<br>test: tests/contract/test_calibration_source.py<br>test: tests/smoke/test_ter4_analysis.py::test_record_export_then_verify |
 | P205 | Price a session's waste by the whole model turns it consumed, not only by its output… | **TER project** Upstream of the Bill direction document and prototype, 25 Nov 2026 (ADR 0007) (Leigh Griffin) | L2 | ● done |  | • Session cost is reported by activity class, each priced turn shared among its generated events by generated tokens, and the class costs sum to the session cost.<br>• The golden snapshots show the change on purpose, and the output-only price is reported beside the whole-turn one so the two can be compared on real sessions. | `TER-ANL-042` ✓<br>`TER-ANL-043` ✓<br>`TER-ANL-044` ✓ | test: tests/unit/test_ter4_cost_by_class.py<br>test: tests/golden/test_cost_snapshots.py<br>test: tests/unit/test_ter4_harness_messages.py |
 | P206 | Observe a session's consumption shape (intents, model turns per intent and agent depth)… | **TER project** Upstream of the Bill direction document and prototype, 25 Nov 2026 (ADR 0007) (Leigh Griffin) | L2 | ● done |  | • Every analysed session reports intents, model turns per intent, agent depth and the consumption class they imply, each counted from events.<br>• Agent depth is marked a lower bound where the source does not record subagent nesting. | `TER-SHP-001` ✓<br>`TER-SHP-002` ✓ | test: tests/unit/test_ter4_shape.py<br>test: tests/golden/test_lean_snapshots.py |
+| P207 | Read any agent that emits OpenTelemetry GenAI spans as a TER session source, by… | **TER project** Upstream of the Bill direction document, Stage U2, 25 Nov 2026 (ADR 0008) (Leigh Griffin) | L1 | ● done |  | • `python -m ter record export` and every other command read an OTLP JSON span export: inference spans become model turns with their usage, tool spans tool requests and completions, and every span TER cannot map counts against coverage.<br>• An export naming a convention version TER does not know is refused with that version named.<br>• Every golden session, exported as spans, gives the same events and the same Record as its transcript, apart from the source name, id and digests. | `TER-SRC-025` ✓<br>`TER-SRC-026` ✓<br>`TER-SRC-027` ✓<br>`TER-SRC-028` ✓<br>`TER-SRC-029` ✓ | test: tests/unit/test_ter4_otel_source.py<br>test: tests/contract/test_session_source.py |

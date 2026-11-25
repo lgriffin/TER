@@ -264,6 +264,7 @@ All guides: [docs/guides](docs/guides/README.md). Reference:
 [outcome and acceptance](docs/ter4/outcome.md) ·
 [real session corpus](docs/ter4/corpus.md) ·
 [GARE runs](docs/ter4/gare.md) ·
+[OpenTelemetry spans](docs/ter4/otel-genai.md) ·
 [dataset card](docs/ter4/dataset-card.md) ·
 [requirements control](docs/ter4/requirements.md) ·
 [vision points](docs/ter4/points.md) ·

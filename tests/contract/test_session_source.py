@@ -15,6 +15,7 @@ import pytest
 from ter.adapters.driven.claude_code import ClaudeCodeJsonlSource
 from ter.adapters.driven.gare import GareRunSource
 from ter.adapters.driven.in_memory import InMemorySessionSource
+from ter.adapters.driven.otel_genai import OtelGenAiSource
 from ter.domain import Actor, EventKind, SessionFormatError
 from ter.ports import SessionSource
 
@@ -45,6 +46,15 @@ def _gare_real() -> tuple[SessionSource, list[str]]:
     return GareRunSource(), runs
 
 
+OTEL_EXPORTS = Path(__file__).resolve().parents[1] / "fixtures" / "otel"
+
+
+def _otel() -> tuple[SessionSource, list[str]]:
+    exports = [str(p) for p in sorted(OTEL_EXPORTS.glob("*.json"))]
+    assert exports, "no OpenTelemetry GenAI export fixture"
+    return OtelGenAiSource(), exports
+
+
 def _memory() -> tuple[SessionSource, list[str]]:
     real = ClaudeCodeJsonlSource()
     traces = {name: real.read(path) for name, path in CORPUS.items()}
@@ -59,6 +69,7 @@ def _memory() -> tuple[SessionSource, list[str]]:
         pytest.param(
             _gare_real, id="gare-run-real", marks=pytest.mark.req("TER-SRC-010")
         ),
+        pytest.param(_otel, id="otel-genai", marks=pytest.mark.req("TER-SRC-025")),
         pytest.param(_memory, id="in-memory"),
     ]
 )
@@ -141,6 +152,21 @@ def test_a_file_that_is_not_a_session_raises_a_format_error(
     path.write_bytes(content)
     with pytest.raises(SessionFormatError):
         ClaudeCodeJsonlSource().read(path)
+
+
+@pytest.mark.req("TER-TST-007")
+@pytest.mark.parametrize(
+    "content",
+    [b"not json\n", b'{"resourceSpans": [}', b"\xff\xfe{}\n", b"", b"{}"],
+    ids=["text", "torn", "not-utf8", "empty", "not-otlp"],
+)
+def test_a_file_that_is_not_a_span_export_raises_a_format_error(
+    content: bytes, tmp_path: Path
+) -> None:
+    path = tmp_path / "bad.json"
+    path.write_bytes(content)
+    with pytest.raises(SessionFormatError):
+        OtelGenAiSource().read(path)
 
 
 @pytest.mark.req("TER-TST-007")

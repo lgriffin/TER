@@ -72,6 +72,7 @@ python -m ter policy effectiveness --ledger DIR [--json FILE]  # L4: did the adv
 ter a3 <session.jsonl> --limits limits.json --html a3.html  # A3 with the session placed against its limits
 python -m ter record export <session.jsonl> --out r.json  # content-free ter.record/0.1 (ADR 0007)
 python -m ter record verify r.json <session.jsonl>        # rebuild it from the session, list differences
+python -m ter record export spans.json                     # any command reads an OpenTelemetry GenAI span export too (ADR 0008)
 ```
 
 ## Code Style
@@ -97,6 +98,7 @@ Python 3.11+: Follow standard conventions. Dataclasses for models, enums for dom
 - Control charts (P201): XmR limits and rules in `ter.domain.lean.control`, limits files through the `ControlLimitsSource` port, page in `reports/control.py`. Only unfavourable signals on ratio or count measures fire; token totals never do. See `docs/ter4/control-charts.md`.
 - The TER Record (ADR 0007): `ter.domain.ter_record.build_record` is a pure function of the A3, the events and the judged samples (`src/ter/data/calibration.json`, `CalibrationSource` port). It never carries content: a new field is an identifier, a count or a digest, and its schema stays closed. See `docs/ter4/record.md`.
 - See `docs/ter4/architecture.md` and `docs/decisions/`.
+- Upstream adapters (ADR 0008): every surface past the Record is an adapter reading or writing files by a pinned version (OpenTelemetry GenAI conventions, FOCUS), never an SDK. A new convention or FOCUS version is added to the adapter's known list with fixtures, never read by guess. See `docs/ter4/otel-genai.md`.
 - Visual reports: renderers in `ter.adapters.driving.reports` (`svg.py`, `html.py`, colours only in `palette.py`) read the `ter.domain.report.SessionReport` view-model; `reports/ter3.py` (`from_ter_result`) is the only piece that reads `TERResult`. `ter_calculator.charts` delegates to these primitives. Rendered output is frozen in `tests/golden/snapshots/report/`. See `docs/ter4/reports.md`.
 
 ## Key Modules

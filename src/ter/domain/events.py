@@ -223,6 +223,13 @@ USAGE_LIMIT_TEXT: Mapping[str, str] = {
         "the source exports no response text; text tokens count route labels, "
         "not what the model wrote"
     ),
+    "intents-from-traces": (
+        "the source captured no prompt text; each trace counts as one intent"
+    ),
+    "convention-unstated": (
+        "the source names no telemetry convention version; read under the "
+        "latest one TER knows"
+    ),
 }
 #: Limits that qualify token counts taken from event text, not usage figures.
 TEXT_LIMITS = frozenset({"no-response-text"})
