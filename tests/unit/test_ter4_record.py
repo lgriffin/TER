@@ -402,3 +402,25 @@ def test_usage_is_split_by_the_model_that_served_each_turn() -> None:
             "output": 0,
         },
     ]
+
+
+@pytest.mark.req("TER-EXP-012")
+def test_by_model_is_in_model_order_whatever_order_the_turns_came_in() -> None:
+    """Eight models served out of order: the list is sorted by name, null
+    last, never in the order a set happens to give."""
+    from ter.domain.ter_record import _usage
+
+    names = ["h", "c", "f", "a", "g", "d", "b", "e"]
+
+    class Step:
+        def __init__(self, model: str | None) -> None:
+            self.usage = TokenUsage(input_tokens=1, model=model)
+
+    class Analysis:
+        steps = [Step(None), *(Step(n) for n in names)]
+
+    class A3:
+        analysis = Analysis()
+
+    usage = _usage(A3())  # type: ignore[arg-type]
+    assert [m["model"] for m in usage["by_model"]] == [*sorted(names), None]
