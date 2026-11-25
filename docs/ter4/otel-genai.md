@@ -79,8 +79,10 @@ Records state each limit beside the figures it qualifies.
 
 ## Convention versions
 
-A span names its convention version through the `schemaUrl` of its scope or
-resource, such as `https://opentelemetry.io/schemas/1.45.0`. TER reads 1.37.0
+A span names its convention version through the `schemaUrl` of its
+instrumentation scope, such as `https://opentelemetry.io/schemas/1.45.0`. A
+resource's `schemaUrl` versions the resource attributes, not the GenAI spans,
+so TER does not read it as their convention version. TER reads 1.37.0
 to 1.45.0, the versions that name the provider `gen_ai.provider.name` and the
 token counts `input_tokens` and `output_tokens`. It refuses any other version,
 naming it, so an export of an older convention (`gen_ai.system`,

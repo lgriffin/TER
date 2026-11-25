@@ -47,8 +47,8 @@ input messages the developer's prompts cannot be told from tool results, so
 each trace (one request of the application) counts as one intent and the
 trace carries the ``intents-from-traces`` limit.
 
-Versions. A span names its convention through the ``schemaUrl`` of its scope
-or resource (``https://opentelemetry.io/schemas/<version>``). The adapter
+Versions. A span names its convention through the ``schemaUrl`` of its
+instrumentation scope (``https://opentelemetry.io/schemas/<version>``). The adapter
 reads the versions in :data:`KNOWN_CONVENTIONS` and refuses any other,
 naming it (TER-SRC-028). The GenAI conventions moved to their own repository
 in 1.42.0, which publishes no schema URL yet; a file that names no version is
@@ -59,6 +59,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -113,6 +114,7 @@ INTENTS_FROM_TRACES = "intents-from-traces"
 CONVENTION_UNSTATED = "convention-unstated"
 
 _INFERENCE = frozenset({"chat", "text_completion", "generate_content"})
+_EXPORT_START = re.compile(r'\A\ufeff?\s*\{\s*"resourceSpans"\s*:')
 _TOOL = "execute_tool"
 _AGENT = "invoke_agent"
 _METADATA = frozenset({"create_agent"})
@@ -186,7 +188,9 @@ class OtelGenAiSource:
                 head = handle.read(4096)
         except (OSError, UnicodeDecodeError):
             return False
-        return '"resourceSpans"' in head
+        # The export request's only top-level key; a transcript that merely
+        # mentions it in a tool input is not an export.
+        return _EXPORT_START.match(head) is not None
 
     def read(self, ref: str | Path) -> SessionTrace:
         path = Path(ref)
@@ -197,18 +201,25 @@ class OtelGenAiSource:
         if unknown:
             raise SessionFormatError(
                 f"{path} names OpenTelemetry convention version(s) "
-                f"{', '.join(unknown)}; this adapter reads "
+                f"{', '.join(_printable(u) for u in unknown)}; this adapter reads "
                 f"{KNOWN_CONVENTIONS[0]} to {KNOWN_CONVENTIONS[-1]}"
             )
         if not state.spans and not state.unrecognised:
             raise SessionFormatError(f"{path} holds no spans")
         session_id = _session_id(state.spans, path)
-        by_id = {span.span_id: span for span in state.spans}
-        content = any(
-            "gen_ai.input.messages" in s.attributes
+        by_id = {(span.trace_id, span.span_id): span for span in state.spans}
+        # Content capture is judged per trace (a request of the application):
+        # a trace without input messages gets one intent of its own.
+        captured = {
+            s.trace_id
             for s in state.spans
-            if s.operation in _INFERENCE
-        )
+            if s.operation in _INFERENCE and "gen_ai.input.messages" in s.attributes
+        }
+        uncaptured = {
+            s.trace_id
+            for s in state.spans
+            if s.operation in _INFERENCE and s.trace_id not in captured
+        }
         output_text = any(
             "gen_ai.output.messages" in s.attributes
             for s in state.spans
@@ -216,10 +227,11 @@ class OtelGenAiSource:
         )
         drafts: list[_Draft] = []
         metadata: list[MetadataRecord] = []
-        requested: set[str] = set()
+        requested: set[tuple[str, str]] = set()
         seen_traces: set[str] = set()
         for span in sorted(state.spans, key=_when):
             op = span.operation
+            content = span.trace_id in captured
             if not content and op in _INFERENCE and span.trace_id not in seen_traces:
                 # Without input messages, each request of the application
                 # (a trace) is one intent (INTENTS_FROM_TRACES).
@@ -271,7 +283,7 @@ class OtelGenAiSource:
         limits: list[str] = []
         if not output_text:
             limits.append(NO_RESPONSE_TEXT)
-        if not content:
+        if uncaptured:
             limits.append(INTENTS_FROM_TRACES)
         if state.unstated:
             limits.append(CONVENTION_UNSTATED)
@@ -323,14 +335,15 @@ def _parse(path: Path) -> _Read:
             if not isinstance(resource, Mapping):
                 state.unrecognised.append(UnrecognisedRecord(number, "otlp:invalid"))
                 continue
-            outer = _version(resource.get("schemaUrl"))
             for scope in _list(resource.get("scopeSpans")):
                 if not isinstance(scope, Mapping):
                     state.unrecognised.append(
                         UnrecognisedRecord(number, "otlp:invalid")
                     )
                     continue
-                version = _version(scope.get("schemaUrl")) or outer
+                # The scope's schema URL versions its spans; a resource's
+                # versions only the resource attributes.
+                version = _version(scope.get("schemaUrl"))
                 for raw in _list(scope.get("spans")):
                     order += 1
                     span = _span(raw, order)
@@ -346,6 +359,15 @@ def _parse(path: Path) -> _Read:
                             state.conventions.add(version)
                     state.spans.append(span)
     return state
+
+
+def _printable(text: str) -> str:
+    """``text`` with control characters escaped (``\\x1b``), so an identifier
+    from the file cannot drive the terminal it is printed on."""
+    return "".join(
+        c if c.isprintable() else c.encode("unicode_escape").decode("ascii")
+        for c in text
+    )
 
 
 def _version(url: object) -> str | None:
@@ -430,15 +452,27 @@ def _session_id(spans: list[_Span], path: Path) -> str:
         }
     )
     if len(conversations) == 1:
-        return conversations[0]
+        named = {
+            s.trace_id for s in spans if s.attributes.get("gen_ai.conversation.id")
+        }
+        stray = sorted({s.trace_id for s in spans if s.operation} - named)
+        if stray:
+            raise SessionFormatError(
+                f"{path} holds conversation {_printable(conversations[0])} and "
+                f"{len(stray)} trace(s) that name no conversation "
+                f"({', '.join(_printable(t) for t in stray[:3])}); "
+                "export one conversation per file"
+            )
+        return _printable(conversations[0])
     if len(conversations) > 1:
         raise SessionFormatError(
             f"{path} holds {len(conversations)} conversations "
-            f"({', '.join(conversations)}); export one conversation per file"
+            f"({', '.join(_printable(c) for c in conversations)}); "
+            "export one conversation per file"
         )
     traces = sorted({s.trace_id for s in spans if s.operation})
     if len(traces) == 1:
-        return traces[0]
+        return _printable(traces[0])
     if not traces:
         raise SessionFormatError(f"{path} holds no GenAI spans")
     raise SessionFormatError(
@@ -475,7 +509,9 @@ def _draft(
     )
 
 
-def _inference(span: _Span, content: bool, requested: set[str]) -> Iterator[_Draft]:
+def _inference(
+    span: _Span, content: bool, requested: set[tuple[str, str]]
+) -> Iterator[_Draft]:
     attrs = span.attributes
     if content:
         prompt = _new_user_text(attrs.get("gen_ai.input.messages"))
@@ -492,7 +528,7 @@ def _inference(span: _Span, content: bool, requested: set[str]) -> Iterator[_Dra
         generated.append((EventKind.RESPONSE, "\n".join(text), None))
     for call in calls:
         if call.call_id:
-            requested.add(call.call_id)
+            requested.add((span.trace_id, call.call_id))
         generated.append((EventKind.TOOL_REQUESTED, _arguments(call.arguments), call))
     for index, (kind, body, tool) in enumerate(generated, 1):
         yield _draft(
@@ -506,7 +542,7 @@ def _inference(span: _Span, content: bool, requested: set[str]) -> Iterator[_Dra
         )
 
 
-def _tool(span: _Span, requested: set[str]) -> Iterator[_Draft]:
+def _tool(span: _Span, requested: set[tuple[str, str]]) -> Iterator[_Draft]:
     attrs = span.attributes
     name = attrs.get("gen_ai.tool.name")
     native = name if isinstance(name, str) and name else span.name
@@ -518,7 +554,7 @@ def _tool(span: _Span, requested: set[str]) -> Iterator[_Draft]:
     arguments = attrs.get("gen_ai.tool.call.arguments")
     args = _mapping(arguments)
     call = ToolCall(native_name=native, kind=kind, call_id=call_id, arguments=args)
-    if call_id is None or call_id not in requested:
+    if call_id is None or (span.trace_id, call_id) not in requested:
         # No inference output named the call (content not captured): the
         # span is the only record that the agent asked for it.
         yield _draft(
@@ -551,15 +587,16 @@ def _handoff(span: _Span) -> Iterator[_Draft]:
     yield _draft(span, EventKind.SUBAGENT_COMPLETED, Actor.SYSTEM, agent, 1)
 
 
-def _under_agent(span: _Span, by_id: Mapping[str, _Span]) -> bool:
-    """True when an ancestor of ``span`` is an agent span (a nested agent)."""
+def _under_agent(span: _Span, by_id: Mapping[tuple[str, str], _Span]) -> bool:
+    """True when an ancestor of ``span`` in its own trace is an agent span (a
+    nested agent). Span ids are unique only within a trace."""
     seen: set[str] = set()
-    parent = by_id.get(span.parent_id)
+    parent = by_id.get((span.trace_id, span.parent_id))
     while parent is not None and parent.span_id not in seen:
         if parent.operation == _AGENT:
             return True
         seen.add(parent.span_id)
-        parent = by_id.get(parent.parent_id)
+        parent = by_id.get((parent.trace_id, parent.parent_id))
     return False
 
 
