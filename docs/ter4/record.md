@@ -93,10 +93,28 @@ The run changed three things:
 - The price book gained the current models (Claude Opus 5.5 and 5, Sonnet
   5.5 and 5, Fable 5.2 and 5.1) at their published rates, and the Haiku 4.5
   and Opus 4.6 rates TER 3 carried, which were an earlier generation's, were
-  corrected (Opus 4.6 now costs a third of the old figure). A rerun prices
-  far more of the corpus.
+  corrected (Opus 4.6 now costs a third of the old figure).
 - Messages Claude Code writes itself, which name the model `<synthetic>`,
   carry no usage (TER-ANL-044): no model ran, so they are not unpriced turns.
   There were 30.
 - A Record counts unpriced turns but not which model each was; the per-model
   counts above came from the session files.
+
+### The rerun with the corrected book
+
+The same 61 sessions, rerun with that book: every export succeeded, 52
+sessions had priced turns (the other 9 had no model turns at all), and no
+turn was unpriced. Over the $869.92 they cost:
+
+| Class | Whole turn | Output only | Ratio |
+|---|---:|---:|---:|
+| value adding | $160.56 (18.5%) | $52.67 | |
+| necessary non-value-adding | $682.62 (78.5%) | $107.05 | |
+| avoidable | $0.71 (0.1%) | $0.35 (0.0%) | 2.0× |
+| uncertain | $26.03 (3.0%) | $8.32 (1.0%) | 3.1× |
+| avoidable and uncertain | $26.74 (3.1%) | $8.67 (1.0%) | 3.1× |
+
+Over the whole corpus the waste share is smaller than the 7-session sample
+suggested (3.1% of cost, not 7.7%), and pricing it by output alone still
+understates it about threefold. Almost all of it is uncertain, so the
+number to watch is how much of that the judged samples confirm.
