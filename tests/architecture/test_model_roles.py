@@ -30,7 +30,7 @@ ALLOWED = {
 #: family aliases. Matched against whole string literals' words.
 MODEL_ID = re.compile(
     r"(?<![\w-])("
-    r"claude-(?:instant|haiku|sonnet|opus|\d)[\w.:-]*"
+    r"claude-(?:instant|haiku|sonnet|opus|fable|mythos|\d)[\w.:-]*"
     r"|gpt-(?:\d|4o)[\w.:-]*|o[134]-(?:mini|preview|pro)[\w.-]*"
     r"|gemini-\d[\w.:-]*|qwen\d[\w.:-]*|llama-?\d[\w.:-]*"
     r"|(?:codestral|mistral|mixtral|deepseek)-[\w.:-]+"

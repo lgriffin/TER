@@ -174,11 +174,16 @@ class ClaudeCodeJsonlSource:
             )
             if record_uuid is None:
                 continue
-            usage = _usage(message.usage, _meta(message, usage_meta))
+            model, cache_reported, harness = _meta(message, usage_meta)
+            # A message the harness wrote itself (TER-ANL-044) is no model
+            # turn: its text is the system's, and it carries no usage.
+            usage = None if harness else _usage(message.usage, model, cache_reported)
             for index, block in enumerate(message.content_blocks):
                 kind, actor = _classify(message.role, block.block_type)
                 if kind is None or actor is None:
                     continue
+                if harness and actor is Actor.ASSISTANT:
+                    actor = Actor.SYSTEM
                 block_index = (
                     block.block_index if block.block_index is not None else index
                 )
@@ -356,15 +361,23 @@ def _timestamp(value: object) -> datetime | None:
         return None
 
 
-def _meta(message: Message, meta: _UsageMeta) -> tuple[str | None, bool]:
-    """The model and cache-field presence over a message's merged records."""
-    model: str | None = None
+def _meta(message: Message, meta: _UsageMeta) -> tuple[str | None, bool, bool]:
+    """The model, cache-field presence and harness origin of a message.
+
+    Read over its merged records. A message is the harness's own only when
+    every record that names a model names :data:`HARNESS_MODEL`, so a real
+    reply merged with a harness line keeps its usage.
+    """
+    models: list[str] = []
     cache = False
     for line in message.source_lines:
         line_model, line_cache = meta.get(line, (None, False))
-        model = model or line_model
+        if line_model is not None:
+            models.append(line_model)
         cache = cache or line_cache
-    return model, cache
+    real = [m for m in models if m != HARNESS_MODEL]
+    model = real[0] if real else (models[0] if models else None)
+    return model, cache, bool(models) and not real
 
 
 def _classify(role: str, block_type: str) -> tuple[EventKind | None, Actor | None]:
@@ -410,12 +423,16 @@ def _tool(block: ContentBlock, requests: dict[str, ToolCall]) -> ToolCall | None
     return None
 
 
+#: The model Claude Code names on messages it writes itself (an interrupted
+#: request, an API error). They carry usage blocks, but no model ran.
+HARNESS_MODEL = "<synthetic>"
+
+
 def _usage(
-    usage: LegacyUsage | None, meta: tuple[str | None, bool]
+    usage: LegacyUsage | None, model: str | None, cache_reported: bool
 ) -> TokenUsage | None:
     if usage is None:
         return None
-    model, cache_reported = meta
     return TokenUsage(
         input_tokens=usage.input_tokens,
         output_tokens=usage.output_tokens,

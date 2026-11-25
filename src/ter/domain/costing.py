@@ -38,7 +38,7 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from typing import TYPE_CHECKING, Protocol
 
-from .events import TokenUsage
+from .events import Actor, TokenUsage
 from .pricing import (
     TOKENS_PER_RATE_UNIT,
     Rates,
@@ -237,7 +237,11 @@ def price_session(
     for step in steps:
         usage = step.usage
         if usage is None:
-            if members is not None and step.is_generated:
+            if step.is_generated and step.actor is not Actor.ASSISTANT:
+                # Text the harness wrote itself (TER-ANL-044) is no model's
+                # output: it closes the turn and takes none of its cost.
+                members = None
+            elif members is not None and step.is_generated:
                 members.append(step.index)
             continue
         members = None

@@ -68,3 +68,35 @@ corpus at sonnet rates. On `lean_mix` the avoidable work is 4.2% of the
 session's cost priced by its output tokens and 19.3% priced by the whole
 turns it consumed. The synthetic usage was written by hand, so only the gap
 matters, and whether it holds is a question for real sessions.
+
+## The first real run (25 Nov 2026)
+
+The owner exported Records for 61 of his own Claude Code sessions (top-level
+sessions only; the records stay on his PC). Every export succeeded. Only 7
+sessions had a priced turn, because the price book then held three models
+and the sessions mostly ran newer ones: 6,042 turns were unpriced, counted
+and never guessed. Over the $62.78 those 7 sessions cost:
+
+| Class | Whole turn | Output only | Ratio |
+|---|---:|---:|---:|
+| avoidable | $0.43 (0.7%) | $0.25 (0.4%) | 1.7× |
+| uncertain | $4.40 (7.0%) | $0.78 (1.2%) | 5.7× |
+| both | $4.82 (7.7%) | $1.03 (1.6%) | 4.7× |
+
+So the gap the synthetic corpus showed holds on real sessions: pricing waste
+by its output alone understates it about fivefold. Most of it is still
+uncertain (ADR 0006), so it is a hypothesis until those detectors are
+judged.
+
+The run changed three things:
+
+- The price book gained the current models (Claude Opus 5.5 and 5, Sonnet
+  5.5 and 5, Fable 5.2 and 5.1) at their published rates, and the Haiku 4.5
+  and Opus 4.6 rates TER 3 carried, which were an earlier generation's, were
+  corrected (Opus 4.6 now costs a third of the old figure). A rerun prices
+  far more of the corpus.
+- Messages Claude Code writes itself, which name the model `<synthetic>`,
+  carry no usage (TER-ANL-044): no model ran, so they are not unpriced turns.
+  There were 30.
+- A Record counts unpriced turns but not which model each was; the per-model
+  counts above came from the session files.
