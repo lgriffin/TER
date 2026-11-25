@@ -4,15 +4,19 @@ TER-EXP-011 to TER-EXP-013).
 FOCUS keeps the session out of billing: a Cost and Usage row says which
 model was used, by whom and in which charge period, never in which session.
 So the join is many to one. A Record joins every row of a model it used whose
-charge period holds the Record's day, and its usage of that model gives its
-share of the row's tokens:
+charge period overlaps the Record's day (UTC), and its usage of that model
+gives its share of the row's tokens:
 
 - a row that prices one kind of token (its SKU Price Details name a token
   direction and cache action) takes the Record's tokens of that kind; a row
   with no kind takes all of the Record's tokens of the model;
-- Records carry no principal (ADR 0007), so when rows of one model, kind
-  and period differ only by principal, a Record's tokens are shared among
-  them in proportion to their consumed tokens, never counted in each.
+- Records carry no principal (ADR 0007) and no hour, so when several rows
+  of one model and kind overlap the day (rows that differ by principal, or
+  the hourly rows of a daily file), a Record's tokens are shared among them
+  in proportion to their consumed tokens, never counted in each;
+- a dated model (``claude-sonnet-5-5-20261001``) joins rows billed under its
+  own name when the day has any, else rows billed under the model it is a
+  version of, never both.
 
 Each joined row gets efficiency figures from the Records behind it: how
 many, their tokens and share of the row, the share of their cost by activity
@@ -27,7 +31,7 @@ import re
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 
 __all__ = [
     "TOKEN_KINDS",
@@ -47,7 +51,7 @@ TOKEN_KINDS: tuple[str, ...] = ("input", "cache_read", "cache_write", "output")
 
 
 _UNIT = re.compile(
-    r"^\s*(?:(?P<n>[\d,]+(?:\.\d+)?)\s*(?P<scale>[KkMm])?\s*|(?P<word>thousand|million)\s+)?"
+    r"^\s*(?:(?P<n>\d[\d,]*(?:\.\d+)?)\s*(?P<scale>[KkMm])?\s*|(?P<word>thousand|million)\s+)?"
     r"tokens?\s*$",
     re.IGNORECASE,
 )
@@ -149,13 +153,14 @@ def model_matches(record_model: str, row_model: str) -> bool:
     return record_model.startswith(prefix) and len(suffix) == 8 and suffix.isdigit()
 
 
-def _midnight(day: date) -> datetime:
-    return datetime(day.year, day.month, day.day, tzinfo=UTC)
+def _day_window(day: date) -> tuple[datetime, datetime]:
+    start = datetime(day.year, day.month, day.day, tzinfo=UTC)
+    return start, start + timedelta(days=1)
 
 
-def _covers(row: BillingRow, day: date) -> bool:
-    at = _midnight(day)
-    return row.start <= at < row.end
+def _overlaps(row: BillingRow, day: date) -> bool:
+    start, end = _day_window(day)
+    return row.start < end and start < row.end
 
 
 def _tokens(usage: Mapping[str, int], kind: str | None) -> int:
@@ -167,14 +172,15 @@ def _tokens(usage: Mapping[str, int], kind: str | None) -> int:
 def join_records(
     rows: Sequence[BillingRow], records: Sequence[RecordFacts]
 ) -> JoinResult:
-    """Join ``records`` to ``rows`` (TER-EXP-012, TER-EXP-013)."""
-    groups: dict[tuple[str, str | None, datetime, datetime], list[int]] = {}
-    for index, row in enumerate(rows):
-        if row.tokens is not None:
-            groups.setdefault((row.model, row.kind, row.start, row.end), []).append(
-                index
-            )
+    """Join ``records`` to ``rows`` (TER-EXP-012, TER-EXP-013).
 
+    A Record's tokens of a model and kind are shared among every row of
+    that model and kind whose charge period overlaps the Record's day, in
+    proportion to the rows' consumed tokens: rows that differ by principal,
+    and the hourly rows of one day, each take a share and no token is
+    counted twice. A dated model joins the rows billed under its own name
+    when there are any, else those billed under the name it is a version
+    of, never both."""
     tokens = [0.0] * len(rows)
     members: list[list[int]] = [[] for _ in rows]
     unjoined: Counter[str] = Counter()
@@ -186,21 +192,35 @@ def join_records(
         if not record.usage:
             unjoined["no model turns"] += 1
             continue
+        day = record.day
+        near = [
+            i
+            for i, row in enumerate(rows)
+            if row.tokens is not None and _overlaps(row, day)
+        ]
         hit = False
-        for (model, kind, _, _), indexes in groups.items():
-            if not _covers(rows[indexes[0]], record.day):
+        for model, usage in record.usage.items():
+            billed = {
+                rows[i].model for i in near if model_matches(model, rows[i].model)
+            }
+            if not billed:
                 continue
-            matching = [u for m, u in record.usage.items() if model_matches(m, model)]
-            if not matching:
-                continue
-            used = sum(_tokens(u, kind) for u in matching)
+            chosen = model if model in billed else min(billed)
+            groups: dict[str | None, list[int]] = {}
+            for i in near:
+                if rows[i].model == chosen:
+                    groups.setdefault(rows[i].kind, []).append(i)
             hit = True
-            weights = [rows[i].tokens or 0.0 for i in indexes]
-            total = sum(weights)
-            for i, weight in zip(indexes, weights):
-                part = used / len(indexes) if total <= 0 else used * weight / total
-                tokens[i] += part
-                members[i].append(number)
+            for kind, indexes in groups.items():
+                used = _tokens(usage, kind)
+                weights = [rows[i].tokens or 0.0 for i in indexes]
+                total = sum(weights)
+                for i, weight in zip(indexes, weights):
+                    tokens[i] += (
+                        used / len(indexes) if total <= 0 else used * weight / total
+                    )
+                    if not members[i] or members[i][-1] != number:
+                        members[i].append(number)
         if hit:
             joined += 1
         else:

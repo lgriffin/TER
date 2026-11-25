@@ -441,3 +441,132 @@ def test_missing_files_are_reported(tmp_path: Path, record: Path) -> None:
         "record", "focus", str(record), "--billing", str(tmp_path / "no.csv")
     )
     assert code == 2 and "No such file" in err
+
+
+# -- review findings (Qodo, PR #115) --------------------------------------------------
+
+
+@pytest.mark.req("TER-EXP-012")
+def test_hourly_rows_share_a_record_by_their_tokens() -> None:
+    """Sub-day rows each take a share of the day's Record, never the whole of
+    it on the midnight row (finding 10)."""
+    hour = datetime(2026, 9, 21, 1, tzinfo=UTC)
+    rows = [
+        BillingRow("m", START, hour, "input", 100.0),
+        BillingRow("m", hour, datetime(2026, 9, 21, 2, tzinfo=UTC), "input", 300.0),
+        BillingRow("m", datetime(2026, 9, 20, 23, tzinfo=UTC), START, "input", 50.0),
+        BillingRow("m", END, datetime(2026, 9, 22, 1, tzinfo=UTC), "input", 50.0),
+    ]
+    result = join_records(rows, [RecordFacts({"m": _usage(input=40)}, DAY)])
+    assert [None if r is None else r.record_tokens for r in result.rows] == [
+        10,
+        30,
+        None,
+        None,
+    ]
+
+
+@pytest.mark.req("TER-EXP-012")
+def test_a_dated_model_joins_its_own_rows_before_its_aliases() -> None:
+    """A Record's tokens are never counted on both the dated and the alias
+    row (finding 11)."""
+    dated, alias = "claude-x-1-20261001", "claude-x-1"
+    rows = [
+        BillingRow(dated, START, END, "output", 100.0),
+        BillingRow(alias, START, END, "output", 100.0),
+    ]
+    result = join_records(rows, [RecordFacts({dated: _usage(output=10)}, DAY)])
+    first, second = result.rows
+    assert first is not None and first.record_tokens == 10
+    assert second is None
+    only_alias = join_records(rows[1:], [RecordFacts({dated: _usage(output=10)}, DAY)])
+    assert only_alias.rows[0] is not None and only_alias.rows[0].record_tokens == 10
+
+
+@pytest.mark.req("TER-EXP-012")
+def test_two_models_of_one_record_on_one_row_count_the_record_once() -> None:
+    rows = [BillingRow("claude-x-1", START, END, "output", 100.0)]
+    record = RecordFacts(
+        {"claude-x-1": _usage(output=4), "claude-x-1-20261001": _usage(output=6)}, DAY
+    )
+    row = join_records(rows, [record]).rows[0]
+    assert row is not None and (row.records, row.record_tokens) == (1, 10)
+
+
+@pytest.mark.req("TER-EXP-013")
+@pytest.mark.parametrize("unit", [", Tokens", ",,1 Tokens", ".5 Tokens", "1,, Tokens"])
+def test_a_malformed_token_unit_is_not_a_unit(unit: str) -> None:
+    """Finding 4: a comma-only count raised ValueError."""
+    assert tokens_per_unit(unit) in (None, 1) and tokens_per_unit(", Tokens") is None
+
+
+def _write_billing(tmp_path: Path, lines: list[list[str]], name: str = "b.csv") -> Path:
+    out = io.StringIO()
+    writer = csv.writer(out, lineterminator="\n")
+    writer.writerow(BILLING_HEADER)
+    writer.writerows(lines)
+    path = tmp_path / name
+    path.write_text(out.getvalue(), encoding="utf-8")
+    return path
+
+
+def _line(details: str, quantity: str = "1000", unit: str = "Tokens") -> list[str]:
+    return [
+        "1.00",
+        "2026-09-21T00:00:00Z",
+        "2026-09-22T00:00:00Z",
+        quantity,
+        unit,
+        "claude-sonnet-5-5",
+        details,
+        "",
+        "Claude API",
+    ]
+
+
+@pytest.mark.req("TER-EXP-013")
+@pytest.mark.parametrize("details", ['{"ModelId": ', "[1, 2]", "not json"])
+def test_billing_labels_that_cannot_be_read_leave_the_row_unjoined(
+    tmp_path: Path, record: Path, details: str
+) -> None:
+    """Finding 5: unreadable labels are not a row of every kind."""
+    billing = _write_billing(tmp_path, [_line(details), _line("")])
+    joined = export_focus(billing, [record])
+    rows = list(csv.DictReader(io.StringIO(joined.text)))
+    assert rows[0]["x_TerRecordCount"] == ""
+    assert rows[1]["x_TerRecordCount"] == "1"  # no labels: every kind, by SkuId
+    assert joined.rows_joined == 1
+
+
+@pytest.mark.req("TER-EXP-011")
+def test_a_row_with_more_cells_than_the_header_is_refused(
+    tmp_path: Path, record: Path
+) -> None:
+    """Finding 6: writing it back would drop the surplus cell."""
+    path = tmp_path / "wide.csv"
+    text = _write_billing(tmp_path, [_line("")]).read_text(encoding="utf-8")
+    path.write_text(text.rstrip("\n") + ",surplus\n", encoding="utf-8")
+    with pytest.raises(FocusExportError, match="line 2 has more cells than the header"):
+        export_focus(path, [record])
+
+
+@pytest.mark.req("TER-EXP-011")
+def test_file_errors_are_reported_not_raised(tmp_path: Path, record: Path) -> None:
+    """Finding 7: an unreadable billing file or unwritable output is a
+    command error, not a traceback."""
+    folder = tmp_path / "folder.csv"
+    folder.mkdir()
+    with pytest.raises(FocusExportError, match="cannot read"):
+        export_focus(folder, [record])
+    blocker = tmp_path / "file"
+    blocker.write_text("x", encoding="utf-8")
+    code, _, err = _run(
+        "record",
+        "focus",
+        str(record),
+        "--billing",
+        str(_billing(tmp_path)),
+        "--out",
+        str(blocker / "out.csv"),
+    )
+    assert code == 2 and err.startswith(f"Cannot write {blocker / 'out.csv'}:")

@@ -20,6 +20,7 @@ from dataclasses import dataclass
 from datetime import date
 
 __all__ = [
+    "PriceBookError",
     "PriceEntry",
     "PriceSchedule",
     "Rates",
@@ -30,6 +31,10 @@ __all__ = [
 ]
 
 TOKENS_PER_RATE_UNIT = 1_000_000
+
+
+class PriceBookError(ValueError):
+    """A price file that cannot be read as a price book."""
 
 
 class UnknownModelError(KeyError):
@@ -91,6 +96,10 @@ class PriceEntry:
     rates: Rates
     source: str = ""
     aliases: tuple[str, ...] = ()
+    #: The first day the entry is no longer in effect, when its source ends
+    #: it with no successor; None while it stays in effect until the next
+    #: entry. On and after it the model has no price.
+    effective_to: date | None = None
 
 
 class PriceSchedule:
@@ -175,6 +184,11 @@ class PriceSchedule:
         found = self._in_effect(canonical, at)
         if found is None:
             raise UnknownModelError(f"{model} has no price in effect on {at}")
+        if found.effective_to is not None and at >= found.effective_to:
+            raise UnknownModelError(
+                f"{model} has no price in effect on {at} "
+                f"(its price ended on {found.effective_to})"
+            )
         return found
 
     def rate(self, model: str, at: date | None = None) -> Rates:

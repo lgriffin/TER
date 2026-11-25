@@ -33,6 +33,7 @@ from ..application.observe import (
     RecordEvent,
 )
 from ..domain.capabilities import Capability, CapabilityProblem, UnknownCapabilityError
+from ..domain.pricing import PriceBookError
 from ..domain.stream import StreamReport
 from ..ports.driven import (
     ArchitectureContracts,
@@ -179,17 +180,25 @@ def make_price_book(path: Path | None = None, details: Path | None = None) -> Pr
 
     if path is None:
         if details is not None:
-            raise ValueError("--price-details needs a FOCUS SKU Price file (--prices)")
+            raise PriceBookError(
+                "--price-details needs a FOCUS SKU Price file (--prices)"
+            )
         return default_price_book()
     registry = default_registry()
-    if path.suffix.lower() == ".csv":
-        book = registry.create("PriceBook", "focus-sku-price", path, details=details)
-    else:
-        if details is not None:
-            raise ValueError(
-                "--price-details is read only beside a FOCUS SKU Price file"
+    if path.suffix.lower() != ".csv" and details is not None:
+        raise PriceBookError(
+            "--price-details is read only beside a FOCUS SKU Price file"
+        )
+    try:
+        if path.suffix.lower() == ".csv":
+            book = registry.create(
+                "PriceBook", "focus-sku-price", path, details=details
             )
-        book = registry.create("PriceBook", "json", path)
+        else:
+            book = registry.create("PriceBook", "json", path)
+    except (OSError, ValueError, KeyError) as exc:
+        # Only the price file's own failures: a session's are reported apart.
+        raise PriceBookError(str(exc) or type(exc).__name__) from exc
     assert isinstance(book, PriceBook)  # checked by the registry
     return book
 

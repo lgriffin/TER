@@ -30,8 +30,20 @@ so verify it with the same `--prices` file it was exported with.
 | `UnitPriceType`, `ContractId`, `PricingCurrency` | only public list prices (`List`, no contract) in `USD` are read; TER's rates are USD list prices (ADR 0003) |
 | `PricingUnit`, `UnitPrice` | the per-million-token rate: `Tokens`, `1000 Tokens`, `1K Tokens`, `1M Tokens`, `1,000,000 Tokens` and `Million Tokens` are understood |
 | `SkuPriceEffectiveStart` | the date the rate takes effect; empty means from the start |
+| `SkuPriceEffectiveEnd` | the first day the rate is no longer in effect; empty means until replaced |
 | `SkuPriceId` | where the rate came from (each rate's source names its price ids) |
 | `SkuPriceDetails` | what the row prices: `ModelId`, `TokenDirection`, `TokenCacheAction` |
+
+Each rate stays in force until a later row of the same model and kind
+replaces it, or its end date passes. A date that restates only some rates
+(a new output price, say) keeps the others in force. A model is priced on a
+date only while all four rates are in force: from a day when one has ended
+with no successor, its sessions are unpriced, never priced from an expired
+rate, and the gap is listed in `incomplete`. Two different list prices for
+one model, kind and start date are refused, naming their SKU price ids, so
+the order of rows never changes a rate. A session's dated model
+(`claude-sonnet-5-5-20261001`) is priced as the model the file names
+(`claude-sonnet-5-5`) when the file does not price the dated name itself.
 
 A file missing any of `ServiceProviderName`, `SkuId`, `SkuPriceId`,
 `ContractId`, `PricingCurrency`, `PricingUnit`, `UnitPrice`, `UnitPriceType`,
@@ -92,23 +104,28 @@ not.
 
 ### The join
 
-A Record joins every row of a model it used whose charge period holds the
-Record's day (`join.charge_period`, the session's date). Its usage of that
+A Record joins every row of a model it used whose charge period overlaps
+the Record's day (`join.charge_period`, the session's date, in UTC). Its usage of that
 model (`usage.by_model`) gives its share of the row:
 
 - A row whose SKU Price Details name a token kind (`TokenDirection` and
   `TokenCacheAction`, as for the price book) takes the Record's tokens of
-  that kind. A row with no kind takes all of them. A row of `Other` tokens is
-  not joined.
+  that kind. A row with no kind takes all of them. A row of `Other` tokens,
+  or whose SKU Price Details cannot be read, is not joined.
 - The row's model is its `ModelId`, else its `SkuId`. A dated model
-  (`claude-sonnet-5-5-20261001`) bills as its alias (`claude-sonnet-5-5`),
-  and nothing else matches.
+  (`claude-sonnet-5-5-20261001`) joins rows billed under its own name when
+  the day has any, else rows billed under its alias (`claude-sonnet-5-5`),
+  never both, and nothing else matches.
 - The row's tokens are `ConsumedQuantity` in its `ConsumedUnit`; a row whose
   unit is not tokens, or whose period does not parse, is written unchanged
   and not joined.
-- Records carry no principal (ADR 0007), so rows of one model, kind and
-  period that differ only by `PrincipalId` share a Record's tokens in
-  proportion to their consumed tokens. A token is never counted in two rows.
+- Records carry no principal (ADR 0007) and no hour, so all the rows of one
+  model and kind that overlap the day share a Record's tokens in proportion
+  to their consumed tokens: rows that differ by `PrincipalId`, and the
+  hourly rows of a file with sub-day charge periods. A token is never
+  counted in two rows.
+- A row with more cells than the header is refused (writing it back would
+  drop the extra cell), and so is a file that cannot be read.
 
 Every FOCUS column and every row is written as it was read. The exporter
 only adds columns, and every one carries the `x_` prefix FOCUS reserves for

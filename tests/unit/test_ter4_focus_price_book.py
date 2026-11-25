@@ -162,22 +162,122 @@ def test_an_unknown_focus_version_is_refused(tmp_path: Path) -> None:
 
 
 @pytest.mark.req("TER-ANL-047")
+def test_a_date_that_restates_some_rates_carries_the_others_forward(
+    tmp_path: Path,
+) -> None:
+    """A provider that changes only its output price publishes one row from
+    the new date; the other three rates stay in force (Qodo #115 finding 9)."""
+    output = _row("20", "Output", None, SkuPriceEffectiveStart="2026-06-01")
+    output["SkuPriceId"] += "-late"
+    book = FocusSkuPriceBook(_write(tmp_path, [*_full(), output]))
+    assert book.incomplete == []
+    assert book.rate("m", date(2026, 5, 31)) == RATES
+    later = Rates(input=3.0, output=20.0, cache_read=0.3, cache_write=3.75)
+    assert book.rate("m", date(2026, 6, 1)) == later
+    assert book.rate("m") == later
+    assert "m-Output-None-late" in book.entry("m").source
+
+
+@pytest.mark.req("TER-ANL-047")
 def test_a_model_missing_a_rate_on_a_date_is_not_priced_on_that_date(
     tmp_path: Path,
 ) -> None:
-    later = [
-        r
-        for r in _full(SkuPriceEffectiveStart="2026-06-01")
-        if "Write" not in r["SkuPriceId"]
-    ]
-    for row in later:
-        row["SkuPriceId"] += "-late"
-    book = FocusSkuPriceBook(_write(tmp_path, [*_full(), *later]))
-    assert book.incomplete == [("m", date(2026, 6, 1), ("cache_write",))]
-    # The complete earlier price stays in force: nothing is guessed.
-    assert book.rate("m", date(2026, 7, 1)) == RATES
+    three = [r for r in _full() if "Write" not in r["SkuPriceId"]]
+    write = _row("3.75", "Input", "Write", SkuPriceEffectiveStart="2026-06-01")
+    book = FocusSkuPriceBook(_write(tmp_path, [*three, write]))
+    assert book.incomplete == [("m", date(2026, 1, 1), ("cache_write",))]
+    with pytest.raises(UnknownModelError):
+        book.rate("m", date(2026, 5, 31))
+    assert book.rate("m", date(2026, 6, 1)) == RATES
     with pytest.raises(FocusPriceError, match="prices no model"):
-        FocusSkuPriceBook(_write(tmp_path, later, "late.csv"))
+        FocusSkuPriceBook(_write(tmp_path, three, "three.csv"))
+
+
+@pytest.mark.req("TER-ANL-047")
+def test_a_price_that_ends_with_no_successor_leaves_the_model_unpriced(
+    tmp_path: Path,
+) -> None:
+    """SkuPriceEffectiveEnd is read: after it, sessions are unpriced rather
+    than priced from an expired rate (Qodo #115 finding 8)."""
+    ended = _full(SkuPriceEffectiveEnd="2026-06-01T00:00:00Z")
+    book = FocusSkuPriceBook(_write(tmp_path, ended))
+    assert book.rate("m", date(2026, 5, 31)) == RATES
+    with pytest.raises(UnknownModelError, match="ended on 2026-06-01"):
+        book.rate("m", date(2026, 6, 1))
+    assert book.incomplete == [
+        ("m", date(2026, 6, 1), ("input", "output", "cache_read", "cache_write"))
+    ]
+    # One kind ending is enough to leave the model unpriced from that day,
+    # until a later complete set starts.
+    one = _full()
+    one[3]["SkuPriceEffectiveEnd"] = "2026-03-01"
+    again = _row("16", "Output", None, SkuPriceEffectiveStart="2026-04-01")
+    again["SkuPriceId"] += "-again"
+    book = FocusSkuPriceBook(_write(tmp_path, [*one, again], "gap.csv"))
+    assert book.rate("m", date(2026, 2, 28)) == RATES
+    with pytest.raises(UnknownModelError):
+        book.rate("m", date(2026, 3, 15))
+    assert book.rate("m", date(2026, 4, 1)).output == 16.0
+
+
+@pytest.mark.req("TER-ANL-047")
+@pytest.mark.parametrize(
+    ("end", "reason"),
+    [
+        ("2026-01-01", "effective end is not after its start"),
+        ("2025-12-01", "effective end is not after its start"),
+        ("soon", "effective dates are not dates"),
+    ],
+)
+def test_a_row_whose_end_is_not_after_its_start_is_skipped(
+    tmp_path: Path, end: str, reason: str
+) -> None:
+    rows = _full()
+    rows.append(_row("99", "Output", None, SkuPriceEffectiveEnd=end, SkuPriceId="bad"))
+    rows[-1]["SkuPriceEffectiveStart"] = "2026-01-01"
+    rows[-1]["SkuPriceId"] = "bad"
+    book = FocusSkuPriceBook(_write(tmp_path, rows))
+    assert book.skipped == {reason: 1}
+    assert book.rate("m") == RATES
+
+
+@pytest.mark.req("TER-ANL-047")
+def test_two_different_prices_for_one_kind_and_day_are_refused(tmp_path: Path) -> None:
+    """Reordering the file must not change a rate (Qodo #115 finding 3)."""
+    clash = _row("16", "Output", None)
+    clash["SkuPriceId"] = "m-out-2"
+    with pytest.raises(FocusPriceError, match="two output prices from 2026-01-01"):
+        FocusSkuPriceBook(_write(tmp_path, [*_full(), clash]))
+    same = _row("15", "Output", None)
+    same["SkuPriceId"] = "m-out-copy"
+    assert (
+        FocusSkuPriceBook(_write(tmp_path, [*_full(), same], "s.csv")).rate("m")
+        == RATES
+    )
+
+
+@pytest.mark.req("TER-ANL-045")
+def test_a_dated_model_is_priced_as_the_model_its_provider_bills(
+    tmp_path: Path,
+) -> None:
+    """Qodo #115 finding 1: the session names claude-x-1-20261001, the price
+    file names claude-x-1."""
+    rows = [
+        dict(r, SkuPriceDetails=r["SkuPriceDetails"].replace('"m"', '"claude-x-1"'))
+        for r in _full()
+    ]
+    book = FocusSkuPriceBook(_write(tmp_path, rows))
+    assert book.rate("claude-x-1-20261001") == RATES
+    assert book.entry("claude-x-1-20261001", date(2026, 2, 1)).model == "claude-x-1"
+    for other in (
+        "claude-x-1-2026",
+        "claude-x-1-2026100a",
+        "claude-x",
+        "claude-x-1-x20261001",
+        "20261001",
+    ):
+        with pytest.raises(UnknownModelError):
+            book.rate(other)
 
 
 def test_a_null_effective_start_is_in_force_from_the_start(tmp_path: Path) -> None:

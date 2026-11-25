@@ -33,6 +33,7 @@ from ...application.export_record import RecordCheck
 from ...domain.capabilities import CapabilityError
 from ...domain.events import SessionFormatError
 from ...domain.outcome import OutcomeFormatError
+from ...domain.pricing import PriceBookError
 from ...domain.ter_record import RECORD_SCHEMA
 
 __all__ = ["RecordServices", "add_record_parser", "format_check", "run_record"]
@@ -141,8 +142,9 @@ def format_check(check: RecordCheck) -> str:
         lines.append(
             "Not the same session: its events digest differs from the record's."
         )
+    notes = "".join(f"Note: {note}\n" for note in check.notes)
     if check.ok:
-        return "Verified: the session rebuilds this record exactly.\n"
+        return "Verified: the session rebuilds this record exactly.\n" + notes
     if check.differences:
         lines.append(f"{len(check.differences)} figure(s) differ (claimed → rebuilt):")
         for path, claimed, rebuilt in check.differences[:SHOWN]:
@@ -152,7 +154,7 @@ def format_check(check: RecordCheck) -> str:
             )
         if len(check.differences) > SHOWN:
             lines.append(f"  … and {len(check.differences) - SHOWN} more")
-    return "\n".join(lines) + "\n"
+    return "\n".join(lines) + "\n" + notes
 
 
 def _read_record(path: Path) -> Mapping[str, Any]:
@@ -231,7 +233,7 @@ def run_record(
     except (SessionFormatError, CapabilityError) as exc:
         err.write(f"Cannot read session {path}: {exc}\n")
         return 2
-    except ValueError as exc:  # a price file that cannot be read
+    except PriceBookError as exc:
         err.write(f"Cannot read prices: {exc}\n")
         return 2
     out.write(format_check(check))
@@ -253,9 +255,13 @@ def _run_focus(args: argparse.Namespace, out: IO[str], err: IO[str]) -> int:
     if args.out is None:
         out.write(joined.text)
     else:
-        if args.out.parent != Path():
-            args.out.parent.mkdir(parents=True, exist_ok=True)
-        args.out.write_text(joined.text, encoding="utf-8")
+        try:
+            if args.out.parent != Path():
+                args.out.parent.mkdir(parents=True, exist_ok=True)
+            args.out.write_text(joined.text, encoding="utf-8")
+        except OSError as exc:
+            err.write(f"Cannot write {args.out}: {exc}\n")
+            return 2
         err.write(f"Wrote {args.out}\n")
     unjoined = ", ".join(
         f"{n} {why}" for why, n in sorted(joined.result.unjoined.items())

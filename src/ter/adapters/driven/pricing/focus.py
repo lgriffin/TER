@@ -40,6 +40,7 @@ import io
 import json
 from collections import Counter
 from collections.abc import Iterable, Mapping
+from dataclasses import replace
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
@@ -47,6 +48,7 @@ from typing import Any
 from ....domain.focus_join import focus_token_kind, tokens_per_unit
 from ....domain.pricing import (
     TOKENS_PER_RATE_UNIT,
+    PriceBookError,
     PriceEntry,
     PriceSchedule,
     Rates,
@@ -77,9 +79,11 @@ REQUIRED_COLUMNS: tuple[str, ...] = (
 )
 _DETAILS = "SkuPriceDetails"
 _EPOCH = date(1970, 1, 1)
+#: An end date that is not a date (a skipped row).
+_INVALID = date.min
 
 
-class FocusPriceError(ValueError):
+class FocusPriceError(PriceBookError):
     """A file that cannot be read as a FOCUS SKU Price file of a known version."""
 
 
@@ -110,22 +114,40 @@ class FocusSkuPriceBook:
         #: ``(model, effective date, missing rates)`` not priced on that date.
         self.incomplete: list[tuple[str, date, tuple[str, ...]]] = []
         self._schedule = PriceSchedule(self._entries(rows, by_price))
+        self._names = frozenset(self._schedule.models())
 
     def models(self) -> tuple[str, ...]:
         return self._schedule.models()
 
     def entry(self, model: str, at: date | None = None) -> PriceEntry:
-        return self._schedule.entry(model, at)
+        return self._schedule.entry(self._priced_name(model), at)
 
     def rate(self, model: str, at: date | None = None) -> Rates:
-        return self._schedule.rate(model, at)
+        return self.entry(model, at).rates
+
+    def _priced_name(self, model: str) -> str:
+        """A dated model (``claude-sonnet-5-5-20261001``) is priced as the
+        model its provider bills (``claude-sonnet-5-5``) when the file prices
+        only that name, the rule the billing join uses (TER-EXP-012)."""
+        if model in self._names:
+            return model
+        base = model[:-9]
+        if (
+            len(model) > 9
+            and model[-9] == "-"
+            and model[-8:].isdigit()
+            and base in self._names
+        ):
+            return base
+        return model
 
     def _entries(
         self,
         rows: Iterable[Mapping[str, str]],
         by_price: Mapping[str, Mapping[str, Any]],
     ) -> list[PriceEntry]:
-        found: dict[tuple[str, date], dict[str, tuple[float, str]]] = {}
+        # (model, kind) -> start -> (rate, end, price id)
+        found: dict[tuple[str, str], dict[date, tuple[float, date | None, str]]] = {}
         for row in rows:
             if (
                 row["UnitPriceType"].strip() != "List"
@@ -166,30 +188,61 @@ class FocusSkuPriceBook:
                 self.skipped["unit price is not a number"] += 1
                 continue
             start = _day(row["SkuPriceEffectiveStart"])
-            if start is None:
-                self.skipped["effective start is not a date"] += 1
+            end = _day(row["SkuPriceEffectiveEnd"], open_ended=True)
+            if start is None or end == _INVALID:
+                self.skipped["effective dates are not dates"] += 1
+                continue
+            if end is not None and end <= start:
+                self.skipped["effective end is not after its start"] += 1
                 continue
             rate = price * TOKENS_PER_RATE_UNIT / per_unit
-            found.setdefault((model, start), {})[key] = (rate, price_id)
+            prices = found.setdefault((model, key), {})
+            known = prices.get(start)
+            if known is not None and (known[0], known[1]) != (rate, end):
+                raise FocusPriceError(
+                    f"{self.name}: {model} has two {key} prices from {start} "
+                    f"(SKU price ids {known[2]} and {price_id}); "
+                    "a list price file must give one"
+                )
+            prices[start] = (rate, end, price_id)
+        return self._schedule_entries(found)
+
+    def _schedule_entries(
+        self,
+        found: Mapping[tuple[str, str], Mapping[date, tuple[float, date | None, str]]],
+    ) -> list[PriceEntry]:
+        """One entry for each day a model's rates change, with each kind's
+        latest price carried forward (a date that restates only the output
+        price keeps the other three). A day on which some kind has no price
+        in force leaves the model unpriced from that day."""
         entries: list[PriceEntry] = []
-        for (model, start), rates in sorted(found.items()):
-            missing = tuple(
-                k
-                for k in ("input", "output", "cache_read", "cache_write")
-                if k not in rates
+        for model in sorted({m for m, _ in found}):
+            kinds = {k: found.get((model, k), {}) for k in _KINDS}
+            days = sorted(
+                {d for prices in kinds.values() for d in prices}
+                | {e for prices in kinds.values() for _, e, _ in prices.values() if e}
             )
-            if missing:
-                self.incomplete.append((model, start, missing))
-                continue
-            ids = ", ".join(sorted({price_id for _, price_id in rates.values()}))
-            entries.append(
-                PriceEntry(
+            previous: PriceEntry | None = None
+            for day in days:
+                in_force = {k: _in_force(prices, day) for k, prices in kinds.items()}
+                missing = tuple(k for k, p in in_force.items() if p is None)
+                if missing:
+                    if previous is not None and previous.effective_to is None:
+                        entries[-1] = replace(previous, effective_to=day)
+                        previous = entries[-1]
+                    self.incomplete.append((model, day, missing))
+                    continue
+                rates = {k: p[0] for k, p in in_force.items() if p is not None}
+                ids = ", ".join(
+                    sorted({p[2] for p in in_force.values() if p is not None})
+                )
+                previous = PriceEntry(
                     model=model,
-                    effective_from=start,
-                    rates=Rates(**{k: v for k, (v, _) in rates.items()}),
+                    effective_from=day,
+                    rates=Rates(**rates),
                     source=f"FOCUS {self.focus_version} SKU Price ({ids})",
                 )
-            )
+                entries.append(previous)
         if not entries:
             raise FocusPriceError(
                 f"{self.name} prices no model with all four token rates "
@@ -197,6 +250,21 @@ class FocusSkuPriceBook:
                 f"incomplete: {len(self.incomplete)})"
             )
         return entries
+
+
+_KINDS = ("input", "output", "cache_read", "cache_write")
+
+
+def _in_force(
+    prices: Mapping[date, tuple[float, date | None, str]], day: date
+) -> tuple[float, date | None, str] | None:
+    """The price with the latest start on or before ``day``, unless it ended."""
+    started = [start for start in prices if start <= day]
+    if not started:
+        return None
+    price = prices[max(started)]
+    end = price[1]
+    return None if end is not None and day >= end else price
 
 
 def _rows(path: Path, required: Iterable[str]) -> list[dict[str, str]]:
@@ -249,11 +317,13 @@ def _details(raw: object) -> Mapping[str, Any] | None:
     return value if isinstance(value, dict) else None
 
 
-def _day(raw: str) -> date | None:
+def _day(raw: str, *, open_ended: bool = False) -> date | None:
+    """A start (null: from the beginning) or, with ``open_ended``, an end
+    (null: no end; a bad date is :data:`_INVALID`)."""
     text = raw.strip()
     if not text:
-        return _EPOCH  # null: in effect for as long as the file says
+        return None if open_ended else _EPOCH
     try:
         return datetime.fromisoformat(text.replace("Z", "+00:00")).date()
     except ValueError:
-        return None
+        return _INVALID if open_ended else None

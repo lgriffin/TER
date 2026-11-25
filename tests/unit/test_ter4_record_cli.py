@@ -169,3 +169,86 @@ class TestFormatting:
     ) -> None:
         assert ter_mode_of({"produced_by": {"ter_method": method}}) == mode
         assert ter_mode_of({}) == "off"
+
+
+@pytest.mark.req("TER-REC-005")
+def test_a_record_exported_before_by_model_still_verifies_with_a_note(
+    tmp_path: Path,
+) -> None:
+    """Qodo #115 finding 2: Records exported before usage.by_model existed
+    verify on every other figure, and say what was not compared."""
+    from ter import bootstrap
+    from ter.adapters.driving.cli import main as cli_main
+
+    services = bootstrap.cli_services()
+    session = (
+        Path(__file__).resolve().parents[2]
+        / "sample_sessions"
+        / "example_session.jsonl"
+    )
+    record = tmp_path / "r.json"
+    out, err = io.StringIO(), io.StringIO()
+    argv = ["record", "export", str(session), "--ter", "off", "--out", str(record)]
+    assert cli_main(argv, services, stdout=out, stderr=err) == 0, err.getvalue()
+    doc = json.loads(record.read_text(encoding="utf-8"))
+    del doc["usage"]["by_model"]
+    record.write_text(json.dumps(doc), encoding="utf-8")
+    out, err = io.StringIO(), io.StringIO()
+    code = cli_main(
+        ["record", "verify", str(record), str(session)],
+        services,
+        stdout=out,
+        stderr=err,
+    )
+    assert code == 0, out.getvalue() + err.getvalue()
+    assert out.getvalue() == (
+        "Verified: the session rebuilds this record exactly.\n"
+        "Note: usage.by_model not compared: the record was exported before TER "
+        "split usage by model; export it again to join it to billing\n"
+    )
+    # A by_model that is present is still compared.
+    doc["usage"]["by_model"] = []
+    record.write_text(json.dumps(doc), encoding="utf-8")
+    out = io.StringIO()
+    assert (
+        cli_main(
+            ["record", "verify", str(record), str(session)],
+            services,
+            stdout=out,
+            stderr=err,
+        )
+        == 1
+    )
+    assert "usage.by_model" in out.getvalue()
+
+
+@pytest.mark.req("TER-ANL-045")
+def test_a_price_failure_is_named_and_a_session_failure_is_not_a_price_failure(
+    tmp_path: Path,
+) -> None:
+    """Qodo #115 finding 12: only the price file's own failures read
+    'Cannot read prices'."""
+    from ter import bootstrap
+    from ter.adapters.driving.cli import main as cli_main
+
+    services = bootstrap.cli_services()
+    session = (
+        Path(__file__).resolve().parents[2]
+        / "sample_sessions"
+        / "example_session.jsonl"
+    )
+    folder = tmp_path / "prices.csv"
+    folder.write_text("SkuId\nx\n", encoding="utf-8")
+    out, err = io.StringIO(), io.StringIO()
+    code = cli_main(
+        ["record", "export", str(session), "--prices", str(folder)],
+        services,
+        stdout=out,
+        stderr=err,
+    )
+    assert code == 2 and err.getvalue().startswith("Cannot read prices:")
+    bad = tmp_path / "bad.jsonl"
+    bad.write_text("not json\n", encoding="utf-8")
+    err = io.StringIO()
+    code = cli_main(["record", "export", str(bad)], services, stdout=out, stderr=err)
+    assert code == 2 and "Cannot read prices" not in err.getvalue()

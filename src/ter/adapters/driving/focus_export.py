@@ -115,6 +115,8 @@ def _billing(path: Path) -> tuple[list[str], list[dict[str, str]]]:
         text = path.read_text(encoding="utf-8-sig")
     except UnicodeDecodeError as exc:
         raise FocusExportError(f"{path} is not UTF-8") from exc
+    except OSError as exc:
+        raise FocusExportError(f"cannot read {path}: {exc.strerror or exc}") from None
     try:
         reader = csv.DictReader(io.StringIO(text))
         header = [h for h in (reader.fieldnames or []) if isinstance(h, str)]
@@ -123,14 +125,21 @@ def _billing(path: Path) -> tuple[list[str], list[dict[str, str]]]:
             raise FocusExportError(
                 f"{path} is not a FOCUS Cost and Usage file: no column {', '.join(missing)}"
             )
-        rows = [
-            {
-                k: (v if isinstance(v, str) else "")
-                for k, v in row.items()
-                if k in header
-            }
-            for row in reader
-        ]
+        rows = []
+        for row in reader:
+            if None in row:
+                # DictReader keeps surplus cells under None: writing the row
+                # back would drop them, and a billing value must not change.
+                raise FocusExportError(
+                    f"{path}: line {reader.line_num} has more cells than the header"
+                )
+            rows.append(
+                {
+                    k: (v if isinstance(v, str) else "")
+                    for k, v in row.items()
+                    if k in header
+                }
+            )
     except csv.Error as exc:
         raise FocusExportError(f"{path} is not CSV: {exc}") from exc
     return header, rows
@@ -145,7 +154,10 @@ def _row(raw: Mapping[str, str]) -> BillingRow | None:
     )
     if start is None or end is None or end <= start:
         return None
-    details = _details(raw.get("SkuPriceDetails", ""))
+    raw_details = raw.get("SkuPriceDetails", "")
+    details = _details(raw_details)
+    if details is None and raw_details.strip():
+        return None  # labels that cannot be read: not a row of every kind
     model = details.get("ModelId") if details else None
     if not isinstance(model, str) or not model:
         model = raw.get("SkuId", "").strip()
