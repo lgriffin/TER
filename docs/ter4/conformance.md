@@ -63,11 +63,11 @@ SessionSource otel-genai conformance
 | Id | Obligation |
 |---|---|
 | `protocol` | has `name` (not empty), `models()` (not empty) and `rate(model, at)` |
-| `valid` | every listed model's rates are `Rates` with output ≥ input ≥ cache read ≥ 0 |
+| `valid` | every listed model's latest rates are `Rates` (each price finite and not negative) |
 | `deterministic` | the same lookup gives the same rates |
-| `latest` | `rate(model)` equals the rates in effect today (`--today` to choose the day) |
+| `dated` | `rate(model, today)` gives `Rates` or raises `UnknownModelError` (`--today` to choose the day) |
 | `unknown` | an unknown model raises `UnknownModelError` |
-| `before` | a date before 1999-01-02 raises `UnknownModelError` for every model |
+| `before` | the earliest date there is (`date.min`) raises `UnknownModelError` for every model |
 
 ## What it found
 

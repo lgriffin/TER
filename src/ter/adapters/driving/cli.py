@@ -264,7 +264,7 @@ def main(
     if args.command == "record":
         return run_record(args, services.records, out, err)
     if args.command == "mcp":
-        return _mcp(args, services, stdin or sys.stdin, out, err)
+        return _mcp(args, services, stdin or _utf8_stdin(), out, err)
     if args.command == "conformance":
         return _conformance(args, services, out, err)
     return _observe(args, services, out, err)
@@ -297,6 +297,16 @@ def _conformance(
         verdicts = check(PRICE_BOOK, PriceSubject(adapter, today))
     out.write(format_verdicts(f"{args.port} {args.adapter}", verdicts))
     return 0 if all(v.met for v in verdicts) else 1
+
+
+def _utf8_stdin() -> IO[str]:
+    """Standard input read as UTF-8 whatever the locale, a byte that is not
+    UTF-8 replaced, so a bad line is a parse error, not the server's end."""
+    import io
+
+    return io.TextIOWrapper(
+        sys.stdin.buffer, encoding="utf-8", errors="replace", newline="\n"
+    )
 
 
 def _mcp(
@@ -836,7 +846,7 @@ def _parser(default_log_dir: Path, out: IO[str]) -> argparse.ArgumentParser:
         "--today",
         type=date.fromisoformat,
         metavar="YYYY-MM-DD",
-        help="the day the latest rates are in effect (default today)",
+        help="the day a dated lookup asks for (default today)",
     )
     mcp = commands.add_parser(
         "mcp",

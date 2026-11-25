@@ -471,3 +471,95 @@ def test_at_the_corrective_ceiling_a_running_session_is_answered(
     server = _server([tmp_path], ceiling=Maturity.CORRECTIVE)
     result = _result(_call(server, "session_record", {"path": "live.jsonl"}))
     assert result["isError"] is False
+
+
+# -- review of #118 ------------------------------------------------------------
+
+
+@pytest.mark.req("TER-INT-026")
+def test_a_line_nested_too_deep_for_the_decoder_gets_a_parse_error(
+    tmp_path: Path,
+) -> None:
+    response = _server([tmp_path]).handle_line("[" * 100_000)
+    assert response is not None and response["error"]["code"] == -32700
+
+
+@pytest.mark.req("TER-INT-026")
+def test_serve_answers_a_failure_of_its_handler_and_keeps_serving(
+    tmp_path: Path,
+) -> None:
+    class Flaky(McpServer):
+        def handle_line(self, line: str) -> dict[str, Any] | None:
+            if "boom" in line:
+                raise MemoryError("boom")
+            return super().handle_line(line)
+
+    server = Flaky(_services(), [tmp_path], quiet_seconds=QUIET, clock=lambda: NOW)
+    ping = json.dumps({"jsonrpc": "2.0", "id": 3, "method": "ping"})
+    out = io.StringIO()
+    serve(server, io.StringIO(f"boom\n{ping}\n"), out)
+    answers = [json.loads(line) for line in out.getvalue().splitlines()]
+    assert answers[0]["error"]["code"] == -32603
+    assert answers[1] == {"jsonrpc": "2.0", "id": 3, "result": {}}
+
+
+@pytest.mark.req("TER-INT-022")
+def test_a_session_whose_age_cannot_be_read_is_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _session(tmp_path, "s.jsonl", age=QUIET * 2)
+    server = _server([tmp_path])
+    monkeypatch.setattr(McpServer, "_age", lambda self, path: None)
+    result = _result(_call(server, "session_record", {"path": "s.jsonl"}))
+    assert result["isError"] is True
+    assert result["content"][0]["text"] == "cannot tell when s.jsonl last changed"
+
+
+@pytest.mark.req("TER-INT-023")
+def test_listing_leaves_out_a_link_that_leads_outside_the_roots(tmp_path: Path) -> None:
+    root = tmp_path / "root"
+    _session(root, "in.jsonl", age=QUIET)
+    outside = _session(tmp_path, "outside.jsonl", age=QUIET)
+    (root / "link.jsonl").symlink_to(outside)
+    listed = _result(_call(_server([root]), "list_sessions"))["structuredContent"]
+    assert [Path(s["path"]).name for s in listed["sessions"]] == ["in.jsonl"]
+    assert listed["ended"] == 1
+
+
+@pytest.mark.req("TER-INT-023")
+def test_a_session_swapped_for_a_link_while_it_is_read_is_refused(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "root"
+    session = _session(root, "s.jsonl", age=QUIET * 2)
+    outside = _session(tmp_path, "secret.jsonl", age=QUIET * 2)
+
+    def swap(path: Path) -> dict[str, Any]:
+        session.unlink()
+        session.symlink_to(outside)
+        return {"read": path.read_text(encoding="utf-8")}
+
+    server = McpServer(
+        McpServices(swap, swap, swap), [root], quiet_seconds=QUIET, clock=lambda: NOW
+    )
+    result = _result(_call(server, "session_record", {"path": "s.jsonl"}))
+    assert result["isError"] is True
+    assert (
+        result["content"][0]["text"] == "s.jsonl changed while it was read; ask again"
+    )
+
+
+@pytest.mark.req("TER-INT-026")
+def test_standard_input_is_read_as_utf8_and_a_bad_byte_is_a_parse_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from ter.adapters.driving.cli import _utf8_stdin
+
+    ping = json.dumps({"jsonrpc": "2.0", "id": "é", "method": "ping"})
+    raw = io.BytesIO(b"\xff\xfe{\n" + ping.encode("utf-8") + b"\n")
+    monkeypatch.setattr("sys.stdin", io.TextIOWrapper(raw, encoding="latin-1"))
+    out = io.StringIO()
+    serve(_server([tmp_path]), _utf8_stdin(), out)
+    answers = [json.loads(line) for line in out.getvalue().splitlines()]
+    assert answers[0]["error"]["code"] == -32700
+    assert answers[1] == {"jsonrpc": "2.0", "id": "é", "result": {}}

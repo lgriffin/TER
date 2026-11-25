@@ -26,7 +26,9 @@ error and the server keeps serving (TER-INT-026).
 
 from __future__ import annotations
 
+import heapq
 import json
+import os
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -169,7 +171,8 @@ class McpServer:
         """The response to one line of the stream, or None."""
         try:
             message = json.loads(line)
-        except ValueError:
+        except (ValueError, RecursionError):
+            # Nesting too deep for the decoder is not JSON TER can read.
             return _error(None, _PARSE_ERROR, "not JSON")
         return self.handle(message)
 
@@ -240,9 +243,9 @@ class McpServer:
             raise _RpcError(_INVALID_PARAMS, "arguments must be an object")
         tools = {
             "list_sessions": lambda: self._list(),
-            "explain_session": lambda: self.services.explain(self._session(arguments)),
-            "session_a3": lambda: self.services.a3(self._session(arguments)),
-            "session_record": lambda: self.services.record(self._session(arguments)),
+            "explain_session": lambda: self._read(self.services.explain, arguments),
+            "session_a3": lambda: self._read(self.services.a3, arguments),
+            "session_record": lambda: self._read(self.services.record, arguments),
         }
         if not isinstance(name, str) or name not in tools:
             raise _RpcError(_INVALID_PARAMS, f"no tool {name!r}")
@@ -260,6 +263,20 @@ class McpServer:
             "structuredContent": document,
             "isError": False,
         }
+
+    def _read(
+        self,
+        tool: Callable[[Path], dict[str, Any]],
+        arguments: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """``tool`` on the session ``arguments`` name, refused when the file
+        checked is not the file still there once it was read."""
+        path = self._session(arguments)
+        before = _identity(path)
+        document = tool(path)
+        if before is None or _identity(path) != before:
+            raise ToolRefusal(f"{path.name} changed while it was read; ask again")
+        return document
 
     def _session(self, arguments: Mapping[str, Any]) -> Path:
         raw = arguments.get("path")
@@ -280,6 +297,8 @@ class McpServer:
             raise ToolRefusal(f"{raw} is outside the server's roots")
         if not path.is_file():
             raise ToolRefusal(f"no session file {raw}")
+        if self._age(path) is None:
+            raise ToolRefusal(f"cannot tell when {raw} last changed")
         running = self._running(path)
         if running is not None:
             raise ToolRefusal(running)
@@ -309,26 +328,28 @@ class McpServer:
         return max(0.0, (self.clock() - modified).total_seconds())
 
     def _list(self) -> dict[str, Any]:
-        ended: list[tuple[float, Path]] = []
-        running = 0
-        for path in _session_files(self.roots):
-            age = self._age(path)
-            if age is None:
-                continue
-            if self._running(path) is not None:
-                running += 1
-            else:
-                ended.append((age, path))
-        ended.sort(key=lambda item: (item[0], str(item[1])))
-        sessions = [
-            {"path": str(path), "quiet_seconds": round(age)}
-            for age, path in ended[:_LISTED]
-        ]
+        counts = {"ended": 0, "running": 0}
+
+        def ended() -> Iterable[tuple[float, str]]:
+            for path in _session_files(self.roots):
+                age = self._age(path)
+                if age is None:
+                    continue
+                if self._running(path) is not None:
+                    counts["running"] += 1
+                else:
+                    counts["ended"] += 1
+                    yield age, str(path)
+
+        # Only the newest sessions listed are held, however large the roots.
+        newest = heapq.nsmallest(_LISTED, ended())
         return {
-            "sessions": sessions,
-            "ended": len(ended),
-            "running": running,
-            "not_listed": max(0, len(ended) - _LISTED),
+            "sessions": [
+                {"path": path, "quiet_seconds": round(age)} for age, path in newest
+            ],
+            "ended": counts["ended"],
+            "running": counts["running"],
+            "not_listed": max(0, counts["ended"] - _LISTED),
         }
 
 
@@ -339,14 +360,45 @@ class _RpcError(Exception):
         self.message = message
 
 
-def _session_files(roots: Iterable[Path]) -> Iterable[Path]:
+def _session_files(roots: Sequence[Path]) -> Iterable[Path]:
+    """Every session file under ``roots``, walked as it goes, each resolved
+    and kept only when it lies inside a root, as a tool call requires."""
     seen: set[Path] = set()
     for root in roots:
-        candidates = [root] if root.is_file() else sorted(root.rglob("*"))
-        for path in candidates:
-            if path.suffix in SESSION_SUFFIXES and path not in seen and path.is_file():
+        if root.is_file():
+            candidates: Iterable[Path] = [root]
+        else:
+            candidates = (
+                Path(folder) / name
+                for folder, _, names in os.walk(root)
+                for name in names
+            )
+        for candidate in candidates:
+            if candidate.suffix not in SESSION_SUFFIXES:
+                continue
+            try:
+                path = candidate.resolve()
+            except (OSError, RuntimeError):
+                continue
+            if (
+                path not in seen
+                and any(path.is_relative_to(r) for r in roots)
+                and path.is_file()
+            ):
                 seen.add(path)
                 yield path
+
+
+def _identity(path: Path) -> tuple[int, int] | None:
+    """The file ``path`` names without following a link (device and inode),
+    or None when it is a link or gone."""
+    try:
+        found = path.lstat()
+    except OSError:
+        return None
+    if path.is_symlink():
+        return None
+    return (found.st_dev, found.st_ino)
 
 
 def _id_of(message: object) -> str | int | None:
@@ -370,7 +422,10 @@ def serve(server: McpServer, stdin: IO[str], stdout: IO[str]) -> int:
     for line in stdin:
         if not line.strip():
             continue
-        response = server.handle_line(line)
+        try:
+            response = server.handle_line(line)
+        except Exception as exc:  # noqa: BLE001 - one bad message never ends the server
+            response = _error(None, _INTERNAL_ERROR, f"internal error: {exc}")
         if response is not None:
             stdout.write(json.dumps(response, ensure_ascii=False) + "\n")
             stdout.flush()

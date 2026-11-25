@@ -36,7 +36,7 @@ from ter.domain import SessionFormatError
 from ter.domain.capabilities import CapabilityError
 from ter.domain.pricing import PriceEntry, Rates, UnknownModelError
 
-from golden.corpus import CORPUS
+from tests.golden.corpus import CORPUS
 
 SAMPLES = tuple(str(p) for p in list(CORPUS.values())[:2])
 RATES = Rates(input=3.0, output=15.0, cache_read=0.3, cache_write=3.75)
@@ -310,6 +310,12 @@ def test_a_price_book_meets_every_obligation() -> None:
     assert all(v.met for v in verdicts)
 
 
+@pytest.mark.req("TER-CNF-002")
+def test_a_book_priced_long_ago_still_meets_every_obligation() -> None:
+    old = InMemoryPriceBook([PriceEntry("m", date(1990, 1, 1), RATES)])
+    assert all(v.met for v in check(PRICE_BOOK, PriceSubject(old, TODAY)))
+
+
 @dataclass
 class _Book:
     """A price book whose answers a test sets."""
@@ -354,13 +360,14 @@ def test_a_price_book_that_falls_short_is_named() -> None:
         _book_failures(_Book(latest=1.0, dated=1.0))["valid"]
         == "m: rate() returned float"
     )
+    # Any finite, non-negative prices are valid, in any order, and a later
+    # price than today's leaves the undated lookup free to differ.
     cheap_output = Rates(input=3.0, output=1.0, cache_read=0.3, cache_write=3.75)
-    assert _book_failures(_Book(latest=cheap_output, dated=cheap_output))[
-        "valid"
-    ].startswith("m: rates are not output >= input >= cache read >= 0")
+    assert _book_failures(_Book(latest=cheap_output, dated=cheap_output)) == {}
     later = Rates(input=1.0, output=5.0, cache_read=0.1, cache_write=1.25)
-    assert _book_failures(_Book(dated=later))["latest"] == (
-        f"m: the latest rates are not the ones in effect on {TODAY}"
+    assert _book_failures(_Book(dated=later)) == {}
+    assert _book_failures(_Book(dated=2.0))["dated"] == (
+        f"m: rate() on {TODAY} returned float"
     )
     assert (
         _book_failures(_Book(unknown=RATES))["unknown"]
@@ -448,10 +455,11 @@ def test_the_command_checks_a_price_book_on_the_day_given() -> None:
     assert code == 0
     assert out.endswith("6 of 6 obligations met\n")
     code, out, _ = _run(
-        ["conformance", "PriceBook", "--adapter", "a:B", "--today", "2025-06-01"], book
+        ["conformance", "PriceBook", "--adapter", "a:B", "--today", "2026-06-01"],
+        _Book(dated=2.0),
     )
     assert code == 1
-    assert "in effect on 2025-06-01" in out
+    assert "m: rate() on 2026-06-01 returned float" in out
 
 
 @pytest.mark.req("TER-CNF-004")

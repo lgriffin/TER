@@ -253,8 +253,8 @@ class PriceSubject:
     today: date
 
 
-#: A day before any model was priced.
-BEFORE_PRICES = date(1999, 1, 1)
+#: The first day a date can name: no price is in effect before it.
+BEFORE_PRICES = date.min
 
 
 def _book_protocol(subject: PriceSubject) -> None:
@@ -266,12 +266,10 @@ def _book_protocol(subject: PriceSubject) -> None:
 def _valid(subject: PriceSubject) -> None:
     for model in subject.book.models():
         rates = subject.book.rate(model)
+        # Rates checks each price is finite and not negative; the port
+        # does not order one kind of price against another.
         require(
             isinstance(rates, Rates), f"{model}: rate() returned {type(rates).__name__}"
-        )
-        require(
-            rates.output >= rates.input >= rates.cache_read >= 0,
-            f"{model}: rates are not output >= input >= cache read >= 0 ({rates})",
         )
 
 
@@ -283,11 +281,17 @@ def _book_deterministic(subject: PriceSubject) -> None:
         )
 
 
-def _latest(subject: PriceSubject) -> None:
+def _dated(subject: PriceSubject) -> None:
+    # A book may hold a later price than today's, or a price that has
+    # ended, so a dated lookup need not equal the undated one.
     for model in subject.book.models():
+        try:
+            rates = subject.book.rate(model, subject.today)
+        except UnknownModelError:
+            continue
         require(
-            subject.book.rate(model, subject.today) == subject.book.rate(model),
-            f"{model}: the latest rates are not the ones in effect on {subject.today}",
+            isinstance(rates, Rates),
+            f"{model}: rate() on {subject.today} returned {type(rates).__name__}",
         )
 
 
@@ -316,7 +320,7 @@ PRICE_BOOK: tuple[Obligation[PriceSubject], ...] = (
     Obligation(
         "deterministic", "the same lookup gives the same rates", _book_deterministic
     ),
-    Obligation("latest", "the latest rates are in effect today", _latest),
+    Obligation("dated", "a dated lookup gives rates or UnknownModelError", _dated),
     Obligation("unknown", "an unknown model raises UnknownModelError", _unknown),
     Obligation("before", "a date before any price raises UnknownModelError", _before),
 )

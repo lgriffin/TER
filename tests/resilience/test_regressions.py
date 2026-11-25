@@ -233,3 +233,20 @@ def test_a_gare_usage_row_holding_a_line_separator_is_one_row(tmp_path: Path) ->
     plain = read("ab")
     assert plain.coverage == read("a\u2028b").coverage
     assert len(plain.events) == len(read("a\u2028b").events)
+
+
+@pytest.mark.req("TER-TST-009")
+def test_a_gare_usage_file_separated_by_carriage_returns_keeps_its_rows(
+    tmp_path: Path,
+) -> None:
+    """Review of #118: rows split at \\r alone (universal newlines) as well."""
+    rows = (GARE_RUN / "gare-ter-usage.jsonl").read_text(encoding="utf-8")
+    unix = tmp_path / "unix" / "gare-ter-usage.jsonl"
+    old_mac = tmp_path / "mac" / "gare-ter-usage.jsonl"
+    for path, text in ((unix, rows), (old_mac, rows.replace("\n", "\r"))):
+        path.parent.mkdir()
+        path.write_bytes(text.encode("utf-8"))
+    expected = GareRunSource().read(unix)
+    found = GareRunSource().read(old_mac)
+    assert len(found.events) == len(expected.events) > 0
+    assert found.coverage == expected.coverage
