@@ -67,6 +67,17 @@ context before it writes a word, so most of its cost is input.
    and of the evidence graph, and a verifier rebuilds every figure from the
    session and reports each one that differs.
 
+   The digests are plain SHA-256, not keyed. Each one hashes the whole
+   session in order, never a single field: the events digest covers every
+   event's id, text, tool call, usage and timestamp, and the evidence digest
+   covers a graph that carries every event id and the session id. Event and
+   session ids are random UUIDs, so a guessed command or path cannot be
+   confirmed without reproducing the entire log, ids included. Anyone who
+   already holds the log learns nothing new, and that party is exactly the
+   verifier, who needs no shared key to recompute the digests. A keyed digest
+   would stop a party outside the producing company from checking a Record,
+   which is what the Record is for. (Decided by the owner, 25 Nov 2026.)
+
 ## Consequences
 
 - One new versioned format, `ter.record/0.1`, ships with a JSON Schema
