@@ -32,6 +32,12 @@ CLAUDE_CODE_TOOL_KINDS: Mapping[str, ToolKind] = {
     "PowerShell": ToolKind.EXEC_SHELL,
     "BashOutput": ToolKind.EXEC_SHELL,
     "KillShell": ToolKind.EXEC_SHELL,
+    # Monitor runs a shell command and streams its output; TaskStop stops a
+    # background task, as KillShell does (189 and 60 calls on the owner's
+    # sessions, 25 Nov 2026). Scheduling tools (CronCreate, ScheduleWakeup)
+    # stay other: as plan.todo they would read as excessive planning.
+    "Monitor": ToolKind.EXEC_SHELL,
+    "TaskStop": ToolKind.EXEC_SHELL,
     "WebFetch": ToolKind.NET_FETCH,
     "WebSearch": ToolKind.NET_FETCH,
     "Task": ToolKind.AGENT_HANDOFF,
