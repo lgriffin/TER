@@ -120,6 +120,11 @@ CONFIDENT_REGENERATION = 0.70
 _VISUAL_SUFFIXES = frozenset({".png", ".jpg", ".jpeg", ".gif", ".webp", ".pdf"})
 
 
+def _image(path: str) -> bool:
+    """Whether a path names an image (a PDF read may return its text)."""
+    return PurePosixPath(_basename(path).lower()).suffix in _VISUAL_SUFFIXES - {".pdf"}
+
+
 @dataclass(frozen=True)
 class SessionView:
     """Steps plus the indexes detectors need, built once per analysis."""
@@ -386,10 +391,11 @@ class RepeatedExploration:
     confidence_rule: str = (
         "0.85 when the same read or search (same arguments) returned identical "
         "output and the file was not edited in between; 0.55 (uncertain) when "
-        "either output was not observed, or a read returned no text both times "
-        "(an image, whose pixels the transcript does not compare). A read after "
-        "an edit of that "
-        "file, a read of a different range, or a changed output is not a finding."
+        "either output was not observed, a read returned no text both times "
+        "(an image the source gave no digest for), or an image read "
+        "returned the same bytes both times. A read after an edit of that "
+        "file, a read of a different range, or a changed output (a redrawn "
+        "image's new bytes) is not a finding."
     )
 
     def detect(self, view: SessionView) -> Iterable[Finding]:
@@ -418,11 +424,21 @@ class RepeatedExploration:
                 step.tool_kind is ToolKind.FS_READ
                 and after.output_hash == _EMPTY_OUTPUT
             ):
-                # An image read returns no text: equal hashes prove nothing,
-                # and a render or script may have redrawn it (shadow judge,
-                # 12 Oct 2026: three re-read screenshots, all not waste).
+                # An image read with no digest returns no text: equal hashes
+                # prove nothing, and a render or script may have redrawn it
+                # (shadow judge, 12 Oct 2026: three re-read screenshots, all
+                # not waste).
                 confidence = 0.55
                 note = "Both reads returned no text to compare (an image)."
+            elif step.tool_kind is ToolKind.FS_READ and any(
+                _image(p) for p in step.paths
+            ):
+                # The same image bytes both times (a redrawn image differs and
+                # is not a finding). Still uncertain: an image is seen, not
+                # quoted, and looking again may be the point; the approved
+                # advice policy never advises on image re-reads.
+                confidence = 0.55
+                note = "Both reads returned the same image."
             else:
                 confidence = 0.85
                 note = "The output was identical and the agent had not changed it."

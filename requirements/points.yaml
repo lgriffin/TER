@@ -331,9 +331,10 @@ points:
       - >-
         A detector flags repeated repository exploration that adds no new
         files or facts.
-    rules: [TER-DET-002]
+    rules: [TER-DET-002, TER-DET-016]
     verification:
       - 'test: tests/unit/test_ter4_lean_detectors.py::TestRepeatedExploration'
+      - 'test: tests/unit/test_ter4_image_rereads.py::test_a_redrawn_image_is_not_a_re_read'
 
   - id: P019
     text: >-
@@ -1651,8 +1652,9 @@ points:
     status: done
     definition_of_done:
       - The Claude Code adapter converts JSONL to ter.event events.
-    rules: [TER-SRC-001, TER-OBS-001, TER-SRC-024]
+    rules: [TER-SRC-001, TER-OBS-001, TER-SRC-024, TER-SRC-025]
     verification:
+      - 'test: tests/unit/test_ter4_image_rereads.py::test_the_same_image_gives_the_same_text_and_a_redrawn_one_does_not'
       - 'test: tests/unit/test_ter4_adapters.py::TestClaudeCodeJsonlSource::test_tool_results_inherit_their_request_kind'
       - 'test: tests/unit/test_ter4_corpus_coverage.py::test_a_queued_human_prompt_becomes_intent_in_file_order'
 
