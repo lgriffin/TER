@@ -3347,3 +3347,91 @@ points:
     verification:
       - 'test: tests/sbom/test_sbom.py'
       - 'ci: Check the SBOM'
+
+  - id: P204
+    text: >-
+      Export a TER Record for every session: one portable, content-free JSON
+      object holding what was consumed, what it did, what was verified and
+      how sure TER is, so billing and telemetry pipelines can join
+      efficiency without reading a session.
+    level: L2
+    kind: capability
+    status: not-started
+    origin:
+      source: TER project
+      ref: "Upstream of the Bill direction document and prototype, 25 Nov 2026 (ADR 0007)"
+      author: Leigh Griffin
+    definition_of_done:
+      - >-
+        `python -m ter record export` writes one `ter.record/0.1` object per
+        session that conforms to its JSON Schema, with golden Records frozen
+        for the synthetic sessions.
+      - >-
+        No Record built from any test session contains a prompt, path, file
+        content, tool input or tool output, checked by the schema and by a
+        scan of every string the session holds.
+      - >-
+        `python -m ter record verify` recomputes every figure from the
+        session the Record names by digest and lists each one that differs.
+    rules:
+      - TER-REC-001
+      - TER-REC-002
+      - TER-REC-003
+      - TER-REC-004
+      - TER-REC-005
+      - TER-REC-006
+    verification:
+      - 'planned: passing tests tagged req for TER-REC-001 to TER-REC-006'
+
+  - id: P205
+    text: >-
+      Price a session's waste by the whole model turns it consumed, not only
+      by its output tokens, so the cost of avoidable work includes the
+      context it re-read.
+    level: L2
+    kind: capability
+    status: not-started
+    origin:
+      source: TER project
+      ref: "Upstream of the Bill direction document and prototype, 25 Nov 2026 (ADR 0007)"
+      author: Leigh Griffin
+    definition_of_done:
+      - >-
+        Session cost is reported by activity class, each priced turn shared
+        among its generated events by generated tokens, and the class costs
+        sum to the session cost.
+      - >-
+        The golden snapshots show the change on purpose, and the output-only
+        price is reported beside the whole-turn one so the two can be
+        compared on real sessions.
+    rules:
+      - TER-ANL-042
+      - TER-ANL-043
+    verification:
+      - 'planned: passing tests tagged req for TER-ANL-042, TER-ANL-043'
+
+  - id: P206
+    text: >-
+      Observe a session's consumption shape (intents, model turns per intent
+      and agent depth) from the events of what ran, instead of reading it
+      from the architecture.
+    level: L2
+    kind: capability
+    status: not-started
+    origin:
+      source: TER project
+      ref: "Upstream of the Bill direction document and prototype, 25 Nov 2026 (ADR 0007)"
+      author: Leigh Griffin
+    definition_of_done:
+      - >-
+        Every analysed session reports intents, model turns per intent,
+        agent depth and the consumption class they imply, each counted from
+        events.
+      - >-
+        Agent depth is marked a lower bound where the source does not record
+        subagent nesting.
+    rules:
+      - TER-SHP-001
+      - TER-SHP-002
+    verification:
+      - 'planned: passing tests tagged req for TER-SHP-001, TER-SHP-002'

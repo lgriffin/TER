@@ -49,12 +49,19 @@ owner's own ledger shows them (issue #43). Counts from `requirements/l*.yaml` on
 |---|---:|---:|---:|
 | L0 Measured | 26 of 26 | 0 | 10 / 1 / 0 |
 | L1 Observed | 22 of 22 | 0 | 15 / 1 / 0 |
-| L2 Explained | 72 of 72 | 0 | 50 / 5 / 0 |
+| L2 Explained | 72 of 82 | 10 | 50 / 5 / 3 |
 | L3 Grounded | 35 of 35 | 0 | 25 / 23 / 0 |
 | L4 Advisory | 16 of 16 | 0 | 19 / 8 / 4 |
 | L5 Corrective | 0 of 12 | 12 | 1 / 5 / 15 |
 | L6 Learning | 11 of 19 | 8 | 1 / 4 / 14 |
-| **All** | **182 of 202** | **20** | **121 / 47 / 33** of 201 |
+| **All** | **182 of 212** | **30** | **121 / 47 / 36** of 204 |
+
+The ten planned L2 requirements are the TER Record (TER-REC-001 to
+TER-REC-006), cost by activity class (TER-ANL-042, TER-ANL-043) and the
+observed shape (TER-SHP-001, TER-SHP-002), entered on 25 Nov 2026 by
+[ADR 0007](../decisions/0007-the-ter-record.md) and verified by the pull
+requests that build them. The L2 gate enforces only verified requirements,
+so they do not hold CI back while they are built.
 
 The L6 requirements already verified are the ones that did not have to wait:
 a second harness (the GARE session source, TER-SRC-010 to TER-SRC-017) and

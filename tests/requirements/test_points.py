@@ -342,8 +342,8 @@ def test_load_points_rejects_bad_files(tmp_path: Path) -> None:
 @pytest.mark.req("TER-REQ-004")
 def test_shipped_points_lint_without_errors() -> None:
     # Leigh's 200 plus the contributed points (P201 control charts, P202
-    # the test harness, P203 the SBOM).
-    assert len(CATALOGUE.points) == 203
+    # the test harness, P203 the SBOM, P204 to P206 the TER Record, ADR 0007).
+    assert len(CATALOGUE.points) == 206
     issues = lint_points(
         CATALOGUE.points, CATALOGUE.requirements, RepositoryChecks(ROOT)
     )
@@ -389,7 +389,7 @@ def test_cli_lint_checks_points(
 ) -> None:
     base = ["--catalogue", str(ROOT / "requirements"), "--root", str(ROOT), "lint"]
     code, out = _run(capsys, *base, "--strict")
-    assert code == 0 and "203 points, 0 errors, 0 warnings" in out
+    assert code == 0 and "206 points, 0 errors, 0 warnings" in out
 
     # A done point whose only proof is on another branch passes plain lint
     # with a warning, and fails --strict (what CI runs).
