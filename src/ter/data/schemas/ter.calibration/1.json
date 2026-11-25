@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:ter:schema:ter.calibration/1",
+  "title": "ter.calibration/1",
+  "description": "Judged samples behind the detectors (TER-REC-004, ADR 0007): per sample, the verdicts on each detector's findings, as judged under the rule in force that day. Shipped as ter/data/calibration.json, read by ter.adapters.driven.calibration.parse_calibration. Sample ids are unique, which the reader checks (CalibrationError).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "samples"
+  ],
+  "properties": {
+    "schema": {
+      "const": "ter.calibration/1"
+    },
+    "samples": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/sample"
+      }
+    }
+  },
+  "definitions": {
+    "sample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "judged_on",
+        "judges",
+        "source",
+        "detectors"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "judged_on": {
+          "type": "string",
+          "format": "date"
+        },
+        "judges": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "detectors": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/counts"
+          }
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "waste",
+        "not_waste",
+        "unsure"
+      ],
+      "properties": {
+        "waste": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "not_waste": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unsure": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

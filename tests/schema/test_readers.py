@@ -174,3 +174,20 @@ def test_every_event_the_codec_writes_conforms(event: Event) -> None:
     record = event_to_record(event)
     assert_conforms("ter.event/0.5", record)
     assert event_from_record(record) == event
+
+
+@pytest.mark.req("TER-TST-003", "TER-REC-004")
+@FUZZ
+@given(documents("ter.calibration/1"))
+def test_any_conforming_calibration_reads_or_is_refused_with_its_own_error(
+    doc: Any,
+) -> None:
+    from ter.adapters.driven.calibration import parse_calibration
+    from ter.domain.calibration import CalibrationError
+
+    try:
+        calibration = parse_calibration(doc)
+    except CalibrationError:
+        return  # a rule the schema cannot state: duplicate sample ids
+    for detector in calibration.detectors():
+        assert calibration.of(detector).judged >= 0

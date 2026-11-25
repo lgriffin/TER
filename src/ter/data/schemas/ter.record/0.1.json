@@ -1,0 +1,648 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:ter:schema:ter.record/0.1",
+  "title": "ter.record/0.1",
+  "description": "The TER Record (ADR 0007, TER-REC-001 to TER-REC-006): a portable, content-free efficiency record of one session. Written by ter.domain.ter_record.build_record. Every object is closed and the only free strings are TER identifiers, provider model names, dates and digests, so no prompt, path, file content, tool input or tool output fits (TER-REC-002). Uncertain tokens and cost are never avoidable (TER-REC-003); each detector carries its judged samples (TER-REC-004).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "produced_by",
+    "session",
+    "join",
+    "usage",
+    "work",
+    "findings",
+    "outcome",
+    "shape",
+    "cost",
+    "integrity"
+  ],
+  "properties": {
+    "schema": {
+      "const": "ter.record/0.1"
+    },
+    "produced_by": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "implementation",
+        "event_schema",
+        "tokenizer",
+        "detectors",
+        "ter_method"
+      ],
+      "properties": {
+        "implementation": {
+          "const": "ter"
+        },
+        "event_schema": {
+          "type": "string",
+          "pattern": "^ter\\.event/[0-9.]+$"
+        },
+        "tokenizer": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "detectors": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{12}$"
+        },
+        "ter_method": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[A-Za-z0-9 ,._:()/+-]*$",
+          "maxLength": 120
+        }
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source",
+        "events",
+        "coverage",
+        "usage_limits"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{16}$"
+        },
+        "source": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "events": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "usage_limits": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          }
+        }
+      }
+    },
+    "join": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "models",
+        "charge_period",
+        "principal",
+        "credential",
+        "conversation"
+      ],
+      "properties": {
+        "models": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/+-]*$"
+          }
+        },
+        "charge_period": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "principal": {
+          "type": "null"
+        },
+        "credential": {
+          "type": "null"
+        },
+        "conversation": {
+          "type": "null"
+        }
+      }
+    },
+    "usage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_turns",
+        "input",
+        "cache_read",
+        "cache_write",
+        "output"
+      ],
+      "properties": {
+        "model_turns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "input": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cache_read": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cache_write": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "output": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "work": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generated_tokens",
+        "context_tokens",
+        "activity_tokens",
+        "waste_tokens",
+        "uncertain_waste_tokens",
+        "waste_context_tokens",
+        "flow_efficiency_tokens",
+        "flow_efficiency_time",
+        "ter"
+      ],
+      "properties": {
+        "generated_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "context_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "activity_tokens": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value_adding",
+            "necessary_non_value_adding",
+            "avoidable",
+            "uncertain"
+          ],
+          "properties": {
+            "value_adding": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "necessary_non_value_adding": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "avoidable": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "uncertain": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "waste_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "uncertain_waste_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "waste_context_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "flow_efficiency_tokens": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "flow_efficiency_time": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "ter": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/detector"
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "required_checks",
+        "passed_checks",
+        "failed_checks",
+        "generated_tokens_per_verified_outcome"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "accepted",
+            "rejected",
+            "incomplete",
+            "unknown"
+          ]
+        },
+        "required_checks": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "passed_checks": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "failed_checks": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "generated_tokens_per_verified_outcome": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        }
+      }
+    },
+    "shape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "intents",
+        "model_turns",
+        "turns_per_intent",
+        "handoffs",
+        "agent_depth",
+        "depth_lower_bound",
+        "observed_class"
+      ],
+      "properties": {
+        "intents": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "model_turns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "turns_per_intent": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "handoffs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "agent_depth": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "depth_lower_bound": {
+          "type": "boolean"
+        },
+        "observed_class": {
+          "enum": [
+            "T(n)",
+            "T(n·k)",
+            "T(n·k·a)",
+            null
+          ]
+        }
+      }
+    },
+    "cost": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/definitions/cost"
+        }
+      ]
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "events_digest",
+        "evidence_digest"
+      ],
+      "properties": {
+        "events_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "evidence_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "detector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "detector",
+        "waste",
+        "kind",
+        "findings",
+        "uncertain_findings",
+        "confidence_min",
+        "confidence_max",
+        "avoidable_tokens",
+        "uncertain_tokens",
+        "context_tokens",
+        "evidence_events",
+        "calibration"
+      ],
+      "properties": {
+        "detector": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "waste": {
+          "enum": [
+            "rework",
+            "motion",
+            "over_processing",
+            "waiting",
+            "inventory",
+            "defects",
+            "overproduction",
+            "handoffs"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "waste",
+            "risk"
+          ]
+        },
+        "findings": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "uncertain_findings": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "confidence_min": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "confidence_max": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "avoidable_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "uncertain_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "context_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "evidence_events": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "calibration": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "judged",
+            "waste",
+            "not_waste",
+            "unsure",
+            "samples"
+          ],
+          "properties": {
+            "judged": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "waste": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "not_waste": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "unsure": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "samples": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "cost": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "currency",
+        "price_book",
+        "priced_on",
+        "usd",
+        "estimated",
+        "estimate_reasons",
+        "unpriced_turns",
+        "unpriced_models",
+        "by_token_type",
+        "by_activity_class",
+        "output_by_activity_class",
+        "allocation"
+      ],
+      "properties": {
+        "currency": {
+          "const": "USD"
+        },
+        "price_book": {
+          "type": "string",
+          "pattern": "^(ter:[A-Za-z0-9_./-]+|[A-Za-z0-9_.-]+)$"
+        },
+        "priced_on": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "usd": {
+          "type": "number",
+          "minimum": 0
+        },
+        "estimated": {
+          "type": "boolean"
+        },
+        "estimate_reasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          }
+        },
+        "unpriced_turns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unpriced_models": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/+-]*$"
+          }
+        },
+        "by_token_type": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "input",
+            "cache_read",
+            "cache_write",
+            "output"
+          ],
+          "properties": {
+            "input": {
+              "type": "number",
+              "minimum": 0
+            },
+            "cache_read": {
+              "type": "number",
+              "minimum": 0
+            },
+            "cache_write": {
+              "type": "number",
+              "minimum": 0
+            },
+            "output": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "by_activity_class": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value_adding",
+            "necessary_non_value_adding",
+            "avoidable",
+            "uncertain"
+          ],
+          "properties": {
+            "value_adding": {
+              "type": "number",
+              "minimum": 0
+            },
+            "necessary_non_value_adding": {
+              "type": "number",
+              "minimum": 0
+            },
+            "avoidable": {
+              "type": "number",
+              "minimum": 0
+            },
+            "uncertain": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "output_by_activity_class": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value_adding",
+            "necessary_non_value_adding",
+            "avoidable",
+            "uncertain"
+          ],
+          "properties": {
+            "value_adding": {
+              "type": "number",
+              "minimum": 0
+            },
+            "necessary_non_value_adding": {
+              "type": "number",
+              "minimum": 0
+            },
+            "avoidable": {
+              "type": "number",
+              "minimum": 0
+            },
+            "uncertain": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "allocation": {
+          "const": "whole-turn-by-generated-tokens"
+        }
+      }
+    }
+  }
+}

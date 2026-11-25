@@ -385,6 +385,17 @@ handoff `depth_lower_bound` is true (TER-SHP-002). Every prompt counts as an
 intent: whether a later prompt corrects the task or starts a new one is not
 decided here.
 
+### The TER Record
+
+`ter.domain.ter_record.build_record` turns an A3 into a content-free
+`ter.record/0.1` object (TER-REC-001 to TER-REC-006,
+[ADR 0007](../decisions/0007-the-ter-record.md)): usage, tokens by activity
+class, flow efficiency, findings per detector with the judged samples
+behind each (`src/ter/data/calibration.json`, read through the
+`CalibrationSource` port), the outcome verdict, the observed shape, cost by
+class and digests of the events and the evidence graph. Golden Records for
+the corpus are in `tests/golden/snapshots/record/`.
+
 ### Software Value Efficiency
 
 SVE (point 81, TER-SCR-003) is value delivered toward a *verified* outcome per
