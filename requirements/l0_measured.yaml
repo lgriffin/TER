@@ -593,3 +593,56 @@ requirements:
       The SBOM others inspect describes the wheel CI built and tested, not a
       developer's environment.
     status: verified
+
+  - id: TER-CNF-001
+    pattern: ubiquitous
+    text: >-
+      The conformance kit shall check a named SessionSource adapter against
+      the obligations the SessionSource contract suite checks every built-in
+      adapter against.
+    level: L0
+    source_points: [211]
+    rationale: >-
+      An adapter author outside TER can show their harness's sessions meet
+      the port before TER reads them; the kit and TER's own suite are one
+      list of obligations, so they cannot drift (ADR 0008 decision 7).
+    status: verified
+
+  - id: TER-CNF-002
+    pattern: ubiquitous
+    text: >-
+      The conformance kit shall check a named PriceBook adapter against the
+      obligations the PriceBook contract suite checks every built-in adapter
+      against.
+    level: L0
+    source_points: [211]
+    rationale: >-
+      A provider or FinOps team can bring its own price file reader and show
+      it prices sessions as the port promises.
+    status: verified
+
+  - id: TER-CNF-003
+    pattern: event-driven
+    text: >-
+      When an adapter falls short of an obligation, the conformance kit shall
+      name the obligation and how the adapter fell short, and exit with
+      status 1.
+    level: L0
+    source_points: [211]
+    rationale: >-
+      A failing check is only useful when it tells the author what to fix;
+      every obligation is checked even after one fails.
+    status: verified
+
+  - id: TER-CNF-004
+    pattern: unwanted
+    text: >-
+      If the named adapter cannot be loaded or built, then the conformance
+      kit shall report why and exit with status 2 without checking any
+      obligation.
+    level: L0
+    source_points: [211]
+    rationale: >-
+      A typo in an entry point must not read as an adapter that fails every
+      obligation.
+    status: verified

@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+from ter.adapters.driving.conformance import PRICE_BOOK, Obligation, PriceSubject
 from ter.adapters.driven.in_memory import InMemoryPriceBook
 from ter.adapters.driven.pricing import JsonPriceBook
 from ter.adapters.driven.pricing.focus import FocusSkuPriceBook
@@ -106,38 +107,14 @@ def book(request: pytest.FixtureRequest) -> PriceBook:
     return factory()
 
 
-def test_satisfies_the_port_protocol(book: PriceBook) -> None:
-    assert isinstance(book, PriceBook)
-    assert book.name
-    assert book.models()
-
-
-def test_every_listed_model_has_valid_rates(book: PriceBook) -> None:
-    for model in book.models():
-        rates = book.rate(model)
-        assert isinstance(rates, Rates)
-        assert rates.output >= rates.input >= rates.cache_read >= 0
-
-
-def test_rates_are_deterministic(book: PriceBook) -> None:
-    for model in book.models():
-        assert book.rate(model) == book.rate(model)
-
-
-def test_latest_rates_are_in_effect_today(book: PriceBook) -> None:
-    for model in book.models():
-        assert book.rate(model, date(2026, 9, 29)) == book.rate(model)
-
-
-def test_unknown_model_raises(book: PriceBook) -> None:
-    with pytest.raises(UnknownModelError):
-        book.rate("no-such-model")
-
-
-def test_date_before_any_price_raises(book: PriceBook) -> None:
-    for model in book.models():
-        with pytest.raises(UnknownModelError):
-            book.rate(model, date(1999, 1, 1))
+@pytest.mark.req("TER-CNF-002")
+@pytest.mark.parametrize("obligation", [pytest.param(o, id=o.id) for o in PRICE_BOOK])
+def test_meets_the_conformance_kit_obligation(
+    book: PriceBook, obligation: Obligation[PriceSubject]
+) -> None:
+    """The kit adapter authors run (``python -m ter conformance PriceBook``)
+    is this suite, unchanged (ADR 0008 decision 7)."""
+    obligation(PriceSubject(book, today=date(2026, 9, 29)))
 
 
 # --- Dated lookup at the boundaries (TER-ANL-040) ----------------------------

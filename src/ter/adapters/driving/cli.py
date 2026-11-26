@@ -35,6 +35,7 @@ import sys
 from importlib import metadata
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import IO, TYPE_CHECKING, Protocol
 
@@ -66,6 +67,7 @@ from .record_cli import RecordServices, add_record_parser, run_record
 if TYPE_CHECKING:
     from ..driven.claude_code.corpus import CorpusImport
     from .claude_hooks.check import HookCheck
+    from .mcp_server import McpServices
 
 __all__ = [
     "CliServices",
@@ -191,6 +193,12 @@ class CliServices:
     ) = None
     #: The TER Record (``python -m ter record``, ADR 0007).
     records: RecordServices | None = None
+    #: The read-only MCP server (``python -m ter mcp``, ADR 0008): its tools
+    #: for a tokenizer and TER mode.
+    mcp: "Callable[[str, str], McpServices] | None" = None
+    #: ``conformance_adapter(port, spec, args)``: the adapter an author names
+    #: for the conformance kit; raises ``CapabilityError`` (ADR 0008).
+    conformance_adapter: Callable[[str, str, Sequence[str]], object] | None = None
 
 
 def main(
@@ -224,7 +232,7 @@ def main(
             err.write(f"ter hook: no advice given: {result.advice_error}\n")
         return 0
     if (
-        args.command in ("observe", "explain", "a3", "context", "route")
+        args.command in ("observe", "explain", "a3", "context", "route", "mcp")
         or (args.command == "record" and args.record_command == "export")
         or (args.command == "control" and args.control_command == "measure")
         or (args.command == "policy" and args.policy_command == "shadow")
@@ -255,7 +263,79 @@ def main(
         return run_policy(args, services.policies, out, err)
     if args.command == "record":
         return run_record(args, services.records, out, err)
+    if args.command == "mcp":
+        return _mcp(args, services, stdin or _utf8_stdin(), out, err)
+    if args.command == "conformance":
+        return _conformance(args, services, out, err)
     return _observe(args, services, out, err)
+
+
+def _conformance(
+    args: argparse.Namespace, services: CliServices, out: IO[str], err: IO[str]
+) -> int:
+    from .conformance import (
+        PRICE_BOOK,
+        SESSION_SOURCE,
+        PriceSubject,
+        SessionSubject,
+        check,
+        format_verdicts,
+    )
+
+    if services.conformance_adapter is None:
+        err.write("The conformance kit is not available in this build\n")
+        return 2
+    try:
+        adapter = services.conformance_adapter(args.port, args.adapter, args.arg)
+    except CapabilityError as exc:
+        err.write(f"Cannot build the adapter: {exc}\n")
+        return 2
+    if args.port == "SessionSource":
+        verdicts = check(SESSION_SOURCE, SessionSubject(adapter, tuple(args.sample)))
+    else:
+        today = args.today or datetime.now(UTC).date()
+        verdicts = check(PRICE_BOOK, PriceSubject(adapter, today))
+    out.write(format_verdicts(f"{args.port} {args.adapter}", verdicts))
+    return 0 if all(v.met for v in verdicts) else 1
+
+
+def _utf8_stdin() -> IO[str]:
+    """Standard input read as UTF-8 whatever the locale, a byte that is not
+    UTF-8 replaced, so a bad line is a parse error, not the server's end."""
+    import io
+
+    return io.TextIOWrapper(
+        sys.stdin.buffer, encoding="utf-8", errors="replace", newline="\n"
+    )
+
+
+def _mcp(
+    args: argparse.Namespace,
+    services: CliServices,
+    stdin: IO[str],
+    out: IO[str],
+    err: IO[str],
+) -> int:
+    from .mcp_server import McpServer, serve
+
+    if services.mcp is None:
+        err.write("The MCP server is not available in this build\n")
+        return 2
+    missing = [str(root) for root in args.root if not root.expanduser().exists()]
+    if missing:
+        err.write(f"No such root: {', '.join(missing)}\n")
+        return 2
+    if args.quiet_seconds < 0:
+        err.write("--quiet-seconds must be 0 or more\n")
+        return 2
+    server = McpServer(
+        services.mcp(args.tokenizer, args.ter),
+        args.root,
+        quiet_seconds=args.quiet_seconds,
+    )
+    # stdout carries the protocol only; anything for a person goes to stderr.
+    err.write(f"ter mcp: serving {len(server.roots)} root(s) on stdio\n")
+    return serve(server, stdin, out)
 
 
 def _write(path: Path, text: str) -> None:
@@ -734,6 +814,67 @@ def _parser(default_log_dir: Path, out: IO[str]) -> argparse.ArgumentParser:
     add_control_parser(commands, TOKENIZER_HELP)
     add_policy_parser(commands)
     add_record_parser(commands, TOKENIZER_HELP, TER_MODES, OUTCOME_HELP)
+    conformance = commands.add_parser(
+        "conformance",
+        help="check an adapter against its port's contract (the conformance kit)",
+    )
+    ports = conformance.add_subparsers(dest="port", required=True)
+    session_port = ports.add_parser("SessionSource", help="a session source adapter")
+    price_port = ports.add_parser("PriceBook", help="a price book adapter")
+    for port in (session_port, price_port):
+        port.add_argument(
+            "--adapter",
+            required=True,
+            metavar="SPEC",
+            help="module:attribute (an entry-point value) or a registered capability name",
+        )
+        port.add_argument(
+            "--arg",
+            action="append",
+            default=[],
+            metavar="VALUE",
+            help="a positional argument to build the adapter with (e.g. a file); repeat",
+        )
+    session_port.add_argument(
+        "--sample",
+        action="append",
+        required=True,
+        metavar="REF",
+        help="a session the adapter should read; repeat for more",
+    )
+    price_port.add_argument(
+        "--today",
+        type=date.fromisoformat,
+        metavar="YYYY-MM-DD",
+        help="the day a dated lookup asks for (default today)",
+    )
+    mcp = commands.add_parser(
+        "mcp",
+        help="serve read-only analysis of ended sessions to an MCP client over stdio",
+    )
+    mcp.add_argument(
+        "--root",
+        type=Path,
+        action="append",
+        required=True,
+        metavar="DIR",
+        help="a folder (or file) of sessions the server may read; repeat for more",
+    )
+    mcp.add_argument(
+        "--quiet-seconds",
+        type=int,
+        default=600,
+        metavar="N",
+        help="a session counts as ended once its file is unchanged for N seconds "
+        "(default 600); running sessions are refused",
+    )
+    mcp.add_argument("--tokenizer", default="regex", help=TOKENIZER_HELP)
+    mcp.add_argument(
+        "--ter",
+        choices=TER_MODES,
+        default="offline",
+        help="how to compute TER (default offline)",
+    )
     route = commands.add_parser(
         "route",
         help="L3: classify each task and choose a model role for it (advisory)",

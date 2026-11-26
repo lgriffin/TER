@@ -292,8 +292,17 @@ def _explain_shape(value: object) -> bool:
 
 
 def _jsonl(path: Path) -> Iterator[tuple[int, dict[str, Any] | None]]:
+    # Streamed line by line with universal newlines (\n, \r\n or \r), and
+    # never str.splitlines, which also splits inside JSON strings at U+2028.
     with path.open(encoding="utf-8") as handle:
-        for number, line in enumerate(handle, 1):
+        lines = enumerate(handle, 1)
+        while True:
+            try:
+                number, line = next(lines)
+            except StopIteration:
+                return
+            except UnicodeDecodeError:
+                raise SessionFormatError(f"{path} is not UTF-8") from None
             if not line.strip():
                 continue
             try:

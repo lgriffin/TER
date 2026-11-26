@@ -718,7 +718,7 @@ points:
         corpus and the port contract.
     rules: [TER-ANL-001]
     verification:
-      - 'test: tests/contract/test_session_source.py::test_generated_events_exclude_user_input_and_tool_output'
+      - 'test: tests/contract/test_session_source.py::test_meets_the_conformance_kit_obligation'
 
   - id: P044
     text: >-
@@ -3546,3 +3546,66 @@ points:
       - TER-EXP-013
     verification:
       - 'test: tests/unit/test_ter4_focus_export.py'
+
+  - id: P210
+    text: >-
+      Serve TER's analysis of ended sessions to any MCP client, so an agent
+      harness or IDE can ask what a past session wasted without running the
+      command line.
+    level: L4
+    kind: capability
+    status: done
+    origin:
+      source: TER project
+      ref: "Upstream of the Bill direction document, Stage U3, 25 Nov 2026 (ADR 0008)"
+      author: Leigh Griffin
+    definition_of_done:
+      - >-
+        `python -m ter mcp --root DIR` speaks MCP over stdio by pinned
+        protocol version and offers read-only tools listing ended sessions
+        and returning their findings, A3 and TER Record, the documents the
+        matching commands write.
+      - >-
+        A session changed within the quiet period, or a path outside the
+        roots, is refused with a tool error; a malformed message gets a
+        JSON-RPC error and the server keeps serving.
+    rules:
+      - TER-INT-022
+      - TER-INT-023
+      - TER-INT-024
+      - TER-INT-025
+      - TER-INT-026
+    verification:
+      - 'test: tests/unit/test_ter4_mcp_server.py'
+      - 'test: tests/smoke/test_ter4_analysis.py'
+
+  - id: P211
+    text: >-
+      Give adapter authors a conformance kit, so a harness or price source
+      outside TER can prove it meets a port's contract before TER relies on
+      it.
+    level: L0
+    kind: capability
+    status: done
+    origin:
+      source: TER project
+      ref: "Upstream of the Bill direction document, Stage U3, 25 Nov 2026 (ADR 0008)"
+      author: Leigh Griffin
+    definition_of_done:
+      - >-
+        `python -m ter conformance SessionSource|PriceBook --adapter SPEC`
+        loads an entry point or capability name and checks it against the
+        same obligations TER's contract suites run on its own adapters,
+        naming each one that fails.
+      - >-
+        TER's contract suites for those ports run the kit's obligations, so
+        the kit and the suites are one list.
+    rules:
+      - TER-CNF-001
+      - TER-CNF-002
+      - TER-CNF-003
+      - TER-CNF-004
+    verification:
+      - 'test: tests/unit/test_ter4_conformance.py'
+      - 'test: tests/contract/test_session_source.py'
+      - 'test: tests/contract/test_price_book.py'

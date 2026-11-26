@@ -266,6 +266,8 @@ All guides: [docs/guides](docs/guides/README.md). Reference:
 [GARE runs](docs/ter4/gare.md) ·
 [OpenTelemetry spans](docs/ter4/otel-genai.md) ·
 [FOCUS prices and billing](docs/ter4/focus.md) ·
+[MCP server](docs/ter4/mcp.md) ·
+[adapter conformance kit](docs/ter4/conformance.md) ·
 [dataset card](docs/ter4/dataset-card.md) ·
 [requirements control](docs/ter4/requirements.md) ·
 [vision points](docs/ter4/points.md) ·

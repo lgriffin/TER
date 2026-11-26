@@ -32,7 +32,12 @@ from ..application.observe import (
     ObserveEvent,
     RecordEvent,
 )
-from ..domain.capabilities import Capability, CapabilityProblem, UnknownCapabilityError
+from ..domain.capabilities import (
+    Capability,
+    CapabilityError,
+    CapabilityProblem,
+    UnknownCapabilityError,
+)
 from ..domain.pricing import PriceBookError
 from ..domain.stream import StreamReport
 from ..ports.driven import (
@@ -51,6 +56,7 @@ if TYPE_CHECKING:
     from ..adapters.driven.claude_code.corpus import CorpusImport
     from ..adapters.driving.claude_hooks.check import HookCheck
     from ..adapters.driving.control_cli import ControlServices
+    from ..adapters.driving.mcp_server import McpServices
     from ..adapters.driving.policy_cli import PolicyServices
     from ..application.control import MeasuredSessions
     from ..application.shadow import ShadowRun
@@ -570,7 +576,66 @@ def cli_services() -> CliServices:
 
         return RecordServices(export, verify, tokenizers)
 
+    def mcp(tokenizer: str, ter: str) -> "McpServices":
+        from ..adapters.driven.calibration import default_calibration
+        from importlib import metadata
+
+        from ..adapters.driving.mcp_server import McpServices
+        from ..application.export_record import record_of
+
+        try:
+            version = metadata.version("ter-calculator")
+        except metadata.PackageNotFoundError:  # a source tree, not installed
+            version = "unknown"
+
+        def explain(path: Path) -> dict[str, Any]:
+            explained = explain_transcript(path, tokenizer, ter)
+            analysis = explained.analysis.as_dict()
+            analysis["scorecard"] = explained.a3.scorecard_dict()
+            return analysis
+
+        def a3(path: Path) -> dict[str, Any]:
+            return dict(explain_transcript(path, tokenizer, ter).a3.as_dict())
+
+        def record(path: Path) -> dict[str, Any]:
+            return dict(
+                record_of(
+                    explain_transcript(path, tokenizer, ter),
+                    tokenizer=tokenizer,
+                    calibration=default_calibration().calibration(),
+                )
+            )
+
+        return McpServices(explain, a3, record, version=version)
+
+    def conformance_adapter(port: str, spec: str, args: Sequence[str]) -> object:
+        """The adapter ``spec`` names: an entry-point value ``module:attr``
+        or a registered capability name, called with ``args``. Raises
+        CapabilityError when it cannot be loaded or built."""
+        from .capabilities import _Target
+
+        if ":" in spec:
+            try:
+                target: Any = _Target(spec, spec).load()
+            except Exception as exc:
+                raise CapabilityError(
+                    f"cannot load {spec}: {type(exc).__name__}: {exc}"
+                ) from None
+        else:
+            name = spec.removeprefix(f"{port}.")
+            target = default_registry().factory(port, name)
+        if not callable(target):
+            return target
+        try:
+            return target(*args)
+        except Exception as exc:
+            raise CapabilityError(
+                f"cannot build {spec}({', '.join(args)}): {type(exc).__name__}: {exc}"
+            ) from None
+
     return CliServices(
+        conformance_adapter=conformance_adapter,
+        mcp=mcp,
         records=records(),
         policies=policies(),
         control=control(),

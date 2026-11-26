@@ -110,7 +110,13 @@ Two L3 readers are adapters without a port of their own: the critical
 evidence reader (`ter.adapters.driven.critical_evidence`, JSON or CSV lists
 for context recall, TER-EVD-005) and the context CLI
 (`ter.adapters.driving.context_cli`, `python -m ter context bundle|report`),
-which appends `context.supplied` events to the event log. Every port has a
+which appends `context.supplied` events to the event log. The MCP server
+(`ter.adapters.driving.mcp_server`, `python -m ter mcp`, [mcp.md](mcp.md)) is a
+driving adapter over the explain and record use cases: read-only tools for
+ended sessions only. The conformance kit
+(`ter.adapters.driving.conformance`, `python -m ter conformance`,
+[conformance.md](conformance.md)) holds the generic obligations of the
+`SessionSource` and `PriceBook` contract suites, run on outside adapters. Every port has a
 contract suite in `tests/contract/` that real adapters and fakes both pass.
 
 ## The control loop
