@@ -22,6 +22,7 @@ and an A3 report turns findings into concrete countermeasures for
 ```mermaid
 flowchart LR
     S["Claude Code<br/>transcript or hooks"] --> E["ter.event stream"]
+    OT["OpenTelemetry<br/>GenAI spans"] --> E
     E --> T["TER ratio<br/>(TER 3, kept)"]
     O["Test results<br/>(JUnit XML)"] --> V["Outcome verdict"]
     E --> L["Lean model<br/>value stream · waste detectors"]
@@ -31,6 +32,9 @@ flowchart LR
     T --> SC
     SC --> A3["A3 report<br/>root causes → countermeasures"]
     V -. beside, never mixed in .-> A3
+    A3 --> REC["TER Record<br/>(content-free)"]
+    REC --> F["FOCUS billing rows<br/>(x_ columns)"]
+    A3 --> M["MCP server<br/>(ended sessions)"]
 ```
 
 - **Two packages, one install.** `ter_calculator` is TER 3, the original
@@ -45,7 +49,7 @@ flowchart LR
   labelled and count as waste until verified, but never trigger an
   intervention ([ADR 0006](docs/decisions/0006-uncertain-waste-counts-until-verified.md)).
 - **Controlled by requirements.** Every behaviour is an EARS requirement
-  traced to tests and gated in CI, under a 200-point vision with a definition
+  traced to tests and gated in CI, under a 211-point vision with a definition
   of done per point.
 - **Behaviour apart from outcome.** Test results (JUnit XML) give a verdict,
   accepted, rejected or incomplete, shown beside the Lean measures and never
@@ -54,6 +58,15 @@ flowchart LR
   `ter.capabilities` entry points, so another project can add a session
   source, tokenizer or outcome source without forking TER
   ([ADR 0005](docs/decisions/0005-admitting-external-capabilities.md)).
+- **A portable Record, upstream of the bill.** `ter record export` writes a
+  content-free `ter.record/0.1` (identifiers, counts and digests only) that
+  anyone can rebuild from the session and check with `ter record verify`
+  ([ADR 0007](docs/decisions/0007-the-ter-record.md)). Around it sit
+  adapters that read and write files by a pinned version, never an SDK
+  ([ADR 0008](docs/decisions/0008-upstream-adapters.md)): OpenTelemetry
+  GenAI span exports as a second way in, FOCUS 1.5 SKU prices and a join of
+  Records to FOCUS billing rows, a read-only MCP server for sessions that
+  have ended, and a conformance kit for outside adapters.
 - **Real data, redacted first.** Real sessions enter only through a corpus
   importer that redacts secrets, paths and file contents before anything is
   written, and hook payloads can be recorded to calibrate the live path.
@@ -68,11 +81,11 @@ on real sessions, what is still unproven, and how L4 to L6 will be built.
 
 | Level | Name | Adds | Status | Requirements verified | Points done / partial / not started |
 |---|---|---|---|---:|---:|
-| L0 | Measured | TER 3 parity inside the hexagon: event contract, scoring, dated prices, no intervention below L4 | Met; CI gate | 26 of 26 | 10 / 1 / 0 |
-| L1 | Observed | Event stream as the core boundary, Claude Code hooks (Stop and SubagentStop included), hook recorder, live = batch | Met; CI gate; hook ids checked on real recordings | 22 of 22 | 15 / 1 / 0 |
-| L2 | Explained | Lean model, waste detectors, evidence graph, scorecard, A3, outcome verdict, redacted corpus import | Met; CI gate; detectors calibrated on real sessions | 72 of 72 | 50 / 5 / 0 |
+| L0 | Measured | TER 3 parity inside the hexagon: event contract, scoring, dated prices, no intervention below L4, adapter conformance kit | Met; CI gate | 49 of 49 | 13 / 1 / 0 |
+| L1 | Observed | Event stream as the core boundary, Claude Code hooks (Stop and SubagentStop included), hook recorder, live = batch, OpenTelemetry GenAI source | Met; CI gate; hook ids checked on real recordings | 33 of 33 | 16 / 1 / 0 |
+| L2 | Explained | Lean model, waste detectors, evidence graph, scorecard, A3, outcome verdict, redacted corpus import, TER Record, FOCUS prices and billing join | Met; CI gate; detectors calibrated on real sessions | 97 of 97 | 55 / 5 / 0 |
 | L3 | Grounded | Repository evidence (symbols, imports, tests, call edges, Git), change surface, architecture contracts, context bundles, advisory routing | Met; gated in CI | 35 of 35 | 25 / 23 / 0 |
-| L4 | Advisory | Intervention engine, declarative policies, ledger, live advice through the hook, its follow-up, the control loop, control-chart triggers | Met; CI gate; advice awaits real use | 16 of 16 | 19 / 8 / 4 |
+| L4 | Advisory | Intervention engine, declarative policies, ledger, live advice through the hook, its follow-up, the control loop, control-chart triggers, read-only MCP server | Met; CI gate; advice awaits real use | 22 of 22 | 20 / 8 / 4 |
 | L5 | Corrective | Calibration, benchmarks, opt-in corrective actions | Not started | 0 of 12 | 1 / 5 / 15 |
 | L6 | Learning | Closed loop, second harness, research datasets | Second harness (GARE) and stack comparison built | 11 of 19 | 1 / 4 / 14 |
 
@@ -202,6 +215,29 @@ the real payloads issue #35 needs. Recordings hold tool inputs and output, so
 keep them outside the repository and redact before sharing. Details in the
 [hooks guide](docs/guides/hooks.md) and
 [L1 Observed](docs/ter4/l1-observed.md).
+
+### Share a session: the TER Record and upstream adapters
+
+```bash
+python -m ter record export session.jsonl --out r.json   # content-free ter.record/0.1
+python -m ter record verify r.json session.jsonl         # rebuild it from the session, list any difference
+python -m ter record export spans.json --out r.json      # the same from an OpenTelemetry GenAI span export
+python -m ter record export session.jsonl --prices sku_price.csv --out r.json   # priced from a FOCUS 1.5 SKU Price file
+python -m ter record focus r.json --billing cost_and_usage.csv --out joined.csv  # Records joined to FOCUS billing rows
+python -m ter mcp --root ~/.claude/projects              # read-only MCP server; answers for ended sessions only
+python -m ter conformance SessionSource --adapter pkg.mod:Source --sample s.log  # check an outside adapter
+```
+
+Every command that reads a session also reads an OpenTelemetry span export.
+The Record carries no prompt, code or path, only identifiers, counts and
+digests. The FOCUS join adds `x_` columns and changes no billing value. The
+MCP server refuses a session still being written, so an agent cannot read
+TER's analysis of the session it is in. Details:
+[the Record](docs/ter4/record.md),
+[OpenTelemetry spans](docs/ter4/otel-genai.md),
+[FOCUS prices and billing](docs/ter4/focus.md),
+[the MCP server](docs/ter4/mcp.md) and
+[the conformance kit](docs/ter4/conformance.md).
 
 ### Build a redacted corpus of real sessions
 
